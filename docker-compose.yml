@@ -1,0 +1,62 @@
+version: '3'
+
+networks:
+  Transcendence:
+    driver: bridge
+
+services:
+  # postgreSQL:
+  #   image: postgres
+  #   container_name: postgreSQL # Le nom du container, oui vraiment.
+  #   networks:
+  #     - Transcendence            # à quel network il appartient
+  #   environment:
+  #     POSTGRES_PASSWORD: example
+  #   # volumes:                        # Voir plus bas
+  #   #   - db:/var/lib/mysql
+  #   # restart: unless-stopped         # redémarre tant qu'il n'est pas stoppé 
+  #   expose:                         # le port à exposer
+  #     - "3306"
+
+  web:
+    image: nginx
+    container_name: nginx
+    volumes:
+    - app:/usr/share/nginx/html
+    ports:
+    - "8080:80"
+    environment:
+    - NGINX_HOST=ajakubcz.42.fr
+    - NGINX_PORT=80
+
+  # django:
+  #   container_name: wordpress
+  #   env_file: .env
+  #   volumes:
+  #     - wordpress:/var/www/wordpress
+  #   networks:
+  #     - Transcendence
+  #   build: 
+  #     context: requirements/wordpress
+  #     dockerfile: Dockerfile
+  #   depends_on: # WordPress démarrera uniquement après MariaDB (sinon il ne pourra pas configurer la base de données...)
+  #     - mariadb
+  #   restart: on-failure
+  #   expose: 
+  #     - "9000"
+
+
+
+volumes:
+  app:
+    driver: local # ici nous stockons le volume en local
+    driver_opts:
+      type: 'none' # aucun type spécifique
+      o: 'bind'
+      device: './app' #Ou stocker le dossier sur votre ordinateur en local
+#   db:
+#     driver: local
+#     driver_opts:
+#       type: 'none' 
+#       o: 'bind' # Les Bind Mounts sont des volumes qui se montent sur un chemin d'accès à l'hôte, et ils peuvent être modifiés par d'autres processus en dehors de docker.
+#       device: '/home/ajakubcz/data/db' #Ou stocker le dossier sur votre ordinateur en local
