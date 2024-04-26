@@ -1,5 +1,7 @@
 FROM python
 
 RUN python -m pip install Django
-RUN django-admin startproject app
+# RUN django-admin startproject app
+RUN mkdir app
+RUN pip install psycopg2
 CMD ["python", "app/manage.py","runserver","0.0.0.0:8000"]
