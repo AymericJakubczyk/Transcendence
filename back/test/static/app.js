@@ -1,7 +1,3 @@
-function gameView() {
-    return '<h1>Game Page</h1>';
-}
-
 function chatView() {
     return '<h1>Chat Page</h1>';
 }
@@ -18,7 +14,7 @@ function handleRouteChange() {
     switch (path) {
         case '/game/':
             view = gameView();
-            break;
+            return ;
         case '/chat/':
             view = chatView();
             break;

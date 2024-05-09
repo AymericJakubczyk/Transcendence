@@ -28,7 +28,7 @@ services:
     image: nginx
     container_name: nginx
     volumes:
-      - app:/usr/share/nginx/html
+      - nginx:/usr/share/nginx/html
     ports:
       - "8080:80"
     environment:
@@ -56,12 +56,12 @@ services:
 
 
 volumes:
-  app:
+  nginx:
     driver: local # ici nous stockons le volume en local
     driver_opts:
       type: 'none' # aucun type spécifique
       o: 'bind'
-      device: './app' #Ou stocker le dossier sur votre ordinateur en local
+      device: './volumes/nginx' #Ou stocker le dossier sur votre ordinateur en local
 
   back:
     driver: local # ici nous stockons le volume en local
