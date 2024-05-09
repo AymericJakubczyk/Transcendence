@@ -1,0 +1,24 @@
+nav {
+    background-color: rgb(61, 61, 61);
+    display: flex;
+    height: 60px;
+    border-radius: 0 0 30% 30%;
+}
+
+nav a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgb(204, 204, 204);
+    font-size: 1rem;
+    height: 100%;
+    transition: 0.2s;
+}
+
+nav a:hover {
+    transition: 0.2s;
+    font-size: 1.3rem;
+    color: rgb(255, 255, 255);
+    text-decoration: none;
+    font-weight: 700;
+}

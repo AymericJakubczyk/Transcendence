@@ -4,17 +4,23 @@
 <head>
     <meta charset="UTF-8">
     <title>Transcendence</title>
-
+    <!-- BOOTSTRAP IMPORT -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static 'stylesheets/nav.css' %}">
+    <link rel="stylesheet" href="{% static 'stylesheets/game.css' %}">
 </head>
 
 <body>
-    <nav>
-        <a href="/" class="route">Home</a>
-        <a href="/game/" class="route">Game</a>
-        <a href="/chat/" class="route">Chat</a>
-        <a href="/profile/" class="route">Profile</a>
-    </nav>
-    
+    <div class="container">
+        <nav>
+            <a href="/" class="route col-sm-4">Home</a>
+            <a href="/game/" class="route col-sm-4">Game</a>
+            <a href="/profile/" class="route col-sm-4">Profile</a>
+        </nav>
+    </div>
+        
     <div id="page"></div>
     <script src="{% static 'home.js' %}"></script>
     <script src="{% static 'game.js' %}"></script>

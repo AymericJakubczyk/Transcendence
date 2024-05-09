@@ -15,9 +15,6 @@ function handleRouteChange() {
         case '/game/':
             view = gameView();
             return ;
-        case '/chat/':
-            view = chatView();
-            break;
         case '/profile/':
             view = profileView();
             break;
