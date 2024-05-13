@@ -4,4 +4,7 @@ RUN python -m pip install Django
 # RUN django-admin startproject app
 RUN mkdir app
 RUN pip install psycopg2
+# COPY django.sh /
+# RUN chmod +x django.sh
+# RUN ./django.sh
 CMD ["python", "app/manage.py","runserver","0.0.0.0:8000"]
