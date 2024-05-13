@@ -3,38 +3,71 @@ function gameView() {
     <div class="container-fluid">
         <h1 class="header">ULTIMATE EXTRA COOL SUPER PONG TOURNAMENT EXTREME BATTLE</h1>
         <h5 class="header">Welcome in the history</h5>
-        <div class="row main-box">
-            <div class="game-box col-9">
+        <div class="row main-box w-100">
+            <div class="game-box w-100 col-7">
                 <h3>GAME</h3>
             </div>
-            <div class="leaderboard-box col-3">
-                <h3>LEADERBOARD</h3>
+
+
+            <div class="justify-content-center align-items-center min-vw-25 col">
+				<ul class="list-group shadow-sm">
+				<li class="list-group-item text-center text-white border-0" style="background: #1E1E1E">
+					<h3 class="fw-normal">Leaderboard</h3>
+				</li>
+				<li class="list-group-item d-flex justify-content-between text-white border-0" style="background: #FF5E5E">
+					<span>1</span>
+					<span>NAME</span>
+					<span>RANK</span>
+				</li>
+				<li class="list-group-item d-flex justify-content-between text-white border-0" style="background: #FF5E5E">
+					<span>2</span>
+					<span>NAME</span>
+					<span>RANK</span>
+				</li>
+				<li class="list-group-item d-flex justify-content-between text-white border-0" style="background: #FF5E5E">
+					<span>3</span>
+					<span>NAME</span>
+					<span>RANK</span>
+				</li>
+				<li class="list-group-item d-flex justify-content-between text-white border-0" style="background: #FF5E5E">
+					<span>4</span>
+					<span>NAME</span>
+					<span>RANK</span>
+				</li>
+				<li class="list-group-item d-flex justify-content-between text-white border-0" style="background: #FF5E5E">
+					<span>5</span>
+					<span>NAME</span>
+					<span>RANK</span>
+				</li>
             </div>
+
+
         </div>
-        <div class="row stats-box">
-        <div class="col-3 stats-id">
-            <img src="/static/srcs/test.jpg" alt="Profile pic">
-            <h2>PSEUDO</h2>
-        </div>
-        <div class="col-9 row stats-content">
-            <div class="col-3 stats-content-place">
-                <h3>PLACE</h6>
-                <h6>Unranked</h6>
-            </div>
-            <div class="col-9 row stats-content-others">
-                <div class="col-6">
+        <div class="stats-box pl-5 pr-5 d-flex">
+        	<div class="stats-id w-50">
+            	<img src="/static/srcs/test.jpg" alt="Profile pic">
+           		<h2>PSEUDO</h2>
+        	</div>
+        	<div class="stats-content w-50">
+            	<div class="stats-content-place">
+                	<h3>PLACE</h6>
+                	<h6>Unranked</h6>
+            	</div>
+			</div>
+            <div class="row stats-content-others">
+                <div class="w-50">
                     <h3>Rank</h6>
                     <h6>Unranked</h6>
                 </div>
-                <div class="col-6">
+                <div class="w-50">
                     <h3>Max exchange</h6>
                     <h6>Unvailable</h6>
                 </div>
-                <div class="col-6">
+                <div class="w-50">
                     <h3>Games played</h6>
                     <h6>Unvailable</h6>
                 </div>
-                <div class="col-6">
+                <div class="w-50">
                     <h3>Winrate</h6>
                     <h6>Unvailable</h6>
                 </div>

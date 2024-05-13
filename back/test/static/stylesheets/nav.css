@@ -1,11 +1,17 @@
+body {
+	background-color: rgb(50, 50, 50);
+	font-family: "Audiowide", sans-serif;
+  	font-weight: 400;
+  	font-style: normal;
+}
+
 nav {
-    background-color: rgb(61, 61, 61);
     display: flex;
     height: 60px;
-    border-radius: 0 0 30% 30%;
 }
 
 nav a {
+	background-color: rgb(61, 61, 61);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -15,10 +21,19 @@ nav a {
     transition: 0.2s;
 }
 
+#nav1 {
+	border-radius: 0 0 0 1.3rem;
+}
+
+#nav3 {
+	border-radius: 0 0 1.3rem 0;
+}
+
 nav a:hover {
     transition: 0.2s;
-    font-size: 1.3rem;
+    font-size: 1.6rem;
     color: rgb(255, 255, 255);
+	background-color: rgb(180, 4, 127);
     text-decoration: none;
     font-weight: 700;
 }

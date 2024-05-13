@@ -1,4 +1,5 @@
 all :
+	mkdir -p ./volumes/nginx
 	docker-compose up --build
 
 down : 

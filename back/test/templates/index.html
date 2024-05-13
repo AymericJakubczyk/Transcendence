@@ -10,14 +10,18 @@
     <!-- CSS -->
     <link rel="stylesheet" href="{% static 'stylesheets/nav.css' %}">
     <link rel="stylesheet" href="{% static 'stylesheets/game.css' %}">
+	<!-- FONT -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Audiowide&display=swap" rel="stylesheet">
 </head>
 
 <body>
     <div class="container">
         <nav>
-            <a href="/" class="route col-sm-4">Home</a>
-            <a href="/game/" class="route col-sm-4">Game</a>
-            <a href="/profile/" class="route col-sm-4">Profile</a>
+            <a href="/" class="route col-sm-4" id="nav1">Home</a>
+            <a href="/game/" class="route col-sm-4" id="nav2">Game</a>
+            <a href="/profile/" class="route col-sm-4" id="nav3">Profile</a>
         </nav>
     </div>
         
