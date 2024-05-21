@@ -1,5 +1,5 @@
 
-until mysqladmin ping &>/dev/null; do
+until postgresql ping &>/dev/null; do
   sleep 1
 done
 
