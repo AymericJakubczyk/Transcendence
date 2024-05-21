@@ -1,6 +1,7 @@
 all :
 	mkdir -p ./volumes/nginx
 	docker-compose up --build
+	docker-compose run python manage.py createsuperuser
 
 down : 
 	docker-compose down
