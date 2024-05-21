@@ -1,10 +1,9 @@
 all :
 	mkdir -p ./volumes/nginx
-	docker-compose up --build
-	docker-compose run python manage.py createsuperuser
+	docker compose --env-file .env up --build
 
 down : 
-	docker-compose down
+	docker compose --env-file .env down
 
 re : down all
 
