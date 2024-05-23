@@ -1,7 +1,7 @@
 from django import forms
-from .models import userTest
+from .models import Member
 
 class RegisterForm(forms.ModelForm):
     class Meta:
-        model = userTest
+        model = Member
         fields = ['pseudo', 'first_name', 'second_name']

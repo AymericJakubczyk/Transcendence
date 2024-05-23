@@ -21,11 +21,15 @@
         <nav>
             <a href="/" class="route col-sm-4" id="nav1">Home</a>
             <a href="/game/" class="route col-sm-4" id="nav2">Game</a>
-            <a href="/profile/" class="route col-sm-4" id="nav3">Profile</a>
+            <a href="/profile/1/" class="route col-sm-4" id="nav3">Profile</a>
         </nav>
     </div>
     <div id="page"></div>
-
+	<div class="d-none">
+		{{ user.pseudo|json_script:'pseudo' }}
+		{{ user.first_name|json_script:'first' }}
+		{{ user.second_name|json_script:'second' }}
+	</div>
     <script type="text/template" id="form-template">
         <form method="POST">
             {% csrf_token %}
@@ -36,6 +40,7 @@
 
     <script src="{% static 'home.js' %}"></script>
     <script src="{% static 'game.js' %}"></script>
+	<script src="{% static 'profile.js' %}"></script>
     <script src="{% static 'app.js' %}"></script>
 </body>
 </html>

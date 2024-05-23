@@ -1,15 +1,15 @@
 function gameView() {
     document.getElementById('page').innerHTML = `
-    <div class="container-fluid">
+    <div class="container">
         <h1 class="header">ULTIMATE EXTRA COOL SUPER PONG TOURNAMENT EXTREME BATTLE</h1>
         <h5 class="header">Welcome in the history</h5>
-        <div class="row main-box w-100">
-            <div class="game-box w-100 col-7">
+        <div class="row main-box">
+            <div class="game-box col-lg-8 col-sm-12">
                 <h3>GAME</h3>
             </div>
 
 
-            <div class="justify-content-center align-items-center min-vw-25 col">
+            <div class="justify-content-center align-items-center min-vw-25 col-lg-4 col-sm-12">
 				<ul class="list-group shadow-sm">
 				<li class="list-group-item text-center text-white border-0" style="background: #1E1E1E">
 					<h3 class="fw-normal">Leaderboard</h3>
@@ -55,19 +55,19 @@ function gameView() {
             	</div>
 			</div>
             <div class="row stats-content-others">
-                <div class="w-50">
+                <div class="w-xs-100 w-50">
                     <h3>Rank</h6>
                     <h6>Unranked</h6>
                 </div>
-                <div class="w-50">
+                <div class="w-xs-100 w-50">
                     <h3>Max exchange</h6>
                     <h6>Unvailable</h6>
                 </div>
-                <div class="w-50">
+                <div class="w-xs-100 w-50">
                     <h3>Games played</h6>
                     <h6>Unvailable</h6>
                 </div>
-                <div class="w-50">
+                <div class="w-xs-100 w-50">
                     <h3>Winrate</h6>
                     <h6>Unvailable</h6>
                 </div>

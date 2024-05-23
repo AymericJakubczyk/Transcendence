@@ -1,8 +1,8 @@
 from django.contrib import admin
-from .models import userTest
+from .models import Member
 
 # Register your models here.
 
-@admin.register(userTest)
-class userTestAdmin(admin.ModelAdmin):
-    list_display = ('pseudo', 'first_name', 'second_name')
+@admin.register(Member)
+class MemberAdmin(admin.ModelAdmin):
+    list_display = ('user_id', 'pseudo', 'first_name', 'second_name')
