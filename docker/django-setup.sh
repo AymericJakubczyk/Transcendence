@@ -11,4 +11,7 @@ done
 # y
 
 python app/manage.py migrate
-python app/manage.py runserver 0.0.0.0:8000
+# python app/manage.py runserver 0.0.0.0:8000
+# python app/manage.py runserver
+pip install gunicorn
+gunicorn --chdir app app.wsgi:application --bind 0.0.0.0:8000
