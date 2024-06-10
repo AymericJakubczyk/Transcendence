@@ -1,6 +1,6 @@
 all :
 	mkdir -p ./volumes/nginx
-	docker compose --env-file .env up --build
+	docker compose --env-file .env up --build -d
 
 down : 
 	docker compose --env-file .env down
