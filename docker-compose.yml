@@ -21,12 +21,17 @@ services:
       - "5432"
 
   nginx:
-    image: nginx
+    # image: nginx
     container_name: nginx
+    networks:
+      - Transcendence
+    build:
+      context: docker # ou se trouve son Dockerfile
+      dockerfile: Dockerfile-nginx # le nom du Dockerfile ?!
     volumes:
-      - nginx:/usr/share/nginx/html
+      - nginx:/app/static/
     ports:
-      - "8080:80"
+      - "8042:443"
     env_file:
       - .env
     depends_on:
@@ -44,8 +49,8 @@ services:
       - back:/app
     depends_on:
       - postgres
-    ports:
-      - "8042:8000"
+    expose:
+      - "8000"
     restart: always
 
 
@@ -56,7 +61,7 @@ volumes:
     driver_opts:
       type: 'none' # aucun type spécifique
       o: 'bind'
-      device: './volumes/nginx' #Ou stocker le dossier sur votre ordinateur en local
+      device: './back/test/static' #Ou stocker le dossier sur votre ordinateur en local
 
   back:
     driver: local # ici nous stockons le volume en local

@@ -1,0 +1,14 @@
+FROM debian:bullseye
+
+RUN apt update
+RUN apt upgrade -y
+RUN apt install nginx -y
+
+# CMD	["nginx"]
+COPY nginxconf /etc/nginx/sites-enabled/
+RUN rm -rf /etc/nginx/sites-available/default
+RUN rm -rf /etc/nginx/sites-enabled/default
+RUN mkdir -p /etc/nginx/ssl
+RUN apt install openssl -y
+RUN openssl req -x509 -newkey rsa:4096 -keyout /etc/nginx/ssl/key.pem -out /etc/nginx/ssl/cert.pem -days 365 -nodes -subj "/C=FR/ST=IDF/L=Paris/O=42/OU=42/CN=localhost/UID=ajakubcz"
+CMD		["nginx", "-g", "daemon off;"]
