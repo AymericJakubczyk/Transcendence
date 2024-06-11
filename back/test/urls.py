@@ -9,10 +9,11 @@ from .views import custom_404
 handler404 = custom_404
 
 urlpatterns = [
-    path('', views.register_user, name='test'),
-	path('404/', views.render_spa, name='test'),
-    path('game/', views.render_spa, name='test'),
-    path('chat/', views.render_spa, name='test'),
-    path('profile/<int:user_id>/', views.get_profile_info, name='test'),
-    path('api/profile/<int:user_id>/', views.get_profile_info_json, name='test'),
+    path('', views.render_spa, name='home'),
+	path('404/', views.render_spa, name='not_found'),
+    path('game/', views.render_spa, name='game'),
+    path('chat/', views.render_spa, name='chat'),
+    path('register/', views.register_user, name='register'),
+    path('profile/<int:user_id>/', views.get_profile_info, name='profile'),
+    path('api/profile/<int:user_id>/', views.get_profile_info_json, name='profile_api'),
 ]

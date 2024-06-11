@@ -1,11 +1,11 @@
 function homeView() {
 
-    const formTemplate = document.getElementById('form-template').innerHTML;
-
 	document.getElementById('page').innerHTML = `
-    <h1>Home Page</h1>
-    <p>coucou</p>
-    ${formTemplate}
+    <div class="container">
+        <h1>Home Page</h1>
+        <p>coucou</p>
+        <a href="/register/" title="Register">REGISTER HERE</a>
+    </div>
     `;
     return '';
 }

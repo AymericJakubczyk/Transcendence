@@ -23,6 +23,9 @@ function handleRouteChange() {
         const userId = path.split('/')[2];
         view = profileView(userId);
 		return ;
+    } else if (path === '/register/') {
+        view = registrationView();
+		return ;
     } else if (path === '/404/') {
         view = View404();
 		return ;

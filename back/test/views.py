@@ -28,7 +28,9 @@ def register_user(request):
             new_user.save()
             # Redirect after POST
             # This prevents form resubmission on page refresh
-            return render(request, 'index.html', {})  # Redirect to a success page
+            new_url = "/profile/" + str(new_user.user_id) + "/"
+            return JsonResponse({'success': True, 'redirect_url': new_url})
+            # return render(request, 'index.html', {})  # Redirect to a success page
     else:
         form = RegisterForm()
 
