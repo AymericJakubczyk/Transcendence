@@ -1,7 +1,7 @@
 from django.http import HttpResponse
 from django.http import JsonResponse
 from django.template import loader
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
 from .forms import RegisterForm
 from .models import Member
@@ -9,34 +9,34 @@ from .models import Member
 def render_spa(request):
 	return render(request, 'index.html')
 
-def custom_404(request, exception):
-    return render(request, 'index.html', {})
+def homeView(request):
+    if request.META.get("HTTP_HX_REQUEST") != 'true':
+        return render(request, 'page_full.html', {'page':'home.html'})
+    return render(request, 'home.html')
 
-# REGISTRATION
-def register_user(request):
+def gameView(request):
+    if request.META.get("HTTP_HX_REQUEST") != 'true':
+        return render(request, 'page_full.html', {'page':'game.html'})
+    return render(request, 'game.html')
+
+def registrationView(request):
     if request.method == 'POST':
         form = RegisterForm(request.POST)
         if form.is_valid():
-            # Process the form data
-            # Assuming you want to do something with the form data
-            pseudo = form.cleaned_data['pseudo']
-            first_name = form.cleaned_data['first_name']
-            second_name = form.cleaned_data['second_name']
-            print("DATA : %s, %s, %s" % (pseudo, first_name, second_name))
-            new_user = form.save()
-            new_user.user_id = Member.objects.count()
-            new_user.save()
-            # Redirect after POST
-            # This prevents form resubmission on page refresh
-            new_url = "/profile/" + str(new_user.user_id) + "/"
-            return JsonResponse({'success': True, 'redirect_url': new_url})
-            # return render(request, 'index.html', {})  # Redirect to a success page
+            return (redirect('home'))
     else:
         form = RegisterForm()
+    if request.META.get("HTTP_HX_REQUEST") != 'true':
+        return render(request, 'page_full.html', {'page':'registration.html', 'form':form})
+    return render(request, 'registration.html', {'form': form})
 
-    # If it's a GET request or the form is invalid, render the form on the template
-    return render(request, 'index.html', {'RegisterForm': form})
+def profilView(request, user_id):
+    if request.META.get("HTTP_HX_REQUEST") != 'true':
+        return render(request, 'page_full.html', {'page':'profil.html', 'user':{'pseudo':'test'}})
+    return render(request, 'profil.html', {'user':{'pseudo':'test'}})
 
+def custom_404(request, exception):
+    return render(request, 'index.html', {})
 
 
 # RECUPERATION DE DONNEES USER

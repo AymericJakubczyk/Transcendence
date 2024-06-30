@@ -1,0 +1,47 @@
+networks:
+  Transcendence:
+    driver: bridge
+
+services:
+  postgres:
+    image: postgres
+    container_name: postgres
+    networks:
+      - Transcendence
+    env_file:
+      - .env
+    volumes:
+      - db:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    expose:
+      - "5432"
+
+  django:
+    container_name: django
+    networks:
+      - Transcendence
+    build:
+      context: docker # ou se trouve son Dockerfile
+      dockerfile: Dockerfile-django-dev
+    volumes:
+      - back:/app
+    depends_on:
+      - postgres
+    ports:
+      - 8042:8000
+    expose:
+      - "8000"
+    restart: always
+
+
+
+volumes:
+  back:
+    driver: local # ici nous stockons le volume en local
+    driver_opts:
+      type: 'none' # aucun type spécifique
+      o: 'bind'
+      device: './back' #Ou stocker le dossier sur votre ordinateur en local
+  db:
+    driver: local
