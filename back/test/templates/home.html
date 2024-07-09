@@ -1,5 +1,14 @@
 <div class="container">
     <h1>Home Page</h1>
-    <p>coucou</p>
-    <a hx-get="{% url 'register' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" title="Register">REGISTER HERE</a>
+    {% if user.is_authenticated %}
+    <p>coucou {{ request.user }} <a hx-get="{% url 'logout' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" title="Logout">se deconecter</a> </p>
+    {% else %}
+    <p>connecte toi </p>
+    <form action="" method="post">
+        {% csrf_token %}
+        {{ form }}
+        <input type="submit" value="LOG IN">
+    </form>
+    <p> or <a hx-get="{% url 'register' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" title="Register">Register</a></p>
+    {% endif %}
 </div>

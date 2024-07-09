@@ -14,7 +14,9 @@ urlpatterns = [
     path('game/', views.gameView, name='game'),
     path('chat/', views.render_spa, name='chat'),
     path('register/', views.registrationView, name='register'),
+    path('profile/', views.myProfilView, name='myprofile'),
     path('profile/<int:user_id>/', views.profilView, name='profile'),
+    path('logout/', views.logout_user, name='logout'),
     # path('profile/<int:user_id>/', views.get_profile_info, name='profile'),
     # path('api/profile/<int:user_id>/', views.get_profile_info_json, name='profile_api'),
 ]
