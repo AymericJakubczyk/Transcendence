@@ -29,7 +29,7 @@ services:
       context: docker # ou se trouve son Dockerfile
       dockerfile: Dockerfile-nginx # le nom du Dockerfile ?!
     volumes:
-      - nginx:/app/static/
+      - nginx:/transcendence/static/
     ports:
       - "8042:443"
     env_file:
@@ -46,7 +46,7 @@ services:
       context: docker # ou se trouve son Dockerfile
       dockerfile: Dockerfile-django # le nom du Dockerfile ?!
     volumes:
-      - back:/app
+      - back:/transcendence
     depends_on:
       - postgres
     expose:
@@ -61,7 +61,7 @@ volumes:
     driver_opts:
       type: 'none' # aucun type spécifique
       o: 'bind'
-      device: './back/test/static' #Ou stocker le dossier sur votre ordinateur en local
+      device: './back/app/static' #Ou stocker le dossier sur votre ordinateur en local
 
   back:
     driver: local # ici nous stockons le volume en local

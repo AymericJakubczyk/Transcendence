@@ -16,6 +16,6 @@ server {
         proxy_redirect off;
     }
     location /static/ {
-        alias /app/static/;
+        alias /transcendence/static/;
     }
 }

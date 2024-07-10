@@ -1,19 +1,13 @@
-from django.http import HttpResponse
-from django.http import JsonResponse
-from django.template import loader
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
-from .forms import RegisterForm
 from .forms import SignupForm, LoginForm
-from .models import Member, User
+from .models import User
 from django.urls import reverse as get_url
 
 import sys
 
-def render_spa(request):
-	return render(request, 'index.html')
-
+# Create your views here.
 
 def logout_user(request):
     print("LOGOUT", request.user, file=sys.stderr)
@@ -74,20 +68,3 @@ def profilView(request, user_id):
 
 def custom_404(request, exception):
     return render(request, 'index.html', {})
-
-
-# RECUPERATION DE DONNEES USER
-
-def get_profile_info(request, user_id):
-    print("Searching user with id: %d" % user_id)
-    user = get_object_or_404(Member, id = user_id)
-    return render(request, 'index.html', {'user': user})
-
-def get_profile_info_json(request, user_id):
-    user = get_object_or_404(Member, id=user_id)
-    user_info = {
-        'pseudo': user.pseudo,
-        'first': user.first_name,
-        'second': user.second_name,
-    }
-    return JsonResponse(user_info)

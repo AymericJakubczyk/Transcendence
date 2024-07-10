@@ -25,7 +25,7 @@ services:
       context: docker # ou se trouve son Dockerfile
       dockerfile: Dockerfile-django-dev
     volumes:
-      - back:/app
+      - back:/transcendence
     depends_on:
       - postgres
     ports:

@@ -1,7 +1,7 @@
 
 all :
 	mkdir -p ./volumes/nginx
-	docker compose -f docker-compose-dev.yml --env-file .env up --build -d
+	docker compose -f docker-compose-dev.yml --env-file .env up --build
 
 
 prod :
