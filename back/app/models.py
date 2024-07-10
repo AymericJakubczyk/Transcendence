@@ -16,6 +16,8 @@ from django.contrib.auth.models import AbstractUser
 # groups
 # user_permissions
 
+# coucou
+
 class User(AbstractUser):
 	profile_picture = models.ImageField(upload_to = 'profile_pics' , verbose_name='Photo de profil', default='static/srcs/creepy-cat.webp')
 	class Pong:
