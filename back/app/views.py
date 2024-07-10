@@ -35,10 +35,12 @@ def homeView(request):
         return render(request, 'page_full.html', {'page':'home.html', 'form':form, 'next_url':next_url})
     return render(request, 'home.html', {'form':form, 'next_url':next_url})
 
+@login_required
 def gameView(request):
+    user = get_object_or_404(User, id=request.user.id)
     if request.META.get("HTTP_HX_REQUEST") != 'true':
-        return render(request, 'page_full.html', {'page':'game.html'})
-    return render(request, 'game.html')
+        return render(request, 'page_full.html', {'page':'game.html', 'user':user})
+    return render(request, 'game.html', {'user':user})
 
 def registrationView(request):
     if request.method == 'POST':
@@ -62,9 +64,10 @@ def myProfilView(request):
     return render(request, 'profil.html', {'user':user})
 
 def profilView(request, user_id):
+    user = get_object_or_404(User, id=user_id)
     if request.META.get("HTTP_HX_REQUEST") != 'true':
-        return render(request, 'page_full.html', {'page':'profil.html', 'user':{'pseudo':'test'}})
-    return render(request, 'profil.html', {'user':{'pseudo':'test'}})
+        return render(request, 'page_full.html', {'page':'profil.html', 'user':user})
+    return render(request, 'profil.html', {'user':user})
 
 def custom_404(request, exception):
     return render(request, 'index.html', {})
