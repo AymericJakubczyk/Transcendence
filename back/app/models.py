@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
-# USER HERITE DE TOUT CA
+# ---- USER HERITE DE TOUT CA ----
 # id
 # password
 # last_login
