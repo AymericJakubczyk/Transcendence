@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from .forms import RegisterForm
 from .forms import SignupForm, LoginForm
 from .models import Member, User
+from django.urls import reverse as get_url
 
 import sys
 
@@ -20,8 +21,11 @@ def logout_user(request):
     return (redirect('home'))
 
 def homeView(request):
-    # print(request.user.email, file=sys.stderr)
+    next_url = get_url('home')
+    if (request.GET.get('next')):
+        next_url = request.GET.get('next')
     form = LoginForm()
+
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
@@ -32,10 +36,10 @@ def homeView(request):
             if user is not None:
                 print("login", request.user, file=sys.stderr)
                 login(request, user)
-                return (redirect('home'))
+                return (redirect(next_url))
     if request.META.get("HTTP_HX_REQUEST") != 'true':
-        return render(request, 'page_full.html', {'page':'home.html', 'form':form})
-    return render(request, 'home.html', {'form':form})
+        return render(request, 'page_full.html', {'page':'home.html', 'form':form, 'next_url':next_url})
+    return render(request, 'home.html', {'form':form, 'next_url':next_url})
 
 def gameView(request):
     if request.META.get("HTTP_HX_REQUEST") != 'true':

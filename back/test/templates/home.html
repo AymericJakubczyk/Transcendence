@@ -4,7 +4,7 @@
     <p>coucou {{ request.user }} <a hx-get="{% url 'logout' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" title="Logout">se deconecter</a> </p>
     {% else %}
     <p>connecte toi </p>
-    <form action="" method="post">
+    <form hx-post="{{request.path}}?next={{next_url}}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
         {% csrf_token %}
         {{ form }}
         <input type="submit" value="LOG IN">

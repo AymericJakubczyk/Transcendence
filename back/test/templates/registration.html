@@ -1,7 +1,7 @@
 <div class="container">
     <h1>Registration</h1>
 
-    <form action="" method="post">
+    <form hx-post="{{request.path}}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
     {% csrf_token %}
     {% for field in form %}
     <p>
