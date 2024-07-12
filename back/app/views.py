@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth import login, authenticate, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import PasswordChangeForm
 from .forms import SignupForm, LoginForm, UpdateForm
 from .models import User
 from django.urls import reverse as get_url
@@ -129,3 +130,15 @@ def updateProfile(request):
     if request.META.get("HTTP_HX_REQUEST") != 'true':
         return render(request, 'page_full.html', {'page':'update_profile.html', 'form':form, 'user':user})
     return render(request, 'update_profile.html', {'form':form, 'user':user})
+
+def password_change(request):
+    form = PasswordChangeForm(user=request.user)
+    if request.method == 'POST':
+        form = PasswordChangeForm(user=request.user, data=request.POST)
+        if form.is_valid():
+            form.save()
+            update_session_auth_hash(request, form.user)
+            return redirect('myprofile')
+    if request.META.get("HTTP_HX_REQUEST") != 'true':
+        return render(request, 'page_full.html', {'page':'password_change.html', 'form':form})
+    return render(request, 'password_change.html', {'form':form})

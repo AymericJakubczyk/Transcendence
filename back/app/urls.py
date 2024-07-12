@@ -2,6 +2,8 @@ from django.conf.urls import handler404
 from django.urls import path
 from . import views
 from .views import custom_404
+from django.contrib.auth.views import PasswordChangeView
+
 
 handler404 = custom_404
 
@@ -13,4 +15,5 @@ urlpatterns = [
     path('profile/<str:username>/', views.profilView, name='profile'),
 	path('update-profile/', views.updateProfile, name='update-profile'),
     path('logout/', views.logout_user, name='logout'),
+    path('change-password/', views.password_change, name='password_change'),
 ]
