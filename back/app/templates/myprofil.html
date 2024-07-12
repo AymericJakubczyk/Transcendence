@@ -1,5 +1,5 @@
 <div class="container">
-    <h1>Profile Page</h1>
+    <h1>My Profile</h1>
     <br>
 	<div class="row">
 		<div class="profile_pp col-4">
@@ -18,26 +18,13 @@
 			</div>
 		</div>
 	</div>
+	
+	<h6>Mail :</h6>
+    <h4>{{ user.email }}</h4>
+	
 	<h6>Joined :</h6>
-    <p>{{ user.date_joined }}</p>
+    <h4>{{ user.date_joined }}</h4>
+	<br>
+	<button>MODIFIER</button>
 
-    <h6>Last Connexion :</h6>
-    <p>{{ user.last_login }}</p>
-
-    <div>
-        <h3>PONG</h3>
-        <br>
-        <h6>Rank :</h6>
-        <p>{{ user.pong_rank }}</p>
-
-        <h6>Games Played :</h6>
-        <p>{{ user.pong_games_played }}</p>
-
-        <h6>Winrate :</h6>
-        <p>{{ user.pong_winrate }}</p>
-
-        <h6>Max Exchange :</h6>
-        <p>{{ user.pong_max_exchange }}</p>
-    </div>
-    
 </div>

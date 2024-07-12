@@ -4,8 +4,11 @@ from django.contrib.auth.decorators import login_required
 from .forms import SignupForm, LoginForm
 from .models import User
 from django.urls import reverse as get_url
-
 import sys
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 # Create your views here.
 
@@ -44,12 +47,20 @@ def gameView(request):
 
 def registrationView(request):
     if request.method == 'POST':
-        form = SignupForm(request.POST)
+        form = SignupForm(request.POST, request.FILES)
         if form.is_valid():
-            user = form.save()
+            user = form.save(commit=False)
+            if request.FILES:
+                logger.info(f"Files received: {request.FILES}")
+            else:
+                logger.warning("No files received")
+
+            user.save()
             # auto-login user
             login(request, user)
-            return (redirect('home'))
+            return redirect('home')
+        else:
+            logger.warning(f"Form errors: {form.errors}")
     else:
         form = SignupForm()
     if request.META.get("HTTP_HX_REQUEST") != 'true':
@@ -60,11 +71,11 @@ def registrationView(request):
 def myProfilView(request):
     user = get_object_or_404(User, id=request.user.id)
     if request.META.get("HTTP_HX_REQUEST") != 'true':
-        return render(request, 'page_full.html', {'page':'profil.html', 'user':user})
-    return render(request, 'profil.html', {'user':user})
+        return render(request, 'page_full.html', {'page':'myprofil.html', 'user':user})
+    return render(request, 'myprofil.html', {'user':user})
 
-def profilView(request, user_id):
-    user = get_object_or_404(User, id=user_id)
+def profilView(request, username):
+    user = get_object_or_404(User, username=username)
     if request.META.get("HTTP_HX_REQUEST") != 'true':
         return render(request, 'page_full.html', {'page':'profil.html', 'user':user})
     return render(request, 'profil.html', {'user':user})

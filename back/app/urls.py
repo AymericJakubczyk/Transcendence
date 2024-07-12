@@ -10,6 +10,6 @@ urlpatterns = [
     path('game/', views.gameView, name='game'),
     path('register/', views.registrationView, name='register'),
     path('profile/', views.myProfilView, name='myprofile'),
-    path('profile/<int:user_id>/', views.profilView, name='profile'),
+    path('profile/<str:username>/', views.profilView, name='profile'),
     path('logout/', views.logout_user, name='logout'),
 ]

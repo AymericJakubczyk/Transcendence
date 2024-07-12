@@ -43,7 +43,7 @@
     </div>
     <div class="stats-box pl-5 pr-5 d-flex">
         <div class="stats-id w-50">
-            <img src="/static/srcs/test.jpg" alt="Profile pic">
+            <img src="{{ user.profile_picture.url }}" alt="Profile pic">
                <h2>{{ user.username }}</h2>
         </div>
         <div class="stats-content w-50">
@@ -55,19 +55,19 @@
         <div class="row stats-content-others">
             <div class="w-xs-100 w-50">
                 <h3>Rank</h6>
-                <h6>Unranked</h6>
+                <h6>{{ user.pong_rank }}</h6>
             </div>
             <div class="w-xs-100 w-50">
                 <h3>Max exchange</h6>
-                <h6>Unvailable</h6>
+                <h6>{{ user.pong_max_exchange }}</h6>
             </div>
             <div class="w-xs-100 w-50">
                 <h3>Games played</h6>
-                <h6>Unvailable</h6>
+                <h6>{{ user.pong_games_played }}</h6>
             </div>
             <div class="w-xs-100 w-50">
                 <h3>Winrate</h6>
-                <h6>Unvailable</h6>
+                <h6>{{ user.pong_winrate }}</h6>
             </div>
         </div>
     </div>
