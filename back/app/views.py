@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
-from .forms import SignupForm, LoginForm
+from .forms import SignupForm, LoginForm, UpdateForm
 from .models import User
 from django.urls import reverse as get_url
 import sys
@@ -82,3 +82,25 @@ def profilView(request, username):
 
 def custom_404(request, exception):
     return render(request, 'index.html', {})
+
+@login_required
+def updateProfile(request):
+    user = request.user
+    if request.method == 'POST':
+        form = UpdateForm(request.POST, request.FILES, instance=user)
+        if form.is_valid():
+            updated = form.save(commit=False)
+            if request.FILES:
+                logger.info(f"Files received: {request.FILES}")
+            else:
+                logger.warning("No files received")
+            updated.save()
+            return redirect('myprofile')
+        else:
+            logger.warning(f"Form errors: {form.errors}")
+    else:
+        form = UpdateForm(instance=user)
+
+    if request.META.get("HTTP_HX_REQUEST") != 'true':
+        return render(request, 'page_full.html', {'page':'update_profile.html', 'form':form, 'user':user})
+    return render(request, 'update_profile.html', {'form':form, 'user':user})

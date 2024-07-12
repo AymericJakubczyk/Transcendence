@@ -1,6 +1,8 @@
 <div class="container">
     <h1>My Profile</h1>
     <br>
+	<a class="d-block text-center" hx-get="{{ user.username }}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">See my profile page</a>
+	<br>
 	<div class="row">
 		<div class="profile_pp col-4">
 			<img src="{{ user.profile_picture.url }}" alt="Profile Picture">
@@ -25,6 +27,6 @@
 	<h6>Joined :</h6>
     <h4>{{ user.date_joined }}</h4>
 	<br>
-	<button>MODIFIER</button>
+	<a class="d-block text-center" hx-get="{% url 'update-profile' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">Update</a>
 
 </div>
