@@ -32,8 +32,8 @@ def homeView(request):
                 login(request, user)
                 return (redirect(next_url))
     if request.META.get("HTTP_HX_REQUEST") != 'true':
-        return render(request, 'page_full.html', {'page':'home.html', 'form':form, 'next_url':next_url})
-    return render(request, 'home.html', {'form':form, 'next_url':next_url})
+        return render(request, 'page_full.html', {'page':'home.html', 'form':form, 'next_url':next_url, 'refresh':1})
+    return render(request, 'home.html', {'form':form, 'next_url':next_url, 'refresh':0})
 
 @login_required
 def gameView(request):
@@ -75,6 +75,7 @@ def custom_404(request, exception):
 @login_required
 def chatView(request):
     user = get_object_or_404(User, id=request.user.id)
+    all_user = User.objects.all()
     if request.META.get("HTTP_HX_REQUEST") != 'true':
-        return render(request, 'page_full.html', {'page':'chat.html', 'user':user})
-    return render(request, 'chat.html', {'user':user})
+        return render(request, 'page_full.html', {'page':'chat.html', 'user':user, 'all_user':all_user})
+    return render(request, 'chat.html', {'user':user, 'all_user':all_user})
