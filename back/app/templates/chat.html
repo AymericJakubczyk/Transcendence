@@ -1,0 +1,18 @@
+{% load static %}
+<div class="container">
+    <h1>Chat</h1>
+    <form id="form_message">
+        <input type="hidden" name="sender" value="{{ user.username }}"/>
+        <p>
+            <label>send to:</label>
+            <input type="text" name="send_to" value=""/>
+        </p>
+        <p>
+            <label>msg:</label>
+            <input type="text" name="msg" value=""/>
+        </p>
+        <input type="submit" value="SEND">
+    </form>
+    <script>custom_submit()</script>
+    <div id="all_msg"></div>
+</div>

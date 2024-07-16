@@ -12,4 +12,5 @@ urlpatterns = [
     path('profile/', views.myProfilView, name='myprofile'),
     path('profile/<int:user_id>/', views.profilView, name='profile'),
     path('logout/', views.logout_user, name='logout'),
+    path('chat/', views.chatView, name='chat'),
 ]

@@ -71,3 +71,10 @@ def profilView(request, user_id):
 
 def custom_404(request, exception):
     return render(request, 'index.html', {})
+
+@login_required
+def chatView(request):
+    user = get_object_or_404(User, id=request.user.id)
+    if request.META.get("HTTP_HX_REQUEST") != 'true':
+        return render(request, 'page_full.html', {'page':'chat.html', 'user':user})
+    return render(request, 'chat.html', {'user':user})

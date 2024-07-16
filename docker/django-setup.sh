@@ -13,5 +13,8 @@ done
 python transcendence/manage.py migrate
 # python transcendence/manage.py runserver 0.0.0.0:8000
 # python transcendence/manage.py runserver
-pip install gunicorn
-gunicorn --chdir transcendence transcendence.wsgi:application --bind 0.0.0.0:8000
+# pip install gunicorn
+# gunicorn --chdir transcendence transcendence.wsgi:application --bind 0.0.0.0:8000
+
+cd /transcendence
+daphne -b 0.0.0.0 -p 8000 transcendence.asgi:application

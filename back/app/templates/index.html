@@ -16,15 +16,19 @@
 	<link href="https://fonts.googleapis.com/css2?family=Audiowide&display=swap" rel="stylesheet">
     <!-- HTMX IMPORT FOR SPA-->
     <script src="https://unpkg.com/htmx.org@1.2.1"></script>
+    <script src="{% static 'ws.js' %}"></script>
+    {% if user.is_authenticated %}
+        <script>create_ws()</script>
+    {% endif %}
 </head>
 
 <body>
     <div class="container">
         <nav>
-            <a hx-get="{% url 'home' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route col-sm-4" id="nav1">Home</a>
-            <a hx-get="{% url 'game' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route col-sm-4" id="nav2">Game</a>
-            <a hx-get="{% url 'myprofile' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route col-sm-4" id="nav3">Profile</a>
-            <!-- <a href="/profile/1/" class="route col-sm-4" id="nav3">Profile</a> -->
+            <a hx-get="{% url 'home' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route col-sm" id="nav1">Home</a>
+            <a hx-get="{% url 'game' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route col-sm" id="nav2">Game</a>
+            <a hx-get="{% url 'chat' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route col-sm" id="nav2">Chat</a>
+            <a hx-get="{% url 'myprofile' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route col-sm" id="nav3">Profile</a>
         </nav>
     </div>
     <div id="page">{% block content %}{% endblock %}</div>
