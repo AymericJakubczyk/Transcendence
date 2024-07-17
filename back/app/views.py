@@ -120,6 +120,8 @@ def updateProfile(request):
                 logger.info(f"Files received: {request.FILES}")
             else:
                 logger.warning("No files received")
+            if not updated.profile_picture :
+                updated.profile_picture = 'imgs/profils/creepy-cat.webp'
             updated.save()
             return redirect('myprofile')
         else:
