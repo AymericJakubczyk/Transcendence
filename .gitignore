@@ -2,5 +2,7 @@
 __pycache__
 /volumes
 /back/app/migrations/*
+!back/app/migrations/__init__.py
+!back/app/migrations/0001_initial.py
 /back/media/imgs/profils/*
 !creepy-cat.webp
