@@ -18,9 +18,16 @@ from django.contrib.auth.models import AbstractUser
 
 class User(AbstractUser):
 	profile_picture = models.ImageField(default='imgs/profils/creepy-cat.webp', blank=True, upload_to = 'imgs/profils/')
+	friends = models.ManyToManyField("User", blank=True)
 
 	# PONG ATTRIBUTS
 	pong_rank = models.IntegerField(default=0)
 	pong_games_played = models.IntegerField(default=0)
 	pong_winrate = models.IntegerField(default=0)
 	pong_max_exchange = models.IntegerField(default=0)
+
+    # online checker to do
+
+class Friend_Request(models.Model):
+	from_user = models.ForeignKey(User, related_name='from_user', on_delete=models.CASCADE)
+	to_user = models.ForeignKey(User, related_name='to_user', on_delete=models.CASCADE)
