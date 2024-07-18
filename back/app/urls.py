@@ -8,6 +8,7 @@ handler404 = custom_404
 urlpatterns = [
     path('', views.homeView, name='home'),
     path('game/', views.gameView, name='game'),
+    path('chess/', views.chessView, name='chess'),
     path('register/', views.registrationView, name='register'),
     path('profile/', views.myProfilView, name='myprofile'),
     path('profile/<int:user_id>/', views.profilView, name='profile'),
