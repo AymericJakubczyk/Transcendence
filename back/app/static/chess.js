@@ -523,7 +523,7 @@ function initChessBoard()
     for (var i = 0; i < 8; i++)
     {
         for (var j = 0; j < 8; j++)
-            pieces[i][j] = "noPossibleMove";
+            pieces[i][j] = "";
     }
     for (let i = 0; i < 8; i++)
         pieces[1][i] = new Pawn("Pawn", "black", 1, i, "blackpawn.png");
@@ -568,11 +568,10 @@ function draw(x, y, string) {
 function drawPossibleMove(piece, ctx)
 {
     console.log(piece);
-    if (piece.color != "")
-    {
-        piece.resetPossibleMove();
-        piece.getPossibleMove();
-    }
+    if (piece == "")
+        return ;
+    piece.resetPossibleMove();
+    piece.getPossibleMove();
     let color = piece.color;
     let colorEnemy;
     if (color == "black")
@@ -604,8 +603,6 @@ function drawPossibleCaptureMove(x, y, context)
     ctx.lineWidth = 5;
     ctx.strokeStyle = 'grey';
     ctx.stroke();
-    // context.fillStyle = 'grey';
-    // context.fill();
     context.closePath();
 }
 
@@ -644,6 +641,13 @@ function moovePawn(x, y, context)
     }
     else
     {
+        redrawPossibleCapture(context);
+        if (!selectedOne.color)
+        {
+            selected = false;
+            selectedOne = null;
+            return ;
+        }
         if (selectedOne.possibleMoves[posy][posx] == "PossibleMove")
         {
             pieces[posy][posx] = selectedOne;
@@ -665,6 +669,44 @@ function moovePawn(x, y, context)
     console.log(selected);
 }
 
+function redrawPossibleCapture(context)
+{
+    let color = selectedOne.color;
+    let colorEnemy;
+    if (color == "black")
+        colorEnemy = "white";
+    else
+        colorEnemy = "black";
+    console.log(color, colorEnemy);
+    for (var i = 0; i < 8; i++)
+    {
+        for (var j = 0; j < 8; j++)
+        {
+            if (selectedOne.possibleMoves[i][j] == "PossibleMove" && pieces[i][j].color == colorEnemy)
+                reDrawPossibleCaptureMove(i, j, context);
+        }
+    }
+}
+
+function reDrawPossibleCaptureMove(x, y, context)
+{
+    let count = x * 8 + y;
+    if (count % 2 == 1)
+        ctx.strokeStyle = 'antiquewhite';
+    else
+        ctx.strokeStyle = 'burlywood';
+    var width = canvas.offsetWidth;
+    size = width / 8;
+    const centerX = x * 100 + 50;
+    const centerY = y * 100 + 50;
+    const radius = 45;
+    context.beginPath();
+    context.arc(centerY, centerX, radius, 0, 2 * Math.PI, false);
+    ctx.lineWidth = 6;
+    ctx.stroke();
+    context.closePath();
+    draw(x * 100, y * 100, "../static/srcs/chess/" + pieces[oldx][oldy].img);
+}
 function mooveIt(x, y, ctx, posx, posy)
 {
     var width = canvas.offsetWidth;
@@ -673,7 +715,7 @@ function mooveIt(x, y, ctx, posx, posy)
     var py = Math.floor((y / size));
     if ((posy <= 8 || 0 >= posy) && (posx <= 8 || 0 >= posx))
     {
-        if (pieces[py][px].state == "possibleMoove")
+        if (pieces[py][px].state == "possibleMove")
         {
             if (pieces[posy][posx].value == "whitepawn")
             {	
