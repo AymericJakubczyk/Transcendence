@@ -22,7 +22,7 @@ function create_ws()
 	chatSocket.onmessage = function(event) {
 		const message = JSON.parse(event.data);
 		console.log('Received message:', message);
-		add_msg(message.sender, message.message)
+		add_msg(message.sender, message.message, false)
 	};
 	
 	chatSocket.onclose = (event) => {
@@ -55,7 +55,7 @@ function custom_submit()
 				'message': elems.msg.value,
 				'send_to': elems.send_to.value
 			};
-			add_msg("you", elems.msg.value)
+			add_msg("you", elems.msg.value, true)
 			chatSocket.send(JSON.stringify(message));
 			elems.msg.value = ""
 			return ;
@@ -68,13 +68,20 @@ function custom_submit()
 }
 
 
-function add_msg(user, msg)
+function add_msg(sender, msg, you)
 {
-	const msg_cont = document.createElement("p");
-	msg_cont.innerHTML = "From "+ user +": " + msg;
-	var myDiv = document.getElementById("all_msg");
-	if (myDiv)
+	if (you || document.getElementById("interlocutor").innerHTML == sender)
 	{
-		myDiv.append(msg_cont)
+		const msg_div = document.createElement("div");
+		if (you)
+			msg_div.setAttribute('class', 'my_msg')
+		else
+			msg_div.setAttribute('class', 'other_msg')
+		msg_div.innerHTML = "From "+ sender +": " + msg;
+		var myDiv = document.getElementById("all_msg");
+		if (myDiv)
+		{
+			myDiv.append(msg_div)
+		}		
 	}
 }
