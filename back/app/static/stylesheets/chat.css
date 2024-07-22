@@ -1,15 +1,17 @@
-.my_msg {
+.other_msg {
     background-color:gray;
     width: max-content;
     padding: 10px;
     margin: 10px;
+    max-width:80%;
 }
 
-.other_msg {
+.my_msg {
     background-color:cadetblue;
     width: max-content;
     padding: 10px;
     margin: 10px;
     margin-left: auto;
     margin-right: 10px;
+    max-width:80%;
 }

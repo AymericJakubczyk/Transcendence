@@ -77,11 +77,12 @@ function add_msg(sender, msg, you)
 			msg_div.setAttribute('class', 'my_msg')
 		else
 			msg_div.setAttribute('class', 'other_msg')
-		msg_div.innerHTML = "From "+ sender +": " + msg;
+		msg_div.innerHTML = msg;
 		var myDiv = document.getElementById("all_msg");
 		if (myDiv)
 		{
 			myDiv.append(msg_div)
-		}		
+		}
+		myDiv.scrollTop = myDiv.scrollHeight;	
 	}
 }

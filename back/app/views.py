@@ -3,7 +3,7 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.core import serializers
 from .forms import SignupForm, LoginForm
-from .models import User, Discussion
+from .models import User, Discussion, Message
 from django.urls import reverse as get_url
 from django.db.models import Q
 
@@ -80,6 +80,7 @@ def chatView(request):
     receiver = None
     msg = None
     current_discu = None
+    all_message = None
     if 'add_discussion' in request.POST:
         print("[ADD]", file=sys.stderr)
         receiver = get_object_or_404(User, username=request.POST.get('add_discussion'))
@@ -97,12 +98,19 @@ def chatView(request):
     if 'msg' in request.POST:
         msg = request.POST.get('msg')
         current_discu = get_object_or_404(Discussion, id=request.POST.get('discu_id'))
-        receiver = current_discu.get_other_username(request.user.username)
+        other_user = current_discu.get_other_username(request.user.username)
+        receiver = get_object_or_404(User, username=other_user)
+        obj = Message()
+        obj.discussion = current_discu
+        obj.sender = request.user
+        obj.message = msg
+        obj.save()
 
     all_user = User.objects.all()
 
     current_user = request.user
 
+    all_message = Message.objects.filter(Q(discussion=current_discu))
     all_discussion = Discussion.objects.filter(Q(user1=current_user) | Q(user2=current_user))
     all_discussion_name = []
     all_username = []
@@ -119,5 +127,5 @@ def chatView(request):
 
 
     if request.META.get("HTTP_HX_REQUEST") != 'true':
-        return render(request, 'page_full.html', {'page':'chat.html', 'receiver':receiver, 'all_user':all_addable_user, 'all_discussion': all_discussion_name, 'current_discu':current_discu})
-    return render(request, 'chat.html', {'receiver':receiver, 'all_user':all_addable_user, 'all_discussion': all_discussion_name, 'current_discu':current_discu})
+        return render(request, 'page_full.html', {'page':'chat.html', 'receiver':receiver, 'all_user':all_addable_user, 'all_discussion': all_discussion_name, 'current_discu':current_discu, 'all_message': all_message})
+    return render(request, 'chat.html', {'receiver':receiver, 'all_user':all_addable_user, 'all_discussion': all_discussion_name, 'current_discu':current_discu, 'all_message': all_message})

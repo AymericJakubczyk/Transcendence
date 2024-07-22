@@ -32,8 +32,19 @@
         
         <div style="position:relative" class="d-flex flex-column rounded w-75 bg-secondary bg-gradient mx-2 p-2">
             <p class="fs-1" id="interlocutor">{{receiver}}</p>
-            <div class="d-flex flex-column my-1 rounded" id="all_msg" style="background-color: darkgray;height:100%; position: relative;">
+            <div class="d-flex flex-column my-1 rounded" id="all_msg" style="overflow-y:scroll; background-color: darkgray;height:100%; position: relative;">
+                {% for msg in all_message %}
+                    {% if msg.sender.id == request.user.id %}
+                        <div class="my_msg" style="white-space: pre-line;overflow-wrap: break-word">{{msg.message}}</div>
+                    {% else %}
+                        <div class="other_msg" style="white-space: pre-line;overflow-wrap: break-word">{{msg.message}}</div>
+                    {% endif  %}
+                {% endfor %}
             </div>
+            <script>
+                var objDiv = document.getElementById("all_msg");
+                objDiv.scrollTop = objDiv.scrollHeight;
+            </script>
             <form class="d-flex flex-row" id="form_message" hx-post="{{request.path}}" hx-swap="none">
                 {% csrf_token %}
                 <input type="hidden" name="send_to" value="{{ receiver }}"/>
