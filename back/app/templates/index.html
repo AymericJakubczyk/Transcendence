@@ -5,11 +5,13 @@
     <meta charset="UTF-8">
     <title>Transcendence</title>
     <!-- BOOTSTRAP IMPORT -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <!-- CSS -->
     <link rel="stylesheet" href="{% static 'stylesheets/nav.css' %}">
     <link rel="stylesheet" href="{% static 'stylesheets/game.css' %}">
+    <link rel="stylesheet" href="{% static 'stylesheets/style.css' %}">
+    <link rel="stylesheet" href="{% static 'stylesheets/chat.css' %}">
 	<link rel="stylesheet" href="{% static 'stylesheets/profiles.css' %}">
 	<!-- FONT -->
 	<link rel="preconnect" href="https://fonts.googleapis.com">
@@ -19,15 +21,21 @@
     <script src="https://unpkg.com/htmx.org@1.2.1"></script>
 	<!-- JQUERY -->
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <script src="{% static 'chat.js' %}"></script>
+    <script src="{% static 'ws.js' %}"></script>
+    {% if user.is_authenticated %}
+        <script>create_ws()</script>
+    {% endif %}
 </head>
 
 <body>
-    <div class="container">
+    <div>
         <nav>
-            <a hx-get="{% url 'home' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route col-sm-4" id="nav1">Home</a>
-            <a hx-get="{% url 'game' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route col-sm-4" id="nav2">Game</a>
-            <a hx-get="{% url 'myprofile' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route col-sm-4" id="nav3">Profile</a>
-            <!-- <a href="/profile/1/" class="route col-sm-4" id="nav3">Profile</a> -->
+            <a hx-get="{% url 'home' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route col-sm" id="nav1">Home</a>
+            <a hx-get="{% url 'game' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route col-sm" id="nav2">Game</a>
+            <a hx-get="{% url 'chat' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route col-sm" id="nav2">Chat</a>
+            <a hx-get="{% url 'myprofile' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route col-sm" id="nav3">Profile</a>
         </nav>
     </div>
     <div id="page">{% block content %}{% endblock %}</div>
