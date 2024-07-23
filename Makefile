@@ -1,15 +1,15 @@
 
 all :
 	mkdir -p ./volumes/nginx
-	docker compose -f docker-compose-dev.yml --env-file .env up --build
+	docker compose -f docker-compose-dev.yml up --build
 
 
 prod :
 	mkdir -p ./volumes/nginx
-	docker compose --env-file .env up --build -d
+	docker compose up --build -d
 
 down : 
-	docker compose --env-file .env down
+	docker compose down
 
 re : down all
 
