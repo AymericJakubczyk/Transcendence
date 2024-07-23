@@ -24,24 +24,19 @@ class Pawn {
     }
     getPossibleMove()
     {
-        console.log(pieces);
         let posx = this.posx;
         let posy = this.posy;
         if (this.color == "white")
         {
             if (posx == 6)
             {   
-                if (isPossible(posx - 1, posy, this))
+                if (isPossible(posx - 1, posy, this) && pieces[posx - 1][posy].color != "black")
                 {   
                     this.possibleMoves[posx - 1][posy] = "PossibleMove";
-                    if (isPossible(posx - 2, posy, this))
+                    if (isPossible(posx - 2, posy, this) && pieces[posx - 2][posy].color != "black")
                         this.possibleMoves[posx - 2][posy] = "PossibleMove";
                 }
             }
-            if (isPossible(posx - 1, posy, this))
-                this.possibleMoves[posx - 1][posy] = "PossibleMove";
-            if (pieces[posx - 1][posy].color == "black")
-                this.possibleMoves[posx - 1][posy] = "NoPossibleMove";
             if ((posx - 1 >= 0 && posy - 1 >= 0) && pieces[posx - 1][posy - 1].color == "black")
                 this.possibleMoves[posx - 1][posy - 1] = "PossibleMove";
             if ((posx - 1 >= 0 && posy + 1 < 8) && pieces[posx - 1][posy + 1].color == "black")
@@ -51,17 +46,13 @@ class Pawn {
         {
             if (posx == 1)
             {   
-                if (isPossible(posx + 1, posy, this))
+                if (isPossible(posx + 1, posy, this) && pieces[posx + 1][posy].color != "white")
                 {   
                     this.possibleMoves[posx + 1][posy] = "PossibleMove";
-                    if (isPossible(posx + 2, posy, this))
+                    if (isPossible(posx + 2, posy, this) && pieces[posx + 2][posy].color != "white")
                         this.possibleMoves[posx + 2][posy] = "PossibleMove";
                 }
             }
-            if (isPossible(posx + 1, posy, this))
-                this.possibleMoves[posx + 1][posy] = "PossibleMove";
-            if (pieces[posx + 1][posy - 1].color == "white")
-                this.possibleMoves[posx + 1][posy] = "NoPossibleMove";
             if ((posx + 1 < 8 && posy - 1 >= 0) && pieces[posx + 1][posy - 1].color == "white")
                 this.possibleMoves[posx + 1][posy - 1] = "PossibleMove";
             if ((posx + 1 < 8 && posy + 1 < 8) && pieces[posx + 1][posy + 1].color == "white")
@@ -367,25 +358,25 @@ class King {
         
         console.log(posx, posy);
         if (this.count == 0)
-            if (isPossible(posx, 5, this) && isPossible(posx, 6, this) && pieces[posx][7].id == 2 && pieces[posx][7].count == 0 && this.count == 0)
+            if (isPossibleKingMove(posx, 5, this) && isPossibleKingMove(posx, 6, this) && pieces[posx][7].id == 2 && pieces[posx][7].count == 0 && this.count == 0)
                 this.possibleMoves[posx][6] = "RightRock";
-            if (isPossible(posx, 1, this) && isPossible(posx, 2, this) && isPossible(posx, 3, this) && pieces[posx][0].id == 1 && pieces[posx][0].count == 0 && this.count == 0)
+            if (isPossibleKingMove(posx, 1, this) && isPossibleKingMove(posx, 2, this) && isPossibleKingMove(posx, 3, this) && pieces[posx][0].id == 1 && pieces[posx][0].count == 0 && this.count == 0)
                 this.possibleMoves[posx][2] = "LeftRock";
-        if (isPossible(posx - 1, posy - 1, this) == true)
+        if (isPossibleKingMove(posx - 1, posy - 1, this) == true)
             this.possibleMoves[posx - 1][posy - 1] = "PossibleMove";
-        if (isPossible(posx - 1, posy, this) == true)
+        if (isPossibleKingMove(posx - 1, posy, this) == true)
             this.possibleMoves[posx - 1][posy] = "PossibleMove";
-        if (isPossible(posx - 1, posy + 1, this) == true)
+        if (isPossibleKingMove(posx - 1, posy + 1, this) == true)
             this.possibleMoves[posx - 1][posy + 1] = "PossibleMove";
-        if (isPossible(posx + 1, posy - 1, this) == true)
+        if (isPossibleKingMove(posx + 1, posy - 1, this) == true)
             this.possibleMoves[posx + 1][posy - 1] = "PossibleMove";
-        if (isPossible(posx + 1, posy, this) == true)
+        if (isPossibleKingMove(posx + 1, posy, this) == true)
             this.possibleMoves[posx + 1][posy] = "PossibleMove";
-        if (isPossible(posx + 1, posy + 1, this) == true)
+        if (isPossibleKingMove(posx + 1, posy + 1, this) == true)
             this.possibleMoves[posx + 1][posy + 1] = "PossibleMove";   
-        if (isPossible(posx, posy + 1, this) == true)
+        if (isPossibleKingMove(posx, posy + 1, this) == true)
             this.possibleMoves[posx][posy + 1] = "PossibleMove";
-        if (isPossible(posx , posy - 1, this) == true)
+        if (isPossibleKingMove(posx , posy - 1, this) == true)
             this.possibleMoves[posx][posy - 1] = "PossibleMove";
     }
     resetPossibleMove()
@@ -421,6 +412,8 @@ class Queen {
         let posy = this.posy;
         for (let i = posx + 1; i < 8; i++)
         {
+            if (posx + 1 > 7)
+                break ;
             if (!pieces[i][posy].color)
                 this.possibleMoves[i][posy] = "PossibleMove";
             else
@@ -436,6 +429,8 @@ class Queen {
         }
         for (let i = posx - 1; i < 8; i--)
         {
+            if (posx - 1 < 0)
+                break ;
             if (!pieces[i][posy].color)
                 this.possibleMoves[i][posy] = "PossibleMove";
             else
@@ -451,6 +446,8 @@ class Queen {
         }
         for (let i = posy + 1; i < 8; i++)
         {
+            if (posy + 1 > 7)
+                break ;
             if (!pieces[posx][i].color)
                 this.possibleMoves[posx][i] = "PossibleMove";
             else
@@ -466,6 +463,8 @@ class Queen {
         }
         for (let i = posy - 1; i < 8; i--)
         {
+            if (posx - 1 < 7)
+                break ;
             if (!pieces[posx][i].color)
                 this.possibleMoves[posx][i] = "PossibleMove";
             else
@@ -481,6 +480,8 @@ class Queen {
         }
         for (let x = this.posx + 1, y = this.posy + 1; x < 8 && y < 8; x++, y++)
         {
+            if (posx + 1 > 7 || posy + 1 > 7)
+                break ;
             if (!pieces[x][y].color)
                 this.possibleMoves[x][y] = "PossibleMove";
             else
@@ -496,6 +497,8 @@ class Queen {
         }
         for (let x = this.posx + 1, y = this.posy - 1; x < 8 && y >= 0; x++, y--)
         {
+            if (posx + 1 > 7 || posy - 1 < 0)
+                break ;
             if (!pieces[x][y].color)
                 this.possibleMoves[x][y] = "PossibleMove";
             else
@@ -511,6 +514,8 @@ class Queen {
         }
         for (let x = this.posx - 1, y = this.posy + 1; x > 0 && y < 8; x--, y++)
         {
+            if (posx - 1 < 0 || posy + 1 > 7)
+                break ;
             if (!pieces[x][y].color)
                 this.possibleMoves[x][y] = "PossibleMove";
             else
@@ -526,6 +531,8 @@ class Queen {
         }
         for (let x = this.posx - 1, y = this.posy - 1; x < 8 && y < 8 && x >= 0 && y >= 0; x--, y--)
         {
+            if (posx - 1 < 0 || posy - 1 < 0)
+                break ;
             if (!pieces[x][y].color)
                 this.possibleMoves[x][y] = "PossibleMove";
             else
@@ -576,6 +583,16 @@ function doLeftRock(x)
     pieces[x][0] = "NoPossibleMove";
 }
 
+function isPossibleKingMove(x, y, piece)
+{
+    console.log(x, y);
+    console.log(pieces);
+    if (x >= 0 && x < 8 && y >= 0 && y < 8)
+        if (pieces[x][y].color != piece.color && !isEnemyMove(x, y, piece))
+            return true;
+    return false;
+}
+
 function isPossible(x, y, piece)
 {
     if (x >= 0 && x < 8 && y >= 0 && y < 8)
@@ -584,6 +601,28 @@ function isPossible(x, y, piece)
     return false;
 }
 
+function isEnemyMove(x, y, piece)
+{
+    let team;
+    team = blackTeam;
+    if (piece.color == "black")
+        team = whiteTeam;
+    console.log(team, piece.color);
+    for (let i = 0; i < 16; i++)
+    {
+        console.log(team[i]);
+        if (team[i].name != "King")
+        {
+            team[i].getPossibleMove();
+            if (team[i].possibleMoves[x][y] == "PossibleMove")
+            {
+                console.log("I CAN GO THERE SO YOU CANNOT MOVE", team[i]);
+                return true;
+            }
+        }
+    }
+    return false;
+}
 
 function initChessBoard()
 {
@@ -614,6 +653,24 @@ function initChessBoard()
     pieces[7][5] = new Bishop("Bishop", "white", 7, 5, "whitebishop.svg");
     pieces[7][6] = new Knight("Knight", "white", 7, 6, "whiteknight.svg");
     pieces[7][7] = new Rook("Rook", "white", 7, 7, "whiterook.svg", 2);
+}
+
+function initTeams()
+{
+    for (let runner = 0; runner < 2; runner++)
+    {
+        for (let i = 0; i < 8; i++)
+        {
+            blackTeam[runner * 8 + i] = pieces[runner][i];   
+        }
+    }
+    for (let runner = 6; runner < 8; runner++)
+    {
+        for (let i = 0; i < 8; i++)
+        {
+            whiteTeam[(runner - 6) * 8 + i] = pieces[runner][i];   
+        }
+    }
 }
 
 function printMousePos(event) {
@@ -696,11 +753,15 @@ function moovePawn(x, y, context)
     var posx = Math.floor((x / size));
     var posy = Math.floor((y / size));
     var NULL = null;
-    console.log(pieces);
+/* The code is attempting to log the value of the variable `pieces` to the console. However, the code
+snippet provided is incomplete and lacks the definition or assignment of the `pieces` variable. To
+provide a more accurate answer, the code snippet needs to include the definition or assignment of
+the `pieces` variable. */
+    console.log(pieces, selected);
     if (!selected)
     {
         if (pieces[posy][posx].color == oldColor)
-            moovePawn(x, y, context);
+            return ;
         if ((posy <= 8 || 0 >= posy) && (posx <= 8 || 0 >= posx))
         {
             selected = true;
@@ -727,7 +788,6 @@ function moovePawn(x, y, context)
             oldColor = selectedOne.color;
             whosPlaying(oldColor);
             pieces[oldy][oldx] = 'noPossibleMove';
-            console.log(pieces);
             if (selectedOne.name == "King" || selectedOne.name == "Rook")
                 selectedOne.count = 1;    
             selected = false;
@@ -865,7 +925,9 @@ const ctx = canvas.getContext("2d");
 drawCheckers(ctx);
 var pieces = new Array(8);
 initChessBoard();
-
+var whiteTeam = new Array(16);
+var blackTeam = new Array(16);
+initTeams();
 
 
 drawChess(ctx);
