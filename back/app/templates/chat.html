@@ -31,7 +31,7 @@
         </div>
         
         <div style="position:relative" class="d-flex flex-column rounded w-75 bg-secondary bg-gradient mx-2 p-2">
-            <p class="fs-1" id="interlocutor">{{receiver}}</p>
+            <p class="fs-1" id="interlocutor">{{interlocutor}}</p>
             <div class="d-flex flex-column my-1 rounded" id="all_msg" style="overflow-y:scroll; background-color: darkgray;height:100%; position: relative;">
                 {% for msg in all_message %}
                     {% if msg.sender.id == request.user.id %}
@@ -47,7 +47,7 @@
             </script>
             <form class="d-flex flex-row" id="form_message" hx-post="{{request.path}}" hx-swap="none">
                 {% csrf_token %}
-                <input type="hidden" name="send_to" value="{{ receiver }}"/>
+                <input type="hidden" name="send_to" value="{{ interlocutor }}"/>
                 <input type="hidden" name="sender" value="{{ request.user.username }}"/>
                 <input type="hidden" name="discu_id" value="{{current_discu.id}}"/>
                 <input style="flex-grow:1" type="text" name="msg" value="" autofocus="autofocus" autocomplete="off"/>

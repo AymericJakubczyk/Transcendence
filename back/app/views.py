@@ -77,47 +77,45 @@ def custom_404(request, exception):
 
 @login_required
 def chatView(request):
-    receiver = None
+    interlocutor = None
     msg = None
     current_discu = None
-    all_message = None
+    current_user = request.user
+
     if 'add_discussion' in request.POST:
         print("[ADD]", file=sys.stderr)
-        receiver = get_object_or_404(User, username=request.POST.get('add_discussion'))
+        interlocutor = get_object_or_404(User, username=request.POST.get('add_discussion'))
         obj = Discussion()
-        obj.user1 = receiver
-        obj.user2 = request.user
+        obj.user1 = interlocutor
+        obj.user2 = current_user
         obj.save()
         current_discu = obj
 
     if 'change_discussion' in request.POST:
         discu = get_object_or_404(Discussion, id=request.POST.get('change_discussion'))
         current_discu = discu
-        receiver = discu.get_other_username(request.user.username)
+        interlocutor = discu.get_other_username(current_user.username)
 
     if 'msg' in request.POST:
         msg = request.POST.get('msg')
         current_discu = get_object_or_404(Discussion, id=request.POST.get('discu_id'))
-        other_user = current_discu.get_other_username(request.user.username)
-        receiver = get_object_or_404(User, username=other_user)
+        other_user = current_discu.get_other_username(current_user.username)
+        interlocutor = get_object_or_404(User, username=other_user)
         obj = Message()
         obj.discussion = current_discu
-        obj.sender = request.user
+        obj.sender = current_user
         obj.message = msg
         obj.save()
 
     all_user = User.objects.all()
-
-    current_user = request.user
-
     all_message = Message.objects.filter(Q(discussion=current_discu))
     all_discussion = Discussion.objects.filter(Q(user1=current_user) | Q(user2=current_user))
     all_discussion_name = []
     all_username = []
     for discussion in all_discussion:
-        obj = {'id': discussion.id, 'name_discu':discussion.get_other_username(request.user.username)}
+        obj = {'id': discussion.id, 'name_discu':discussion.get_other_username(current_user.username)}
         all_discussion_name.append(obj)
-        all_username.append(discussion.get_other_username(request.user.username))
+        all_username.append(discussion.get_other_username(current_user.username))
 
 
     all_addable_user = []
@@ -127,5 +125,5 @@ def chatView(request):
 
 
     if request.META.get("HTTP_HX_REQUEST") != 'true':
-        return render(request, 'page_full.html', {'page':'chat.html', 'receiver':receiver, 'all_user':all_addable_user, 'all_discussion': all_discussion_name, 'current_discu':current_discu, 'all_message': all_message})
-    return render(request, 'chat.html', {'receiver':receiver, 'all_user':all_addable_user, 'all_discussion': all_discussion_name, 'current_discu':current_discu, 'all_message': all_message})
+        return render(request, 'page_full.html', {'page':'chat.html', 'interlocutor':interlocutor, 'all_user':all_addable_user, 'all_discussion': all_discussion_name, 'current_discu':current_discu, 'all_message': all_message})
+    return render(request, 'chat.html', {'interlocutor':interlocutor, 'all_user':all_addable_user, 'all_discussion': all_discussion_name, 'current_discu':current_discu, 'all_message': all_message})
