@@ -37,6 +37,8 @@ class Pawn {
                         this.possibleMoves[posx - 2][posy] = "PossibleMove";
                 }
             }
+            if (isPossible(posx - 1, posy, this) && pieces[posx - 1][posy].color != "black")
+                    this.possibleMoves[posx - 1][posy] = "PossibleMove";
             if ((posx - 1 >= 0 && posy - 1 >= 0) && pieces[posx - 1][posy - 1].color == "black")
                 this.possibleMoves[posx - 1][posy - 1] = "PossibleMove";
             if ((posx - 1 >= 0 && posy + 1 < 8) && pieces[posx - 1][posy + 1].color == "black")
@@ -53,6 +55,8 @@ class Pawn {
                         this.possibleMoves[posx + 2][posy] = "PossibleMove";
                 }
             }
+            if (isPossible(posx + 1, posy, this) && pieces[posx + 1][posy].color != "white")
+                    this.possibleMoves[posx + 1][posy] = "PossibleMove";
             if ((posx + 1 < 8 && posy - 1 >= 0) && pieces[posx + 1][posy - 1].color == "white")
                 this.possibleMoves[posx + 1][posy - 1] = "PossibleMove";
             if ((posx + 1 < 8 && posy + 1 < 8) && pieces[posx + 1][posy + 1].color == "white")
@@ -782,6 +786,7 @@ the `pieces` variable. */
         }
         if (selectedOne.possibleMoves[posy][posx] == "PossibleMove")
         {
+            replaceCell(posy, posx, selectedOne);
             pieces[posy][posx] = selectedOne;
             selectedOne.posx = posy;
             selectedOne.posy = posx;
@@ -822,6 +827,22 @@ the `pieces` variable. */
     console.log(selected);
 }
 
+function replaceCell(x, y, piece)
+{    
+    let count1 = x;
+    let count2 = y;
+    console.log("REPLACE CELL");
+    let count = y + x + 1;
+    // ctx.fillStyle = "black";
+    ctx.fillStyle = "burlywood";
+    console.log(x, y, count);
+    if (count % 2 == 1)
+        ctx.fillStyle = "antiquewhite";
+    console.log(x, y);
+    ctx.fillRect(y * 100, x * 100, 100, 100);
+    draw(y * 100, x * 100, "../static/srcs/chess/" + piece.img);
+}
+
 function redrawPossibleCapture(context)
 {
     let color = selectedOne.color;
@@ -847,7 +868,7 @@ function redrawPossibleCapture(context)
 
 function reDrawPossibleCaptureMove(x, y, context)
 {
-    let count = y * 8 + x;
+    let count = y + x + 1;
     if (count % 2 == 1)
         ctx.strokeStyle = 'antiquewhite';
     else
@@ -863,7 +884,6 @@ function reDrawPossibleCaptureMove(x, y, context)
     ctx.lineWidth = 6;
     ctx.stroke();
     context.closePath();
-    // draw(x * 100, y * 100, "../static/srcs/chess/" + pieces[oldx][oldy].img); # Adds buggs ..
 }
 
 function drawChess(ctx)
