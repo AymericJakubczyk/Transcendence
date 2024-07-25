@@ -8,6 +8,9 @@ whosPlaying(oldColor);
 class Pawn {
     constructor (name, color, posx, posy, img)
     {
+        this.enPassant = 0;
+        this.ePleft = 0;
+        this.ePright = 0;
         this.name = name;
         this.color = color;
         this.posx = posx;
@@ -26,6 +29,7 @@ class Pawn {
     {
         let posx = this.posx;
         let posy = this.posy;
+        console.log(this.enPassant);
         if (this.color == "white")
         {
             if (posx == 6)
@@ -34,7 +38,35 @@ class Pawn {
                 {   
                     this.possibleMoves[posx - 1][posy] = "PossibleMove";
                     if (isPossible(posx - 2, posy, this) && pieces[posx - 2][posy].color != "black")
+                    {
+                        console.log("DOUBLE MOVE OF PAWN");
                         this.possibleMoves[posx - 2][posy] = "PossibleMove";
+                        if (posx - 2 >= 0 && posy - 1 >= 0 && isEnemyPawn(posx - 2, posy - 1, pieces[posx - 2][posy - 1]))
+                        {   
+                            console.log(pieces[posx - 2][posy - 1]);
+                            pieces[posx - 2][posy - 1].enPassant = 1;
+                            pieces[posx - 2][posy - 1].ePright = 1;
+                        }
+                        if (posx - 2 >= 0 && posy + 1 < 8 && isEnemyPawn(posx - 2, posy + 1, pieces[posx - 2][posy + 1]))
+                        {   
+                            console.log(pieces[posx - 2][posy + 1]);
+                            pieces[posx - 2][posy + 1].enPassant = 1;
+                            pieces[posx - 2][posy + 1].ePleft = 1;
+                        }
+                    }
+                }
+            }
+            if (this.enPassant == 1)
+            {
+                if (this.ePright == 1)
+                {
+                    if (isPossible(posx - 1, posy, this) && pieces[posx - 1][posy].color != "black")
+                        this.possibleMoves[posx - 1][posy + 1] = "PossibleMove";
+                }
+                if (this.ePleft == 1)
+                {
+                    if (isPossible(posx - 1, posy, this) && pieces[posx - 1][posy].color != "black")
+                        this.possibleMoves[posx - 1][posy - 1] = "PossibleMove";
                 }
             }
             if (isPossible(posx - 1, posy, this) && pieces[posx - 1][posy].color != "black")
@@ -52,7 +84,36 @@ class Pawn {
                 {   
                     this.possibleMoves[posx + 1][posy] = "PossibleMove";
                     if (isPossible(posx + 2, posy, this) && pieces[posx + 2][posy].color != "white")
+                    {
+                        console.log("DOUBLE MOVE OF PAWN");
                         this.possibleMoves[posx + 2][posy] = "PossibleMove";
+                        console.log(pieces[posx + 2][posy]);
+                        if (posx + 2 < 8 && posy - 1 >= 0 && isEnemyPawn(posx + 2, posy - 1, pieces[posx + 2][posy - 1]))
+                        {   
+                            console.log(pieces[posx + 2][posy - 1]);
+                            pieces[posx + 2][posy - 1].enPassant = 1;
+                            pieces[posx + 2][posy - 1].ePright = 1;
+                        }
+                        if (posx + 2 < 8 && posy + 1 < 8 && isEnemyPawn(posx + 2, posy + 1, pieces[posx + 2][posy + 1]))
+                        {   
+                            console.log(pieces[posx + 2][posy + 1]);
+                            pieces[posx + 2][posy + 1].enPassant = 1;
+                            pieces[posx + 2][posy + 1].ePleft = 1;
+                        }
+                    }
+                }
+            }
+            if (this.enPassant == 1)
+            {
+                if (this.ePright == 1)
+                {
+                    if (isPossible(posx + 1, posy + 1, this) && pieces[posx + 1][posy + 1].color != "black")
+                        this.possibleMoves[posx + 1][posy + 1] = "PossibleMove";
+                }
+                if (this.ePleft == 1)
+                {
+                    if (isPossible(posx + 1, posy - 1, this) && pieces[posx + 1][posy - 1].color != "black")
+                        this.possibleMoves[posx + 1][posy - 1] = "PossibleMove";
                 }
             }
             if (isPossible(posx + 1, posy, this) && pieces[posx + 1][posy].color != "white")
@@ -602,6 +663,22 @@ function isPossible(x, y, piece)
     if (x >= 0 && x < 8 && y >= 0 && y < 8)
         if (pieces[x][y].color != piece.color)
             return true;
+    return false;
+}
+
+function isEnemyPawn(x, y, piece)
+{
+    console.log(piece); 
+    let colour = "white";
+    if (piece.color == "white")
+        colour = "black";
+    // console.log(pieces[x][y].name, pieces[x][y].color, colour);
+    if (x >= 0 && x < 8 && y >= 0 && y < 8)
+        if (pieces[x][y].color != colour && pieces[x][y].name == "Pawn")
+        {
+            console.log("aledddddddddddddddddd");
+            return true;
+        }
     return false;
 }
 
