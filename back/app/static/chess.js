@@ -61,12 +61,12 @@ class Pawn {
                 if (this.ePright == 1)
                 {
                     if (isPossible(posx - 1, posy, this) && pieces[posx - 1][posy].color != "black")
-                        this.possibleMoves[posx - 1][posy + 1] = "PossibleMove";
+                        this.possibleMoves[posx - 1][posy + 1] = "enPassant";
                 }
                 if (this.ePleft == 1)
                 {
                     if (isPossible(posx - 1, posy, this) && pieces[posx - 1][posy].color != "black")
-                        this.possibleMoves[posx - 1][posy - 1] = "PossibleMove";
+                        this.possibleMoves[posx - 1][posy - 1] = "enPassant";
                 }
             }
             if (isPossible(posx - 1, posy, this) && pieces[posx - 1][posy].color != "black")
@@ -108,12 +108,12 @@ class Pawn {
                 if (this.ePright == 1)
                 {
                     if (isPossible(posx + 1, posy + 1, this) && pieces[posx + 1][posy + 1].color != "black")
-                        this.possibleMoves[posx + 1][posy + 1] = "PossibleMove";
+                        this.possibleMoves[posx + 1][posy + 1] = "enPassant";
                 }
                 if (this.ePleft == 1)
                 {
                     if (isPossible(posx + 1, posy - 1, this) && pieces[posx + 1][posy - 1].color != "black")
-                        this.possibleMoves[posx + 1][posy - 1] = "PossibleMove";
+                        this.possibleMoves[posx + 1][posy - 1] = "enPassant";
                 }
             }
             if (isPossible(posx + 1, posy, this) && pieces[posx + 1][posy].color != "white")
@@ -675,10 +675,7 @@ function isEnemyPawn(x, y, piece)
     // console.log(pieces[x][y].name, pieces[x][y].color, colour);
     if (x >= 0 && x < 8 && y >= 0 && y < 8)
         if (pieces[x][y].color != colour && pieces[x][y].name == "Pawn")
-        {
-            console.log("aledddddddddddddddddd");
             return true;
-        }
     return false;
 }
 
@@ -792,6 +789,8 @@ function drawPossibleMove(piece, ctx)
         {
             if ((piece.possibleMoves[i][j] == "PossibleMove" || piece.possibleMoves[i][j] == "RightRock" || piece.possibleMoves[i][j] == "LeftRock") && pieces[i][j].color == colorEnemy)
                 drawPossibleCaptureMove(i, j, ctx);
+            else if (piece.possibleMoves[i][j] == "enPassant" && pieces[i][j].color == null)
+                drawPossibleCaptureMove(i, j, ctx);
             else if ((piece.possibleMoves[i][j] == "PossibleMove" || piece.possibleMoves[i][j] == "RightRock" || piece.possibleMoves[i][j] == "LeftRock") && pieces[i][j].color == null)
                 drawTheMove(i, j, ctx);
         }
@@ -894,6 +893,24 @@ the `pieces` variable. */
             selectedOne = null;
             drawChess(context);
         }
+        else if (selectedOne.possibleMoves[posy][posx] == "enPassant")
+        {
+            replaceCell(posy, posx, selectedOne);
+            console.log(posy, posx);
+            if (selectedOne.color == "white")
+                pieces[posy + 1][posx] = 'noPossibleMove';
+            else
+                pieces[posy - 1][posx] = 'noPossibleMove';
+            pieces[posy][posx] = selectedOne;
+            selectedOne.posx = posy;
+            selectedOne.posy = posx;
+            oldColor = selectedOne.color;
+            whosPlaying(oldColor);
+            pieces[oldy][oldx] = 'noPossibleMove';  
+            selected = false;
+            selectedOne = null;
+            drawChess(context);
+        }
         else
         {
             selected = false;
@@ -908,7 +925,6 @@ function replaceCell(x, y, piece)
 {    
     let count1 = x;
     let count2 = y;
-    console.log("REPLACE CELL");
     let count = y + x + 1;
     // ctx.fillStyle = "black";
     ctx.fillStyle = "burlywood";
@@ -917,7 +933,8 @@ function replaceCell(x, y, piece)
         ctx.fillStyle = "antiquewhite";
     console.log(x, y);
     ctx.fillRect(y * 100, x * 100, 100, 100);
-    draw(y * 100, x * 100, "../static/srcs/chess/" + piece.img);
+    if (piece)
+        draw(y * 100, x * 100, "../static/srcs/chess/" + piece.img);
 }
 
 function redrawPossibleCapture(context)
