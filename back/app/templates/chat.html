@@ -3,7 +3,7 @@
     <h1>Chat</h1>
 
     <div class="d-flex flex-row" style="height:50vh">
-        <div class="d-flex flex-column rounded w-25 bg-secondary bg-gradient mx-2 p-2">
+        <div class="d-flex flex-column rounded w-25 mx-2 p-2" style="background-color: rgb(61, 61, 61);">
             <div class="d-flex flex-row justify-content-between">
                 <div class="align-self-center" id="txt_discu">all discussions</div>
                 <button class="d-inline" id="add_btn" style="right:0" onclick="display_addable_discussion()">ADD +</button>
@@ -13,47 +13,70 @@
                 <form hx-post="{{request.path}}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
                     {% csrf_token %}
                     <input type="hidden" name="change_discussion" value="{{discu.id}}"/>
-                    <input class="my-1 p-2 bg-darkgray" style="width:100%" type="submit" value="{{discu.name_discu}}">
+                    {% if discu.id == current_discu.id %}
+                    <button class="rounded-2 my-1 p-2 discu_selected" type="submit" value="{{discu.name_discu}}">
+                    {% else %}
+                    <button class="rounded-2 my-1 p-2 discu" type="submit" value="{{discu.name_discu}}">
+                    {% endif %}
+                        <img src="{{ discu.profile_picture.url }}" style="clip-path: ellipse(50% 50%);height:4vw;max-height: 80px;" alt="Profile Picture">
+                        <div class="d-flex flex-column mx-2" style="overflow: hidden;">
+                            <span style="font-size: 24px; font-weight: 400;color:#ffffff; text-align: start;text-overflow: ellipsis;">
+                                {{discu.name_discu}}
+                            </span>
+                            <span style="font-size: 14px; font-weight: 100; color:#c0c0c0 ;padding-left: 5px;text-align: start;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;width:100%">
+                                
+                                {% if discu.last_message == "No message" %}
+                                    {{discu.last_message}}
+                                {% elif discu.last_message.sender == request.user %}
+                                    vous : {{discu.last_message.message}}
+                                {% else %}
+                                    {{discu.last_message.message}}
+                                {% endif %}
+                            </span>
+                        </div>
+                    </button>
                 </form>
                 {% endfor %}
             </div>
             <div hidden id="all_addable">
                 {% for usr in all_user %}
                     {% if usr.username != request.user.username %}
-                    <form hx-post="{{request.path}}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
-                        {% csrf_token %}
-                        <input type="hidden" name="add_discussion" value="{{usr.username}}"/>
-                        <input class="my-1 p-2 bg-darkgray" style="width:100%" type="submit" value="{{usr.username}}">
-                    </form>
+                        <form hx-post="{{request.path}}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
+                            {% csrf_token %}
+                            <input type="hidden" name="add_discussion" value="{{usr.username}}"/>
+                            <input class="rounded-2 shadow my-1 p-2 bg-darkgray" style="width:100%" type="submit" value="{{usr.username}}">
+                        </form>
                     {% endif %}
                 {% endfor %}
             </div>
         </div>
         
-        <div style="position:relative" class="d-flex flex-column rounded w-75 bg-secondary bg-gradient mx-2 p-2">
+        <div style="position:relative;background-color: rgb(61, 61, 61);" class="d-flex flex-column rounded w-75 mx-2 p-2">
             <p class="fs-1" id="interlocutor">{{interlocutor}}</p>
-            <div class="d-flex flex-column my-1 rounded" id="all_msg" style="overflow-y:scroll; background-color: darkgray;height:100%; position: relative;">
-                {% for msg in all_message %}
-                    {% if msg.sender.id == request.user.id %}
-                        <div class="my_msg" style="white-space: pre-line;overflow-wrap: break-word">{{msg.message}}</div>
-                    {% else %}
-                        <div class="other_msg" style="white-space: pre-line;overflow-wrap: break-word">{{msg.message}}</div>
-                    {% endif  %}
-                {% endfor %}
-            </div>
-            <script>
-                var objDiv = document.getElementById("all_msg");
-                objDiv.scrollTop = objDiv.scrollHeight;
-            </script>
-            <form class="d-flex flex-row" id="form_message" hx-post="{{request.path}}" hx-swap="none">
-                {% csrf_token %}
-                <input type="hidden" name="send_to" value="{{ interlocutor }}"/>
-                <input type="hidden" name="sender" value="{{ request.user.username }}"/>
-                <input type="hidden" name="discu_id" value="{{current_discu.id}}"/>
-                <input style="flex-grow:1" type="text" name="msg" value="" autofocus="autofocus" autocomplete="off"/>
-                <input type="submit" value="SEND">
-            </form>
-            <script>custom_submit()</script>
+            {% if interlocutor != None %}
+                <div class="d-flex flex-column my-1 rounded scroller" id="all_msg" style="overflow-y:scroll; background-color: darkgray;height:100%; position: relative;">
+                    {% for msg in all_message %}
+                        {% if msg.sender.id == request.user.id %}
+                            <div class="my_msg rounded-2 shadow">{{msg.message}}</div>
+                        {% else %}
+                            <div class="other_msg rounded-2 shadow">{{msg.message}}</div>
+                        {% endif  %}
+                    {% endfor %}
+                </div>
+                <script>
+                    var objDiv = document.getElementById("all_msg");
+                    objDiv.scrollTop = objDiv.scrollHeight;
+                </script>
+                <form class="d-flex flex-row" id="form_message" hx-post="{{request.path}}" hx-swap="none">
+                    {% csrf_token %}
+                    <input type="hidden" name="send_to" value="{{ interlocutor }}"/>
+                    <input type="hidden" name="sender" value="{{ request.user.username }}"/>
+                    <input type="hidden" name="discu_id" value="{{current_discu.id}}"/>
+                    <input class="rounded-start-3 px-2" style="flex-grow:1" type="text" name="msg" value="" autofocus="autofocus" autocomplete="off"/>
+                    <input class="rounded-end-3" type="submit" value="SEND">
+                </form>
+                <script>custom_submit()</script>
+            {% endif %}
         </div>
     </div>
 </div>

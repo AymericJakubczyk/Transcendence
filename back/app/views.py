@@ -191,7 +191,8 @@ def chatView(request):
     if 'change_discussion' in request.POST:
         discu = get_object_or_404(Discussion, id=request.POST.get('change_discussion'))
         current_discu = discu
-        interlocutor = discu.get_other_username(current_user.username)
+        other_user = current_discu.get_other_username(current_user.username)
+        interlocutor = get_object_or_404(User, username=other_user)
 
     if 'msg' in request.POST:
         msg = request.POST.get('msg')
@@ -210,9 +211,11 @@ def chatView(request):
     all_discussion_name = []
     all_username = []
     for discussion in all_discussion:
-        obj = {'id': discussion.id, 'name_discu':discussion.get_other_username(current_user.username)}
+        other_username = discussion.get_other_username(current_user.username)
+        other_user = get_object_or_404(User, username=other_username)
+        obj = {'id': discussion.id, 'name_discu':other_username, 'last_message':discussion.get_last_message(), 'profile_picture':other_user.profile_picture}
         all_discussion_name.append(obj)
-        all_username.append(discussion.get_other_username(current_user.username))
+        all_username.append(other_username)
 
 
     all_addable_user = []

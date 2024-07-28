@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.db.models import Q
 
 # ---- USER HERITE DE TOUT CA ----
 # id
@@ -42,6 +43,11 @@ class Discussion(models.Model):
 		else :
 			return self.user1.username
 
+	def get_last_message(self):
+		last_message = Message.objects.filter(Q(discussion=self)).last()
+		if (last_message):
+			return (last_message)
+		return ("No message")
 
 class Message(models.Model):
     discussion = models.ForeignKey(Discussion, on_delete=models.CASCADE)

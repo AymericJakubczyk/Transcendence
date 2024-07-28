@@ -74,9 +74,9 @@ function add_msg(sender, msg, you)
 	{
 		const msg_div = document.createElement("div");
 		if (you)
-			msg_div.setAttribute('class', 'my_msg')
+			msg_div.setAttribute('class', 'my_msg  rounded-2 shadow')
 		else
-			msg_div.setAttribute('class', 'other_msg')
+			msg_div.setAttribute('class', 'other_msg  rounded-2 shadow')
 		msg_div.innerHTML = msg;
 		var myDiv = document.getElementById("all_msg");
 		if (myDiv)
