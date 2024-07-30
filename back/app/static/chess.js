@@ -29,7 +29,7 @@ class Pawn {
     {
         let posx = this.posx;
         let posy = this.posy;
-        console.log(this.enPassant);
+        console.log(this.enPassant, " PASADO");
         if (this.color == "white")
         {
             if (posx == 6)
@@ -39,17 +39,16 @@ class Pawn {
                     this.possibleMoves[posx - 1][posy] = "PossibleMove";
                     if (isPossible(posx - 2, posy, this) && pieces[posx - 2][posy].color != "black")
                     {
-                        console.log("DOUBLE MOVE OF PAWN");
                         this.possibleMoves[posx - 2][posy] = "PossibleMove";
                         if (posx - 2 >= 0 && posy - 1 >= 0 && isEnemyPawn(posx - 2, posy - 1, pieces[posx - 2][posy - 1]))
                         {   
-                            console.log(pieces[posx - 2][posy - 1]);
+                            console.log("ENPASSANT = 1");
                             pieces[posx - 2][posy - 1].enPassant = 1;
                             pieces[posx - 2][posy - 1].ePright = 1;
                         }
                         if (posx - 2 >= 0 && posy + 1 < 8 && isEnemyPawn(posx - 2, posy + 1, pieces[posx - 2][posy + 1]))
                         {   
-                            console.log(pieces[posx - 2][posy + 1]);
+                            console.log("ENPASSANT = 1");
                             pieces[posx - 2][posy + 1].enPassant = 1;
                             pieces[posx - 2][posy + 1].ePleft = 1;
                         }
@@ -85,18 +84,17 @@ class Pawn {
                     this.possibleMoves[posx + 1][posy] = "PossibleMove";
                     if (isPossible(posx + 2, posy, this) && pieces[posx + 2][posy].color != "white")
                     {
-                        console.log("DOUBLE MOVE OF PAWN");
                         this.possibleMoves[posx + 2][posy] = "PossibleMove";
-                        console.log(pieces[posx + 2][posy]);
                         if (posx + 2 < 8 && posy - 1 >= 0 && isEnemyPawn(posx + 2, posy - 1, pieces[posx + 2][posy - 1]))
                         {   
-                            console.log(pieces[posx + 2][posy - 1]);
+                            console.log("ENPASSANT = 1");
                             pieces[posx + 2][posy - 1].enPassant = 1;
                             pieces[posx + 2][posy - 1].ePright = 1;
                         }
                         if (posx + 2 < 8 && posy + 1 < 8 && isEnemyPawn(posx + 2, posy + 1, pieces[posx + 2][posy + 1]))
                         {   
-                            console.log(pieces[posx + 2][posy + 1]);
+                            console.log(posx, posy, posx + 2, posy + 1);
+                            console.log("ENPASSANT = 1");
                             pieces[posx + 2][posy + 1].enPassant = 1;
                             pieces[posx + 2][posy + 1].ePleft = 1;
                         }
@@ -124,6 +122,25 @@ class Pawn {
                 this.possibleMoves[posx + 1][posy + 1] = "PossibleMove";
         }
         console.log(this.possibleMoves);
+    }
+    getAttackMove()
+    {
+        let posx = this.posx;
+        let posy = this.posy;
+        if (this.color == "white")
+        {
+            if ((posx - 1 >= 0 && posy - 1 >= 0) && pieces[posx - 1][posy - 1] == "")
+                this.possibleMoves[posx - 1][posy - 1] = "PossibleMove";
+            if ((posx - 1 >= 0 && posy + 1 < 8) && pieces[posx - 1][posy + 1] == "")
+                this.possibleMoves[posx - 1][posy + 1] = "PossibleMove";
+        }
+        else
+        {
+            if ((posx + 1 < 8 && posy - 1 >= 0) && pieces[posx + 1][posy - 1] == "")
+                this.possibleMoves[posx + 1][posy - 1] = "PossibleMove";
+            if ((posx + 1 < 8 && posy + 1 < 8) && pieces[posx + 1][posy + 1] == "")
+                this.possibleMoves[posx + 1][posy + 1] = "PossibleMove";
+        }
     }
     resetPossibleMove()
     {
@@ -229,8 +246,6 @@ class Rook {
         console.log(posx, posy);
         for (let i = posx + 1; i < 8; i++)
         {
-            if (i == 8)
-                break;
             if (!pieces[i][posy].color)
                 this.possibleMoves[i][posy] = "PossibleMove";
             else
@@ -244,10 +259,8 @@ class Rook {
                 }
             }
         }
-        for (let i = posx - 1; i < 8; i--)
+        for (let i = posx - 1; i >= 0; i--)
         {
-            if (i < 0)
-                break;
             if (!pieces[i][posy].color)
                 this.possibleMoves[i][posy] = "PossibleMove";
             else
@@ -263,8 +276,6 @@ class Rook {
         }
         for (let i = posy + 1; i < 8; i++)
         {
-            if (i == 8)
-                break;
             if (!pieces[posx][i].color)
                 this.possibleMoves[posx][i] = "PossibleMove";
             else
@@ -278,10 +289,8 @@ class Rook {
                 }
             }
         }
-        for (let i = posy - 1; i < 8; i--)
+        for (let i = posy - 1; i >= 0; i--)
         {
-            if (i < 0)
-                break;
             if (!pieces[posx][i].color)
                 this.possibleMoves[posx][i] = "PossibleMove";
             else
@@ -444,6 +453,34 @@ class King {
         if (isPossibleKingMove(posx , posy - 1, this) == true)
             this.possibleMoves[posx][posy - 1] = "PossibleMove";
     }
+    getPossibleNormalMove()
+    {
+        let posx = this.posx;
+        let posy = this.posy;
+        
+        console.log(posx, posy);
+        if (this.count == 0)
+            if (isPossible(posx, 5, this) && isPossible(posx, 6, this) && pieces[posx][7].id == 2 && pieces[posx][7].count == 0 && this.count == 0)
+                this.possibleMoves[posx][6] = "RightRock";
+            if (isPossible(posx, 1, this) && isPossible(posx, 2, this) && isPossible(posx, 3, this) && pieces[posx][0].id == 1 && pieces[posx][0].count == 0 && this.count == 0)
+                this.possibleMoves[posx][2] = "LeftRock";
+        if (isPossible(posx - 1, posy - 1, this) == true)
+            this.possibleMoves[posx - 1][posy - 1] = "PossibleMove";
+        if (isPossible(posx - 1, posy, this) == true)
+            this.possibleMoves[posx - 1][posy] = "PossibleMove";
+        if (isPossible(posx - 1, posy + 1, this) == true)
+            this.possibleMoves[posx - 1][posy + 1] = "PossibleMove";
+        if (isPossible(posx + 1, posy - 1, this) == true)
+            this.possibleMoves[posx + 1][posy - 1] = "PossibleMove";
+        if (isPossible(posx + 1, posy, this) == true)
+            this.possibleMoves[posx + 1][posy] = "PossibleMove";
+        if (isPossible(posx + 1, posy + 1, this) == true)
+            this.possibleMoves[posx + 1][posy + 1] = "PossibleMove";   
+        if (isPossible(posx, posy + 1, this) == true)
+            this.possibleMoves[posx][posy + 1] = "PossibleMove";
+        if (isPossible(posx , posy - 1, this) == true)
+            this.possibleMoves[posx][posy - 1] = "PossibleMove";
+    }
     resetPossibleMove()
     {
         for (var i = 0; i < 8; i++)
@@ -473,13 +510,12 @@ class Queen {
     }
     getPossibleMove()
     {
+        console.log(pieces);
         let posx = this.posx;
         let posy = this.posy;
         for (let i = posx + 1; i < 8; i++)
         {
-            if (posx + 1 > 7)
-                break ;
-            if (!pieces[i][posy].color)
+            if (pieces[i][posy] == "")
                 this.possibleMoves[i][posy] = "PossibleMove";
             else
             {
@@ -492,11 +528,9 @@ class Queen {
                 }
             }
         }
-        for (let i = posx - 1; i < 8; i--)
+        for (let i = posx - 1; i >= 0; i--)
         {
-            if (posx - 1 < 0)
-                break ;
-            if (!pieces[i][posy].color)
+            if (pieces[i][posy] == "")
                 this.possibleMoves[i][posy] = "PossibleMove";
             else
             {
@@ -511,9 +545,7 @@ class Queen {
         }
         for (let i = posy + 1; i < 8; i++)
         {
-            if (posy + 1 > 7)
-                break ;
-            if (!pieces[posx][i].color)
+            if (pieces[posx][i] == "")
                 this.possibleMoves[posx][i] = "PossibleMove";
             else
             {
@@ -526,11 +558,9 @@ class Queen {
                 }
             }
         }
-        for (let i = posy - 1; i < 8; i--)
+        for (let i = posy - 1; i >= 0; i--)
         {
-            if (posx - 1 < 7)
-                break ;
-            if (!pieces[posx][i].color)
+            if (pieces[posx][i] == "")
                 this.possibleMoves[posx][i] = "PossibleMove";
             else
             {
@@ -545,9 +575,7 @@ class Queen {
         }
         for (let x = this.posx + 1, y = this.posy + 1; x < 8 && y < 8; x++, y++)
         {
-            if (posx + 1 > 7 || posy + 1 > 7)
-                break ;
-            if (!pieces[x][y].color)
+            if (pieces[x][y] == "")
                 this.possibleMoves[x][y] = "PossibleMove";
             else
             {
@@ -562,9 +590,7 @@ class Queen {
         }
         for (let x = this.posx + 1, y = this.posy - 1; x < 8 && y >= 0; x++, y--)
         {
-            if (posx + 1 > 7 || posy - 1 < 0)
-                break ;
-            if (!pieces[x][y].color)
+            if (pieces[x][y] == "")
                 this.possibleMoves[x][y] = "PossibleMove";
             else
             {
@@ -577,11 +603,9 @@ class Queen {
                 }
             }
         }
-        for (let x = this.posx - 1, y = this.posy + 1; x > 0 && y < 8; x--, y++)
+        for (let x = this.posx - 1, y = this.posy + 1; x >= 0 && y < 8; x--, y++)
         {
-            if (posx - 1 < 0 || posy + 1 > 7)
-                break ;
-            if (!pieces[x][y].color)
+            if (pieces[x][y] == "")
                 this.possibleMoves[x][y] = "PossibleMove";
             else
             {
@@ -594,11 +618,9 @@ class Queen {
                 }
             }
         }
-        for (let x = this.posx - 1, y = this.posy - 1; x < 8 && y < 8 && x >= 0 && y >= 0; x--, y--)
+        for (let x = this.posx - 1, y = this.posy - 1; x >= 0 && y >= 0; x--, y--)
         {
-            if (posx - 1 < 0 || posy - 1 < 0)
-                break ;
-            if (!pieces[x][y].color)
+            if (pieces[x][y] == "")
                 this.possibleMoves[x][y] = "PossibleMove";
             else
             {
@@ -668,11 +690,9 @@ function isPossible(x, y, piece)
 
 function isEnemyPawn(x, y, piece)
 {
-    console.log(piece); 
     let colour = "white";
     if (piece.color == "white")
         colour = "black";
-    // console.log(pieces[x][y].name, pieces[x][y].color, colour);
     if (x >= 0 && x < 8 && y >= 0 && y < 8)
         if (pieces[x][y].color != colour && pieces[x][y].name == "Pawn")
             return true;
@@ -685,19 +705,20 @@ function isEnemyMove(x, y, piece)
     team = blackTeam;
     if (piece.color == "black")
         team = whiteTeam;
-    console.log(team, piece.color);
     for (let i = 0; i < 16; i++)
     {
-        console.log(team[i]);
-        if (team[i].name != "King")
+        if (team[i].name == "King")
+            team[i].getPossibleNormalMove();
+        else if (team[i].name == "Pawn")
         {
-            team[i].getPossibleMove();
-            if (team[i].possibleMoves[x][y] == "PossibleMove")
-            {
-                console.log("I CAN GO THERE SO YOU CANNOT MOVE", team[i]);
-                return true;
-            }
+            team[i].resetPossibleMove();
+            team[i].getAttackMove();
+            console.log(team[i]);
         }
+        else
+            team[i].getPossibleMove();
+        if (team[i].possibleMoves[x][y] == "PossibleMove")
+            return true;
     }
     return false;
 }
@@ -768,7 +789,6 @@ function draw(x, y, string) {
         img.src = string;
 }
 
-
 function drawPossibleMove(piece, ctx)
 {
     console.log(piece);
@@ -833,10 +853,7 @@ function moovePawn(x, y, context)
     var posx = Math.floor((x / size));
     var posy = Math.floor((y / size));
     var NULL = null;
-/* The code is attempting to log the value of the variable `pieces` to the console. However, the code
-snippet provided is incomplete and lacks the definition or assignment of the `pieces` variable. To
-provide a more accurate answer, the code snippet needs to include the definition or assignment of
-the `pieces` variable. */
+    
     console.log(pieces, selected);
     if (!selected)
     {
@@ -868,7 +885,7 @@ the `pieces` variable. */
             selectedOne.posy = posx;
             oldColor = selectedOne.color;
             whosPlaying(oldColor);
-            pieces[oldy][oldx] = 'noPossibleMove';
+            pieces[oldy][oldx] = '';
             if (selectedOne.name == "King" || selectedOne.name == "Rook")
                 selectedOne.count = 1;    
             selected = false;
@@ -898,15 +915,18 @@ the `pieces` variable. */
             replaceCell(posy, posx, selectedOne);
             console.log(posy, posx);
             if (selectedOne.color == "white")
-                pieces[posy + 1][posx] = 'noPossibleMove';
+                pieces[posy + 1][posx] = '';
             else
-                pieces[posy - 1][posx] = 'noPossibleMove';
+                pieces[posy - 1][posx] = '';
+            selectedOne.enPassant = 0;
+            selectedOne.ePleft = 0;
+            selectedOne.ePright = 0;
             pieces[posy][posx] = selectedOne;
             selectedOne.posx = posy;
             selectedOne.posy = posx;
             oldColor = selectedOne.color;
             whosPlaying(oldColor);
-            pieces[oldy][oldx] = 'noPossibleMove';  
+            pieces[oldy][oldx] = '';  
             selected = false;
             selectedOne = null;
             drawChess(context);
@@ -922,11 +942,10 @@ the `pieces` variable. */
 }
 
 function replaceCell(x, y, piece)
-{    
+{
     let count1 = x;
     let count2 = y;
     let count = y + x + 1;
-    // ctx.fillStyle = "black";
     ctx.fillStyle = "burlywood";
     console.log(x, y, count);
     if (count % 2 == 1)
@@ -1006,7 +1025,6 @@ function drawChess(ctx)
             count++;
         }
     }
-    // canvas.addEventListener('click', function() {console.log(event.clientX), console.log(event.clientY)}, false);
 }
 
 function drawCheckers(ctx)
@@ -1032,7 +1050,6 @@ function drawCheckers(ctx)
         }
     }
 }
-
     
 const canvas = document.getElementById("chess");
 const ctx = canvas.getContext("2d");
@@ -1043,7 +1060,5 @@ var whiteTeam = new Array(16);
 var blackTeam = new Array(16);
 initTeams();
 
-
 drawChess(ctx);
 canvas.addEventListener('click', function() {moovePawn(event.layerX, event.layerY, ctx)}, false);
-
