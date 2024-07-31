@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const canvas = document.getElementById("pongCanvas");
     const context = canvas.getContext("2d");
 
-    const paddleWidth = 10;
+    const paddleWidth = 6;
     const paddleHeight = 75;
     const ballRadius = 8;
     let x = canvas.width / 2;
@@ -41,7 +41,10 @@ document.addEventListener("DOMContentLoaded", function() {
     function drawBall() {
         context.beginPath();
         context.arc(x, y, ballRadius, 0, Math.PI * 2);
-        context.fillStyle = "#0095DD";
+        if(dx > 0)
+            context.fillStyle = "DD0000"
+        else
+            context.fillStyle = "#0095DD";
         context.fill();
         context.closePath();
     }
@@ -79,12 +82,6 @@ document.addEventListener("DOMContentLoaded", function() {
             if (y > playerPaddleY && y < playerPaddleY + paddleHeight) {
                 dx = -dx;
 
-                // Adjust dy based on where the ball hit the paddle
-                let hitPos = y - (playerPaddleY + paddleHeight / 2);
-                dy = hitPos * 0.35;
-
-                // Limit the maximum speed
-                const maxSpeed = 5;
                 if (Math.abs(dy) > maxSpeed) dy = maxSpeed * Math.sign(dy);
                 if (Math.abs(dx) > maxSpeed) dx = maxSpeed * Math.sign(dx);
             } else {
@@ -97,12 +94,6 @@ document.addEventListener("DOMContentLoaded", function() {
             if (y > opponentPaddleY && y < opponentPaddleY + paddleHeight) {
                 dx = -dx;
 
-                // Adjust dy based on where the ball hit the paddle
-                let hitPos = y - (opponentPaddleY + paddleHeight / 2);
-                dy = hitPos * 0.35;
-
-                // Limit the maximum speed
-                const maxSpeed = 5;
                 if (Math.abs(dy) > maxSpeed) dy = maxSpeed * Math.sign(dy);
                 if (Math.abs(dx) > maxSpeed) dx = maxSpeed * Math.sign(dx);
             } else {
@@ -129,6 +120,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     function resetBall() {
+
         x = canvas.width / 2;
         y = canvas.height / 2;
         dx = 2 * (Math.random() > 0.5 ? 1 : -1); // Randomize initial direction
@@ -143,7 +135,7 @@ document.addEventListener("DOMContentLoaded", function() {
             upPressed = true;
         } else if (e.key === "Down" || e.key === "ArrowDown") {
             downPressed = true;
-        } else if (e.key === "z" || e.key === "Z") {
+        } else if (e.key === "w" || e.key === "W") {
             wPressed = true;
         } else if (e.key === "s" || e.key === "S") {
             sPressed = true;
@@ -155,7 +147,7 @@ document.addEventListener("DOMContentLoaded", function() {
             upPressed = false;
         } else if (e.key === "Down" || e.key === "ArrowDown") {
             downPressed = false;
-        } else if (e.key === "z" || e.key === "Z") {
+        } else if (e.key === "w" || e.key === "W") {
             wPressed = false;
         } else if (e.key === "s" || e.key === "S") {
             sPressed = false;
