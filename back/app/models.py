@@ -27,7 +27,12 @@ class User(AbstractUser):
 	pong_winrate = models.IntegerField(default=0)
 	pong_max_exchange = models.IntegerField(default=0)
 
+	class State(models.TextChoices):
+		ONLINE = 'ON'
+		OFFLINE = 'OFF'
+		INGAME = 'ING'
     # online checker to do
+	state = models.CharField(max_length=3, choices=State.choices, default=State.OFFLINE)
 
 class Friend_Request(models.Model):
 	from_user = models.ForeignKey(User, related_name='from_user', on_delete=models.CASCADE)
@@ -47,9 +52,10 @@ class Discussion(models.Model):
 		last_message = Message.objects.filter(Q(discussion=self)).last()
 		if (last_message):
 			return (last_message)
-		return ("No message")
+		return None
 
 class Message(models.Model):
-    discussion = models.ForeignKey(Discussion, on_delete=models.CASCADE)
-    sender = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
-    message = models.CharField(max_length = 200)
+	discussion = models.ForeignKey(Discussion, on_delete=models.CASCADE)
+	sender = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
+	message = models.CharField(max_length = 200)
+	read = models.BooleanField(default=False)

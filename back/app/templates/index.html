@@ -24,6 +24,9 @@
     
     <script src="{% static 'chat.js' %}"></script>
     <script src="{% static 'ws.js' %}"></script>
+    <script>
+        var csrftoken = '{{ csrf_token }}';
+    </script>
     {% if user.is_authenticated %}
         <script>create_ws()</script>
     {% endif %}

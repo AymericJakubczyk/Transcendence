@@ -6,6 +6,7 @@ from .forms import SignupForm, LoginForm, UpdateForm
 from .models import User, Friend_Request, Discussion, Message
 from django.urls import reverse as get_url
 from django.db.models import Q
+import json
 
 import sys
 import logging
@@ -174,6 +175,7 @@ def accept_friend_request(request, requestID):
 
 @login_required
 def chatView(request):
+    print("[CHAT]", request.POST, request.body, request.user, file=sys.stderr)
     interlocutor = None
     msg = None
     current_discu = None
@@ -188,32 +190,35 @@ def chatView(request):
         obj.save()
         current_discu = obj
 
-    if 'change_discussion' in request.POST:
+    elif 'change_discussion' in request.POST:
         discu = get_object_or_404(Discussion, id=request.POST.get('change_discussion'))
         current_discu = discu
         other_user = current_discu.get_other_username(current_user.username)
         interlocutor = get_object_or_404(User, username=other_user)
+        last_message = current_discu.get_last_message()
+        if last_message and last_message.sender != current_user:
+            last_message.read = True
+            last_message.save()
 
-    if 'msg' in request.POST:
-        msg = request.POST.get('msg')
-        current_discu = get_object_or_404(Discussion, id=request.POST.get('discu_id'))
-        other_user = current_discu.get_other_username(current_user.username)
-        interlocutor = get_object_or_404(User, username=other_user)
-        obj = Message()
-        obj.discussion = current_discu
-        obj.sender = current_user
-        obj.message = msg
-        obj.save()
+    elif request.method == 'POST':
+        jsonData = json.loads(request.body)
+        print("[POST BODY]", request.body, jsonData, file=sys.stderr)
+        if jsonData.get('read'):
+            current_discu = get_object_or_404(Discussion, id=jsonData.get('read'))
+            last_message = current_discu.get_last_message()
+            print("[LAST]", last_message.message, file=sys.stderr)
+            last_message.read = True
+            last_message.save()
 
     all_user = User.objects.all()
-    all_message = Message.objects.filter(Q(discussion=current_discu))
+    all_message = Message.objects.filter(Q(discussion=current_discu)).order_by('id')
     all_discussion = Discussion.objects.filter(Q(user1=current_user) | Q(user2=current_user))
     all_discussion_name = []
     all_username = []
     for discussion in all_discussion:
         other_username = discussion.get_other_username(current_user.username)
         other_user = get_object_or_404(User, username=other_username)
-        obj = {'id': discussion.id, 'name_discu':other_username, 'last_message':discussion.get_last_message(), 'profile_picture':other_user.profile_picture}
+        obj = {'id': discussion.id, 'name_discu':other_username, 'last_message':discussion.get_last_message(), 'profile_picture':other_user.profile_picture, 'other_user':other_user}
         all_discussion_name.append(obj)
         all_username.append(other_username)
 

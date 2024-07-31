@@ -14,19 +14,28 @@
                     {% csrf_token %}
                     <input type="hidden" name="change_discussion" value="{{discu.id}}"/>
                     {% if discu.id == current_discu.id %}
-                    <button class="rounded-2 my-1 p-2 discu_selected" type="submit" value="{{discu.name_discu}}">
+                    <button id="discu_{{discu.name_discu}}" data-id="{{discu.id}}" class="rounded-2 my-1 p-2 discu_selected" type="submit" value="{{discu.name_discu}}">
                     {% else %}
-                    <button class="rounded-2 my-1 p-2 discu" type="submit" value="{{discu.name_discu}}">
+                    <button id="discu_{{discu.name_discu}}" data-id="{{discu.id}}" class="rounded-2 my-1 p-2 discu" type="submit" value="{{discu.name_discu}}">
                     {% endif %}
-                        <img src="{{ discu.profile_picture.url }}" style="clip-path: ellipse(50% 50%);height:4vw;max-height: 80px;" alt="Profile Picture">
+                        <div id="profile_pic_{{discu.name_discu}}" style="position: relative;">
+                            <img src="{{ discu.profile_picture.url }}" style="clip-path: ellipse(50% 50%);height:4vw;max-height: 80px;" alt="Profile Picture">
+                            {% if discu.last_message and not discu.last_message.read and discu.last_message.sender != request.user %}
+                                <span class="badge bg-danger rounded-pill" style="position: absolute; right: 0;">!</span>
+                            {% endif %}
+                            {% if discu.other_user.state == 'ON' %}
+                                <span id="statut_{{discu.name_discu}}" class="badge rounded-pill" style="background-color: green; position: absolute; right: 0; bottom: 0;">.</span>
+                            {% else %}
+                                <span id="statut_{{discu.name_discu}}" class="badge rounded-pill" style="background-color: green; position: absolute; right: 0; bottom: 0;" hidden>.</span>
+                            {% endif %}
+                        </div>
                         <div class="d-flex flex-column mx-2" style="overflow: hidden;">
                             <span style="font-size: 24px; font-weight: 400;color:#ffffff; text-align: start;text-overflow: ellipsis;">
                                 {{discu.name_discu}}
                             </span>
-                            <span style="font-size: 14px; font-weight: 100; color:#c0c0c0 ;padding-left: 5px;text-align: start;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;width:100%">
-                                
-                                {% if discu.last_message == "No message" %}
-                                    {{discu.last_message}}
+                            <span id="last_msg_{{discu.name_discu}}" style="font-size: 14px; font-weight: 100; color:#c0c0c0 ;padding-left: 5px;text-align: start;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;width:100%">
+                                {% if not discu.last_message %}
+                                    No message
                                 {% elif discu.last_message.sender == request.user %}
                                     vous : {{discu.last_message.message}}
                                 {% else %}
@@ -67,9 +76,9 @@
                     var objDiv = document.getElementById("all_msg");
                     objDiv.scrollTop = objDiv.scrollHeight;
                 </script>
-                <form class="d-flex flex-row" id="form_message" hx-post="{{request.path}}" hx-swap="none">
+                <form class="d-flex flex-row" id="form_message">
                     {% csrf_token %}
-                    <input type="hidden" name="send_to" value="{{ interlocutor }}"/>
+                    <input type="hidden" name="send_to" value="{{ interlocutor.username }}"/>
                     <input type="hidden" name="sender" value="{{ request.user.username }}"/>
                     <input type="hidden" name="discu_id" value="{{current_discu.id}}"/>
                     <input class="rounded-start-3 px-2" style="flex-grow:1" type="text" name="msg" value="" autofocus="autofocus" autocomplete="off"/>

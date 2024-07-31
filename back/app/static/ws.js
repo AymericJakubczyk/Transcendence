@@ -22,7 +22,16 @@ function create_ws()
 	chatSocket.onmessage = function(event) {
 		const message = JSON.parse(event.data);
 		console.log('Received message:', message);
-		add_msg(message.sender, message.message, false)
+		if (message.type == 'chat')
+		{
+			add_msg(message.sender, message.message, false)
+			update_last_msg(message.sender, message.message)
+			msg_is_read(message.sender, message.discu)
+		}
+		else if (message.type == 'disconnect')
+			document.getElementById("statut_" + message.sender).hidden = true;
+		else if (message.type == 'connect')
+			document.getElementById("statut_" + message.sender).hidden = false;
 	};
 	
 	chatSocket.onclose = (event) => {
@@ -53,11 +62,15 @@ function custom_submit()
 			const message = {
 				'sender': elems.sender.value,
 				'message': elems.msg.value,
-				'send_to': elems.send_to.value
+				'send_to': elems.send_to.value,
+				'discu_id': elems.discu_id.value
 			};
 			add_msg("you", elems.msg.value, true)
-			chatSocket.send(JSON.stringify(message));
 			elems.msg.value = ""
+			const last_msg = document.getElementById("last_msg_" + message.send_to);
+			if (last_msg)
+				last_msg.innerHTML = "vous : " + message.message;
+			chatSocket.send(JSON.stringify(message));
 			return ;
 		});
 	}
@@ -84,5 +97,48 @@ function add_msg(sender, msg, you)
 			myDiv.append(msg_div)
 		}
 		myDiv.scrollTop = myDiv.scrollHeight;	
+	}
+}
+
+function update_last_msg(sender, msg)
+{
+	const discu = document.getElementById("discu_" + sender);
+	const last_msg = document.getElementById("last_msg_" + sender);
+	if (discu && last_msg)
+	{
+		last_msg.innerHTML = msg;
+		const profile_pic = document.getElementById("profile_pic_" + sender);
+		if (profile_pic && !document.getElementById('notif_' + sender) && !discu.classList.contains("discu_selected"))
+		{
+			console.log("add notif");
+			const notif = document.createElement("span");
+			notif.setAttribute('id', 'notif_' + sender);
+			notif.setAttribute('class', 'badge bg-danger rounded-pill');
+			notif.setAttribute('style', 'position: absolute; right: 0;');
+			notif.innerHTML = "!";
+			profile_pic.append(notif);
+			
+		}
+	}
+}
+
+function msg_is_read(sender)
+{
+	console.log("verif_is_read");
+
+	const discu = document.getElementById("discu_" + sender);
+	console.log(discu.dataset.id)
+	if (discu && discu.classList.contains("discu_selected"))
+		{
+		console.log("msg_is_read");
+		url = window.location.href // current url
+		fetch(url, {
+			method:'POST',
+			headers:{
+			 'Content-Type':'application/json',
+			 'X-CSRFToken':csrftoken,
+			}, 
+			body:JSON.stringify({'read':discu.dataset.id}) //JavaScript object of data to POST
+		})
 	}
 }
