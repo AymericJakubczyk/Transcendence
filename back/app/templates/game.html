@@ -3,9 +3,7 @@
 <div class="container">
     <h1 class="header">ULTIMATE EXTRA COOL SUPER PONG TOURNAMENT EXTREME BATTLE</h1>
     <h5 class="header">Welcome in the history</h5>
-
-	{% if user.is_authenticated %}
-
+    
     <div class="row main-box">
             <canvas id="pongCanvas" width="720" height="480"></canvas>
         </div>
@@ -74,14 +72,6 @@
             </div>
         </div>
     </div>
-
-	{% else %}
-
-	<h3 class="text-center mt-5">LOG-IN TO PLAY COOL GAMES !</h3>
-	<a class="d-block text-center text-danger font-weight-bold" hx-get="{% url 'myprofile' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">CLICK HERE</a>
-
-	{% endif %}
-
 </div>
 
 <script src="{% static 'pong.js' %}"></script>

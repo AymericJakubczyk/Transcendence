@@ -26,7 +26,9 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+PC_HOST = os.environ.get('IPHOST')
+
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', PC_HOST]
 CSRF_TRUSTED_ORIGINS = ['https://localhost:8042']
 
 

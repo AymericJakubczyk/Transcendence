@@ -44,14 +44,13 @@ def homeView(request):
     return render(request, 'home.html', {'form':form, 'next_url':next_url, 'refresh':0})
 
 def gameView(request):
-    if request.user.is_authenticated:
+    if request.user.is_authenticated == False:
+        messages.error(request, 'Log-in to play cool games !')
+        return redirect('myprofile')
+    else:
         if request.META.get("HTTP_HX_REQUEST") != 'true':
             return render(request, 'page_full.html', {'page':'game.html', 'user':request.user})
         return render(request, 'game.html', {'user':request.user})
-    else:
-        if request.META.get("HTTP_HX_REQUEST") != 'true':
-            return render(request, 'page_full.html', {'page':'game.html'})
-        return render(request, 'game.html')
 
 def registrationView(request):
     if request.method == 'POST':
@@ -135,6 +134,7 @@ def updateProfile(request):
         return render(request, 'page_full.html', {'page':'update_profile.html', 'form':form, 'user':user})
     return render(request, 'update_profile.html', {'form':form, 'user':user})
 
+@login_required
 def password_change(request):
     form = PasswordChangeForm(user=request.user)
     if request.method == 'POST':
@@ -172,8 +172,12 @@ def accept_friend_request(request, requestID):
         messages.error(request, 'Friend request not accepted')
         return redirect('myprofile')
 
-@login_required
 def chatView(request):
+
+    if request.user.is_authenticated == False:
+        messages.error(request, 'Log-in to chat with friends !')
+        return redirect('myprofile')
+
     interlocutor = None
     msg = None
     current_discu = None
