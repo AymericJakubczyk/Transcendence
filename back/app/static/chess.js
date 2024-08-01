@@ -677,6 +677,8 @@ function isPossibleKingMove(x, y, piece)
     if (x >= 0 && x < 8 && y >= 0 && y < 8)
         if (pieces[x][y].color != piece.color && !isEnemyMove(x, y, piece))
             return true;
+        else if (isEnemyMove(x, y, piece))
+            console.log("IT IS", x, y, piece);
     return false;
 }
 
@@ -707,18 +709,21 @@ function isEnemyMove(x, y, piece)
         team = whiteTeam;
     for (let i = 0; i < 16; i++)
     {
+        team[i].resetPossibleMove();
         if (team[i].name == "King")
             team[i].getPossibleNormalMove();
         else if (team[i].name == "Pawn")
         {
-            team[i].resetPossibleMove();
             team[i].getAttackMove();
             console.log(team[i]);
         }
         else
             team[i].getPossibleMove();
         if (team[i].possibleMoves[x][y] == "PossibleMove")
+        {
+            console.log("HEY THIS IS", team[i]);
             return true;
+        }
     }
     return false;
 }
@@ -926,7 +931,7 @@ function moovePawn(x, y, context)
             selectedOne.posy = posx;
             oldColor = selectedOne.color;
             whosPlaying(oldColor);
-            pieces[oldy][oldx] = '';  
+            pieces[oldy][oldx] = '';
             selected = false;
             selectedOne = null;
             drawChess(context);
