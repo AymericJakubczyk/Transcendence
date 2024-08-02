@@ -3,13 +3,14 @@ from django.contrib.auth import login, authenticate, logout, update_session_auth
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from .forms import SignupForm, LoginForm, UpdateForm
-from .models import User, Friend_Request, Discussion, Message
+from .models import User, Friend_Request, Discussion, Message, Game
 from django.urls import reverse as get_url
 from django.db.models import Q
 
 import sys
 import logging
 from django.contrib import messages
+
 
 logger = logging.getLogger(__name__)
 
@@ -228,3 +229,17 @@ def chatView(request):
     if request.META.get("HTTP_HX_REQUEST") != 'true':
         return render(request, 'page_full.html', {'page':'chat.html', 'interlocutor':interlocutor, 'all_user':all_addable_user, 'all_discussion': all_discussion_name, 'current_discu':current_discu, 'all_message': all_message})
     return render(request, 'chat.html', {'interlocutor':interlocutor, 'all_user':all_addable_user, 'all_discussion': all_discussion_name, 'current_discu':current_discu, 'all_message': all_message})
+
+
+# API
+
+from rest_framework.viewsets import ModelViewSet
+
+from .serializers import GameSerializer
+
+class GameViewSet(ModelViewSet):
+    
+    serializer_class = GameSerializer
+
+    def get_queryset(self):
+        return Game.objects.all()

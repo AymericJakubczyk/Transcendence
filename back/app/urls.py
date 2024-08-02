@@ -1,8 +1,14 @@
 from django.conf.urls import handler404
-from django.urls import path
+from django.urls import path, include
 from . import views
-from .views import custom_404
+from .views import custom_404, GameViewSet
 from django.contrib.auth.views import PasswordChangeView
+
+#API
+from rest_framework import routers
+
+router = routers.SimpleRouter()
+router.register('Game', GameViewSet, basename='Game')
 
 
 handler404 = custom_404
@@ -20,4 +26,9 @@ urlpatterns = [
 
 	path('send_friend_request/<str:username>/', views.send_friend_request, name='send_friend_request'),
 	path('accept_friend_request/<int:requestID>/', views.accept_friend_request, name='accept_friend_request'),
+    
+    # API URLS
+    path('api-auth/', include('rest_framework.urls')),
+    path('api/', include(router.urls)),
+
 ]

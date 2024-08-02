@@ -47,3 +47,37 @@ class Message(models.Model):
     discussion = models.ForeignKey(Discussion, on_delete=models.CASCADE)
     sender = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
     message = models.CharField(max_length = 200)
+
+class Pong(models.Model):
+	ball_x = models.IntegerField(default=0)
+	ball_y = models.IntegerField(default=0)
+	ball_dx = models.IntegerField(default=0)
+	ball_dy = models.IntegerField(default=0)
+	player1_x = models.IntegerField(default=0)
+	player2_x = models.IntegerField(default=0)
+
+class Game(models.Model):
+	player1 = models.ForeignKey(User, related_name='player1', on_delete=models.CASCADE)
+	player2 = models.ForeignKey(User, related_name='player2', on_delete=models.CASCADE)
+	#if game is pong or chess
+	class GameType(models.TextChoices):
+		PONG = 'PONG'
+		CHESS = 'CHESS'
+	gametype = models.fields.CharField(choices=GameType.choices, default=GameType.PONG, max_length=5)
+
+	pong = models.ForeignKey(Pong, null=True, blank=True, on_delete=models.SET_NULL)
+
+	# elseif gametype is chess
+	#chess = models.ForeignKey(Chess, null=True, on_delete=models.SET_NULL)
+
+	# if game is over
+	over = models.BooleanField(default=False)
+	winner = models.ForeignKey(User, related_name='winner', null=True, blank=True, on_delete=models.SET_NULL)
+	def __str__(self):
+		return self.player1.username + " vs " + self.player2.username
+
+
+
+
+
+	
