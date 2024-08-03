@@ -1,3 +1,4 @@
+//INIT GLOBAL VALUES
 var selected = 0;
 var selectedOne = null;
 var oldx;
@@ -644,7 +645,8 @@ class Queen {
     }
 }
 
-function doRightRock(x)
+//ROCKS
+function RightRock(x)
 {
     pieces[x][4].count = 1;
     pieces[x][6] = pieces[x][4];
@@ -657,7 +659,7 @@ function doRightRock(x)
     pieces[x][7] = "NoPossibleMove";
 }
 
-function doLeftRock(x)
+function LeftRock(x)
 {
     pieces[x][4].count = 1;
     pieces[x][2] = pieces[x][4];
@@ -670,6 +672,8 @@ function doLeftRock(x)
     pieces[x][0] = "NoPossibleMove";
 }
 
+
+//UTILS
 function isPossibleKingMove(x, y, piece)
 {
     console.log(x, y);
@@ -728,6 +732,7 @@ function isEnemyMove(x, y, piece)
     return false;
 }
 
+//INIT FUNCTIONS
 function initChessBoard()
 {
     for (var i = 0; i < 8; i++)
@@ -777,6 +782,7 @@ function initTeams()
     }
 }
 
+//TEST
 function printMousePos(event) {
     document.body.textContent =
     "clientX: " + event.clientX +
@@ -794,6 +800,7 @@ function draw(x, y, string) {
         img.src = string;
 }
 
+//DRAW POSSIBLE MOVES
 function drawPossibleMove(piece, ctx)
 {
     console.log(piece);
@@ -851,7 +858,9 @@ function drawTheMove(x, y, context)
     context.closePath();
 }
 
-function moovePawn(x, y, context)
+
+// MAIN GAME FUNCTION
+function game(x, y, context)
 {
     var width = canvas.offsetWidth;
     var size = width / 8;
@@ -883,69 +892,80 @@ function moovePawn(x, y, context)
             return ;
         }
         if (selectedOne.possibleMoves[posy][posx] == "PossibleMove")
-        {
-            replaceCell(posy, posx, selectedOne);
-            pieces[posy][posx] = selectedOne;
-            selectedOne.posx = posy;
-            selectedOne.posy = posx;
-            oldColor = selectedOne.color;
-            whosPlaying(oldColor);
-            pieces[oldy][oldx] = '';
-            if (selectedOne.name == "King" || selectedOne.name == "Rook")
-                selectedOne.count = 1;    
-            selected = false;
-            selectedOne = null;
-            drawChess(context);
-        }
-        else if (selectedOne.possibleMoves[posy][posx] == "RightRock")
-        {
-            selectedOne.move = 1;
-            doRightRock(posy);
-            oldColor = selectedOne.color;
-            selected = false;
-            selectedOne = null;
-            drawChess(context);
-        }
-        else if (selectedOne.possibleMoves[posy][posx] == "LeftRock")
-        {
-            selectedOne.move = 1;
-            oldColor = selectedOne.color;
-            doLeftRock(posy);
-            selected = false;
-            selectedOne = null;
-            drawChess(context);
-        }
-        else if (selectedOne.possibleMoves[posy][posx] == "enPassant")
-        {
-            replaceCell(posy, posx, selectedOne);
-            console.log(posy, posx);
-            if (selectedOne.color == "white")
-                pieces[posy + 1][posx] = '';
-            else
-                pieces[posy - 1][posx] = '';
-            selectedOne.enPassant = 0;
-            selectedOne.ePleft = 0;
-            selectedOne.ePright = 0;
-            pieces[posy][posx] = selectedOne;
-            selectedOne.posx = posy;
-            selectedOne.posy = posx;
-            oldColor = selectedOne.color;
-            whosPlaying(oldColor);
-            pieces[oldy][oldx] = '';
-            selected = false;
-            selectedOne = null;
-            drawChess(context);
-        }
+			movePiece(posy, posx, context);
+		else if (selectedOne.possibleMoves[posy][posx] == "RightRock")
+			doRightRock(posy, posx, context);
+		else if (selectedOne.possibleMoves[posy][posx] == "LeftRock")
+			doLeftRock(posy, posx, context);
+		else if (selectedOne.possibleMoves[posy][posx] == "enPassant")
+			doEnpassant(posy, posx, context);
         else
         {
             selected = false;
             selectedOne = null;
-            drawChess(context);
         }
+		drawChess(context);
     }
     console.log(selected);
 }
 
+//MOVES
+function movePiece(posy, posx)
+{
+	replaceCell(posy, posx, selectedOne);
+	pieces[posy][posx] = selectedOne;
+	selectedOne.posx = posy;
+	selectedOne.posy = posx;
+	oldColor = selectedOne.color;
+	whosPlaying(oldColor);
+	pieces[oldy][oldx] = '';
+	if (selectedOne.name == "King" || selectedOne.name == "Rook")
+		selectedOne.count = 1;    
+	selected = false;
+	selectedOne = null;
+}
+
+function doRightRock(posy, posx)
+{
+	selectedOne.move = 1;
+	doRightRock(posy);
+	oldColor = selectedOne.color;
+	selected = false;
+	selectedOne = null;
+}
+
+function doLeftRock(posy, posx)
+{
+	selectedOne.move = 1;
+	oldColor = selectedOne.color;
+	doLeftRock(posy);
+	selected = false;
+	selectedOne = null;
+}
+
+function doEnpassant(posy, posx)
+{
+	replaceCell(posy, posx, selectedOne);
+	console.log(posy, posx);
+	if (selectedOne.color == "white")
+		pieces[posy + 1][posx] = '';
+	else
+		pieces[posy - 1][posx] = '';
+	selectedOne.enPassant = 0;
+	selectedOne.ePleft = 0;
+	selectedOne.ePright = 0;
+	pieces[posy][posx] = selectedOne;
+	selectedOne.posx = posy;
+	selectedOne.posy = posx;
+	oldColor = selectedOne.color;
+	whosPlaying(oldColor);
+	pieces[oldy][oldx] = '';
+	selected = false;
+	selectedOne = null;
+}
+
+
+//REDRAW MOVES OR REPLACE CELLS
 function replaceCell(x, y, piece)
 {
     let count1 = x;
@@ -1004,6 +1024,8 @@ function reDrawPossibleCaptureMove(x, y, context)
     context.closePath();
 }
 
+
+//CLASSIC DRAW FUNCTIONS
 function drawChess(ctx)
 {
     var count = 0;
@@ -1055,7 +1077,8 @@ function drawCheckers(ctx)
         }
     }
 }
-    
+
+// "MAIN"
 const canvas = document.getElementById("chess");
 const ctx = canvas.getContext("2d");
 drawCheckers(ctx);
@@ -1066,4 +1089,4 @@ var blackTeam = new Array(16);
 initTeams();
 
 drawChess(ctx);
-canvas.addEventListener('click', function() {moovePawn(event.layerX, event.layerY, ctx)}, false);
+canvas.addEventListener('click', function() {game(event.layerX, event.layerY, ctx)}, false);
