@@ -91,7 +91,7 @@ function add_msg(sender, msg, you)
 		else
 			msg_div.setAttribute('class', 'other_msg  rounded-2 shadow')
 		msg_div.innerHTML = msg;
-		var myDiv = document.getElementById("all_msg");
+		var myDiv = document.getElementById("div_msg");
 		if (myDiv)
 		{
 			myDiv.append(msg_div)

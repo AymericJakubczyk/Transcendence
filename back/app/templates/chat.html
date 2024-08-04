@@ -10,24 +10,29 @@
             </div>
             <div id="all_discussion">
                 {% for discu in all_discussion %}
-                <form hx-post="{{request.path}}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
+                <form hx-post="{{request.path}}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader"> 
                     {% csrf_token %}
                     <input type="hidden" name="change_discussion" value="{{discu.id}}"/>
-                    {% if discu.id == current_discu.id %}
-                    <button id="discu_{{discu.name_discu}}" data-id="{{discu.id}}" class="rounded-2 my-1 p-2 discu_selected" type="submit" value="{{discu.name_discu}}">
-                    {% else %}
-                    <button id="discu_{{discu.name_discu}}" data-id="{{discu.id}}" class="rounded-2 my-1 p-2 discu" type="submit" value="{{discu.name_discu}}">
-                    {% endif %}
+                    <button id="discu_{{discu.name_discu}}" data-id="{{discu.id}}" value="{{discu.name_discu}}"
+                        {% if discu.id == current_discu.id %}
+                            class="rounded-2 my-1 p-2 discu_selected"
+                            type="button"
+                            type="submit"
+                        {% else %}
+                            class="rounded-2 my-1 p-2 discu"
+                            type="submit"
+                        {% endif %}
+                    >
                         <div id="profile_pic_{{discu.name_discu}}" style="position: relative;">
                             <img src="{{ discu.profile_picture.url }}" style="clip-path: ellipse(50% 50%);height:4vw;max-height: 80px;" alt="Profile Picture">
                             {% if discu.last_message and not discu.last_message.read and discu.last_message.sender != request.user %}
-                                <span class="badge bg-danger rounded-pill" style="position: absolute; right: 0;">!</span>
+                                <span class="badge bg-danger rounded-pill" style="position: absolute; left: 0;">!</span>
                             {% endif %}
-                            {% if discu.other_user.state == 'ON' %}
-                                <span id="statut_{{discu.name_discu}}" class="badge rounded-pill" style="background-color: green; position: absolute; right: 0; bottom: 0;">.</span>
-                            {% else %}
-                                <span id="statut_{{discu.name_discu}}" class="badge rounded-pill" style="background-color: green; position: absolute; right: 0; bottom: 0;" hidden>.</span>
-                            {% endif %}
+                            <span id="statut_{{discu.name_discu}}" class="badge rounded-pill" style="background-color: green; color:green; border: 4px rgb(61,61,61) solid;position: absolute; right: 0; bottom: 0;"
+                                {% if discu.other_user.state == 'OFF' %}
+                                    hidden
+                                {% endif %}
+                            >.</span>
                         </div>
                         <div class="d-flex flex-column mx-2" style="overflow: hidden;">
                             <span style="font-size: 24px; font-weight: 400;color:#ffffff; text-align: start;text-overflow: ellipsis;">
@@ -63,7 +68,8 @@
         <div style="position:relative;background-color: rgb(61, 61, 61);" class="d-flex flex-column rounded w-75 mx-2 p-2">
             <p class="fs-1" id="interlocutor">{{interlocutor}}</p>
             {% if interlocutor != None %}
-                <div class="d-flex flex-column my-1 rounded scroller" id="all_msg" style="overflow-y:scroll; background-color: darkgray;height:100%; position: relative;">
+                <div class="d-flex flex-column my-1 rounded" id="div_msg" style=" overflow-y:scroll; background-color: darkgray;height:100%; position: relative;">
+                    <div id="all_msg_{{ interlocutor }}" style="visibility: hidden">
                     {% for msg in all_message %}
                         {% if msg.sender.id == request.user.id %}
                             <div class="my_msg rounded-2 shadow">{{msg.message}}</div>
@@ -71,10 +77,13 @@
                             <div class="other_msg rounded-2 shadow">{{msg.message}}</div>
                         {% endif  %}
                     {% endfor %}
+                    </div>
                 </div>
                 <script>
-                    var objDiv = document.getElementById("all_msg");
-                    objDiv.scrollTop = objDiv.scrollHeight;
+                    var div_msg = document.getElementById("div_msg");
+                    div_msg.scrollTop = div_msg.scrollHeight;
+                    var all_msg_interlocutor = document.getElementById("all_msg_{{ interlocutor }}");
+                    all_msg_interlocutor.style.visibility = "visible";
                 </script>
                 <form class="d-flex flex-row" id="form_message">
                     {% csrf_token %}
