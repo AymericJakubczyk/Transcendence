@@ -1,77 +1,75 @@
 {% load static %}
 
 <div class="container">
-    <h1 class="header">ULTIMATE EXTRA COOL SUPER PONG TOURNAMENT EXTREME BATTLE</h1>
-    <h5 class="header">Welcome in the history</h5>
-    
-    <div class="row main-box">
-            <canvas id="pongCanvas" width="720" height="480"></canvas>
-        </div>
 
-        <div class="justify-content-center align-items-center min-vw-25 col-lg-4 col-sm-12">
-            <ul class="list-group shadow-sm">
-            <li class="list-group-item text-center text-white border-0" style="background: #1E1E1E">
-                <h3 class="fw-normal">Leaderboard</h3>
-            </li>
-            <li class="list-group-item d-flex justify-content-between text-white border-0" style="background: #FF5E5E">
-                <span>1</span>
-                <span>NAME</span>
-                <span>RANK</span>
-            </li>
-            <li class="list-group-item d-flex justify-content-between text-white border-0" style="background: #FF5E5E">
-                <span>2</span>
-                <span>NAME</span>
-                <span>RANK</span>
-            </li>
-            <li class="list-group-item d-flex justify-content-between text-white border-0" style="background: #FF5E5E">
-                <span>3</span>
-                <span>NAME</span>
-                <span>RANK</span>
-            </li>
-            <li class="list-group-item d-flex justify-content-between text-white border-0" style="background: #FF5E5E">
-                <span>4</span>
-                <span>NAME</span>
-                <span>RANK</span>
-            </li>
-            <li class="list-group-item d-flex justify-content-between text-white border-0" style="background: #FF5E5E">
-                <span>5</span>
-                <span>NAME</span>
-                <span>RANK</span>
-            </li>
-        </div>
+	<div class="justify-content-around d-flex text-center">
+		<br><br>
+		<div class="d-block">
+			<h1>🏓</h1>
+			<a hx-get="{% url 'pong' %}" 
+			hx-push-url="true" 
+			hx-target="#page" 
+			hx-swap="innerHTML" 
+			hx-indicator="#content-loader" 
+			class="route col-sm">PONG</a>
+		</div>
+		<div class="d-block">
+			<h1>♟️</h1>
+			<a hx-get="{% url 'chess' %}" 
+			hx-push-url="true" 
+			hx-target="#page" 
+			hx-swap="innerHTML" 
+			hx-indicator="#content-loader" 
+			class="route col-sm">CHESS</a>
+		</div>
+		<br><br>
+	</div>
+	<hr>
 
+	{% if user.tournament_id != -1 %}
+	<div>
+		<h4>ACTUAL TOURNAMENT</h4>
+		<p>finish this tournament before join or create others</p>
+		<button>LEAVE</button>
+	</div>
+	{% else %}
+	<div>
+		<h4>TOURNAMENT LIST</h4>
+		{% if all_tournaments %}
+			{% for tournament in all_tournaments %}
+			<div>
+				<h8>{{ tournament.host_user }}'s tournament</h8>
+				<span>{{ tournament.participants.count }}/{{ tournament.max_users }}</span>
+				{% if tournament.game_played == "PONG" %}
+					<span>🏓</span>
+				{% elif tournament.game_played == "CHESS" %}
+					<span>♟️</span>
+				{% endif %}
+				{% if user not in tournament.participants.all %}
+					<form method="POST" hx-post="{{ request.path }}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
+						{% csrf_token %}
+						<button type="submit" name="join_tournament" value="{{ tournament.id }}">JOIN</button>
+					</form>
+				{% endif %}
+			</div>
+			{% endfor %}
+		{% else %}
+			<p>No tournament here yet.</p>
+		{% endif %}
+		<hr>
+		<h5>HOST TOURNAMENT</h5>
+		<div class="bg-info justify-content-center d-flex">
+			<form method="POST" hx-post="{{ request.path }}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
+				{% csrf_token %}
+				<fieldset>
+					<input type="radio" name="crea-game" value="PONG" checked>🏓</input>
+					<input type="radio" name="crea-game" value="CHESS">♟️</input>
+				</fieldset>
+				<input type="range" name="group-size" min="4" max="32" step="2" value="16">
+				<input name="create_tournament" type="submit" value="CREATE">
+			</form>
+		</div>
+	</div>
+	{% endif %}
 
-    </div>
-    <div class="stats-box pl-5 pr-5 d-flex">
-        <div class="stats-id w-50">
-            <img src="{{ user.profile_picture.url }}" alt="Profile pic">
-               <h2>{{ user.username }}</h2>
-        </div>
-        <div class="stats-content w-50">
-            <div class="stats-content-place">
-                <h3>PLACE</h3>
-                <h6>Unranked</h6>
-            </div>
-        </div>
-        <div class="row stats-content-others">
-            <div class="w-xs-100 w-50">
-                <h3>Rank</h3>
-                <h6>{{ user.pong_rank }}</h6>
-            </div>
-            <div class="w-xs-100 w-50">
-                <h3>Max exchange</h3>
-                <h6>{{ user.pong_max_exchange }}</h6>
-            </div>
-            <div class="w-xs-100 w-50">
-                <h3>Games played</h3>
-                <h6>{{ user.pong_games_played }}</h6>
-            </div>
-            <div class="w-xs-100 w-50">
-                <h3>Winrate</h3>
-                <h6>{{ user.pong_winrate }}</h6>
-            </div>
-        </div>
-    </div>
 </div>
-
-<script src="{% static 'pong.js' %}"></script>
