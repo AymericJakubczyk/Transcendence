@@ -4,6 +4,7 @@ var selectedOne = null;
 var oldx;
 var oldy;
 var oldColor = "black";
+var enPassant = new Array(2);
 whosPlaying(oldColor);
 
 class Pawn {
@@ -40,19 +41,19 @@ class Pawn {
                     this.possibleMoves[posx - 1][posy] = "PossibleMove";
                     if (isPossible(posx - 2, posy, this) && pieces[posx - 2][posy].color != "black")
                     {
-                        this.possibleMoves[posx - 2][posy] = "PossibleMove";
-                        if (posx - 2 >= 0 && posy - 1 >= 0 && isEnemyPawn(posx - 2, posy - 1, pieces[posx - 2][posy - 1]))
-                        {   
-                            console.log("ENPASSANT = 1");
-                            pieces[posx - 2][posy - 1].enPassant = 1;
-                            pieces[posx - 2][posy - 1].ePright = 1;
-                        }
-                        if (posx - 2 >= 0 && posy + 1 < 8 && isEnemyPawn(posx - 2, posy + 1, pieces[posx - 2][posy + 1]))
-                        {   
-                            console.log("ENPASSANT = 1");
-                            pieces[posx - 2][posy + 1].enPassant = 1;
-                            pieces[posx - 2][posy + 1].ePleft = 1;
-                        }
+                        this.possibleMoves[posx - 2][posy] = "PossibleDoubleMove";
+                        // if (posx - 2 >= 0 && posy - 1 >= 0 && isEnemyPawn(posx - 2, posy - 1, pieces[posx - 2][posy - 1]))
+                        // {   
+                        //     console.log("ENPASSANT = 1");
+                        //     pieces[posx - 2][posy - 1].enPassant = 1;
+                        //     pieces[posx - 2][posy - 1].ePright = 1;
+                        // }
+                        // if (posx - 2 >= 0 && posy + 1 < 8 && isEnemyPawn(posx - 2, posy + 1, pieces[posx - 2][posy + 1]))
+                        // {   
+                        //     console.log("ENPASSANT = 1");
+                        //     pieces[posx - 2][posy + 1].enPassant = 1;
+                        //     pieces[posx - 2][posy + 1].ePleft = 1;
+                        // }
                     }
                 }
             }
@@ -60,12 +61,14 @@ class Pawn {
             {
                 if (this.ePright == 1)
                 {
-                    if (isPossible(posx - 1, posy, this) && pieces[posx - 1][posy].color != "black")
+                    if (isPossible(posx - 1, posy + 1, this) && pieces[posx - 1][posy + 1].color == null)
+					{
                         this.possibleMoves[posx - 1][posy + 1] = "enPassant";
+					}
                 }
                 if (this.ePleft == 1)
                 {
-                    if (isPossible(posx - 1, posy, this) && pieces[posx - 1][posy].color != "black")
+                    if (isPossible(posx - 1, posy - 1, this) && pieces[posx - 1][posy - 1].color == null)
                         this.possibleMoves[posx - 1][posy - 1] = "enPassant";
                 }
             }
@@ -84,34 +87,19 @@ class Pawn {
                 {   
                     this.possibleMoves[posx + 1][posy] = "PossibleMove";
                     if (isPossible(posx + 2, posy, this) && pieces[posx + 2][posy].color != "white")
-                    {
-                        this.possibleMoves[posx + 2][posy] = "PossibleMove";
-                        if (posx + 2 < 8 && posy - 1 >= 0 && isEnemyPawn(posx + 2, posy - 1, pieces[posx + 2][posy - 1]))
-                        {   
-                            console.log("ENPASSANT = 1");
-                            pieces[posx + 2][posy - 1].enPassant = 1;
-                            pieces[posx + 2][posy - 1].ePright = 1;
-                        }
-                        if (posx + 2 < 8 && posy + 1 < 8 && isEnemyPawn(posx + 2, posy + 1, pieces[posx + 2][posy + 1]))
-                        {   
-                            console.log(posx, posy, posx + 2, posy + 1);
-                            console.log("ENPASSANT = 1");
-                            pieces[posx + 2][posy + 1].enPassant = 1;
-                            pieces[posx + 2][posy + 1].ePleft = 1;
-                        }
-                    }
+                        this.possibleMoves[posx + 2][posy] = "PossibleDoubleMove";
                 }
             }
             if (this.enPassant == 1)
             {
                 if (this.ePright == 1)
                 {
-                    if (isPossible(posx + 1, posy + 1, this) && pieces[posx + 1][posy + 1].color != "black")
+                    if (isPossible(posx + 1, posy + 1, this) && pieces[posx + 1][posy + 1].color == null)
                         this.possibleMoves[posx + 1][posy + 1] = "enPassant";
                 }
                 if (this.ePleft == 1)
                 {
-                    if (isPossible(posx + 1, posy - 1, this) && pieces[posx + 1][posy - 1].color != "black")
+                    if (isPossible(posx + 1, posy - 1, this) && pieces[posx + 1][posy - 1].color == null)
                         this.possibleMoves[posx + 1][posy - 1] = "enPassant";
                 }
             }
@@ -819,11 +807,11 @@ function drawPossibleMove(piece, ctx)
     {
         for (var j = 0; j < 8; j++)
         {
-            if ((piece.possibleMoves[i][j] == "PossibleMove" || piece.possibleMoves[i][j] == "RightRock" || piece.possibleMoves[i][j] == "LeftRock") && pieces[i][j].color == colorEnemy)
+            if ((piece.possibleMoves[i][j] == "PossibleMove" || piece.possibleMoves[i][j] == "RightRock" || piece.possibleMoves[i][j] == "LeftRock" || piece.possibleMoves[i][j] == "PossibleDoubleMove") && pieces[i][j].color == colorEnemy)
                 drawPossibleCaptureMove(i, j, ctx);
             else if (piece.possibleMoves[i][j] == "enPassant" && pieces[i][j].color == null)
                 drawPossibleCaptureMove(i, j, ctx);
-            else if ((piece.possibleMoves[i][j] == "PossibleMove" || piece.possibleMoves[i][j] == "RightRock" || piece.possibleMoves[i][j] == "LeftRock") && pieces[i][j].color == null)
+            else if ((piece.possibleMoves[i][j] == "PossibleMove" || piece.possibleMoves[i][j] == "RightRock" || piece.possibleMoves[i][j] == "LeftRock" || piece.possibleMoves[i][j] == "PossibleDoubleMove") && pieces[i][j].color == null)
                 drawTheMove(i, j, ctx);
         }
     }
@@ -893,6 +881,8 @@ function game(x, y, context)
         }
         if (selectedOne.possibleMoves[posy][posx] == "PossibleMove")
 			movePiece(posy, posx, context);
+		else if (selectedOne.possibleMoves[posy][posx] == "PossibleDoubleMove")
+			giveEnpassant(posy, posx, context);
 		else if (selectedOne.possibleMoves[posy][posx] == "RightRock")
 			doRightRock(posy, posx, context);
 		else if (selectedOne.possibleMoves[posy][posx] == "LeftRock")
@@ -904,6 +894,30 @@ function game(x, y, context)
             selected = false;
             selectedOne = null;
         }
+		console.log(enPassant[0]);
+		console.log(enPassant[1]);
+		if (enPassant[0] != "")
+		{
+			if (enPassant[0].color != oldColor)
+			{
+				drawChess(context);
+				return;
+			}
+			enPassant[0].enPassant = 0;
+			enPassant[0].ePright = 0;
+			enPassant[0] = "";
+		}
+		else if (enPassant[1] != "")
+		{
+			if (enPassant[1].color != oldColor)
+			{
+				drawChess(context);
+				return;
+			}
+			enPassant[1].enPassant = 0;
+			enPassant[1].enPassant = 0;
+			enPassant[1] = "";
+		}
 		drawChess(context);
     }
     console.log(selected);
@@ -941,6 +955,39 @@ function doLeftRock(posy, posx)
 	doLeftRock(posy);
 	selected = false;
 	selectedOne = null;
+}
+
+function giveEnpassant(posx, posy)
+{
+	replaceCell(posx, posy, selectedOne);
+	pieces[posx][posy] = selectedOne;
+	console.log("ENPASSANT", posy, posx);
+	console.log(posx - 1, posy);
+	if (posx >= 0 && posy - 1 >= 0 && isEnemyPawn(posx, posy - 1, pieces[posx][posy - 1]))
+	{
+		console.log(posx, posy - 1);
+		pieces[posx][posy - 1].enPassant = 1;
+		pieces[posx][posy - 1].ePright = 1;
+		enPassant[0] = pieces[posx][posy - 1];
+		console.log("ENPASSANT", enPassant[0]);
+	}
+	if (posx >= 0 && posy + 1 < 8 && isEnemyPawn(posx, posy + 1, pieces[posx][posy + 1]))
+	{   
+		console.log(posx, posy + 1);
+		pieces[posx][posy + 1].enPassant = 1;
+		pieces[posx][posy + 1].ePleft = 1;
+		enPassant[1] = pieces[posx][posy + 1];
+		console.log("ENPASSANT", enPassant[1]);
+	}
+	selectedOne.posx = posx;
+	selectedOne.posy = posy;
+	oldColor = selectedOne.color;
+	whosPlaying(oldColor);
+	pieces[oldy][oldx] = '';
+	if (selectedOne.name == "King" || selectedOne.name == "Rook")
+		selectedOne.count = 1;    
+	selected = false;
+	selectedOne = null;	
 }
 
 function doEnpassant(posy, posx)
@@ -1081,6 +1128,8 @@ function drawCheckers(ctx)
 // "MAIN"
 const canvas = document.getElementById("chess");
 const ctx = canvas.getContext("2d");
+enPassant[0] = "";
+enPassant[1] = "";
 drawCheckers(ctx);
 var pieces = new Array(8);
 initChessBoard();
