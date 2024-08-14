@@ -7,6 +7,7 @@ from .models import User, Friend_Request, Discussion, Message
 from django.urls import reverse as get_url
 from django.db.models import Q
 import json
+from django.http import JsonResponse
 
 import sys
 import logging
@@ -232,3 +233,28 @@ def chatView(request):
     if request.META.get("HTTP_HX_REQUEST") != 'true':
         return render(request, 'page_full.html', {'page':'chat.html', 'interlocutor':interlocutor, 'all_user':all_addable_user, 'all_discussion': all_discussion_name, 'current_discu':current_discu, 'all_message': all_message})
     return render(request, 'chat.html', {'interlocutor':interlocutor, 'all_user':all_addable_user, 'all_discussion': all_discussion_name, 'current_discu':current_discu, 'all_message': all_message})
+
+
+def mini_chat(request):
+    current_user = request.user
+    all_discussion_name = []
+    all_obj_msg = []
+    if request.method == "POST":
+        jsonData = json.loads(request.body)
+        request_type = jsonData.get('type')
+        if (request_type == "get_all"):
+            all_discussion = Discussion.objects.filter(Q(user1=current_user) | Q(user2=current_user))
+            for discussion in all_discussion:
+                other_username = discussion.get_other_username(current_user.username)
+                other_user = get_object_or_404(User, username=other_username)
+                obj = {'id': discussion.id, 'name_discu':other_username, 'profile_picture':other_user.profile_picture.url, 'last_message':discussion.get_last_message().message}
+                all_discussion_name.append(obj)
+            return JsonResponse({'type': request_type, 'all_discu': all_discussion_name})
+        elif (request_type == "get_discu"):
+            discu = get_object_or_404(Discussion, id=jsonData.get('id'))
+            all_message = Message.objects.filter(Q(discussion=discu)).order_by('id')
+            for msg in all_message:
+                obj = {'message': msg.message, 'sender':msg.sender.username}
+                all_obj_msg.append(obj)
+            return JsonResponse({'type': request_type, 'all_message': all_obj_msg, 'current_user':request.user.username})
+        return JsonResponse({'type': request_type})

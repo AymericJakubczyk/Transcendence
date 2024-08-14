@@ -24,7 +24,7 @@
                         {% endif %}
                     >
                         <div id="profile_pic_{{discu.name_discu}}" style="position: relative;">
-                            <img src="{{ discu.profile_picture.url }}" style="clip-path: ellipse(50% 50%);height:4vw;max-height: 80px;" alt="Profile Picture">
+                            <img src="{{ discu.profile_picture.url }}" class="pp" alt="Profile Picture">
                             {% if discu.last_message and not discu.last_message.read and discu.last_message.sender != request.user %}
                                 <span class="badge bg-danger rounded-pill" style="position: absolute; left: 0;">!</span>
                             {% endif %}

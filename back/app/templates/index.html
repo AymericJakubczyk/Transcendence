@@ -32,7 +32,7 @@
     {% endif %}
 </head>
 
-<body>
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
     <div>
         <nav>
             <a hx-get="{% url 'home' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route col-sm" id="nav1">Home</a>
@@ -42,6 +42,11 @@
         </nav>
     </div>
     <div id="page">{% block content %}{% endblock %}</div>
+
+        <div id="mini_chat" class="border border-bottom-0 rounded-top p-1 pb-0" style="position:fixed;bottom:0;right:10px;background-color: rgb(61, 61, 61)">
+            <h2 class="m-0 p-2" style="cursor:pointer" onclick="display_mini_chat()">💬</h2>
+        </div>
+    </div>
 
 	<script src="{% static 'profile.js' %}"></script>
     <script src="{% static 'app.js' %}"></script>

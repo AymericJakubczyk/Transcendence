@@ -17,6 +17,7 @@ urlpatterns = [
     path('logout/', views.logout_user, name='logout'),
     path('chat/', views.chatView, name='chat'),
     path('change-password/', views.password_change, name='password_change'),
+    path('mini_chat/', views.mini_chat),
 
 	path('send_friend_request/<str:username>/', views.send_friend_request, name='send_friend_request'),
 	path('accept_friend_request/<int:requestID>/', views.accept_friend_request, name='accept_friend_request'),
