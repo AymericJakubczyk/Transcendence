@@ -47,7 +47,7 @@ function display_mini_chat()
         {
             const discu_div = document.createElement("button");
             discu_div.style = "background-color: transparent; width:100%;border-width: 0px;display:inline-flex"
-            discu_div.setAttribute("onclick", "display_mini_discu('"+data.all_discu[i].name_discu+"', "+data.all_discu[i].id+")")
+            discu_div.setAttribute("onclick", "display_mini_discu('"+data.all_discu[i].name_discu+"', "+data.all_discu[i].id+", '"+data.current_username+"')")
             discu_div.setAttribute("class", "rounded-2 my-1 p-1 discu")
             discu_div.innerHTML =
             `
@@ -77,22 +77,40 @@ function undisplay_mini_chat()
     `
 }
 
-function display_mini_discu(name, id)
+function display_mini_discu(name, id, current_username)
 {
-    console.log("[TEST]", name, id)
+
+    // <h2 class="m-0 text-white"  style="cursor: pointer;" onclick="test()">`+ name +`</h2>
+    console.log("[TEST]", name, id, current_username)
     document.getElementById("mini_chat").innerHTML = `
         <div style="width:25vw">
             <div id="headbar" class="d-flex flex-row justify-content-between p-2">
                 <h2 class="m-0 text-white" style="cursor: pointer;" onclick="display_mini_chat()"><-</h2>
-                <h2 class="m-0 text-white"  style="cursor: pointer;" onclick="test()">`+ name +`</h2>
+                <form id="test_form" hx-post="/chat/" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
+                    <input type="hidden" name="change_discussion" value="`+ id +`"/>
+                    <input style="background-color: transparent; border-width: 0px;" type="submit" value="`+ name +`">
+                </form>
                 <h2 class="m-0" onclick="undisplay_mini_chat()" style="color:red;cursor:pointer">X</h2>
             </div>
-            <div id="all_discu_mini" class="d-flex flex-column rounded" id="div_msg" style=" overflow-y:scroll; background-color: darkgray;height:100%; position: relative;">
-                <div id="all_msg" style="height:35vh;">
+            <div id="all_discu_mini" class="d-flex flex-column" style="overflow-y:scroll;height:35vh; position: relative;">
+                <div id="all_discu_mini" class="d-flex flex-column rounded" id="div_msg" style="overflow-y:scroll; background-color: darkgray;height:100%;">
+                    <div id="all_msg_`+ name +`">
+                    </div>
                 </div>
+                <form id="mini_send_msg" class="d-flex flex-row">
+                    <input type="hidden" name="discu_id" value="`+ id +`"/>
+                    <input type="hidden" name="send_to" value="`+ name +`"/>
+                    <input type="hidden" name="sender" value="`+ current_username +`"/>
+                    <input class="rounded-start-3 px-2" style="flex-grow:1" type="text" name="msg" value="" autofocus="autofocus" autocomplete="off"/>
+                    <input class="rounded-end-3" type="submit" value="SEND">
+                </form>
             </div>
         </div>
     `
+
+    test_form = document.getElementById("test_form")
+    htmx.process(test_form)
+    custom_mini_submit()
 
     url = "/mini_chat/"
     fetch(url, {
@@ -106,11 +124,11 @@ function display_mini_discu(name, id)
     .then(response => response.json())
     .then(data => {
         console.log("[DATA]",data);
-        all_discu = document.getElementById("all_msg")
+        all_discu = document.getElementById("all_msg_"+ name)
         all_discu.innerHTML = ''
         for (i = 0; i < data.all_message.length; i++)
         {
-            if (data.current_user == data.all_message[i].sender)
+            if (data.current_username == data.all_message[i].sender)
                 all_discu.innerHTML += '<div class="my_msg rounded-2 shadow">'+ data.all_message[i].message +'</div>'
             else
                 all_discu.innerHTML += '<div class="other_msg rounded-2 shadow">'+ data.all_message[i].message +'</div>'

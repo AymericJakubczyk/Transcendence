@@ -80,6 +80,39 @@ function custom_submit()
     }
 }
 
+function custom_mini_submit()
+{
+	var myMiniForm = document.getElementById("mini_send_msg");
+	
+	if (myMiniForm)
+    {
+        console.log("[Custom] mini")
+		myMiniForm.addEventListener("submit", function (event) {
+			event.preventDefault(); // Empêcher la soumission du formulaire par défaut
+			let elems = event.target.elements
+		
+			console.log("[SEND]", elems.msg.value, elems.sender.value)
+			const message = {
+				'sender': elems.sender.value,
+				'message': elems.msg.value,
+				'send_to': elems.send_to.value,
+				'discu_id': elems.discu_id.value
+			};
+			// add_msg("you", elems.msg.value, true)
+			elems.msg.value = ""
+			const last_msg = document.getElementById("last_msg_" + message.send_to);
+			if (last_msg)
+				last_msg.innerHTML = "vous : " + message.message;
+			chatSocket.send(JSON.stringify(message));
+			return ;
+		});
+	}
+    else
+    {
+        console.log("[ERROR] not find element by id")
+    }
+}
+
 
 function add_msg(sender, msg, you)
 {

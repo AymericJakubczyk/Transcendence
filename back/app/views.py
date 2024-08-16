@@ -249,12 +249,12 @@ def mini_chat(request):
                 other_user = get_object_or_404(User, username=other_username)
                 obj = {'id': discussion.id, 'name_discu':other_username, 'profile_picture':other_user.profile_picture.url, 'last_message':discussion.get_last_message().message}
                 all_discussion_name.append(obj)
-            return JsonResponse({'type': request_type, 'all_discu': all_discussion_name})
+            return JsonResponse({'type': request_type, 'all_discu': all_discussion_name, 'current_username':current_user.username})
         elif (request_type == "get_discu"):
             discu = get_object_or_404(Discussion, id=jsonData.get('id'))
             all_message = Message.objects.filter(Q(discussion=discu)).order_by('id')
             for msg in all_message:
                 obj = {'message': msg.message, 'sender':msg.sender.username}
                 all_obj_msg.append(obj)
-            return JsonResponse({'type': request_type, 'all_message': all_obj_msg, 'current_user':request.user.username})
+            return JsonResponse({'type': request_type, 'all_message': all_obj_msg, 'current_username':current_user.username})
         return JsonResponse({'type': request_type})
