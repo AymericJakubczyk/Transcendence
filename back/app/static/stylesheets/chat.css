@@ -1,5 +1,6 @@
 .other_msg {
     background-color:gray;
+    color:white;
     width: max-content;
     padding: 10px;
     margin: 10px;
@@ -10,6 +11,7 @@
 
 .my_msg {
     background-color:cadetblue;
+    color:white;
     width: max-content;
     padding: 10px;
     margin: 10px;
@@ -30,7 +32,7 @@
 
 .discu_selected
 {
-    background-color: gray;
+    background-color: rgb(81,81,81);
     width:100%;
     border-width: 0px;
     display:inline-flex

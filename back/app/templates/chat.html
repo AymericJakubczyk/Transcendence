@@ -3,7 +3,7 @@
     <h1>Chat</h1>
 
     <div class="d-flex flex-row" style="height:50vh">
-        <div class="d-flex flex-column rounded w-25 mx-2 p-2" style="background-color: rgb(61, 61, 61);">
+        <div class="d-flex flex-column rounded mx-2 p-2" style="width:25vw; min-width:25vw ;background-color: rgb(61, 61, 61);">
             <div class="d-flex flex-row justify-content-between">
                 <div class="align-self-center" id="txt_discu">all discussions</div>
                 <button class="d-inline" id="add_btn" style="right:0" onclick="display_addable_discussion()">ADD +</button>
@@ -25,13 +25,18 @@
                         <div id="profile_pic_{{discu.name_discu}}" style="position: relative;">
                             <img src="{{ discu.profile_picture.url }}" class="pp" alt="Profile Picture">
                             {% if discu.last_message and not discu.last_message.read and discu.last_message.sender != request.user %}
-                                <span class="badge bg-danger rounded-pill" style="position: absolute; left: 0;">!</span>
+                                <div class="bg-danger text-light rounded-circle" style="position: absolute; width:20px;height:20px ;left: 0;top: 0">!</div>
                             {% endif %}
-                            <span id="statut_{{discu.name_discu}}" class="badge rounded-pill" style="background-color: green; color:green; border: 4px rgb(61,61,61) solid;position: absolute; right: 0; bottom: 0;"
+                            <div id="statut_{{discu.name_discu}}" class="rounded-circle"
+                                {% if discu.id == current_discu.id %}
+                                    style="background-color: green; border: 4px rgb(81,81,81) solid;position: absolute; right: -5px; bottom: -5px;width:40%;height:40%"
+                                {% else %}
+                                    style="background-color: green; border: 4px rgb(61,61,61) solid;position: absolute; right: -5px; bottom: -5px;width:40%;height:40%"
+                                {% endif %}
                                 {% if discu.other_user.state == 'OFF' %}
                                     hidden
                                 {% endif %}
-                            >.</span>
+                            ></div>
                         </div>
                         <div class="d-flex flex-column mx-2" style="overflow: hidden;">
                             <span style="font-size: 24px; font-weight: 400;color:#ffffff; text-align: start;text-overflow: ellipsis;">

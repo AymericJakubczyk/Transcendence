@@ -22,16 +22,18 @@ function create_ws()
 	chatSocket.onmessage = function(event) {
 		const message = JSON.parse(event.data);
 		console.log('Received message:', message);
+		var statut_elem = document.getElementById("statut_" + message.sender);
 		if (message.type == 'chat')
 		{
 			add_msg(message.sender, message.message, false)
+			add_mini_msg(message.sender, message.message, false)
 			update_last_msg(message.sender, message.message)
 			msg_is_read(message.sender, message.discu)
 		}
-		else if (message.type == 'disconnect')
-			document.getElementById("statut_" + message.sender).hidden = true;
-		else if (message.type == 'connect')
-			document.getElementById("statut_" + message.sender).hidden = false;
+		else if (message.type == 'disconnect' && statut_elem)
+			statut_elem.hidden = true;
+		else if (message.type == 'connect' && statut_elem)
+			statut_elem.hidden = false;
 	};
 	
 	chatSocket.onclose = (event) => {
@@ -98,7 +100,7 @@ function custom_mini_submit()
 				'send_to': elems.send_to.value,
 				'discu_id': elems.discu_id.value
 			};
-			// add_msg("you", elems.msg.value, true)
+			add_mini_msg("you", elems.msg.value, true)
 			elems.msg.value = ""
 			const last_msg = document.getElementById("last_msg_" + message.send_to);
 			if (last_msg)
@@ -116,7 +118,7 @@ function custom_mini_submit()
 
 function add_msg(sender, msg, you)
 {
-	if (you || document.getElementById("interlocutor").innerHTML == sender)
+	if (you || (document.getElementById("interlocutor") && document.getElementById("interlocutor").innerHTML == sender))
 	{
 		const msg_div = document.createElement("div");
 		if (you)
@@ -128,8 +130,28 @@ function add_msg(sender, msg, you)
 		if (myDiv)
 		{
 			myDiv.append(msg_div)
+			myDiv.scrollTop = myDiv.scrollHeight;
 		}
-		myDiv.scrollTop = myDiv.scrollHeight;	
+	}
+}
+
+function add_mini_msg(sender, msg, you)
+{
+	if (you || (document.getElementById("mini_interlocutor") && document.getElementById("mini_interlocutor").value == sender))
+	{
+		console.log("[ADD]", sender, msg, you)
+		const msg_div = document.createElement("div");
+		if (you)
+			msg_div.setAttribute('class', 'my_msg  rounded-2 shadow')
+		else
+			msg_div.setAttribute('class', 'other_msg  rounded-2 shadow')
+		msg_div.innerHTML = msg;
+		var myDiv = document.getElementById("all_mini_msg");
+		if (myDiv)
+		{
+			myDiv.append(msg_div)
+			myDiv.scrollTop = myDiv.scrollHeight;
+		}
 	}
 }
 
@@ -144,13 +166,12 @@ function update_last_msg(sender, msg)
 		if (profile_pic && !document.getElementById('notif_' + sender) && !discu.classList.contains("discu_selected"))
 		{
 			console.log("add notif");
-			const notif = document.createElement("span");
+			const notif = document.createElement("div");
 			notif.setAttribute('id', 'notif_' + sender);
-			notif.setAttribute('class', 'badge bg-danger rounded-pill');
-			notif.setAttribute('style', 'position: absolute; right: 0;');
+			notif.setAttribute('class', 'bg-danger text-light');
+			notif.setAttribute('style', 'clip-path: ellipse(50% 50%);background-color:red;width:20px;height:20px;position: absolute; left: 0;top: 0;');
 			notif.innerHTML = "!";
 			profile_pic.append(notif);
-			
 		}
 	}
 }
@@ -160,9 +181,8 @@ function msg_is_read(sender)
 	console.log("verif_is_read");
 
 	const discu = document.getElementById("discu_" + sender);
-	console.log(discu.dataset.id)
 	if (discu && discu.classList.contains("discu_selected"))
-		{
+	{
 		console.log("msg_is_read");
 		url = window.location.href // current url
 		fetch(url, {

@@ -88,14 +88,12 @@ function display_mini_discu(name, id, current_username)
                 <h2 class="m-0 text-white" style="cursor: pointer;" onclick="display_mini_chat()"><-</h2>
                 <form id="test_form" hx-post="/chat/" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
                     <input type="hidden" name="change_discussion" value="`+ id +`"/>
-                    <input style="background-color: transparent; border-width: 0px;" type="submit" value="`+ name +`">
+                    <input id="mini_interlocutor" style="background-color: transparent; border-width: 0px;" type="submit" value="`+ name +`">
                 </form>
                 <h2 class="m-0" onclick="undisplay_mini_chat()" style="color:red;cursor:pointer">X</h2>
             </div>
             <div id="all_discu_mini" class="d-flex flex-column" style="overflow-y:scroll;height:35vh; position: relative;">
-                <div id="all_discu_mini" class="d-flex flex-column rounded" id="div_msg" style="overflow-y:scroll; background-color: darkgray;height:100%;">
-                    <div id="all_msg_`+ name +`">
-                    </div>
+                <div id="all_mini_msg" class="d-flex flex-column rounded" id="div_msg" style="overflow-y:scroll; background-color: darkgray;height:100%;">
                 </div>
                 <form id="mini_send_msg" class="d-flex flex-row">
                     <input type="hidden" name="discu_id" value="`+ id +`"/>
@@ -124,7 +122,7 @@ function display_mini_discu(name, id, current_username)
     .then(response => response.json())
     .then(data => {
         console.log("[DATA]",data);
-        all_discu = document.getElementById("all_msg_"+ name)
+        all_discu = document.getElementById("all_mini_msg")
         all_discu.innerHTML = ''
         for (i = 0; i < data.all_message.length; i++)
         {
@@ -133,6 +131,7 @@ function display_mini_discu(name, id, current_username)
             else
                 all_discu.innerHTML += '<div class="other_msg rounded-2 shadow">'+ data.all_message[i].message +'</div>'
         }
+        all_discu.scrollTop = all_discu.scrollHeight;
      });
 }
 
