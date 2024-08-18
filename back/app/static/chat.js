@@ -51,19 +51,36 @@ function display_mini_chat()
             discu_div.setAttribute("class", "rounded-2 my-1 p-1 discu")
             discu_div.innerHTML =
             `
-                <div id="profile_pic_{{discu.name_discu}}" style="position: relative;">
+                <div id="profile_pic_mini_`+ data.all_discu[i].name_discu +`" style="position: relative;">
                     <img src="` + data.all_discu[i].profile_picture + `" class="pp" alt="Profile Picture">
+                    <div id="statut_mini_`+ data.all_discu[i].name_discu +`" class="rounded-circle" style="background-color: green; border: 4px rgb(61,61,61) solid;position: absolute; right: -5px; bottom: -5px;width:40%;height:40%" hidden></div>
                 </div>
                 <div class="d-flex flex-column mx-2" style="overflow: hidden;">
                     <span style="font-size: 24px; font-weight: 400;color:#ffffff; text-align: start;text-overflow: ellipsis;">
                         `+ data.all_discu[i].name_discu +`
                     </span>
-                    <span id="last_msg_{{discu.name_discu}}" style="font-size: 14px; font-weight: 100; color:#c0c0c0 ;padding-left: 5px;text-align: start;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;width:100%">
-                        ` + data.all_discu[i].last_message + `
+                    <span id="last_msg_mini_`+ data.all_discu[i].name_discu +`" style="font-size: 14px; font-weight: 100; color:#c0c0c0 ;padding-left: 5px;text-align: start;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;width:100%">
                     </span>
                 </div>
             `
             all_discu.append(discu_div)
+            if (data.all_discu[i].state == "ON")
+                document.getElementById("statut_mini_" + data.all_discu[i].name_discu).hidden = false
+
+            if (data.all_discu[i].last_message_sender == data.current_username)
+                document.getElementById("last_msg_mini_" + data.all_discu[i].name_discu).innerHTML = "vous : " + data.all_discu[i].last_message
+            else
+                document.getElementById("last_msg_mini_" + data.all_discu[i].name_discu).innerHTML = data.all_discu[i].last_message
+            
+            if (data.all_discu[i].last_message_is_readed == false && data.all_discu[i].last_message_sender != data.current_username)
+            {
+                const notif = document.createElement("div");
+                notif.setAttribute('id', 'notif_mini_' + data.all_discu[i].name_discu);
+                notif.setAttribute('class', 'bg-danger text-light');
+                notif.setAttribute('style', 'clip-path: ellipse(50% 50%);background-color:red;width:20px;height:20px;position: absolute; left: 0;top: 0;');
+                notif.innerHTML = "!";
+                document.getElementById("profile_pic_mini_" + data.all_discu[i].name_discu).append(notif);
+            }
 
         }
      });
@@ -92,7 +109,7 @@ function display_mini_discu(name, id, current_username)
                 </form>
                 <h2 class="m-0" onclick="undisplay_mini_chat()" style="color:red;cursor:pointer">X</h2>
             </div>
-            <div id="all_discu_mini" class="d-flex flex-column" style="overflow-y:scroll;height:35vh; position: relative;">
+            <div id="discu_mini_`+ name +`" data-id="`+ id +`" class="d-flex flex-column" style="overflow-y:scroll;height:35vh; position: relative;">
                 <div id="all_mini_msg" class="d-flex flex-column rounded" id="div_msg" style="overflow-y:scroll; background-color: darkgray;height:100%;">
                 </div>
                 <form id="mini_send_msg" class="d-flex flex-row">

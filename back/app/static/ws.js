@@ -23,6 +23,7 @@ function create_ws()
 		const message = JSON.parse(event.data);
 		console.log('Received message:', message);
 		var statut_elem = document.getElementById("statut_" + message.sender);
+		var statut_mini_elem = document.getElementById("statut_mini_" + message.sender);
 		if (message.type == 'chat')
 		{
 			add_msg(message.sender, message.message, false)
@@ -30,10 +31,14 @@ function create_ws()
 			update_last_msg(message.sender, message.message)
 			msg_is_read(message.sender, message.discu)
 		}
-		else if (message.type == 'disconnect' && statut_elem)
+		if (message.type == 'disconnect' && statut_elem)
 			statut_elem.hidden = true;
-		else if (message.type == 'connect' && statut_elem)
+		if (message.type == 'connect' && statut_elem)
 			statut_elem.hidden = false;
+		if (message.type == 'disconnect' && statut_mini_elem)	
+			statut_mini_elem.hidden = true;
+		if (message.type == 'connect' && statut_mini_elem)	
+			statut_mini_elem.hidden = false;
 	};
 	
 	chatSocket.onclose = (event) => {
@@ -174,6 +179,21 @@ function update_last_msg(sender, msg)
 			profile_pic.append(notif);
 		}
 	}
+	const last_msg_mini = document.getElementById("last_msg_mini_" + sender);
+	if (last_msg_mini)
+	{
+		last_msg_mini.innerHTML = msg;
+		const profile_pic_mini = document.getElementById("profile_pic_mini_" + sender);
+		if (profile_pic_mini && !document.getElementById('notif_mini_' + sender))
+		{
+			const notif = document.createElement("div");
+			notif.setAttribute('id', 'notif_mini_' + sender);
+			notif.setAttribute('class', 'bg-danger text-light');
+			notif.setAttribute('style', 'clip-path: ellipse(50% 50%);background-color:red;width:20px;height:20px;position: absolute; left: 0;top: 0;');
+			notif.innerHTML = "!";
+			profile_pic_mini.append(notif);
+		}
+	}
 }
 
 function msg_is_read(sender)
@@ -192,6 +212,19 @@ function msg_is_read(sender)
 			 'X-CSRFToken':csrftoken,
 			}, 
 			body:JSON.stringify({'read':discu.dataset.id}) //JavaScript object of data to POST
+		})
+	}
+	const discu_mini = document.getElementById("discu_mini_" + sender);
+	if (discu_mini)
+	{
+		url = "/chat/"
+		fetch(url, {
+			method:'POST',
+			headers:{
+			 'Content-Type':'application/json',
+			 'X-CSRFToken':csrftoken,
+			}, 
+			body:JSON.stringify({'read':discu_mini.dataset.id})
 		})
 	}
 }

@@ -247,11 +247,23 @@ def mini_chat(request):
             for discussion in all_discussion:
                 other_username = discussion.get_other_username(current_user.username)
                 other_user = get_object_or_404(User, username=other_username)
-                obj = {'id': discussion.id, 'name_discu':other_username, 'profile_picture':other_user.profile_picture.url, 'last_message':discussion.get_last_message().message}
+                obj = { 
+                    'id': discussion.id,
+                    'name_discu':other_username,
+                    'profile_picture':other_user.profile_picture.url,
+                    'last_message':discussion.get_last_message().message,
+                    'last_message_sender':discussion.get_last_message().sender.username,
+                    'last_message_is_readed':discussion.get_last_message().read,
+                    'state':other_user.state
+                }
                 all_discussion_name.append(obj)
             return JsonResponse({'type': request_type, 'all_discu': all_discussion_name, 'current_username':current_user.username})
         elif (request_type == "get_discu"):
             discu = get_object_or_404(Discussion, id=jsonData.get('id'))
+            if (discu.get_last_message().sender != current_user):
+                last_message = discu.get_last_message()
+                last_message.read = True
+                last_message.save()
             all_message = Message.objects.filter(Q(discussion=discu)).order_by('id')
             for msg in all_message:
                 obj = {'message': msg.message, 'sender':msg.sender.username}
