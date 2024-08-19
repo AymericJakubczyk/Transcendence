@@ -38,21 +38,23 @@
         <nav>
             <a hx-get="{% url 'home' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route col-sm" id="nav1">Home</a>
             <a hx-get="{% url 'game' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route col-sm" id="nav2">Game</a>
-            <a hx-get="{% url 'chat' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route col-sm" id="nav2">Chat</a>
+            <a hx-get="{% url 'chat' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route col-sm" id="nav2">
+                <div id="chat_headbar" style="position:relative">Chat</div>
+            </a>
             <a hx-get="{% url 'myprofile' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route col-sm" id="nav3">Profile</a>
         </nav>
     </div>
     <div id="page">{% block content %}{% endblock %}</div>
 
-        <div id="mini_chat" class="border border-bottom-0 rounded-top p-1 pb-0" style="position:fixed;bottom:0;right:10px;background-color: rgb(61, 61, 61)"
-        {% if not user.is_authenticated or request.path == '/chat/' %}
-            hidden
-        {% endif %}
-        >
-            <h2 class="m-0 p-2" style="cursor:pointer" onclick="display_mini_chat()">💬</h2>
-        </div>
+    <div id="mini_chat" class="border border-bottom-0 rounded-top p-1 pb-0" style="position:fixed;bottom:0;right:10px;background-color: rgb(61, 61, 61)"
+    {% if not user.is_authenticated or request.path == '/chat/' %}
+        hidden
+    {% endif %}
+    >
+        <h2 class="m-0 p-2" style="cursor:pointer" onclick="display_mini_chat()">💬</h2>
     </div>
 
+    <script>set_global_notif()</script>
 	<script src="{% static 'profile.js' %}"></script>
     <script src="{% static 'app.js' %}"></script>
 	<script src="{% static 'pong.js' %}"></script>

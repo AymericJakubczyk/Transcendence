@@ -20,9 +20,9 @@ function display_mini_chat()
 {
     document.getElementById("mini_chat").innerHTML = `
         <div style="width:25vw">
-            <div id="headbar" class="d-flex flex-row justify-content-between p-2">
+            <div id="mini_headbar" class="d-flex flex-row justify-content-between p-2">
                 <h2 class="m-0 text-white">Discussions</h2>
-                <h2 class="m-0" onclick="undisplay_mini_chat()" style="color:red;cursor:pointer">X</h2>
+                <h2 class="m-0" onclick="minimize_mini_chat()" style="color:red;cursor:pointer">X</h2>
             </div>
             <div id="all_discu_mini" style="overflow-y:scroll;height:35vh;">
             </div>
@@ -86,28 +86,28 @@ function display_mini_chat()
      });
 }
 
-function undisplay_mini_chat()
+function minimize_mini_chat()
 {
     console.log("coucou discu")
     document.getElementById("mini_chat").innerHTML = `
         <h2 class="m-0 p-2" style="cursor:pointer" onclick="display_mini_chat()">💬</h2>
     `
+    set_global_notif()
 }
 
 function display_mini_discu(name, id, current_username)
 {
 
-    // <h2 class="m-0 text-white"  style="cursor: pointer;" onclick="test()">`+ name +`</h2>
     console.log("[TEST]", name, id, current_username)
     document.getElementById("mini_chat").innerHTML = `
         <div style="width:25vw">
-            <div id="headbar" class="d-flex flex-row justify-content-between p-2">
+            <div id="mini_headbar" class="d-flex flex-row justify-content-between p-2">
                 <h2 class="m-0 text-white" style="cursor: pointer;" onclick="display_mini_chat()"><-</h2>
                 <form id="test_form" hx-post="/chat/" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
                     <input type="hidden" name="change_discussion" value="`+ id +`"/>
                     <input id="mini_interlocutor" style="background-color: transparent; border-width: 0px;" type="submit" value="`+ name +`">
                 </form>
-                <h2 class="m-0" onclick="undisplay_mini_chat()" style="color:red;cursor:pointer">X</h2>
+                <h2 class="m-0" onclick="minimize_mini_chat()" style="color:red;cursor:pointer">X</h2>
             </div>
             <div id="discu_mini_`+ name +`" data-id="`+ id +`" class="d-flex flex-column" style="overflow-y:scroll;height:35vh; position: relative;">
                 <div id="all_mini_msg" class="d-flex flex-column rounded" id="div_msg" style="overflow-y:scroll; background-color: darkgray;height:100%;">
@@ -139,6 +139,7 @@ function display_mini_discu(name, id, current_username)
     .then(response => response.json())
     .then(data => {
         console.log("[DATA]",data);
+        set_global_notif()
         all_discu = document.getElementById("all_mini_msg")
         all_discu.innerHTML = ''
         for (i = 0; i < data.all_message.length; i++)
@@ -159,15 +160,57 @@ window.addEventListener('htmx:beforeSwap', function(evt) {
     console.log('old location!', old_path);
     console.log('new location!', new_path);
     if (new_path == "/chat/" || new_path == "/logout/")
+    {
+        minimize_mini_chat()
         document.getElementById("mini_chat").hidden = true
-    else 
+    }
+    else if (old_path == "/chat/")
+    {
+        set_global_notif()
         document.getElementById("mini_chat").hidden = false
+    }
 });
 
 
-function test()
+function set_global_notif()
 {
-    console.log("[TEST]")
-    htmx.ajax('POST', '/chat/', {target:'#page', swap:'innerHTML', values: { test: "test" }})
+    console.log("[SET GLOBAL NOTIF]");
+    const notif = document.createElement("div");
+    notif.setAttribute('id', 'mini_global_notif');
+    notif.setAttribute('class', 'bg-danger text-light rounded-circle');
+    notif.setAttribute('style', 'clip-path: ellipse(50% 50%);width:20px;height:20px;position: absolute; left: 5px;top: 5px;text-align: center;');
+    notif.innerHTML = "!";
 
+    url = "/mini_chat/"
+    fetch(url, {
+        method:'POST',
+        headers:{
+         'Content-Type':'application/json',
+         'X-CSRFToken':csrftoken,
+        }, 
+        body:JSON.stringify({'type':'get_global_notif'})
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("[DATA]", data);
+        if (data.notif == true)
+        {
+            console.log("add GLOBAL notif");
+            if (document.getElementById("mini_chat") && !document.getElementById("mini_global_notif") && !document.getElementById("mini_headbar"))
+                document.getElementById("mini_chat").append(notif);
+            cpy_notif = notif.cloneNode(true)
+            cpy_notif.setAttribute('id', 'global_notif');
+            cpy_notif.setAttribute('style', 'clip-path: ellipse(50% 50%);width:20px;height:20px;position: absolute; left: -10px;top: -10px;text-align: center;');
+            if (document.getElementById("chat_headbar") && !document.getElementById("global_notif"))
+                document.getElementById("chat_headbar").append(cpy_notif);
+        }
+        else if (data.notif == false)
+        {
+            console.log("remove GLOBAL notif");
+            if (document.getElementById("global_notif"))
+                document.getElementById("global_notif").remove()
+            if (document.getElementById("mini_global_notif"))
+                document.getElementById("mini_global_notif").remove()
+        }
+    });
 }

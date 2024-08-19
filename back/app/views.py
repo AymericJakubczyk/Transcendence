@@ -269,6 +269,12 @@ def mini_chat(request):
                 obj = {'message': msg.message, 'sender':msg.sender.username}
                 all_obj_msg.append(obj)
             return JsonResponse({'type': request_type, 'all_message': all_obj_msg, 'current_username':current_user.username})
+        elif (request_type == "get_global_notif"):
+            all_discussion = Discussion.objects.filter(Q(user1=current_user) | Q(user2=current_user))
+            for discussion in all_discussion:
+                if not discussion.get_last_message().read and discussion.get_last_message().sender != current_user:
+                    return JsonResponse({'type': request_type, 'notif': True})
+            return JsonResponse({'type': request_type, 'notif': False})
         return JsonResponse({'type': request_type})
     else:
         return JsonResponse({'type': 'error', 'message':'not authenticated or not good request'})

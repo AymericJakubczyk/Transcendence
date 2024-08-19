@@ -30,6 +30,7 @@ function create_ws()
 			add_mini_msg(message.sender, message.message, false)
 			update_last_msg(message.sender, message.message)
 			msg_is_read(message.sender, message.discu)
+			set_global_notif()
 		}
 		if (message.type == 'disconnect' && statut_elem)
 			statut_elem.hidden = true;
