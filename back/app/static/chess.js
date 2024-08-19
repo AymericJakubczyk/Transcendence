@@ -35,36 +35,13 @@ class Pawn {
         if (this.color == "white")
         {
             if (posx == 6)
-            {   
-                if (isPossible(posx - 1, posy, this) && pieces[posx - 1][posy].color != "black")
-                {   
-                    this.possibleMoves[posx - 1][posy] = "PossibleMove";
-                    if (isPossible(posx - 2, posy, this) && pieces[posx - 2][posy].color != "black")
-                    {
-                        this.possibleMoves[posx - 2][posy] = "PossibleDoubleMove";
-                        // if (posx - 2 >= 0 && posy - 1 >= 0 && isEnemyPawn(posx - 2, posy - 1, pieces[posx - 2][posy - 1]))
-                        // {   
-                        //     console.log("ENPASSANT = 1");
-                        //     pieces[posx - 2][posy - 1].enPassant = 1;
-                        //     pieces[posx - 2][posy - 1].ePright = 1;
-                        // }
-                        // if (posx - 2 >= 0 && posy + 1 < 8 && isEnemyPawn(posx - 2, posy + 1, pieces[posx - 2][posy + 1]))
-                        // {   
-                        //     console.log("ENPASSANT = 1");
-                        //     pieces[posx - 2][posy + 1].enPassant = 1;
-                        //     pieces[posx - 2][posy + 1].ePleft = 1;
-                        // }
-                    }
-                }
-            }
+                pawnCheckCellDouble(posx, posy, this);
             if (this.enPassant == 1)
             {
                 if (this.ePright == 1)
                 {
                     if (isPossible(posx - 1, posy + 1, this) && pieces[posx - 1][posy + 1].color == null)
-					{
                         this.possibleMoves[posx - 1][posy + 1] = "enPassant";
-					}
                 }
                 if (this.ePleft == 1)
                 {
@@ -72,24 +49,13 @@ class Pawn {
                         this.possibleMoves[posx - 1][posy - 1] = "enPassant";
                 }
             }
-            if (isPossible(posx - 1, posy, this) && pieces[posx - 1][posy].color != "black")
-                    this.possibleMoves[posx - 1][posy] = "PossibleMove";
-            if ((posx - 1 >= 0 && posy - 1 >= 0) && pieces[posx - 1][posy - 1].color == "black")
-                this.possibleMoves[posx - 1][posy - 1] = "PossibleMove";
-            if ((posx - 1 >= 0 && posy + 1 < 8) && pieces[posx - 1][posy + 1].color == "black")
-                this.possibleMoves[posx - 1][posy + 1] = "PossibleMove";
+            pawnCheckCell(posx - 1, posy, this);
+            this.getAttackMove();
         }
         else
         {
             if (posx == 1)
-            {   
-                if (isPossible(posx + 1, posy, this) && pieces[posx + 1][posy].color != "white")
-                {   
-                    this.possibleMoves[posx + 1][posy] = "PossibleMove";
-                    if (isPossible(posx + 2, posy, this) && pieces[posx + 2][posy].color != "white")
-                        this.possibleMoves[posx + 2][posy] = "PossibleDoubleMove";
-                }
-            }
+                pawnCheckCellDouble(posx, posy, this);
             if (this.enPassant == 1)
             {
                 if (this.ePright == 1)
@@ -103,12 +69,8 @@ class Pawn {
                         this.possibleMoves[posx + 1][posy - 1] = "enPassant";
                 }
             }
-            if (isPossible(posx + 1, posy, this) && pieces[posx + 1][posy].color != "white")
-                    this.possibleMoves[posx + 1][posy] = "PossibleMove";
-            if ((posx + 1 < 8 && posy - 1 >= 0) && pieces[posx + 1][posy - 1].color == "white")
-                this.possibleMoves[posx + 1][posy - 1] = "PossibleMove";
-            if ((posx + 1 < 8 && posy + 1 < 8) && pieces[posx + 1][posy + 1].color == "white")
-                this.possibleMoves[posx + 1][posy + 1] = "PossibleMove";
+            pawnCheckCell(posx + 1, posy, this);
+            this.getAttackMove();
         }
         console.log(this.possibleMoves);
     }
@@ -118,17 +80,13 @@ class Pawn {
         let posy = this.posy;
         if (this.color == "white")
         {
-            if ((posx - 1 >= 0 && posy - 1 >= 0) && pieces[posx - 1][posy - 1] == "")
-                this.possibleMoves[posx - 1][posy - 1] = "PossibleMove";
-            if ((posx - 1 >= 0 && posy + 1 < 8) && pieces[posx - 1][posy + 1] == "")
-                this.possibleMoves[posx - 1][posy + 1] = "PossibleMove";
+            pawnAttackCell(posx - 1, posy - 1, this);
+            pawnAttackCell(posx - 1, posy + 1, this);
         }
         else
         {
-            if ((posx + 1 < 8 && posy - 1 >= 0) && pieces[posx + 1][posy - 1] == "")
-                this.possibleMoves[posx + 1][posy - 1] = "PossibleMove";
-            if ((posx + 1 < 8 && posy + 1 < 8) && pieces[posx + 1][posy + 1] == "")
-                this.possibleMoves[posx + 1][posy + 1] = "PossibleMove";
+            pawnAttackCell(posx + 1, posy - 1, this);
+            pawnAttackCell(posx + 1, posy + 1, this);
         }
     }
     resetPossibleMove()
@@ -162,42 +120,17 @@ class Knight {
     {
         let posx = this.posx;
         let posy = this.posy;
-        if (posx + 2 < 8)
-        {   
-            if (posy + 1 < 8)
-                if (pieces[posx + 2][posy + 1].color != this.color)
-                    this.possibleMoves[posx + 2][posy + 1] = "PossibleMove";
-            if (posy - 1 >= 0)
-                if (pieces[posx + 2][posy - 1].color != this.color)
-                    this.possibleMoves[posx + 2][posy - 1] = "PossibleMove";
-        }
-        if (posx - 2 >= 0)
-        {   
-            if (posy + 1 < 8)
-                if (pieces[posx - 2][posy + 1].color != this.color)
-                    this.possibleMoves[posx - 2][posy + 1] = "PossibleMove";
-            if (posy - 1 >= 0)
-                if (pieces[posx - 2][posy - 1].color != this.color)
-                    this.possibleMoves[posx - 2][posy - 1] = "PossibleMove";
-        }
-        if (posy + 2 < 8)
-        {   
-            if (posx + 1 < 8)
-                if (pieces[posx + 1][posy + 2].color != this.color)
-                    this.possibleMoves[posx + 1][posy + 2] = "PossibleMove";
-            if (posx - 1 >= 0)
-                if (pieces[posx - 1][posy + 2].color != this.color)
-                    this.possibleMoves[posx - 1][posy + 2] = "PossibleMove";
-        }
-        if (posy - 2 >= 0)
-        {        
-            if (posx + 1 < 8)
-                if (pieces[posx + 1][posy - 2].color != this.color)
-                    this.possibleMoves[posx + 1][posy - 2] = "PossibleMove";
-            if (posx - 1 >= 0)
-                if (pieces[posx - 1][posy - 2].color != this.color)
-                    this.possibleMoves[posx - 1][posy - 2] = "PossibleMove";
-        }
+        checkCell(posx + 2, posy + 1, this);
+        checkCell(posx + 2, posy - 1, this);
+
+        checkCell(posx - 2, posy + 1, this);
+        checkCell(posx - 2, posy - 1, this);
+
+        checkCell(posx + 1, posy + 2, this);
+        checkCell(posx - 1, posy + 2, this);
+ 
+        checkCell(posx + 1, posy - 2, this);
+        checkCell(posx - 1, posy - 2, this);
     }
     resetPossibleMove()
     {
@@ -235,75 +168,23 @@ class Rook {
         console.log(posx, posy);
         for (let i = posx + 1; i < 8; i++)
         {
-            if (!pieces[i][posy].color)
-                this.possibleMoves[i][posy] = "PossibleMove";
-            else
-            {
-                if (pieces[i][posy].color == this.color)
-                {
-                    this.possibleMoves[i][posy] = "PossibleDefense";
-                    break;
-                }
-                else
-                {
-                    this.possibleMoves[i][posy] = "PossibleMove";
-                    break;
-                }
-            }
+            if (checkCell(i, posy, this) == false)
+                break;
         }
         for (let i = posx - 1; i >= 0; i--)
         {
-            if (!pieces[i][posy].color)
-                this.possibleMoves[i][posy] = "PossibleMove";
-            else
-            {
-                if (pieces[i][posy].color == this.color)
-                {
-                    this.possibleMoves[i][posy] = "PossibleDefense";
-                    break;
-                }
-                else
-                {
-                    this.possibleMoves[i][posy] = "PossibleMove";
-                    break;
-                }
-            }
+            if (checkCell(i, posy, this) == false)
+                break;
         }
         for (let i = posy + 1; i < 8; i++)
         {
-            if (!pieces[posx][i].color)
-                this.possibleMoves[posx][i] = "PossibleMove";
-            else
-            {
-                if (pieces[posx][i].color == this.color)
-                {
-                    this.possibleMoves[posx][i] = "PossibleDefense";
-                    break;
-                }
-                else
-                {
-                    this.possibleMoves[posx][i] = "PossibleMove";
-                    break;
-                }
-            }
+            if (checkCell(posx, i, this) == false)
+                break;
         }
         for (let i = posy - 1; i >= 0; i--)
         {
-            if (!pieces[posx][i].color)
-                this.possibleMoves[posx][i] = "PossibleMove";
-            else
-            {
-                if (pieces[posx][i].color == this.color)
-                {
-                    this.possibleMoves[posx][i] = "PossibleDefense";
-                    break;
-                }
-                else
-                {
-                    this.possibleMoves[posx][i] = "PossibleMove";
-                    break;
-                }
-            }
+            if (checkCell(posx, i, this) == false)
+                break;
         }
     }
     resetPossibleMove()
@@ -339,75 +220,23 @@ class Bishop {
         let posy = this.posy;
         for (let x = this.posx + 1, y = this.posy + 1; x < 8 && y < 8; x++, y++)
         {
-            if (!pieces[x][y].color)
-                this.possibleMoves[x][y] = "PossibleMove";
-            else
-            {
-                if (pieces[x][y].color == this.color)
-                {
-                    this.possibleMoves[x][y] = "PossibleDefense";
-                    break;
-                }
-                else
-                {
-                    this.possibleMoves[x][y] = "PossibleMove";
-                    break;
-                }
-            }
+            if (checkCell(x, y, this) == false)
+                break;
         }
         for (let x = this.posx + 1, y = this.posy - 1; x < 8 && y >= 0; x++, y--)
         {
-            if (!pieces[x][y].color)
-                this.possibleMoves[x][y] = "PossibleMove";
-            else
-            {
-                if (pieces[x][y].color == this.color)
-                {
-                    this.possibleMoves[x][y] = "PossibleDefense";
-                    break;
-                }
-                else
-                {
-                    this.possibleMoves[x][y] = "PossibleMove";
-                    break;
-                }
-            }
+            if (checkCell(x, y, this) == false)
+                break;
         }
         for (let x = this.posx - 1, y = this.posy + 1; x >= 0 && y < 8; x--, y++)
         {
-            if (!pieces[x][y].color)
-                this.possibleMoves[x][y] = "PossibleMove";
-            else
-            {
-                if (pieces[x][y].color == this.color)
-                {
-                    this.possibleMoves[x][y] = "PossibleDefense";
-                    break;
-                }
-                else
-                {
-                    this.possibleMoves[x][y] = "PossibleMove";
-                    break;
-                }
-            }
+            if (checkCell(x, y, this) == false)
+                break;
         }
         for (let x = this.posx - 1, y = this.posy - 1; x >= 0 && y >= 0; x--, y--)
         {
-            if (!pieces[x][y].color)
-                this.possibleMoves[x][y] = "PossibleMove";
-            else
-            {
-                if (pieces[x][y].color == this.color)
-                {
-                    this.possibleMoves[x][y] = "PossibleDefense";
-                    break;
-                }
-                else
-                {
-                    this.possibleMoves[x][y] = "PossibleMove";
-                    break;
-                }
-            }
+            if (checkCell(x, y, this) == false)
+                break;
         }
     }
     resetPossibleMove()
@@ -528,133 +357,42 @@ class Queen {
         let posy = this.posy;
         for (let i = posx + 1; i < 8; i++)
         {
-            if (pieces[i][posy] == "")
-                this.possibleMoves[i][posy] = "PossibleMove";
-            else
-            {
-                if (pieces[i][posy].color == this.color)
-                {
-                    this.possibleMoves[i][posy] = "PossibleDefense";
-                    break;
-                }
-                else
-                {
-                    this.possibleMoves[i][posy] = "PossibleMove";
-                    break;
-                }
-            }
+            if (checkCell(i, posy, this) == false)
+                break;
         }
         for (let i = posx - 1; i >= 0; i--)
         {
-            if (pieces[i][posy] == "")
-                this.possibleMoves[i][posy] = "PossibleMove";
-            else
-            {
-                if (pieces[i][posy].color == this.color)
-                {
-                    this.possibleMoves[i][posy] = "PossibleDefense";
-                    break;
-                }
-                else
-                {
-                    this.possibleMoves[i][posy] = "PossibleMove";
-                    break;
-                }
-            }
+            if (checkCell(i, posy, this) == false)
+                break;
         }
         for (let i = posy + 1; i < 8; i++)
         {
-            if (pieces[posx][i] == "")
-                this.possibleMoves[posx][i] = "PossibleMove";
-            else
-            {
-                if (pieces[posx][i].color == this.color)
-                {
-                    this.possibleMoves[posx][i] = "PossibleDefense";
-                    break;
-                }
-                else
-                {
-                    this.possibleMoves[posx][i] = "PossibleMove";
-                    break;
-                }
-            }
+            if (checkCell(posx, i, this) == false)
+                break;
         }
         for (let i = posy - 1; i >= 0; i--)
         {
-            if (pieces[posx][i] == "")
-                this.possibleMoves[posx][i] = "PossibleMove";
-            else
-            {
-                if (pieces[posx][i].color == this.color)
-                {
-                    this.possibleMoves[posx][i] = "PossibleDefense";
-                    break;
-                }
-                else
-                {
-                    this.possibleMoves[posx][i] = "PossibleMove";
-                    break;
-                }
-            }
+            if (checkCell(posx, i, this) == false)
+                break;
         }
         for (let x = this.posx + 1, y = this.posy + 1; x < 8 && y < 8; x++, y++)
         {
-            if (pieces[x][y] == "")
-                this.possibleMoves[x][y] = "PossibleMove";
-            else
-            {
-                if (pieces[x][y].color == this.color)
-                {
-                    this.possibleMoves[x][y] = "PossibleDefense";
-                    break;
-                }
-                else
-                {
-                    this.possibleMoves[x][y] = "PossibleMove";
-                    break;
-                }
-            }
+            if (checkCell(x, y, this) == false)
+                break;
         }
         for (let x = this.posx + 1, y = this.posy - 1; x < 8 && y >= 0; x++, y--)
         {
-            if (pieces[x][y] == "")
-                this.possibleMoves[x][y] = "PossibleMove";
-            else
-            {
-                if (pieces[x][y].color == this.color)
-                {
-                    this.possibleMoves[x][y] = "PossibleDefense";
-                    break;
-                }
-                else
-                {
-                    this.possibleMoves[x][y] = "PossibleMove";
-                    break;
-                }
-            }
+            if (checkCell(x, y, this) == false)
+                break;
         }
         for (let x = this.posx - 1, y = this.posy + 1; x >= 0 && y < 8; x--, y++)
         {
-            if (pieces[x][y] == "")
-                this.possibleMoves[x][y] = "PossibleMove";
-            else
-            {
-                if (pieces[x][y].color == this.color)
-                {
-                    this.possibleMoves[x][y] = "PossibleDefense";
-                    break;
-                }
-                else
-                {
-                    this.possibleMoves[x][y] = "PossibleMove";
-                    break;
-                }
-            }
+            if (checkCell(x, y, this) == false)
+                break;
         }
         for (let x = this.posx - 1, y = this.posy - 1; x >= 0 && y >= 0; x--, y--)
         {
-            if (checkCell(x, y) == false)
+            if (checkCell(x, y, this) == false)
                 break;
         }
     }
@@ -669,24 +407,87 @@ class Queen {
 }
 
 //CHECK CELL
-function checkCell(x, y)
+function checkCell(x, y, piece)
 {
-    if (pieces[x][y] == "")
-        this.possibleMoves[x][y] = "PossibleMove";
-    else
-    {
-        if (pieces[x][y].color == this.color)
-        {
-            this.possibleMoves[x][y] = "PossibleDefense";
-            return false;
-        }
+    if (x >= 0 && x < 8 && y >= 0 && y < 8)
+    {   
+        if (pieces[x][y] == "")
+            piece.possibleMoves[x][y] = "PossibleMove";
         else
         {
-            this.possibleMoves[x][y] = "PossibleMove";
-            return false;
+            if (pieces[x][y].color == piece.color)
+            {
+                piece.possibleMoves[x][y] = "PossibleDefense";
+                return false;
+            }
+            else
+            {
+                piece.possibleMoves[x][y] = "PossibleMove";
+                return false;
+            }
+        }
+        return true;
+    }
+    return false;
+}
+
+//PAWN UTILS
+function pawnAttackCell(x, y, piece)
+{
+    if (x >= 0 && x < 8 && y >= 0 && y < 8)
+    {       
+        pawnCheckAttack(x, y, piece);
+    }
+}
+
+function pawnCheckAttack(x, y, piece)
+{
+    if (pieces[x][y] == "")
+        return false;
+    if (isPossible(x, y, piece) && pieces[x][y].color != piece.color)
+    {   
+        piece.possibleMoves[x][y] = "PossibleMove";
+        return true;
+    }
+    else if (pieces[x][y].color == piece.color)
+    {
+        piece.possibleMoves[x][y] = "PossibleDefense";
+        return true;
+    }
+    return false;
+}
+
+function pawnCheckCell(x, y, piece)
+{
+    if (pieces[x][y].color != null)
+        return;
+    if (isPossible(x, y, piece) && pieces[x][y].color != piece.color)
+    {   
+        piece.possibleMoves[x][y] = "PossibleMove";
+        return true;
+    }
+    return false;
+}
+function pawnCheckCellDouble(x, y, piece)
+{
+    if (piece.color == "white")
+    {
+        if (pawnCheckCell(x - 1, y, piece) == true)
+        {   
+            piece.possibleMoves[x - 1][y] = "PossibleMove";
+            if (pawnCheckCell(x - 2, y, piece) == true)
+                piece.possibleMoves[x - 2][y] = "PossibleDoubleMove";
         }
     }
-    return true;
+    else
+    {
+        if (pawnCheckCell(x + 1, y, piece) == true)
+        {   
+            piece.possibleMoves[x + 1][y] = "PossibleMove";
+            if (pawnCheckCell(x + 2, y, piece) == true)
+                piece.possibleMoves[x + 2][y] = "PossibleDoubleMove";
+        }
+    }
 }
 
 //ROCKS
