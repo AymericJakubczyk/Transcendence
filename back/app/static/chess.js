@@ -240,7 +240,10 @@ class Rook {
             else
             {
                 if (pieces[i][posy].color == this.color)
+                {
+                    this.possibleMoves[i][posy] = "PossibleDefense";
                     break;
+                }
                 else
                 {
                     this.possibleMoves[i][posy] = "PossibleMove";
@@ -255,7 +258,10 @@ class Rook {
             else
             {
                 if (pieces[i][posy].color == this.color)
+                {
+                    this.possibleMoves[i][posy] = "PossibleDefense";
                     break;
+                }
                 else
                 {
                     this.possibleMoves[i][posy] = "PossibleMove";
@@ -270,7 +276,10 @@ class Rook {
             else
             {
                 if (pieces[posx][i].color == this.color)
+                {
+                    this.possibleMoves[posx][i] = "PossibleDefense";
                     break;
+                }
                 else
                 {
                     this.possibleMoves[posx][i] = "PossibleMove";
@@ -285,7 +294,10 @@ class Rook {
             else
             {
                 if (pieces[posx][i].color == this.color)
+                {
+                    this.possibleMoves[posx][i] = "PossibleDefense";
                     break;
+                }
                 else
                 {
                     this.possibleMoves[posx][i] = "PossibleMove";
@@ -332,7 +344,10 @@ class Bishop {
             else
             {
                 if (pieces[x][y].color == this.color)
+                {
+                    this.possibleMoves[x][y] = "PossibleDefense";
                     break;
+                }
                 else
                 {
                     this.possibleMoves[x][y] = "PossibleMove";
@@ -347,7 +362,10 @@ class Bishop {
             else
             {
                 if (pieces[x][y].color == this.color)
+                {
+                    this.possibleMoves[x][y] = "PossibleDefense";
                     break;
+                }
                 else
                 {
                     this.possibleMoves[x][y] = "PossibleMove";
@@ -362,7 +380,10 @@ class Bishop {
             else
             {
                 if (pieces[x][y].color == this.color)
+                {
+                    this.possibleMoves[x][y] = "PossibleDefense";
                     break;
+                }
                 else
                 {
                     this.possibleMoves[x][y] = "PossibleMove";
@@ -377,7 +398,10 @@ class Bishop {
             else
             {
                 if (pieces[x][y].color == this.color)
+                {
+                    this.possibleMoves[x][y] = "PossibleDefense";
                     break;
+                }
                 else
                 {
                     this.possibleMoves[x][y] = "PossibleMove";
@@ -509,7 +533,10 @@ class Queen {
             else
             {
                 if (pieces[i][posy].color == this.color)
+                {
+                    this.possibleMoves[i][posy] = "PossibleDefense";
                     break;
+                }
                 else
                 {
                     this.possibleMoves[i][posy] = "PossibleMove";
@@ -524,7 +551,10 @@ class Queen {
             else
             {
                 if (pieces[i][posy].color == this.color)
+                {
+                    this.possibleMoves[i][posy] = "PossibleDefense";
                     break;
+                }
                 else
                 {
                     this.possibleMoves[i][posy] = "PossibleMove";
@@ -539,7 +569,10 @@ class Queen {
             else
             {
                 if (pieces[posx][i].color == this.color)
+                {
+                    this.possibleMoves[posx][i] = "PossibleDefense";
                     break;
+                }
                 else
                 {
                     this.possibleMoves[posx][i] = "PossibleMove";
@@ -554,7 +587,10 @@ class Queen {
             else
             {
                 if (pieces[posx][i].color == this.color)
+                {
+                    this.possibleMoves[posx][i] = "PossibleDefense";
                     break;
+                }
                 else
                 {
                     this.possibleMoves[posx][i] = "PossibleMove";
@@ -569,7 +605,10 @@ class Queen {
             else
             {
                 if (pieces[x][y].color == this.color)
+                {
+                    this.possibleMoves[x][y] = "PossibleDefense";
                     break;
+                }
                 else
                 {
                     this.possibleMoves[x][y] = "PossibleMove";
@@ -584,7 +623,10 @@ class Queen {
             else
             {
                 if (pieces[x][y].color == this.color)
+                {
+                    this.possibleMoves[x][y] = "PossibleDefense";
                     break;
+                }
                 else
                 {
                     this.possibleMoves[x][y] = "PossibleMove";
@@ -599,7 +641,10 @@ class Queen {
             else
             {
                 if (pieces[x][y].color == this.color)
+                {
+                    this.possibleMoves[x][y] = "PossibleDefense";
                     break;
+                }
                 else
                 {
                     this.possibleMoves[x][y] = "PossibleMove";
@@ -609,18 +654,8 @@ class Queen {
         }
         for (let x = this.posx - 1, y = this.posy - 1; x >= 0 && y >= 0; x--, y--)
         {
-            if (pieces[x][y] == "")
-                this.possibleMoves[x][y] = "PossibleMove";
-            else
-            {
-                if (pieces[x][y].color == this.color)
-                    break;
-                else
-                {
-                    this.possibleMoves[x][y] = "PossibleMove";
-                    break;
-                }
-            }
+            if (checkCell(x, y) == false)
+                break;
         }
     }
     resetPossibleMove()
@@ -631,6 +666,27 @@ class Queen {
                 this.possibleMoves[i][j] = "noPossibleMove";
         }
     }
+}
+
+//CHECK CELL
+function checkCell(x, y)
+{
+    if (pieces[x][y] == "")
+        this.possibleMoves[x][y] = "PossibleMove";
+    else
+    {
+        if (pieces[x][y].color == this.color)
+        {
+            this.possibleMoves[x][y] = "PossibleDefense";
+            return false;
+        }
+        else
+        {
+            this.possibleMoves[x][y] = "PossibleMove";
+            return false;
+        }
+    }
+    return true;
 }
 
 //ROCKS
@@ -716,6 +772,8 @@ function isEnemyMove(x, y, piece)
             console.log("HEY THIS IS", team[i]);
             return true;
         }
+        else if (team[i].possibleMoves[x][y] == "PossibleDefense")
+            return true;
     }
     return false;
 }
