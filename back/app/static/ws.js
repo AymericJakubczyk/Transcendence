@@ -30,7 +30,6 @@ function create_ws()
 			add_mini_msg(message.sender, message.message, false)
 			update_last_msg(message.sender, message.message)
 			msg_is_read(message.sender, message.discu)
-			set_global_notif()
 		}
 		if (message.type == 'disconnect' && statut_elem)
 			statut_elem.hidden = true;
@@ -214,6 +213,10 @@ function msg_is_read(sender)
 			}, 
 			body:JSON.stringify({'read':discu.dataset.id}) //JavaScript object of data to POST
 		})
+		.then(data => {
+			console.log("[DATA]", data);
+			set_global_notif()
+		});
 	}
 	const discu_mini = document.getElementById("discu_mini_" + sender);
 	if (discu_mini)
@@ -227,5 +230,11 @@ function msg_is_read(sender)
 			}, 
 			body:JSON.stringify({'read':discu_mini.dataset.id})
 		})
+		.then(data => {
+			console.log("[DATA]", data);
+			set_global_notif()
+		});
 	}
+	if (!(discu && discu.classList.contains("discu_selected")) && !(discu_mini))
+		set_global_notif()
 }
