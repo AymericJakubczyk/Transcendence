@@ -158,7 +158,7 @@ window.addEventListener('htmx:beforeSwap', function(evt) {
     const new_path = evt.detail.pathInfo.path
     console.log('old location!', old_path);
     console.log('new location!', new_path);
-    if (new_path == "/chat/")
+    if (new_path == "/chat/" || new_path == "/logout/")
         document.getElementById("mini_chat").hidden = true
     else 
         document.getElementById("mini_chat").hidden = false

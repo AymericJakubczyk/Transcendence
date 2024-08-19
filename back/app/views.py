@@ -7,7 +7,7 @@ from .models import User, Friend_Request, Discussion, Message
 from django.urls import reverse as get_url
 from django.db.models import Q
 import json
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 
 import sys
 import logging
@@ -239,7 +239,7 @@ def mini_chat(request):
     current_user = request.user
     all_discussion_name = []
     all_obj_msg = []
-    if request.method == "POST":
+    if request.method == "POST" and request.user.is_authenticated:
         jsonData = json.loads(request.body)
         request_type = jsonData.get('type')
         if (request_type == "get_all"):
@@ -270,3 +270,5 @@ def mini_chat(request):
                 all_obj_msg.append(obj)
             return JsonResponse({'type': request_type, 'all_message': all_obj_msg, 'current_username':current_user.username})
         return JsonResponse({'type': request_type})
+    else:
+        return JsonResponse({'type': 'error', 'message':'not authenticated or not good request'})
