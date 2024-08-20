@@ -205,7 +205,27 @@ function update_discu(sender, msg, discu_id, user)
 			profile_pic.append(notif);
 		}
 	}
-	const last_msg_mini = document.getElementById("last_msg_mini_" + sender);
+	var last_msg_mini = document.getElementById("last_msg_mini_" + sender);
+	if (!last_msg_mini && document.getElementById("all_discu_mini")) // if mini discu not exist create it and add it in list
+	{
+		document.getElementById("all_discu_mini").innerHTML += `
+			<button onclick="display_mini_discu('`+ sender +`', `+ discu_id +`)" class="rounded-2 my-1 p-1 discu" style="background-color: transparent; width: 100%; border-width: 0px; display: inline-flex;">
+                <div id="profile_pic_mini_`+ sender +`" style="position: relative;">
+                    <img src="`+ user.profile_picture +`" class="pp" alt="Profile Picture">
+                    <div id="statut_mini_`+ sender +`" class="rounded-circle" style="background-color: green; border: 4px rgb(61,61,61) solid;position: absolute; right: -5px; bottom: -5px;width:40%;height:40%"></div>
+                </div>
+                <div class="d-flex flex-column mx-2" style="overflow: hidden;">
+                    <span style="font-size: 24px; font-weight: 400;color:#ffffff; text-align: start;text-overflow: ellipsis;">
+                        `+ sender +`
+                    </span>
+                    <span id="last_msg_mini_`+ sender +`" style="font-size: 14px; font-weight: 100; color:#c0c0c0 ;padding-left: 5px;text-align: start;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;width:100%">
+						`+ msg +`
+					</span>
+                </div>
+            </button>
+		`
+	}
+	last_msg_mini = document.getElementById("last_msg_mini_" + sender);
 	if (last_msg_mini)
 	{
 		last_msg_mini.innerHTML = msg;

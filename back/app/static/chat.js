@@ -47,7 +47,7 @@ function display_mini_chat()
         {
             const discu_div = document.createElement("button");
             discu_div.style = "background-color: transparent; width:100%;border-width: 0px;display:inline-flex"
-            discu_div.setAttribute("onclick", "display_mini_discu('"+data.all_discu[i].name_discu+"', "+data.all_discu[i].id+", '"+data.current_username+"')")
+            discu_div.setAttribute("onclick", "display_mini_discu('"+data.all_discu[i].name_discu+"', "+data.all_discu[i].id+")")
             discu_div.setAttribute("class", "rounded-2 my-1 p-1 discu")
             discu_div.innerHTML =
             `
@@ -95,10 +95,10 @@ function minimize_mini_chat()
     set_global_notif()
 }
 
-function display_mini_discu(name, id, current_username)
+function display_mini_discu(name, id)
 {
 
-    console.log("[TEST]", name, id, current_username)
+    console.log("[TEST]", name, id)
     document.getElementById("mini_chat").innerHTML = `
         <div style="width:25vw">
             <div id="mini_headbar" class="d-flex flex-row justify-content-between p-2">
@@ -115,7 +115,6 @@ function display_mini_discu(name, id, current_username)
                 <form id="mini_send_msg" class="d-flex flex-row">
                     <input type="hidden" name="discu_id" value="`+ id +`"/>
                     <input type="hidden" name="send_to" value="`+ name +`"/>
-                    <input type="hidden" name="sender" value="`+ current_username +`"/>
                     <input class="rounded-start-3 px-2" style="flex-grow:1" type="text" name="msg" value="" autofocus="autofocus" autocomplete="off"/>
                     <input class="rounded-end-3" type="submit" value="SEND">
                 </form>

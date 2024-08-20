@@ -66,7 +66,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         text_data_json = json.loads(text_data)
         print("[RECEIVE WS]", text_data_json, file=sys.stderr)
 
-        sender = text_data_json['sender']
+        sender = self.scope["user"].username
         message = text_data_json['message']
         send_to = text_data_json['send_to']
         discu_id = text_data_json['discu_id']
@@ -117,23 +117,19 @@ class ChatConsumer(AsyncWebsocketConsumer):
         
 
     async def connect_message(self, event):
-        sender = event['sender']
         print("[SEND WS]", event, file=sys.stderr)
 
         await self.send(text_data=json.dumps({
             'type': event['statut'],
-            'sender': sender
+            'sender': event['sender']
         }))
 
     async def chat_message(self, event):
-        message = event['message']
-        sender = event['sender']
         print("[SEND WS]", event, file=sys.stderr)
-
         await self.send(text_data=json.dumps({
             'type': 'chat',
-            'message': message,
-            'sender': sender,
+            'message': event['message'],
+            'sender': event['sender'],
             'discu_id': event['discu_id'],
             'user': event['user']
         }))
