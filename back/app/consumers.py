@@ -73,13 +73,17 @@ class ChatConsumer(AsyncWebsocketConsumer):
         # save message in db
         await self.save_message(discu_id, sender, message, send_to)
 
+        user = self.scope["user"]
+        user_obj = {'username': user.username, 'profile_picture': user.profile_picture.url}
         # send websocket message
         await self.channel_layer.group_send(
             send_to,
             {
                 'type': 'chat_message',
                 'sender': sender,
-                'message': message
+                'message': message,
+                'discu_id': discu_id,
+                'user': user_obj
             }
         )
 
@@ -129,5 +133,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps({
             'type': 'chat',
             'message': message,
-            'sender': sender
-        }))  
+            'sender': sender,
+            'discu_id': event['discu_id'],
+            'user': event['user']
+        }))

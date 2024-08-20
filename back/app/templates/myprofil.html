@@ -2,7 +2,8 @@
 	<script>
 		console.log("redefine csrf when log")
 		csrftoken = '{{ csrf_token }}';
-		document.getElementById("mini_chat").hidden = false;
+		if (document.getElementById("mini_chat"))
+			document.getElementById("mini_chat").hidden = false;
         set_global_notif()
 	</script>
 {% endif %}

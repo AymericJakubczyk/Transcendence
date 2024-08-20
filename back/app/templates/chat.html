@@ -70,7 +70,14 @@
         </div>
         
         <div style="position:relative;background-color: rgb(61, 61, 61);" class="d-flex flex-column rounded w-75 mx-2 p-2">
-            <p class="fs-1" id="interlocutor">{{interlocutor}}</p>
+            {% if interlocutor %}
+            <form hx-post="{{request.path}}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader"> 
+                <input type="hidden" name="display_profile" value="{{interlocutor.username}}"/>
+                <button class="fs-1 text-light bg-transparent border-0" id="interlocutor" type="submit">{{ interlocutor }}</button>
+            </form>
+            {% else %}
+                <div class="fs-1" id="interlocutor">No discussion selected</div>
+            {% endif %}
             {% if interlocutor != None %}
                 <div class="d-flex flex-column my-1 rounded" id="div_msg" style=" overflow-y:scroll; background-color: darkgray;height:100%; position: relative;">
                     <div id="all_msg_{{ interlocutor }}" style="visibility: hidden">

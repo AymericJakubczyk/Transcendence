@@ -201,6 +201,10 @@ def chatView(request):
             last_message.read = True
             last_message.save()
 
+    elif 'display_profile' in request.POST:
+        interlocutor = get_object_or_404(User, username=request.POST.get('display_profile'))
+        return redirect('profile', username=interlocutor.username)
+
     elif request.method == 'POST':
         jsonData = json.loads(request.body)
         print("[POST BODY]", request.body, jsonData, file=sys.stderr)
@@ -247,21 +251,30 @@ def mini_chat(request):
             for discussion in all_discussion:
                 other_username = discussion.get_other_username(current_user.username)
                 other_user = get_object_or_404(User, username=other_username)
+                last_message = discussion.get_last_message()
+                if last_message:
+                    sender = last_message.sender.username
+                    is_readed = last_message.read
+                    last_message = last_message.message
+                else:
+                    last_message = "No message"
+                    sender = "No sender"
+                    is_readed = True
                 obj = { 
                     'id': discussion.id,
                     'name_discu':other_username,
                     'profile_picture':other_user.profile_picture.url,
-                    'last_message':discussion.get_last_message().message,
-                    'last_message_sender':discussion.get_last_message().sender.username,
-                    'last_message_is_readed':discussion.get_last_message().read,
+                    'last_message':last_message,
+                    'last_message_sender':sender,
+                    'last_message_is_readed':is_readed,
                     'state':other_user.state
                 }
                 all_discussion_name.append(obj)
             return JsonResponse({'type': request_type, 'all_discu': all_discussion_name, 'current_username':current_user.username})
         elif (request_type == "get_discu"):
             discu = get_object_or_404(Discussion, id=jsonData.get('id'))
-            if (discu.get_last_message().sender != current_user):
-                last_message = discu.get_last_message()
+            last_message = discu.get_last_message()
+            if (last_message and last_message.sender != current_user):
                 last_message.read = True
                 last_message.save()
             all_message = Message.objects.filter(Q(discussion=discu)).order_by('id')
@@ -272,7 +285,8 @@ def mini_chat(request):
         elif (request_type == "get_global_notif"):
             all_discussion = Discussion.objects.filter(Q(user1=current_user) | Q(user2=current_user))
             for discussion in all_discussion:
-                if not discussion.get_last_message().read and discussion.get_last_message().sender != current_user:
+                last_message = discussion.get_last_message()
+                if last_message and not last_message.read and last_message.sender != current_user:
                     return JsonResponse({'type': request_type, 'notif': True})
             return JsonResponse({'type': request_type, 'notif': False})
         return JsonResponse({'type': request_type})

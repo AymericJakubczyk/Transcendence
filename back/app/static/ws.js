@@ -28,7 +28,7 @@ function create_ws()
 		{
 			add_msg(message.sender, message.message, false)
 			add_mini_msg(message.sender, message.message, false)
-			update_last_msg(message.sender, message.message)
+			update_discu(message.sender, message.message, message.discu_id, message.user)
 			msg_is_read(message.sender, message.discu)
 		}
 		if (message.type == 'disconnect' && statut_elem)
@@ -160,11 +160,37 @@ function add_mini_msg(sender, msg, you)
 	}
 }
 
-function update_last_msg(sender, msg)
+function update_discu(sender, msg, discu_id, user)
 {
-	const discu = document.getElementById("discu_" + sender);
-	const last_msg = document.getElementById("last_msg_" + sender);
-	if (discu && last_msg)
+	var discu = document.getElementById("discu_" + sender);
+	var last_msg = document.getElementById("last_msg_" + sender);
+	if (!discu && document.getElementById("all_discussion")) // if discu not exist create it and add it in list
+	{
+		console.log("create discu", user, discu_id);
+		const all_discussion = document.getElementById("all_discussion");
+		all_discussion.innerHTML += `
+			<form id="new_discu_`+ sender +`" hx-post="/chat/" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
+				<input type="hidden" name="change_discussion" value="`+ discu_id +`">
+				<button id="discu_`+ sender +`" data-id="`+ discu_id +`" value="`+ sender +`" class="rounded-2 my-1 p-2 discu" type="submit">
+					<div id="profile_pic_`+ sender +`" style="position: relative;">
+						<img src="`+ user.profile_picture +`" class="pp" alt="Profile Picture">
+						<div id="statut_`+ sender +`" class="rounded-circle" style="background-color: green; border: 4px rgb(61,61,61) solid;position: absolute; right: -5px; bottom: -5px;width:40%;height:40%"></div>
+					</div>
+					<div class="d-flex flex-column mx-2" style="overflow: hidden;">
+						<span style="font-size: 24px; font-weight: 400;color:#ffffff; text-align: start;text-overflow: ellipsis;">
+							`+ sender +`
+						</span>
+						<span id="last_msg_`+ sender +`" style="font-size: 14px; font-weight: 100; color:#c0c0c0 ;padding-left: 5px;text-align: start;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;width:100%">
+							`+ msg +`
+						</span>
+					</div>
+				</button>
+			</form>`
+		htmx.process(document.getElementById("new_discu_" + sender));
+	}
+	discu = document.getElementById("discu_" + sender);
+	last_msg = document.getElementById("last_msg_" + sender);
+	if (discu && last_msg) // if discu exist update last message and notif
 	{
 		last_msg.innerHTML = msg;
 		const profile_pic = document.getElementById("profile_pic_" + sender);
