@@ -81,8 +81,8 @@ def myProfilView(request):
     if request.user.is_authenticated:
         all_friend_requests = Friend_Request.objects.filter(to_user=request.user)
         if request.META.get("HTTP_HX_REQUEST") != 'true':
-            return render(request, 'page_full.html', {'page':'myprofil.html', 'user':request.user, 'all_friend_requests': all_friend_requests})
-        return render(request, 'myprofil.html', {'user':request.user, 'all_friend_requests': all_friend_requests})
+            return render(request, 'page_full.html', {'page':'myprofil.html', 'user':request.user, 'all_friend_requests': all_friend_requests, 'refresh':True})
+        return render(request, 'myprofil.html', {'user':request.user, 'all_friend_requests': all_friend_requests, 'refresh':False})
 
     next_url = get_url('myprofile')
     if (request.GET.get('next')):

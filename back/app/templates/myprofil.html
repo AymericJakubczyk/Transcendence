@@ -8,6 +8,12 @@
 	</script>
 {% endif %}
 
+{% if user.is_authenticated and not refresh %}
+<script>create_ws()</script>
+{% elif not user.is_authenticated %}
+<script>close_ws()</script>
+{% endif %}
+
 <div class="container">
 	{% include 'messages.html' %}
 	{% if user.is_authenticated %}

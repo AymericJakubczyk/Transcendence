@@ -65,9 +65,8 @@ function custom_submit()
 			event.preventDefault(); // Empêcher la soumission du formulaire par défaut
 			let elems = event.target.elements
 		
-			console.log("[SEND]", elems.msg.value, elems.sender.value)
+			console.log("[SEND]", elems.msg.value)
 			const message = {
-				'sender': elems.sender.value,
 				'message': elems.msg.value,
 				'send_to': elems.send_to.value,
 				'discu_id': elems.discu_id.value
@@ -98,9 +97,8 @@ function custom_mini_submit()
 			event.preventDefault(); // Empêcher la soumission du formulaire par défaut
 			let elems = event.target.elements
 		
-			console.log("[SEND]", elems.msg.value, elems.sender.value)
+			console.log("[SEND]", elems.msg.value)
 			const message = {
-				'sender': elems.sender.value,
 				'message': elems.msg.value,
 				'send_to': elems.send_to.value,
 				'discu_id': elems.discu_id.value
