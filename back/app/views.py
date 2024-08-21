@@ -217,7 +217,7 @@ def chatView(request):
 
     all_user = User.objects.all()
     all_message = Message.objects.filter(Q(discussion=current_discu)).order_by('id')
-    all_discussion = Discussion.objects.filter(Q(user1=current_user) | Q(user2=current_user))
+    all_discussion = Discussion.objects.filter(Q(user1=current_user) | Q(user2=current_user)).order_by('-last_activity')
     all_discussion_name = []
     all_username = []
     for discussion in all_discussion:
@@ -247,7 +247,7 @@ def mini_chat(request):
         jsonData = json.loads(request.body)
         request_type = jsonData.get('type')
         if (request_type == "get_all"):
-            all_discussion = Discussion.objects.filter(Q(user1=current_user) | Q(user2=current_user))
+            all_discussion = Discussion.objects.filter(Q(user1=current_user) | Q(user2=current_user)).order_by('-last_activity')
             for discussion in all_discussion:
                 other_username = discussion.get_other_username(current_user.username)
                 other_user = get_object_or_404(User, username=other_username)

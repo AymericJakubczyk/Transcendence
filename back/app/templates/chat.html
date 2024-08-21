@@ -10,7 +10,7 @@
             </div>
             <div id="all_discussion">
                 {% for discu in all_discussion %}
-                <form hx-post="{{request.path}}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader"> 
+                <form id="form_discu_{{discu.name_discu}}" hx-post="{{request.path}}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader"> 
                     {% csrf_token %}
                     <input type="hidden" name="change_discussion" value="{{discu.id}}"/>
                     <button id="discu_{{discu.name_discu}}" data-id="{{discu.id}}" value="{{discu.name_discu}}"

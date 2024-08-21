@@ -41,6 +41,7 @@ class Friend_Request(models.Model):
 class Discussion(models.Model):
 	user1 = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name='user1')
 	user2 = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name='user2')
+	last_activity = models.DateTimeField(auto_now=True)
 	
 	def get_other_username(self, name):
 		if self.user1.username == name:

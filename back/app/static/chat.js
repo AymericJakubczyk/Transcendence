@@ -47,6 +47,7 @@ function display_mini_chat()
         {
             const discu_div = document.createElement("button");
             discu_div.style = "background-color: transparent; width:100%;border-width: 0px;display:inline-flex"
+            discu_div.setAttribute("id", "btn_discu_mini_" + data.all_discu[i].name_discu)
             discu_div.setAttribute("onclick", "display_mini_discu('"+data.all_discu[i].name_discu+"', "+data.all_discu[i].id+")")
             discu_div.setAttribute("class", "rounded-2 my-1 p-1 discu")
             discu_div.innerHTML =

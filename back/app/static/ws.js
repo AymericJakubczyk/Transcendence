@@ -30,6 +30,7 @@ function create_ws()
 			add_mini_msg(message.sender, message.message, false)
 			update_discu(message.sender, message.message, message.discu_id, message.user)
 			msg_is_read(message.sender, message.discu)
+			update_list_discu(message.sender)
 		}
 		if (message.type == 'disconnect' && statut_elem)
 			statut_elem.hidden = true;
@@ -77,6 +78,7 @@ function custom_submit()
 			if (last_msg)
 				last_msg.innerHTML = "vous : " + message.message;
 			chatSocket.send(JSON.stringify(message));
+			update_list_discu(message.send_to)
 			return ;
 		});
 	}
@@ -237,6 +239,27 @@ function update_discu(sender, msg, discu_id, user)
 			notif.innerHTML = "!";
 			profile_pic_mini.append(notif);
 		}
+	}
+}
+
+function update_list_discu(sender)
+{
+	// update for chat
+	const discu = document.getElementById("form_discu_" + sender);
+	if (discu)
+	{
+		discu.remove();
+		const all_discussion = document.getElementById("all_discussion");
+		all_discussion.insertBefore(discu, all_discussion.children[0]);
+	}
+
+	//update for mini chat
+	const discu_mini = document.getElementById("btn_discu_mini_" + sender);
+	if (discu_mini)
+	{
+		discu_mini.remove();
+		const all_discu_mini = document.getElementById("all_discu_mini");
+		all_discu_mini.insertBefore(discu_mini, all_discu_mini.children[0]);
 	}
 }
 

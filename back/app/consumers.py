@@ -97,6 +97,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         obj.discussion = current_discu
         obj.sender =  get_object_or_404(User, username=sender)
         obj.message = message
+        current_discu.save() # update last_activity
         obj.save()
 
     @database_sync_to_async
