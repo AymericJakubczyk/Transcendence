@@ -111,7 +111,7 @@ function display_mini_discu(name, id)
                 <h2 class="m-0" onclick="minimize_mini_chat()" style="color:red;cursor:pointer">X</h2>
             </div>
             <div id="discu_mini_`+ name +`" data-id="`+ id +`" class="d-flex flex-column" style="overflow-y:scroll;height:35vh; position: relative;">
-                <div id="all_mini_msg" class="d-flex flex-column rounded" id="div_msg" style="overflow-y:scroll; background-color: darkgray;height:100%;">
+                <div id="all_msg_mini_`+ name +`" class="d-flex flex-column rounded" style="overflow-y:scroll; background-color: darkgray;height:100%;">
                 </div>
                 <form id="mini_send_msg" class="d-flex flex-row">
                     <input type="hidden" name="discu_id" value="`+ id +`"/>
@@ -125,7 +125,7 @@ function display_mini_discu(name, id)
 
     test_form = document.getElementById("test_form")
     htmx.process(test_form)
-    custom_mini_submit()
+    custom_submit("mini_send_msg")
 
     url = "/mini_chat/"
     fetch(url, {
@@ -140,7 +140,7 @@ function display_mini_discu(name, id)
     .then(data => {
         console.log("[DATA]",data);
         set_global_notif()
-        all_discu = document.getElementById("all_mini_msg")
+        all_discu = document.getElementById("all_msg_mini_" + name)
         all_discu.innerHTML = ''
         for (i = 0; i < data.all_message.length; i++)
         {

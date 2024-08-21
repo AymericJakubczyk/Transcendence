@@ -11,7 +11,12 @@
 {% if user.is_authenticated and not refresh %}
 <script>create_ws()</script>
 {% elif not user.is_authenticated %}
-<script>close_ws()</script>
+<script>
+	// when you log out
+	close_ws()
+	if (document.getElementById("global_notif"))
+		document.getElementById("global_notif").remove();
+</script>
 {% endif %}
 
 <div class="container">

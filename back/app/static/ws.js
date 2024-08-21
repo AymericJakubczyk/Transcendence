@@ -1,17 +1,42 @@
-
-
 var ws_created = false;
-
 var chatSocket = null;
+
+
+function custom_submit(form_id)
+{
+    var myForm = document.getElementById(form_id);
+	
+	if (myForm)
+    {
+		myForm.addEventListener("submit", function (event) {
+			event.preventDefault(); // Empêcher la soumission du formulaire par défaut
+			let elems = event.target.elements
+
+			console.log("[SEND]", elems.msg.value, "[TO]", elems.send_to.value)
+			const obj = {
+				'message': elems.msg.value,
+				'send_to': elems.send_to.value,
+				'discu_id': elems.discu_id.value
+			};
+			chatSocket.send(JSON.stringify(obj));
+			add_msg("you", obj.message, true, obj.send_to)
+			const last_msg = document.getElementById("last_msg_" + obj.send_to);
+			if (last_msg)
+				last_msg.innerHTML = "vous : " + obj.message;
+			update_list_discu(obj.send_to)
+			elems.msg.value = "" // for clear input
+			return ;
+		});
+	}
+    else
+        console.log("[ERROR] not find element by id")
+}
 
 function create_ws()
 {
 	if (ws_created)
-	{
-		console.log("websocket already create");
 		return ;
-	}
-	console.log("launch websocket")
+	console.log("create websocket")
 	chatSocket = new WebSocket('ws://' + window.location.host + '/ws/chat/');
 	
 	chatSocket.onopen = function() {
@@ -20,110 +45,52 @@ function create_ws()
 	};
 	
 	chatSocket.onmessage = function(event) {
-		const message = JSON.parse(event.data);
-		console.log('Received message:', message);
-		var statut_elem = document.getElementById("statut_" + message.sender);
-		var statut_mini_elem = document.getElementById("statut_mini_" + message.sender);
-		if (message.type == 'chat')
+		const data = JSON.parse(event.data);
+		console.log('Received ws:', data);
+		var statut_elem = document.getElementById("statut_" + data.sender);
+		var statut_mini_elem = document.getElementById("statut_mini_" + data.sender);
+		if (data.type == 'chat')
 		{
-			add_msg(message.sender, message.message, false)
-			add_mini_msg(message.sender, message.message, false)
-			update_discu(message.sender, message.message, message.discu_id, message.user)
-			msg_is_read(message.sender, message.discu)
-			update_list_discu(message.sender)
+			add_msg(data.sender, data.message, false, "you")
+			update_discu(data.sender, data.message, data.discu_id, data.user)
+			msg_is_read(data.sender, data.discu)
+			update_list_discu(data.sender)
 		}
-		if (message.type == 'disconnect' && statut_elem)
-			statut_elem.hidden = true;
-		if (message.type == 'connect' && statut_elem)
-			statut_elem.hidden = false;
-		if (message.type == 'disconnect' && statut_mini_elem)	
-			statut_mini_elem.hidden = true;
-		if (message.type == 'connect' && statut_mini_elem)	
-			statut_mini_elem.hidden = false;
+		if (data.type == 'disconnect')
+		{
+			if (statut_elem)
+				statut_elem.hidden = true;
+			if (statut_mini_elem)
+				statut_mini_elem.hidden = true;
+		}
+		if (data.type == 'connect' && statut_elem)
+		{
+			if (statut_elem)
+				statut_elem.hidden = false;
+			if (statut_mini_elem)
+				statut_mini_elem.hidden = false;
+		}
 	};
 	
 	chatSocket.onclose = (event) => {
 		console.log("The connection has been closed successfully.");
 		ws_created = false;
 	}
-
 }
 
 function close_ws()
 {
-	if (chatSocket != null)
-		chatSocket.close();
+	if (chatSocket)
+		chatSocket = chatSocket.close();
 }
 
-function custom_submit()
+function add_msg(sender, msg, you, send_to)
 {
-    var myForm = document.getElementById("form_message");
-	
-	if (myForm)
-    {
-        console.log("[Custom]")
-		myForm.addEventListener("submit", function (event) {
-			event.preventDefault(); // Empêcher la soumission du formulaire par défaut
-			let elems = event.target.elements
-		
-			console.log("[SEND]", elems.msg.value)
-			const message = {
-				'message': elems.msg.value,
-				'send_to': elems.send_to.value,
-				'discu_id': elems.discu_id.value
-			};
-			add_msg("you", elems.msg.value, true)
-			elems.msg.value = ""
-			const last_msg = document.getElementById("last_msg_" + message.send_to);
-			if (last_msg)
-				last_msg.innerHTML = "vous : " + message.message;
-			chatSocket.send(JSON.stringify(message));
-			update_list_discu(message.send_to)
-			return ;
-		});
-	}
-    else
-    {
-        console.log("[ERROR] not find element by id")
-    }
-}
-
-function custom_mini_submit()
-{
-	var myMiniForm = document.getElementById("mini_send_msg");
-	
-	if (myMiniForm)
-    {
-        console.log("[Custom] mini")
-		myMiniForm.addEventListener("submit", function (event) {
-			event.preventDefault(); // Empêcher la soumission du formulaire par défaut
-			let elems = event.target.elements
-		
-			console.log("[SEND]", elems.msg.value)
-			const message = {
-				'message': elems.msg.value,
-				'send_to': elems.send_to.value,
-				'discu_id': elems.discu_id.value
-			};
-			add_mini_msg("you", elems.msg.value, true)
-			elems.msg.value = ""
-			const last_msg = document.getElementById("last_msg_" + message.send_to);
-			if (last_msg)
-				last_msg.innerHTML = "vous : " + message.message;
-			chatSocket.send(JSON.stringify(message));
-			return ;
-		});
-	}
-    else
-    {
-        console.log("[ERROR] not find element by id")
-    }
-}
-
-
-function add_msg(sender, msg, you)
-{
-	if (you || (document.getElementById("interlocutor") && document.getElementById("interlocutor").innerHTML == sender))
+	// for chat
+	var myDiv = document.getElementById("all_msg_" + sender);
+	if (you)
+		myDiv = document.getElementById("all_msg_" + send_to);
+	if (myDiv)
 	{
 		const msg_div = document.createElement("div");
 		if (you)
@@ -131,32 +98,25 @@ function add_msg(sender, msg, you)
 		else
 			msg_div.setAttribute('class', 'other_msg  rounded-2 shadow')
 		msg_div.innerHTML = msg;
-		var myDiv = document.getElementById("div_msg");
-		if (myDiv)
-		{
-			myDiv.append(msg_div)
-			myDiv.scrollTop = myDiv.scrollHeight;
-		}
+		myDiv.append(msg_div)
+		globalDiv = document.getElementById("div_msg");
+		globalDiv.scrollTop = globalDiv.scrollHeight;
 	}
-}
 
-function add_mini_msg(sender, msg, you)
-{
-	if (you || (document.getElementById("mini_interlocutor") && document.getElementById("mini_interlocutor").value == sender))
+	// for mini chat
+	var myMiniDiv = document.getElementById("all_msg_mini_" + sender);
+	if (you)
+		myMiniDiv = document.getElementById("all_msg_mini_" + send_to);
+	if (myMiniDiv)
 	{
-		console.log("[ADD]", sender, msg, you)
 		const msg_div = document.createElement("div");
 		if (you)
 			msg_div.setAttribute('class', 'my_msg  rounded-2 shadow')
 		else
 			msg_div.setAttribute('class', 'other_msg  rounded-2 shadow')
 		msg_div.innerHTML = msg;
-		var myDiv = document.getElementById("all_mini_msg");
-		if (myDiv)
-		{
-			myDiv.append(msg_div)
-			myDiv.scrollTop = myDiv.scrollHeight;
-		}
+		myMiniDiv.append(msg_div)
+		myMiniDiv.scrollTop = myMiniDiv.scrollHeight;
 	}
 }
 
@@ -269,39 +229,29 @@ function msg_is_read(sender)
 
 	const discu = document.getElementById("discu_" + sender);
 	if (discu && discu.classList.contains("discu_selected"))
-	{
-		console.log("msg_is_read");
-		url = window.location.href // current url
-		fetch(url, {
-			method:'POST',
-			headers:{
-			 'Content-Type':'application/json',
-			 'X-CSRFToken':csrftoken,
-			}, 
-			body:JSON.stringify({'read':discu.dataset.id}) //JavaScript object of data to POST
-		})
-		.then(data => {
-			console.log("[DATA]", data);
-			set_global_notif()
-		});
-	}
+		request_for_read_message(discu.dataset.id)
+
 	const discu_mini = document.getElementById("discu_mini_" + sender);
 	if (discu_mini)
-	{
-		url = "/chat/"
-		fetch(url, {
-			method:'POST',
-			headers:{
-			 'Content-Type':'application/json',
-			 'X-CSRFToken':csrftoken,
-			}, 
-			body:JSON.stringify({'read':discu_mini.dataset.id})
-		})
-		.then(data => {
-			console.log("[DATA]", data);
-			set_global_notif()
-		});
-	}
+		request_for_read_message(discu_mini.dataset.id)
+
 	if (!(discu && discu.classList.contains("discu_selected")) && !(discu_mini))
 		set_global_notif()
+}
+
+function request_for_read_message(discu_id)
+{
+	url = "/chat/"
+	fetch(url, {
+		method:'POST',
+		headers:{
+			'Content-Type':'application/json',
+			'X-CSRFToken':csrftoken,
+		}, 
+		body:JSON.stringify({'read':discu_id})
+	})
+	.then(data => {
+		console.log("[DATA]", data);
+		set_global_notif()
+	});
 }
