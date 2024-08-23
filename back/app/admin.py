@@ -5,8 +5,7 @@ from .models import User, Friend_Request, Discussion, Message
 
 
 class MessageAdmin(admin.ModelAdmin):
-	list_display = ('discussion', 'sender', 'message')
-
+	list_display = ('discussion', 'sender', 'message', 'read')
 admin.site.register(User)
 admin.site.register(Friend_Request)
 admin.site.register(Discussion)

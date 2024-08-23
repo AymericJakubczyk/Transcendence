@@ -24,7 +24,7 @@ def logout_user(request):
     return (redirect('myprofile'))
 
 def homeView(request):
-    print("[TEST]", request.POST, file=sys.stderr)
+    print("[TEST]", request.POST, request.body, file=sys.stderr)
     next_url = get_url('home')
     if (request.GET.get('next')):
         next_url = request.GET.get('next')
@@ -92,6 +92,7 @@ def myProfilView(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
+            print("form valid", file=sys.stderr)
             user = authenticate(
                 username=form.cleaned_data['username'],
                 password=form.cleaned_data['password'],
@@ -180,6 +181,7 @@ def chatView(request):
     interlocutor = None
     msg = None
     current_discu = None
+    error = None
     current_user = request.user
 
     if 'add_discussion' in request.POST:
@@ -192,14 +194,20 @@ def chatView(request):
         current_discu = obj
 
     elif 'change_discussion' in request.POST:
+        print("[CHANGE]", file=sys.stderr)
         discu = get_object_or_404(Discussion, id=request.POST.get('change_discussion'))
-        current_discu = discu
-        other_user = current_discu.get_other_username(current_user.username)
-        interlocutor = get_object_or_404(User, username=other_user)
-        last_message = current_discu.get_last_message()
-        if last_message and last_message.sender != current_user:
-            last_message.read = True
-            last_message.save()
+        print("[LOG]", discu.user1, discu.user2, current_user, file=sys.stderr)
+        if (discu.user1 != current_user and discu.user2 != current_user):
+            print("[ERROR]", file=sys.stderr)
+            error = "You are not in this discussion"
+        else:
+            current_discu = discu
+            other_user = current_discu.get_other_username(current_user.username)
+            interlocutor = get_object_or_404(User, username=other_user)
+            last_message = current_discu.get_last_message()
+            if last_message and last_message.sender != current_user:
+                last_message.read = True
+                last_message.save()
 
     elif 'display_profile' in request.POST:
         interlocutor = get_object_or_404(User, username=request.POST.get('display_profile'))
@@ -235,8 +243,8 @@ def chatView(request):
 
 
     if request.META.get("HTTP_HX_REQUEST") != 'true':
-        return render(request, 'page_full.html', {'page':'chat.html', 'interlocutor':interlocutor, 'all_user':all_addable_user, 'all_discussion': all_discussion_name, 'current_discu':current_discu, 'all_message': all_message})
-    return render(request, 'chat.html', {'interlocutor':interlocutor, 'all_user':all_addable_user, 'all_discussion': all_discussion_name, 'current_discu':current_discu, 'all_message': all_message})
+        return render(request, 'page_full.html', {'page':'chat.html', 'interlocutor':interlocutor, 'all_user':all_addable_user, 'all_discussion': all_discussion_name, 'current_discu':current_discu, 'all_message': all_message, 'error':error})
+    return render(request, 'chat.html', {'interlocutor':interlocutor, 'all_user':all_addable_user, 'all_discussion': all_discussion_name, 'current_discu':current_discu, 'all_message': all_message, 'error':error})
 
 
 def mini_chat(request):

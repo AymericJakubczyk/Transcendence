@@ -1,4 +1,11 @@
 {% load static %}
+{% if error %}
+<script>
+    console.log("[ERROR] {{error}}");
+    error_message("{{error}}", 2000);
+</script>
+
+{% endif %}
 <div>
     <h1>Chat</h1>
 
