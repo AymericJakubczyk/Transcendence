@@ -753,33 +753,36 @@ function game(x, y, context)
             selected = false;
             selectedOne = null;
         }
-		console.log(enPassant[0]);
-		console.log(enPassant[1]);
-		if (enPassant[0] != "")
-		{
-			if (enPassant[0].color != oldColor)
-			{
-				drawChess(context);
-				return;
-			}
-			enPassant[0].enPassant = 0;
-			enPassant[0].ePright = 0;
-			enPassant[0] = "";
-		}
-		else if (enPassant[1] != "")
-		{
-			if (enPassant[1].color != oldColor)
-			{
-				drawChess(context);
-				return;
-			}
-			enPassant[1].enPassant = 0;
-			enPassant[1].enPassant = 0;
-			enPassant[1] = "";
-		}
+        handleEnPassant(context);
 		drawChess(context);
     }
     console.log(selected);
+}
+
+function handleEnPassant(context)
+{
+    if (enPassant[0] != "")
+	{
+		if (enPassant[0].color != oldColor)
+		{
+			drawChess(context);
+			return;
+		}
+		enPassant[0].enPassant = 0;
+		enPassant[0].ePright = 0;
+		enPassant[0] = "";
+	}
+	else if (enPassant[1] != "")
+	{
+		if (enPassant[1].color != oldColor)
+		{
+			drawChess(context);
+			return;
+		}
+		enPassant[1].enPassant = 0;
+		enPassant[1].enPassant = 0;
+		enPassant[1] = "";
+	}
 }
 
 //MOVES
@@ -935,6 +938,9 @@ function reDrawPossibleCaptureMove(x, y, context)
 function drawChess(ctx)
 {
     var count = 0;
+    const arrV = ['1', '2', '3', '4', '5', '6', '7', '8'];
+	const arrC = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+    ctx.font = '12px Arial';
     for(let i= 0;i < 800; i+=100) 
     {
         count++;
@@ -955,6 +961,14 @@ function drawChess(ctx)
                 ctx.fillStyle = "burlywood";
                 ctx.fillRect(i, j, 100, 100);
             }
+            if (count % 2 == 1)
+                ctx.fillStyle = "burlywood";
+            else if (count % 2 == 0)
+                ctx.fillStyle = "antiquewhite";
+            if (j == 700)
+                ctx.fillText(arrC[i / 100], i + 90, j + 95);
+            if (i == 0)
+                ctx.fillText(arrV[j / 100], i + 3, j + 15);
             count++;
         }
     }
@@ -962,7 +976,11 @@ function drawChess(ctx)
 
 function drawCheckers(ctx)
 {
+    const arrV = ['1', '2', '3', '4', '5', '6', '7', '8'];
+	const arrC = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+
     var count = 0;
+    ctx.font = '408px Arial';
     for(var i= 0;i < 800; i+=100) 
     {
         count++;
@@ -979,6 +997,15 @@ function drawCheckers(ctx)
                 ctx.fillStyle = "burlywood";
                 ctx.fillRect(i, j, 100, 100);
             }
+            if (count % 2 == 1)
+                ctx.fillStyle = "antiquewhite";
+            else if (count % 2 == 0)
+                ctx.fillStyle = "burlywood";
+            if (i == 7)
+                ctx.fillText(arrC[j], i + 50, j + 50);
+            if (j == 0)
+                ctx.fillText(arrV[i], i + 50, j + 50);
+            
             count++;
         }
     }
