@@ -253,6 +253,7 @@ class King {
     constructor (name, color, posx, posy, img)
     {
         this.count = 0;
+        this.check = 0;
         this.name = name;
         this.color = color;
         this.posx = posx;
@@ -415,6 +416,11 @@ function checkCell(x, y, piece)
             piece.possibleMoves[x][y] = "PossibleMove";
         else
         {
+            if (pieces[x][y].color != piece.color)
+            {
+                if (pieces[x][y].name == "King")
+                    pieces[x][y].check = 1;
+            }    
             if (pieces[x][y].color == piece.color)
             {
                 piece.possibleMoves[x][y] = "PossibleDefense";
@@ -446,11 +452,15 @@ function pawnCheckAttack(x, y, piece)
         return false;
     if (isPossible(x, y, piece) && pieces[x][y].color != piece.color)
     {   
+        if (pieces[x][y].name == "King")
+            pieces[x][y].check = 1;
         piece.possibleMoves[x][y] = "PossibleMove";
         return true;
     }
     else if (pieces[x][y].color == piece.color)
     {
+        if (pieces[x][y].name == "King")
+            pieces[x][y].check = 1;
         piece.possibleMoves[x][y] = "PossibleDefense";
         return true;
     }
@@ -468,6 +478,7 @@ function pawnCheckCell(x, y, piece)
     }
     return false;
 }
+
 function pawnCheckCellDouble(x, y, piece)
 {
     if (piece.color == "white")
@@ -796,7 +807,11 @@ function movePiece(posy, posx)
 	whosPlaying(oldColor);
 	pieces[oldy][oldx] = '';
 	if (selectedOne.name == "King" || selectedOne.name == "Rook")
-		selectedOne.count = 1;    
+		selectedOne.count = 1;
+    if (selectedOne.name == "Pawn")
+        selectedOne.getAttackMove();
+    else
+        selectedOne.getPossibleMove();
 	selected = false;
 	selectedOne = null;
 }
