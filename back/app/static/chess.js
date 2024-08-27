@@ -267,6 +267,13 @@ class King {
             for (var j = 0; j < 8; j++)
                 this.possibleMoves[i][j] = "noPossibleMove";
         }
+        this.escape = [];
+        for (var i = 0; i < 8; i++)
+        {
+            this.possibleMoves[i] = new Array(8);
+            for (var j = 0; j < 8; j++)
+                this.possibleMoves[i][j] = "noPossibleMove";
+        }
     }
     getPossibleMove()
     {
@@ -410,6 +417,9 @@ class Queen {
 //CHECK CELL
 function checkCell(x, y, piece)
 {
+    let color = "white";
+    if (piece.color == "black")
+        color = "black";
     if (x >= 0 && x < 8 && y >= 0 && y < 8)
     {   
         if (pieces[x][y] == "")
@@ -742,6 +752,11 @@ function game(x, y, context)
     }
     else
     {
+        if (isChecked() == true)
+        {
+            defendCheck();
+            return ;
+        }
         redrawPossibleCapture(context);
         if (!selectedOne.color)
         {
@@ -768,6 +783,31 @@ function game(x, y, context)
 		drawChess(context);
     }
     console.log(selected);
+}
+
+function defendCheck()
+{
+    
+}
+
+function isChecked()
+{
+    let color = "white";
+    if (oldColor == "white")
+        color = "black";
+    let team = whiteTeam;
+    if (color == "black")
+        team = blackTeam;
+    for (let i = 0; i < 16; i++)
+    {
+        if (team[i].name == "King")
+        {
+            if (team[i].check == 1)
+                return true;
+            return false;
+        }
+    }
+    return false;
 }
 
 function handleEnPassant(context)
@@ -816,20 +856,22 @@ function movePiece(posy, posx)
 	selectedOne = null;
 }
 
-function doRightRock(posy, posx)
+function doRightRock(posy)
 {
 	selectedOne.move = 1;
-	doRightRock(posy);
+	RightRock(posy);
 	oldColor = selectedOne.color;
+    whosPlaying(oldColor);
 	selected = false;
 	selectedOne = null;
 }
 
-function doLeftRock(posy, posx)
+function doLeftRock(posy)
 {
 	selectedOne.move = 1;
 	oldColor = selectedOne.color;
-	doLeftRock(posy);
+    whosPlaying(oldColor);
+	LeftRock(posy);
 	selected = false;
 	selectedOne = null;
 }
@@ -1026,7 +1068,8 @@ function drawCheckers(ctx)
     }
 }
 
-// "MAIN"
+// "MAIN"/*
+
 const canvas = document.getElementById("chess");
 const ctx = canvas.getContext("2d");
 enPassant[0] = "";
