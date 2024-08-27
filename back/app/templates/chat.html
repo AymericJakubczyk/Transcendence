@@ -10,7 +10,7 @@
     <h1>Chat</h1>
 
     <div class="d-flex flex-row" style="height:50vh">
-        <div class="d-flex flex-column rounded mx-2 p-2" style="width:25vw; min-width:25vw ;background-color: rgb(61, 61, 61);">
+        <div class="d-flex flex-column rounded mx-2 p-2 all_discu_panel">
             <div class="d-flex flex-row justify-content-between">
                 <div class="align-self-center" id="txt_discu">all discussions</div>
                 <button class="d-inline" id="add_btn" style="right:0" onclick="display_addable_discussion()">ADD +</button>
@@ -75,8 +75,8 @@
                 {% endfor %}
             </div>
         </div>
-        
-        <div style="position:relative;background-color: rgb(61, 61, 61);" class="d-flex flex-column rounded w-75 mx-2 p-2">
+  
+        <div class="d-flex flex-column rounded mx-2 p-1 chat_panel">
             {% if interlocutor %}
             <form hx-post="{{request.path}}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader"> 
                 <input type="hidden" name="display_profile" value="{{interlocutor.username}}"/>
@@ -86,8 +86,8 @@
                 <div class="fs-1" id="interlocutor">No discussion selected</div>
             {% endif %}
             {% if interlocutor != None %}
-                <div class="d-flex flex-column my-1 rounded" id="div_msg" style=" overflow-y:scroll; background-color: darkgray;height:100%; position: relative;">
-                    <div id="all_msg_{{ interlocutor }}" style="visibility: hidden">
+                <div class="my-1 rounded" id="div_msg" style=" overflow-y:scroll; background-color: darkgray;height:100%; position: relative;">
+                    <div class="d-flex flex-column" id="all_msg_{{ interlocutor }}" style="visibility: hidden">
                     {% for msg in all_message %}
                         {% if msg.sender.id == request.user.id %}
                             <div class="my_msg rounded-2 shadow">{{msg.message}}</div>

@@ -58,5 +58,5 @@ class Discussion(models.Model):
 class Message(models.Model):
 	discussion = models.ForeignKey(Discussion, on_delete=models.CASCADE)
 	sender = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
-	message = models.CharField(max_length = 200)
+	message = models.CharField(max_length = 420)
 	read = models.BooleanField(default=False)

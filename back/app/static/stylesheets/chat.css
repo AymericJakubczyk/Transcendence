@@ -1,25 +1,25 @@
 .other_msg {
     background-color:gray;
     color:white;
-    width: max-content;
+    width: fit-content;
     padding: 10px;
     margin: 10px;
     max-width:80%;
     white-space: pre-line;
-    overflow-wrap: break-word;
+    overflow-wrap: anywhere;
 }
 
 .my_msg {
     background-color:cadetblue;
     color:white;
-    width: max-content;
+    width: fit-content;
     padding: 10px;
     margin: 10px;
     margin-left: auto;
     margin-right: 10px;
     max-width:80%;
     white-space: pre-line;
-    overflow-wrap: break-word;
+    overflow-wrap: anywhere;
 }
 
 .discu
@@ -45,6 +45,21 @@
   max-height: 80px;
 }
 
+
+.all_discu_panel
+{
+  width:25%;
+  height: 100%;
+  background-color: rgb(61, 61, 61);
+  overflow:hidden;
+}
+
+.chat_panel
+{
+  width:75%;
+  height: 100%;
+  background-color: rgb(61, 61, 61);
+}
 
 ::-webkit-scrollbar {
     width: 10px;

@@ -18,14 +18,22 @@ function custom_submit(form_id)
 				'send_to': elems.send_to.value,
 				'discu_id': elems.discu_id.value
 			};
+			// if (obj.message == "" || obj.message.length > 420)
+			// {
+			// 	error_message("Message must be between 1 and 420 characters", 2000)
+			// 	return
+			// }
 			chatSocket.send(JSON.stringify(obj));
-			add_msg("you", obj.message, true, obj.send_to)
-			const last_msg = document.getElementById("last_msg_" + obj.send_to);
-			if (last_msg)
-				last_msg.innerHTML = "vous : " + obj.message;
-			update_list_discu(obj.send_to)
 			elems.msg.value = "" // for clear input
-			return ;
+
+
+			// add_msg("you", obj.message, true, obj.send_to)
+			// const last_msg = document.getElementById("last_msg_" + obj.send_to);
+			// if (last_msg)
+			// 	last_msg.innerHTML = "vous : " + obj.message;
+			// update_list_discu(obj.send_to)
+			// elems.msg.value = "" // for clear input
+			// return ;
 		});
 	}
     else
@@ -56,6 +64,14 @@ function create_ws()
 			msg_is_read(data.sender, data.discu)
 			update_list_discu(data.sender)
 		}
+		if (data.type == 'message_valid')
+		{
+			add_msg("you", data.message, true, data.send_to)
+			const last_msg = document.getElementById("last_msg_" + data.send_to);
+			if (last_msg)
+				last_msg.innerHTML = "vous : " + data.message;
+			update_list_discu(data.send_to)
+		}
 		if (data.type == 'disconnect')
 		{
 			if (statut_elem)
@@ -63,12 +79,17 @@ function create_ws()
 			if (statut_mini_elem)
 				statut_mini_elem.hidden = true;
 		}
-		if (data.type == 'connect' && statut_elem)
+		if (data.type == 'connect')
 		{
 			if (statut_elem)
 				statut_elem.hidden = false;
 			if (statut_mini_elem)
 				statut_mini_elem.hidden = false;
+		}
+		if (data.type == 'error')
+		{
+			error_message(data.message, 2000)
+			return ;
 		}
 	};
 	
@@ -89,7 +110,10 @@ function add_msg(sender, msg, you, send_to)
 	// for chat
 	var myDiv = document.getElementById("all_msg_" + sender);
 	if (you)
+	{
+		console.log("you send '", msg, "' to", send_to)
 		myDiv = document.getElementById("all_msg_" + send_to);
+	}
 	if (myDiv)
 	{
 		const msg_div = document.createElement("div");
@@ -129,7 +153,7 @@ function update_discu(sender, msg, discu_id, user)
 		console.log("create discu", user, discu_id);
 		const all_discussion = document.getElementById("all_discussion");
 		all_discussion.innerHTML += `
-			<form id="new_discu_`+ sender +`" hx-post="/chat/" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
+			<form id="form_discu_`+ sender +`" hx-post="/chat/" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
 				<input type="hidden" name="change_discussion" value="`+ discu_id +`">
 				<button id="discu_`+ sender +`" data-id="`+ discu_id +`" value="`+ sender +`" class="rounded-2 my-1 p-2 discu" type="submit">
 					<div id="profile_pic_`+ sender +`" style="position: relative;">
@@ -146,7 +170,7 @@ function update_discu(sender, msg, discu_id, user)
 					</div>
 				</button>
 			</form>`
-		htmx.process(document.getElementById("new_discu_" + sender));
+		htmx.process(document.getElementById("form_discu_" + sender));
 	}
 	discu = document.getElementById("discu_" + sender);
 	last_msg = document.getElementById("last_msg_" + sender);
@@ -169,7 +193,7 @@ function update_discu(sender, msg, discu_id, user)
 	if (!last_msg_mini && document.getElementById("all_discu_mini")) // if mini discu not exist create it and add it in list
 	{
 		document.getElementById("all_discu_mini").innerHTML += `
-			<button onclick="display_mini_discu('`+ sender +`', `+ discu_id +`)" class="rounded-2 my-1 p-1 discu" style="background-color: transparent; width: 100%; border-width: 0px; display: inline-flex;">
+			<button id="btn_discu_mini_`+ sender +`" onclick="display_mini_discu('`+ sender +`', `+ discu_id +`)" class="rounded-2 my-1 p-1 discu" style="background-color: transparent; width: 100%; border-width: 0px; display: inline-flex;">
                 <div id="profile_pic_mini_`+ sender +`" style="position: relative;">
                     <img src="`+ user.profile_picture +`" class="pp" alt="Profile Picture">
                     <div id="statut_mini_`+ sender +`" class="rounded-circle" style="background-color: green; border: 4px rgb(61,61,61) solid;position: absolute; right: -5px; bottom: -5px;width:40%;height:40%"></div>

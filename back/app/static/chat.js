@@ -223,14 +223,14 @@ function error_message(msg, time)
 
     const error_msg = document.createElement("div");
     error_msg.setAttribute("id", "error_msg");
-    error_msg.setAttribute("class", "bg-danger text-light rounded-1 shadow p-2");
-    error_msg.setAttribute("style", "position: fixed; display:flex; top: 10px; z-index: 1000; font-weight: bold; width: 60%;justify-content: center;justify-self: center;");
-    error_msg.innerHTML = "ERROR : " + msg;
-    close_btn = document.createElement("button");
-    close_btn.setAttribute("class", "btn-close text-light");
-    close_btn.setAttribute("style", "position: absolute; right: 10px");
-    close_btn.setAttribute("onclick", "document.getElementById('error_msg').remove()");
-    error_msg.append(close_btn)
+    error_msg.setAttribute("class", "rounded-1");
+    error_msg.setAttribute("style", "position: fixed; display:flex; width: 100%;top: 10px;left:0px; z-index: 1000;justify-content: center;background-color: blue;");
+    error_msg.innerHTML =`
+        <div  class="bg-danger text-light rounded-1 shadow p-2" style="position:absolute; width:50%; text-align:center"> 
+            ERROR : `+ msg +`
+            <button class="btn-close text-light" style="position: absolute; right: 10px" onclick="document.getElementById('error_msg').remove()"></button>
+        </div>
+    `
     document.body.append(error_msg)
     setTimeout(function(){
         error_msg.animate([
