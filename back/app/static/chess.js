@@ -5,6 +5,8 @@ var oldx;
 var oldy;
 var oldColor = "black";
 var enPassant = new Array(2);
+var whiteKing;
+var blackKing;
 whosPlaying(oldColor);
 
 class Pawn {
@@ -253,7 +255,7 @@ class King {
     constructor (name, color, posx, posy, img)
     {
         this.count = 0;
-        this.check = 0;
+        this.checked = 0;
         this.name = name;
         this.color = color;
         this.posx = posx;
@@ -267,12 +269,12 @@ class King {
             for (var j = 0; j < 8; j++)
                 this.possibleMoves[i][j] = "noPossibleMove";
         }
-        this.escape = [];
+        this.check = [];
         for (var i = 0; i < 8; i++)
         {
-            this.possibleMoves[i] = new Array(8);
+            this.check[i] = new Array(8);
             for (var j = 0; j < 8; j++)
-                this.possibleMoves[i][j] = "noPossibleMove";
+                this.check[i][j] = "noPossibleMove";
         }
     }
     getPossibleMove()
@@ -429,7 +431,10 @@ function checkCell(x, y, piece)
             if (pieces[x][y].color != piece.color)
             {
                 if (pieces[x][y].name == "King")
+                {
+                    registerCheckMoves(piece, x, y);
                     pieces[x][y].check = 1;
+                }
             }    
             if (pieces[x][y].color == piece.color)
             {
@@ -444,6 +449,94 @@ function checkCell(x, y, piece)
         }
         return true;
     }
+    return false;
+}
+
+function registerCheckMoves(piece, x, y)
+{
+    let posx = piece.posx;
+    let posy = piece.posy;
+    let king = piece.color === "white" ? whiteKing : blackKing;
+    if (isKnightMove(piece, x, y) == true)
+    {
+        for (var i = 0; i < 8; i++)
+        {
+            for (var j = 0; j < 8; j++)
+            {   
+                if (x == i && y == j)
+                    king.check[i][j] = "CheckMove";
+                if (i == posx && j == posy)
+                    king.check[i][j] == "Checker";
+            }
+        }
+    }
+    else if (isRowMove(piece, x, y))
+    {
+        for (let indx = posx; indx >= 0; indx--)
+            king.check[indx][posy] = "CheckMove";
+        for (let indx = posx; indx < 8; indx++)
+            king.check[indx][posy] = "CheckMove";
+        king.check[posx][posy] = "Checker";
+    }
+    else if (isColMove(piece, x, y))
+    {
+        for (let indy = posy; indy >= 0; indy--)
+            king.check[posx][indy] = "CheckMove";
+        for (let indy = posy; indy < 8; indy++)
+            king.check[indx][posy] = "CheckMove";
+        king.check[posx][posy] = "Checker";
+    }
+    else if (isDiagMove(piece, x, y))
+    {
+        for (let indx = posx, indy = posy; indx >= 0, indy >= 0; indx--, indy--)
+            king.check[indx][indy] = "CheckMove";
+        for (let indx = posx, indy = posy; indx < 8 , indy >= 0; indx++, indy--)
+            king.check[indx][indy] = "CheckMove";
+        for (let indx = posx, indy = posy; indx >= 0, indy < 8; indx--, indy++)
+            king.check[indx][indy] = "CheckMove";
+        for (let indx = posx, indy = posy; indx < 8, indy < 8; indx++, indy++)
+            king.check[indx][indy] = "CheckMove";
+        king.check[indx][indy] = "Checker";
+    }
+}
+
+function isRowMove(piece, x, y)
+{
+    let posx = piece.posx;
+    let posy = piece.posy;
+    
+    if (y == posy && x < posx || y == posy && x > posx)
+        return true;
+    return false;
+}
+
+function isColMove(piece, x, y)
+{
+    let posx = piece.posx;
+    let posy = piece.posy;
+    
+    if (x == posx && y < posy || x == posx && y > posy)
+        return true;
+    return false;
+}
+
+function isDiagMove(piece, x, y)
+{
+    let posx = piece.posx;
+    let posy = piece.posy;
+    
+    if (x - posx == y - posy)
+        return true;
+    return false;
+}
+
+function isKnightMove(piece, x, y)
+{
+    let posx = piece.posx;
+    let posy = piece.posy;
+    
+    if ((x == posx + 2 && y == posy + 1) || (x == posx + 2 && y == posy - 1) || (x == posx - 2 && y == posy + 1) || (x == posx - 2 && y == posy - 1) || (x == posx + 1 && y == posy + 2) || (x == posx + 1 && y == posy - 2) || (x == posx - 1 && y == posy + 2) || (x == posx - 1 && y == posy - 2))
+        return true;
     return false;
 }
 
@@ -616,7 +709,7 @@ function initChessBoard()
     pieces[0][1] = new Knight("Knight", "black", 0, 1, "blackknight.svg");
     pieces[0][2] = new Bishop("Bishop", "black", 0, 2, "blackbishop.svg");
     pieces[0][3] = new Queen("Queen", "black", 0, 3, "blackqueen.svg");
-    pieces[0][4] = new King("King", "black", 0, 4, "blackking.svg");
+    blackKing = pieces[0][4] = new King("King", "black", 0, 4, "blackking.svg");
     pieces[0][5] = new Bishop("Bishop", "black", 0, 5, "blackbishop.svg");
     pieces[0][6] = new Knight("Knight", "black", 0, 6, "blackknight.svg");
     pieces[0][7] = new Rook("Rook", "black", 0, 7, "blackrook.svg", 2);
@@ -626,7 +719,7 @@ function initChessBoard()
     pieces[7][1] = new Knight("Knight", "white", 7, 1, "whiteknight.svg");
     pieces[7][2] = new Bishop("Bishop", "white", 7, 2, "whitebishop.svg");
     pieces[7][3] = new Queen("Queen", "white", 7, 3, "whitequeen.svg");
-    pieces[7][4] = new King("King", "white", 7, 4, "whiteking.svg");
+    whiteKing = pieces[7][4] = new King("King", "white", 7, 4, "whiteking.svg");
     pieces[7][5] = new Bishop("Bishop", "white", 7, 5, "whitebishop.svg");
     pieces[7][6] = new Knight("Knight", "white", 7, 6, "whiteknight.svg");
     pieces[7][7] = new Rook("Rook", "white", 7, 7, "whiterook.svg", 2);
@@ -736,7 +829,8 @@ function game(x, y, context)
     var posy = Math.floor((y / size));
     var NULL = null;
     
-    console.log(pieces, selected);
+    console.log(whiteKing);
+    console.log(blackKing);    
     if (!selected)
     {
         if (pieces[posy][posx].color == oldColor)
@@ -782,7 +876,6 @@ function game(x, y, context)
         handleEnPassant(context);
 		drawChess(context);
     }
-    console.log(selected);
 }
 
 function defendCheck()
@@ -802,7 +895,7 @@ function isChecked()
     {
         if (team[i].name == "King")
         {
-            if (team[i].check == 1)
+            if (team[i].checked == 1)
                 return true;
             return false;
         }
