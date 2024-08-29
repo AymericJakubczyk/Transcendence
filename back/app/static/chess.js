@@ -433,7 +433,7 @@ function checkCell(x, y, piece)
                 if (pieces[x][y].name == "King")
                 {
                     registerCheckMoves(piece, x, y);
-                    pieces[x][y].check = 1;
+                    pieces[x][y].checked = 1;
                 }
             }    
             if (pieces[x][y].color == piece.color)
@@ -456,77 +456,98 @@ function registerCheckMoves(piece, x, y)
 {
     let posx = piece.posx;
     let posy = piece.posy;
-    let king = piece.color === "white" ? whiteKing : blackKing;
+    let king = piece.color === "black" ? whiteKing : blackKing;
     if (isKnightMove(piece, x, y) == true)
     {
-        for (var i = 0; i < 8; i++)
-        {
-            for (var j = 0; j < 8; j++)
-            {   
-                if (x == i && y == j)
-                    king.check[i][j] = "CheckMove";
-                if (i == posx && j == posy)
-                    king.check[i][j] == "Checker";
-            }
-        }
-    }
-    else if (isRowMove(piece, x, y))
-    {
-        for (let indx = posx; indx >= 0; indx--)
-            king.check[indx][posy] = "CheckMove";
-        for (let indx = posx; indx < 8; indx++)
-            king.check[indx][posy] = "CheckMove";
+        king.check[x][y] = "CheckMove";
         king.check[posx][posy] = "Checker";
     }
-    else if (isColMove(piece, x, y))
-    {
-        for (let indy = posy; indy >= 0; indy--)
-            king.check[posx][indy] = "CheckMove";
-        for (let indy = posy; indy < 8; indy++)
-            king.check[indx][posy] = "CheckMove";
+    else if (isRowMove(piece, x, y, king))
         king.check[posx][posy] = "Checker";
-    }
-    else if (isDiagMove(piece, x, y))
-    {
-        for (let indx = posx, indy = posy; indx >= 0, indy >= 0; indx--, indy--)
-            king.check[indx][indy] = "CheckMove";
-        for (let indx = posx, indy = posy; indx < 8 , indy >= 0; indx++, indy--)
-            king.check[indx][indy] = "CheckMove";
-        for (let indx = posx, indy = posy; indx >= 0, indy < 8; indx--, indy++)
-            king.check[indx][indy] = "CheckMove";
-        for (let indx = posx, indy = posy; indx < 8, indy < 8; indx++, indy++)
-            king.check[indx][indy] = "CheckMove";
-        king.check[indx][indy] = "Checker";
-    }
+    else if (isColMove(piece, x, y, king))
+        king.check[posx][posy] = "Checker";
+    else if (isDiagMove(piece, x, y, king))
+        king.check[posx][posy] = "Checker";
 }
 
-function isRowMove(piece, x, y)
+function isRowMove(piece, x, y, king)
 {
     let posx = piece.posx;
     let posy = piece.posy;
     
     if (y == posy && x < posx || y == posy && x > posx)
+    {
+        if (x < posx)
+        {   
+            for (let indx = posx; indx >= x; indx--)
+                king.check[indx][posy] = "CheckMove";
+        }
+        else if (x > posx)
+        {
+            for (let indx = posx; indx < x; indx++)
+                king.check[indx][posy] = "CheckMove";
+        }
+        king.check[posx][posy] = "Checker";
         return true;
+    }
     return false;
 }
 
-function isColMove(piece, x, y)
+function isColMove(piece, x, y, king)
 {
     let posx = piece.posx;
     let posy = piece.posy;
     
     if (x == posx && y < posy || x == posx && y > posy)
+    {
+        if (y < posy)
+        {   
+            for (let indy = posy; indy >= y; indy--)
+                king.check[posx][indy] = "CheckMove";
+        }
+        else if (y > posy)
+        {   
+            for (let indy = posy; indy < y; indy++)
+                king.check[posx][indy] = "CheckMove";
+        }
+        king.check[posx][posy] = "Checker";
         return true;
+    }
     return false;
 }
 
-function isDiagMove(piece, x, y)
+function isDiagMove(piece, x, y, king)
 {
     let posx = piece.posx;
     let posy = piece.posy;
     
-    if (x - posx == y - posy)
+    console.log(x, y, posx, posy, "x - posx :", x - posx, "y - posy :", y - posy);
+    if (Math.abs(x - posx) == Math.abs(y - posy))
+    {
+        console.log("DIAG MOVE ?");
+        if (x < posx && y < posy)
+        {   
+            console.log("oui");
+            for (let indx = posx, indy = posy; x < indx, y < indy; indx--, indy--)
+                king.check[indx][indy] = "CheckMove";
+        }
+        if (x > posx && y > posy)
+        {   
+            for (let indx = posx, indy = posy; x > indx, y > indy; indx++, indy++)
+                king.check[indx][indy] = "CheckMove";
+        }
+        if (x < posx && y > posy)
+        {
+            for (let indx = posx, indy = posy; x < indx && y > indy; indx--, indy++)
+                king.check[indy][indx] = "CheckMove";
+        }
+        if (x > posx && y < posy)
+        {
+            for (let indx = posx, indy = posy; x > indx, y < indy; indx++, indy--)
+                king.check[indy][indx] = "CheckMove";
+        }
         return true;
+    }
     return false;
 }
 
@@ -556,14 +577,14 @@ function pawnCheckAttack(x, y, piece)
     if (isPossible(x, y, piece) && pieces[x][y].color != piece.color)
     {   
         if (pieces[x][y].name == "King")
-            pieces[x][y].check = 1;
+            pieces[x][y].checked = 1;
         piece.possibleMoves[x][y] = "PossibleMove";
         return true;
     }
     else if (pieces[x][y].color == piece.color)
     {
         if (pieces[x][y].name == "King")
-            pieces[x][y].check = 1;
+            pieces[x][y].checked = 1;
         piece.possibleMoves[x][y] = "PossibleDefense";
         return true;
     }
@@ -670,7 +691,7 @@ function isEnemyMove(x, y, piece)
     team = blackTeam;
     if (piece.color == "black")
         team = whiteTeam;
-    for (let i = 0; i < 16; i++)
+    for (let i = 0; i < 8; i++)
     {
         team[i].resetPossibleMove();
         if (team[i].name == "King")
@@ -703,8 +724,8 @@ function initChessBoard()
         for (var j = 0; j < 8; j++)
             pieces[i][j] = "";
     }
-    for (let i = 0; i < 8; i++)
-        pieces[1][i] = new Pawn("Pawn", "black", 1, i, "blackpawn.svg", 1);
+    // for (let i = 0; i < 8; i++)
+    //     pieces[1][i] = new Pawn("Pawn", "black", 1, i, "blackpawn.svg", 1);
     pieces[0][0] = new Rook("Rook", "black", 0, 0, "blackrook.svg");
     pieces[0][1] = new Knight("Knight", "black", 0, 1, "blackknight.svg");
     pieces[0][2] = new Bishop("Bishop", "black", 0, 2, "blackbishop.svg");
@@ -713,8 +734,8 @@ function initChessBoard()
     pieces[0][5] = new Bishop("Bishop", "black", 0, 5, "blackbishop.svg");
     pieces[0][6] = new Knight("Knight", "black", 0, 6, "blackknight.svg");
     pieces[0][7] = new Rook("Rook", "black", 0, 7, "blackrook.svg", 2);
-    for (let i = 0; i < 8; i++)
-        pieces[6][i] = new Pawn("Pawn", "white", 6, i, "whitepawn.svg");
+    // for (let i = 0; i < 8; i++)
+    //     pieces[6][i] = new Pawn("Pawn", "white", 6, i, "whitepawn.svg");
     pieces[7][0] = new Rook("Rook", "white", 7, 0, "whiterook.svg", 1);
     pieces[7][1] = new Knight("Knight", "white", 7, 1, "whiteknight.svg");
     pieces[7][2] = new Bishop("Bishop", "white", 7, 2, "whitebishop.svg");
@@ -727,20 +748,20 @@ function initChessBoard()
 
 function initTeams()
 {
-    for (let runner = 0; runner < 2; runner++)
-    {
+    // for (let runner = 0; runner < 2; runner++)
+    // {
         for (let i = 0; i < 8; i++)
         {
-            blackTeam[runner * 8 + i] = pieces[runner][i];   
+            blackTeam[i] = pieces[0][i];   
         }
-    }
-    for (let runner = 6; runner < 8; runner++)
-    {
+    // }
+    // for (let runner = 6; runner < 8; runner++)
+    // {
         for (let i = 0; i < 8; i++)
         {
-            whiteTeam[(runner - 6) * 8 + i] = pieces[runner][i];   
+            whiteTeam[i] = pieces[7][i];   
         }
-    }
+    // }
 }
 
 //TEST
@@ -848,7 +869,19 @@ function game(x, y, context)
     {
         if (isChecked() == true)
         {
-            defendCheck();
+            console.log("I AM CHECKED");
+            console.log(isCheckMate(), ": ischeckmate");
+            if (isCheckMate())
+            {
+                console.log("I AM CHECKEDMATED");
+                alert("YOU GOT CHECKMATED");
+            }
+            if (selected)
+            {
+                selected = false;
+                selectedOne = null;
+                drawChess(context);
+            }
             return ;
         }
         redrawPossibleCapture(context);
@@ -876,6 +909,24 @@ function game(x, y, context)
         handleEnPassant(context);
 		drawChess(context);
     }
+}
+
+function isCheckMate()
+{
+    let team = oldColor === "white" ? blackTeam : whiteTeam;
+    let king = oldColor === "white" ? blackKing : whiteKing;
+    for (let i = 0; i < 8; i++)
+    {
+        for (let x = 0; x < 8; x++)
+        {
+            for (let y = 0; y < 8; y++)
+            {
+                if (team[i].possibleMoves[x][y] == "PossibleMove" && (king.check[x][y] == "CheckMove" || king.check[x][y] == "Checker"))
+                    return false;
+            }
+        }
+    }
+    return true;
 }
 
 function defendCheck()
@@ -973,23 +1024,17 @@ function giveEnpassant(posx, posy)
 {
 	replaceCell(posx, posy, selectedOne);
 	pieces[posx][posy] = selectedOne;
-	console.log("ENPASSANT", posy, posx);
-	console.log(posx - 1, posy);
 	if (posx >= 0 && posy - 1 >= 0 && isEnemyPawn(posx, posy - 1, pieces[posx][posy - 1]))
 	{
-		console.log(posx, posy - 1);
 		pieces[posx][posy - 1].enPassant = 1;
 		pieces[posx][posy - 1].ePright = 1;
 		enPassant[0] = pieces[posx][posy - 1];
-		console.log("ENPASSANT", enPassant[0]);
 	}
 	if (posx >= 0 && posy + 1 < 8 && isEnemyPawn(posx, posy + 1, pieces[posx][posy + 1]))
 	{   
-		console.log(posx, posy + 1);
 		pieces[posx][posy + 1].enPassant = 1;
 		pieces[posx][posy + 1].ePleft = 1;
 		enPassant[1] = pieces[posx][posy + 1];
-		console.log("ENPASSANT", enPassant[1]);
 	}
 	selectedOne.posx = posx;
 	selectedOne.posy = posy;
@@ -1005,7 +1050,6 @@ function giveEnpassant(posx, posy)
 function doEnpassant(posy, posx)
 {
 	replaceCell(posy, posx, selectedOne);
-	console.log(posy, posx);
 	if (selectedOne.color == "white")
 		pieces[posy + 1][posx] = '';
 	else
@@ -1031,10 +1075,8 @@ function replaceCell(x, y, piece)
     let count2 = y;
     let count = y + x + 1;
     ctx.fillStyle = "burlywood";
-    console.log(x, y, count);
     if (count % 2 == 1)
         ctx.fillStyle = "antiquewhite";
-    console.log(x, y);
     ctx.fillRect(y * 100, x * 100, 100, 100);
     if (piece)
         draw(y * 100, x * 100, "../static/srcs/chess/" + piece.img);
@@ -1050,7 +1092,6 @@ function redrawPossibleCapture(context)
         colorEnemy = "black";
     if (!selectedOne.color)
         return ;
-    console.log(color, colorEnemy);
     for (var i = 0; i < 8; i++)
     {
         for (var j = 0; j < 8; j++)
@@ -1074,7 +1115,6 @@ function reDrawPossibleCaptureMove(x, y, context)
     size = width / 8;
     const centerX = x * 100 + 50;
     const centerY = y * 100 + 50;
-    console.log(centerX, centerY);
     const radius = 45;
     context.beginPath();
     context.arc(centerY, centerX, radius, 0, 2 * Math.PI, false);
@@ -1088,7 +1128,7 @@ function reDrawPossibleCaptureMove(x, y, context)
 function drawChess(ctx)
 {
     var count = 0;
-    const arrV = ['1', '2', '3', '4', '5', '6', '7', '8'];
+    const arrV = ['8', '7', '6', '5', '4', '3', '2', '1'];
 	const arrC = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
     ctx.font = '12px Arial';
     for(let i= 0;i < 800; i+=100) 
@@ -1151,10 +1191,10 @@ function drawCheckers(ctx)
                 ctx.fillStyle = "antiquewhite";
             else if (count % 2 == 0)
                 ctx.fillStyle = "burlywood";
-            if (i == 7)
-                ctx.fillText(arrC[j], i + 50, j + 50);
-            if (j == 0)
-                ctx.fillText(arrV[i], i + 50, j + 50);
+            if (j == 700)
+                ctx.fillText(arrC[i / 100], i + 90, j + 95);
+            if (i == 0)
+                ctx.fillText(arrV[j / 100], i + 3, j + 15);
             
             count++;
         }
