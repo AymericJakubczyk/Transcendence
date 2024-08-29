@@ -1,0 +1,17 @@
+.profile_pp {
+	max-width: 250px;
+	max-height: 250px;
+	clip-path: ellipse(50% 50%);
+	display: flex;
+	justify-content: center;
+	box-shadow: 300px 50px 50px black;
+	margin-bottom: 15px;
+}
+
+.profile_pp img {
+	object-fit: contain;
+}
+
+#page h6 {
+	color: grey;
+}

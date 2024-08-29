@@ -1,0 +1,94 @@
+<div class="container">
+	{% include 'messages.html' %}
+	{% if user.is_authenticated %}
+
+    <h1>My Profile</h1>
+    <br>
+	<a class="d-block text-center" hx-get="{{ user.username }}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">See my profile page</a>
+	<br>
+	<div class="row">
+		<div class="profile_pp col-4">
+			<img src="{{ user.profile_picture.url }}" alt="Profile Picture">
+		</div>
+		<div class="col-6 d-table">
+			<div class="d-table-cell align-middle pl-5">
+				<div>
+					<h6>Pseudo :</h6>
+					<h4>{{ user.username }}</h4>
+				</div>
+				<div>
+					<h6>Name :</h6>
+					<h4>{{ user.first_name }} {{ user.last_name }}</h4>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<h6>Mail :</h6>
+    <h4>{{ user.email }}</h4>
+	
+	<h6>Joined :</h6>
+    <h4>{{ user.date_joined }}</h4>
+	<br>
+	<a class="d-block text-center" hx-get="{% url 'update-profile' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">Update</a>
+	<a class="d-block text-center" hx-get="{% url 'logout' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">LOGOUT</a>
+	<br>
+
+	<div>
+		<h4>FRIEND REQUESTS</h4>
+		{% if all_friend_requests %}
+			{% for friend_request in all_friend_requests %}
+				<h5><a 	hx-get="{% url 'profile' friend_request.from_user.username %}" 
+						hx-push-url="true" 
+						hx-target="#page" 
+						hx-swap="innerHTML" 
+						hx-indicator="#content-loader" 
+						class="route">{{ friend_request.from_user.username }}</a>
+					 - 
+					<a hx-get="{% url 'accept_friend_request' friend_request.id %}" 
+					   hx-push-url="true" 
+					   hx-target="#page" 
+					   hx-swap="innerHTML" 
+					   hx-indicator="#content-loader" 
+					   class="route">ACCEPT</a>
+				</h5>
+			{% endfor %}
+		{% else %}
+			<p>No friend requests.</p>
+		{% endif %}
+	</div>
+
+	<div>
+		<h4>FRIENDS LIST</h4>
+		{% for friend in user.friends.all %}
+			<li>{% if friend.is_online == True %} <!-- online checker to do -->
+                    <span class="text-success">Online</span>
+                {% else %}
+                    <span class="text-danger">Offline</span>
+                {% endif %}
+				<span> - </span>
+				<a 	hx-get="{% url 'profile' friend.username %}" 
+					hx-push-url="true" 
+					hx-target="#page" 
+					hx-swap="innerHTML" 
+					hx-indicator="#content-loader" 
+					class="route">{{ friend.username }}</a>
+			</li>
+		{% empty %}
+			<li>You have no friends yet.</li>
+		{% endfor %}
+	</div>
+
+	{% else %}
+	
+    <h1>SIGN-IN</h1>
+
+    <form hx-post="{{request.path}}?next={{next_url}}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
+        {% csrf_token %}
+        {{ form }}
+        <input type="submit" value="LOG IN">
+    </form>
+    <p> or <a hx-get="{% url 'register' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" title="Register">Register</a></p>
+ 
+	{% endif %}
+</div>

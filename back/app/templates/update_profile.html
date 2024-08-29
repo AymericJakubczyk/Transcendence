@@ -1,14 +1,11 @@
 <div class="container">
-    <h1>Registration</h1>
-
+    <h1>Update Profile</h1>
+    <a hx-get="{% url 'password_change' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route col-sm-4" id="nav1">Changer le mot de passe</a>
     <form method="POST" hx-encoding="multipart/form-data" hx-post="{{request.path}}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
     {% csrf_token %}
     {% for field in form %}
     <p>
         {{ field.label_tag }} {{ field }}
-        {% if field.errors %}
-            {{ field.errors }}
-        {% endif %}
     </p>
     {% endfor %}
     <input type="submit" value="Envoyer">

@@ -8,8 +8,7 @@ services:
     container_name: postgres
     networks:
       - Transcendence
-    env_file:
-      - .env
+    env_file: .env
     volumes:
       - db:/var/lib/postgresql/data
     ports:
@@ -21,6 +20,7 @@ services:
     container_name: django
     networks:
       - Transcendence
+    env_file: .env
     build:
       context: docker # ou se trouve son Dockerfile
       dockerfile: Dockerfile-django-dev

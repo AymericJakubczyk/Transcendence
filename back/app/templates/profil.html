@@ -1,34 +1,79 @@
 <div class="container">
-    <h1>Profile Page</h1>
-    <br>
-    <img src="{{ user.profile_picture }}" alt="Profile Picture">
-    <h6>Pseudo :</h6>
-    <p>{{ user.username }}</p>
-
-    <h6>First name :</h6>
-    <p>{{ user.first_name }}</p>
-
-    <h6>Second name :</h6>
-    <p>{{ user.last_name }}</p>
-
-    <h6>Last Connexion :</h6>
-    <p>{{ user.last_login }}</p>
-
-    <div>
-        <h3>PONG</h3>
-        <br>
-        <p>Rank</p>
-        <p>{{ user.Pong.rank }}</p>
-
-        <p>Games Played</p>
-        <p>{{ user.Pong.games_played }}</p>
-
-        <p>Winrate</p>
-        <p>{{ user.Pong.winrate }}</p>
-
-        <p>Max Exchange</p>
-        <p>{{ user.Pong.max_exchange }}</p>
-    </div>
-
+	{% include 'messages.html' %}
+	<h1>Profile Page</h1>
+	<br>
+	<div class="row ml-5">
+		<div class="profile_pp col-4">
+			<img src="{{ user.profile_picture.url }}" alt="Profile Picture">
+		</div>
+		<div class="col-6 d-table">
+			<div class="d-table-cell align-middle pl-5">
+				<div>
+					<h6>Pseudo :</h6>
+					<h4>{{ user.username }}</h4>
+				</div>
+				<div>
+					<h6>Name :</h6>
+					<h4>{{ user.first_name }} {{ user.last_name }}</h4>
+				</div>
+			</div>
+		</div>
+		{% if user not in request.user.friends.all and user != request.user %}
+		<div class="col-2">
+			<a hx-get="{% url 'send_friend_request' user.username %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route">SEND FRIEND REQUEST</a>
+		</div>
+		{% endif %}
+	</div>
+	<div class="row mt-3">
+		<div class="text-center col-6">
+			<h6>Joined :</h6>
+			<p>{{ user.date_joined }}</p>
+		</div>
+		<div class="text-center col-6">
+			<h6>Last Connexion :</h6>
+			<p>{{ user.last_login }}</p>
+		</div>
+		<div class="text-center col-12">
+			<h6>STATUS</h6>
+			{% if user.is_online %} <!-- online checker to do -->
+			<p class="text-success">ONLINE</p>
+			{% else %}
+			<p class="text-danger">OFFLINE</p>
+			{% endif %}
+		</div>
+	</div>
+	<div class="bg-info mt-1 pt-3 pb-3 rounded-pill">
+		<h3 class="text-center mb-3">PONG</h3>
+		<div class="row">
+			<br>
+			<div class="text-center col-6">
+				<h6>Rank :</h6>
+				<p>{{ user.pong_rank }}</p>
+			</div>
+			<div class="text-center col-6">
+				<h6>Games Played :</h6>
+				<p>{{ user.pong_games_played }}</p>
+			</div>
+			<div class="text-center col-6">
+				<h6>Winrate :</h6>
+				<p>{{ user.pong_winrate }}</p>
+			</div>
+			<div class="text-center col-6">
+				<h6>Max Exchange :</h6>
+				<p>{{ user.pong_max_exchange }}</p>
+			</div>
+		</div>
+		<div class="text-center">
+			<h5 class="mb-3">GAME HISTORY</h5>
+			<div class="row ml-3 mr-3">
+				<span class="col-3">WIN</span>
+				<span class="col-3">Opponnent(Rank)</span>
+				<span class="col-2">Score</span>
+				<span class="col-1">Rank win/loss</span>
+				<span class="col-3">Date</span>
+			</div>
+			<p>...</p>
+		</div>
+	</div>
     
 </div>

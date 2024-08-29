@@ -1,13 +1,30 @@
 from django import forms
+from .models import User
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm
 
 
 class SignupForm(UserCreationForm):  
+    profile_picture = forms.ImageField(required=False)
+
     class Meta(UserCreationForm.Meta):
         model = get_user_model()
-        fields = ('username', 'email', 'first_name', 'last_name')
+        fields = ('username', 'email', 'first_name', 'last_name', 'profile_picture')
 
 class LoginForm(forms.Form):
     username = forms.CharField(max_length=63, label='Nom d’utilisateur')
     password = forms.CharField(max_length=63, widget=forms.PasswordInput, label='Mot de passe')
+
+class UpdateForm(forms.ModelForm):
+    class Meta:
+        model = get_user_model()
+        fields = ('username', 'email', 'first_name', 'last_name', 'profile_picture')
+
+
+
+    # QUERY USER VALUES TO DISPLAY IT ON PLACEHOLDER // DO NOT REMOVE
+    # def __init__(self, *args, **kwargs):
+    #     super(UpdateForm, self).__init__(*args, **kwargs)
+    #     for field_name, field in self.fields.items():
+    #         placeholder_value = getattr(self.instance, field_name, '')
+    #         self.fields[field_name].widget.attrs['placeholder'] = placeholder_value

@@ -1,11 +1,12 @@
+{% load static %}
+
 <div class="container">
     <h1 class="header">ULTIMATE EXTRA COOL SUPER PONG TOURNAMENT EXTREME BATTLE</h1>
     <h5 class="header">Welcome in the history</h5>
+    
     <div class="row main-box">
-        <div class="game-box col-lg-8 col-sm-12">
-            <h3>GAME</h3>
+            <canvas id="pongCanvas" width="720" height="480"></canvas>
         </div>
-
 
         <div class="justify-content-center align-items-center min-vw-25 col-lg-4 col-sm-12">
             <ul class="list-group shadow-sm">
@@ -43,32 +44,34 @@
     </div>
     <div class="stats-box pl-5 pr-5 d-flex">
         <div class="stats-id w-50">
-            <img src="/static/srcs/test.jpg" alt="Profile pic">
+            <img src="{{ user.profile_picture.url }}" alt="Profile pic">
                <h2>{{ user.username }}</h2>
         </div>
         <div class="stats-content w-50">
             <div class="stats-content-place">
-                <h3>PLACE</h6>
+                <h3>PLACE</h3>
                 <h6>Unranked</h6>
             </div>
         </div>
         <div class="row stats-content-others">
             <div class="w-xs-100 w-50">
-                <h3>Rank</h6>
-                <h6>Unranked</h6>
+                <h3>Rank</h3>
+                <h6>{{ user.pong_rank }}</h6>
             </div>
             <div class="w-xs-100 w-50">
-                <h3>Max exchange</h6>
-                <h6>Unvailable</h6>
+                <h3>Max exchange</h3>
+                <h6>{{ user.pong_max_exchange }}</h6>
             </div>
             <div class="w-xs-100 w-50">
-                <h3>Games played</h6>
-                <h6>Unvailable</h6>
+                <h3>Games played</h3>
+                <h6>{{ user.pong_games_played }}</h6>
             </div>
             <div class="w-xs-100 w-50">
-                <h3>Winrate</h6>
-                <h6>Unvailable</h6>
+                <h3>Winrate</h3>
+                <h6>{{ user.pong_winrate }}</h6>
             </div>
         </div>
     </div>
 </div>
+
+<script src="{% static 'pong.js' %}"></script>
