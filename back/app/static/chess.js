@@ -786,7 +786,7 @@ function draw(x, y, string) {
 function drawPossibleMove(piece, ctx)
 {
     console.log(piece);
-    if (piece == "")
+    if (piece == null)
         return ;
     piece.resetPossibleMove();
     piece.getPossibleMove();
@@ -840,6 +840,36 @@ function drawTheMove(x, y, context)
     context.closePath();
 }
 
+function drawPossibleDefenseMove(context)
+{
+    console.log(selectedOne);
+    if (selectedOne == null)
+        return ;
+    let king = oldColor === "white" ? blackKing : whiteKing;
+    selectedOne.resetPossibleMove();
+    selectedOne.getPossibleMove();
+    let color = selectedOne.color;
+    let colorEnemy;
+    if (color == "black")
+        colorEnemy = "white";
+    else
+        colorEnemy = "black";
+    console.log(color, colorEnemy);
+    for (var i = 0; i < 8; i++)
+    {
+        for (var j = 0; j < 8; j++)
+        {
+            if ((selectedOne.possibleMoves[i][j] == "PossibleMove") && king.check[i][j] == "Checker")
+                drawPossibleCaptureMove(i, j, context);
+            else if (selectedOne.possibleMoves[i][j] == "enPassant" && pieces[i][j].color == null && king.check[i][j] == "Checker")
+                drawPossibleCaptureMove(i, j, context);
+            else if ((selectedOne.possibleMoves[i][j] == "PossibleMove" || selectedOne.possibleMoves[i][j] == "PossibleDoubleMove") && king.check[i][j] == "CheckMove")
+            {
+                drawTheMove(i, j, context);
+            }
+        }
+    }
+}
 
 // MAIN GAME FUNCTION
 function game(x, y, context)
@@ -852,8 +882,10 @@ function game(x, y, context)
     
     console.log(whiteKing);
     console.log(blackKing);    
+    console.log("test1");
     if (!selected)
     {
+        console.log("test2");
         if (pieces[posy][posx].color == oldColor)
             return ;
         if ((posy <= 8 || 0 >= posy) && (posx <= 8 || 0 >= posx))
@@ -862,28 +894,17 @@ function game(x, y, context)
             selectedOne = pieces[posy][posx];
             oldx = posx;
             oldy = posy;
-            drawPossibleMove(selectedOne, context);
+            if (isChecked() == true)
+                handleCheck(context, posx, posy);
+            else
+                drawPossibleMove(selectedOne, context);
         }
     }
     else
     {
+        console.log("test3");
         if (isChecked() == true)
-        {
-            console.log("I AM CHECKED");
-            console.log(isCheckMate(), ": ischeckmate");
-            if (isCheckMate())
-            {
-                console.log("I AM CHECKEDMATED");
-                alert("YOU GOT CHECKMATED");
-            }
-            if (selected)
-            {
-                selected = false;
-                selectedOne = null;
-                drawChess(context);
-            }
-            return ;
-        }
+           handleCheck(context);
         redrawPossibleCapture(context);
         if (!selectedOne.color)
         {
@@ -911,27 +932,88 @@ function game(x, y, context)
     }
 }
 
+function handleCheck(context, posx, posy)
+{
+    console.log("test4");
+    let king = oldColor === "white" ? blackKing : whiteKing;
+    console.log("I AM CHECKED");
+    console.log(isCheckMate(), ": ischeckmate");
+    if (isCheckMate())
+    {
+        console.log("I AM CHECKEDMATED");
+        alert("YOU GOT CHECKMATED");
+    }
+    if (isDefendable() == false)
+    {
+        selected = false;
+        selectedOne = null;
+        drawChess(context);
+        return ;
+    }
+    else
+    {
+        console.log("DefenseMove");
+        drawPossibleDefenseMove(context);
+    }
+    // if ((selectedOne.possibleMoves[posy][posx] == "PossibleMove" && king.check[posy][posx] == "checkMove") || selectedOne.name == "King")
+    // {
+    //     console.log("whute");
+    //     movePiece(posy, posx, context);
+    // }
+    return ;
+}
+
+function isDefendable()
+{
+    let king = oldColor === "white" ? blackKing : whiteKing;
+    for (let x = 0; x < 8; x++)
+    {
+        for (let y = 0; y < 8; y++)
+        {
+            if (selectedOne.possibleMoves[x][y] == "PossibleMove" && (king.check[x][y] == "CheckMove" || king.check[x][y] == "Checker"))
+            {
+                console.log("I CAN DEFEND", selectedOne);
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 function isCheckMate()
 {
     let team = oldColor === "white" ? blackTeam : whiteTeam;
     let king = oldColor === "white" ? blackKing : whiteKing;
     for (let i = 0; i < 8; i++)
     {
+        if (team[i].name != "King")
+            team[i].getPossibleMove();
+        if (team[i].name == "Pawn")
+            team[i].getAttackMove()
         for (let x = 0; x < 8; x++)
         {
             for (let y = 0; y < 8; y++)
             {
                 if (team[i].possibleMoves[x][y] == "PossibleMove" && (king.check[x][y] == "CheckMove" || king.check[x][y] == "Checker"))
+                {
+                    console.log("I CAN DEFEND", team[i]);
                     return false;
+                }
+            }
+        }
+    }
+    for (let i = 0; i < 8; i++)
+    {
+        for (let j = 0; j < 8; j++)
+        {
+            if (king.possibleMoves[i][j] == "PossibleMove")
+            {
+                console.log(i, j);
+                return false;
             }
         }
     }
     return true;
-}
-
-function defendCheck()
-{
-    
 }
 
 function isChecked()
@@ -1130,7 +1212,7 @@ function drawChess(ctx)
     var count = 0;
     const arrV = ['8', '7', '6', '5', '4', '3', '2', '1'];
 	const arrC = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
-    ctx.font = '12px Arial';
+    ctx.font = '16px Arial';
     for(let i= 0;i < 800; i+=100) 
     {
         count++;
@@ -1191,11 +1273,6 @@ function drawCheckers(ctx)
                 ctx.fillStyle = "antiquewhite";
             else if (count % 2 == 0)
                 ctx.fillStyle = "burlywood";
-            if (j == 700)
-                ctx.fillText(arrC[i / 100], i + 90, j + 95);
-            if (i == 0)
-                ctx.fillText(arrV[j / 100], i + 3, j + 15);
-            
             count++;
         }
     }
