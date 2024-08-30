@@ -3,7 +3,7 @@ from django.contrib.auth import login, authenticate, logout, update_session_auth
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from .forms import SignupForm, LoginForm, UpdateForm
-from .models import User, Friend_Request, Discussion, Message
+from .models import User, Tournament, Friend_Request, Discussion, Message
 from django.urls import reverse as get_url
 from django.db.models import Q
 import json
@@ -45,13 +45,44 @@ def homeView(request):
     return render(request, 'home.html', {'form':form, 'next_url':next_url, 'refresh':0})
 
 def gameView(request):
-    if request.user.is_authenticated == False:
+    if not request.user.is_authenticated:
         messages.error(request, 'Log-in to play cool games !')
         return redirect('myprofile')
     else:
+        print("REQUETE POST :")
+        print(request.POST)
+        all_tournaments = Tournament.objects.all()
+        if 'create_tournament' in request.POST:
+            game_played = request.POST.get('crea-game')
+            max_users = request.POST.get('group-size')
+            if game_played:
+                obj = Tournament()
+                obj.host_user = request.user
+                obj.game_played = game_played
+                obj.max_users = max_users
+                obj.save()
+                obj.participants.add(request.user)
+                obj.save()
+                request.user.tournament_id = obj.id
+                request.user.save()
+
+        if 'join_tournament' in request.POST:
+            tournament_id = request.POST.get('join_tournament')
+            tournament = Tournament.objects.get(id=tournament_id)
+            if request.user not in tournament.participants.all():
+                tournament.participants.add(request.user)
+                tournament.save()
+                request.user.tournament_id = tournament.id
+                request.user.save()
+
         if request.META.get("HTTP_HX_REQUEST") != 'true':
-            return render(request, 'page_full.html', {'page':'game.html', 'user':request.user})
-        return render(request, 'game.html', {'user':request.user})
+            return render(request, 'page_full.html', {'page':'game.html', 'user':request.user, 'all_tournaments': all_tournaments})
+        return render(request, 'game.html', {'user':request.user, 'all_tournaments': all_tournaments})
+
+def pongView(request):
+    if request.META.get("HTTP_HX_REQUEST") != 'true':
+        return render(request, 'page_full.html', {'page':'pong.html', 'user':request.user})
+    return render(request, 'pong.html', {'user':request.user})
 
 def registrationView(request):
     if request.method == 'POST':

@@ -20,6 +20,7 @@ from django.db.models import Q
 class User(AbstractUser):
 	profile_picture = models.ImageField(default='imgs/profils/creepy-cat.webp', blank=True, upload_to = 'imgs/profils/')
 	friends = models.ManyToManyField("User", blank=True)
+	tournament_id = models.IntegerField(default=-1)
 
 	# PONG ATTRIBUTS
 	pong_rank = models.IntegerField(default=0)
@@ -37,6 +38,16 @@ class User(AbstractUser):
 class Friend_Request(models.Model):
 	from_user = models.ForeignKey(User, related_name='from_user', on_delete=models.CASCADE)
 	to_user = models.ForeignKey(User, related_name='to_user', on_delete=models.CASCADE)
+
+class Tournament(models.Model):
+	host_user = models.ForeignKey(User, related_name='host_user', on_delete=models.CASCADE)
+	participants = models.ManyToManyField("User", blank=True)
+	max_users = models.IntegerField(default=8)
+	class GameState(models.TextChoices):
+		PONG = 'PONG'
+		CHESS = 'CHESS'
+	game_played = models.CharField(max_length=5, choices=GameState.choices, default=GameState.PONG)
+
 
 class Discussion(models.Model):
 	user1 = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name='user1')
