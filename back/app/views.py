@@ -84,6 +84,13 @@ def pongView(request):
         return render(request, 'page_full.html', {'page':'pong.html', 'user':request.user})
     return render(request, 'pong.html', {'user':request.user})
 
+@login_required
+def chessView(request):
+    user = get_object_or_404(User, id=request.user.id)
+    if request.META.get("HTTP_HX_REQUEST") != 'true':
+        return render(request, 'page_full.html', {'page':'chess.html', 'user':user})
+    return render(request, 'chess.html', {'user':user})
+
 def registrationView(request):
     if request.method == 'POST':
         form = SignupForm(request.POST, request.FILES)

@@ -1,0 +1,16 @@
+{% load static %}
+<div class="container">
+<link rel="stylesheet" href="{% static 'stylesheets/chess.css' %}">
+    <h1 class="header">ATOMIC CHESS</h1>
+    <h5 class="header">Worst chess game you ever saw</h5>		
+	<div><p>Ca arrive lourd tu veux que jte l'dise en quelle langue ? On est l'feu et les pompiers en meme temps</p></div>
+	<div class="test">
+		
+		<div class="PlayerName" id="BlackPlayer">Player 1</div>
+		<canvas class="chessBox" height="800" width="800" id="chess">
+		</canvas>
+		<div class="PlayerName" id="WhitePlayer">Player 2</div>
+	</div>
+</div>
+<script type="text/javascript" src="{% static 'player.js' %}"></script>
+<script type="text/javascript" src="{% static 'chess.js' %} "></script>
