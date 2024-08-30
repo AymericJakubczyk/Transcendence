@@ -40,7 +40,6 @@ function display_mini_chat()
     })
     .then(response => response.json())
     .then(data => {
-        console.log(data);
         all_discu = document.getElementById("all_discu_mini")
         all_discu.innerHTML = ''
         for (i = 0; i < data.all_discu.length; i++)
@@ -89,7 +88,6 @@ function display_mini_chat()
 
 function minimize_mini_chat()
 {
-    console.log("coucou discu")
     document.getElementById("mini_chat").innerHTML = `
         <h2 class="m-0 p-2" style="cursor:pointer" onclick="display_mini_chat()">💬</h2>
     `
@@ -99,7 +97,6 @@ function minimize_mini_chat()
 function display_mini_discu(name, id)
 {
 
-    console.log("[TEST]", name, id)
     document.getElementById("mini_chat").innerHTML = `
         <div style="width:25vw">
             <div id="mini_headbar" class="d-flex flex-row justify-content-between p-2">
@@ -138,7 +135,6 @@ function display_mini_discu(name, id)
     })
     .then(response => response.json())
     .then(data => {
-        console.log("[DATA]",data);
         set_global_notif()
         all_discu = document.getElementById("all_msg_mini_" + name)
         all_discu.innerHTML = ''
@@ -174,7 +170,6 @@ window.addEventListener('htmx:beforeSwap', function(evt) {
 
 function set_global_notif()
 {
-    console.log("[SET GLOBAL NOTIF]");
     const notif = document.createElement("div");
     notif.setAttribute('id', 'mini_global_notif');
     notif.setAttribute('class', 'bg-danger text-light rounded-circle');
@@ -192,10 +187,8 @@ function set_global_notif()
     })
     .then(response => response.json())
     .then(data => {
-        console.log("[DATA]", data);
-        if (data.notif == true)
+        if (data.notif == true) //add global notif
         {
-            console.log("add GLOBAL notif");
             if (document.getElementById("mini_chat") && !document.getElementById("mini_global_notif") && !document.getElementById("mini_headbar"))
                 document.getElementById("mini_chat").append(notif);
             cpy_notif = notif.cloneNode(true)
@@ -204,9 +197,8 @@ function set_global_notif()
             if (document.getElementById("chat_headbar") && !document.getElementById("global_notif"))
                 document.getElementById("chat_headbar").append(cpy_notif);
         }
-        else if (data.notif == false)
+        else if (data.notif == false) //remove global notif
         {
-            console.log("remove GLOBAL notif");
             if (document.getElementById("global_notif"))
                 document.getElementById("global_notif").remove()
             if (document.getElementById("mini_global_notif"))
@@ -239,7 +231,6 @@ function error_message(msg, time)
         ], {
             duration: 500
         }).onfinish = () => {
-            console.log("FINISH remove error msg")
             error_msg.remove()
         }
     }, time)

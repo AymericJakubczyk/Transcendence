@@ -30,7 +30,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         all_username =  await self.get_all()
 
         for username in all_username:
-            print("[SEND_TO]", username, file=sys.stderr)
             await self.channel_layer.group_send(
                 username,
                 {
@@ -47,7 +46,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         all_username =  await self.get_all()
 
         for username in all_username:
-            print("[SEND_TO]", username, file=sys.stderr)
             await self.channel_layer.group_send(
                 username,
                 {
@@ -127,13 +125,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def set_state(self, user, state):
-        print("[STATE]", user, state, file=sys.stderr)
         user.state = state
         user.save()
 
     @database_sync_to_async
     def get_all(self):
-        print("[SEND_TO_ALL]", file=sys.stderr)
         current_user = self.scope["user"]
         all_discussion = Discussion.objects.filter(Q(user1=current_user) | Q(user2=current_user))
         all_username = []

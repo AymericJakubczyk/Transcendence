@@ -1,6 +1,6 @@
 {% if user.is_authenticated %}
 	<script>
-		console.log("redefine csrf when log")
+		// redifine csrf when log
 		csrftoken = '{{ csrf_token }}';
 		document.body.setAttribute('hx-headers', '{"X-CSRFToken": "{{ csrf_token }}"}');
 		if (document.getElementById("mini_chat"))

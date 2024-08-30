@@ -12,32 +12,20 @@ function custom_submit(form_id)
 			event.preventDefault(); // Empêcher la soumission du formulaire par défaut
 			let elems = event.target.elements
 
-			console.log("[SEND]", elems.msg.value, "[TO]", elems.send_to.value)
 			const obj = {
 				'message': elems.msg.value,
 				'send_to': elems.send_to.value,
 				'discu_id': elems.discu_id.value
 			};
-			// if (obj.message == "" || obj.message.length > 420)
-			// {
-			// 	error_message("Message must be between 1 and 420 characters", 2000)
-			// 	return
-			// }
+			if (obj.message == "" || obj.message.length > 420)
+			{
+				error_message("Message must be between 1 and 420 characters", 2000)
+				return
+			}
 			chatSocket.send(JSON.stringify(obj));
 			elems.msg.value = "" // for clear input
-
-
-			// add_msg("you", obj.message, true, obj.send_to)
-			// const last_msg = document.getElementById("last_msg_" + obj.send_to);
-			// if (last_msg)
-			// 	last_msg.innerHTML = "vous : " + obj.message;
-			// update_list_discu(obj.send_to)
-			// elems.msg.value = "" // for clear input
-			// return ;
 		});
 	}
-    else
-        console.log("[ERROR] not find element by id")
 }
 
 function create_ws()
@@ -110,10 +98,7 @@ function add_msg(sender, msg, you, send_to)
 	// for chat
 	var myDiv = document.getElementById("all_msg_" + sender);
 	if (you)
-	{
-		console.log("you send '", msg, "' to", send_to)
 		myDiv = document.getElementById("all_msg_" + send_to);
-	}
 	if (myDiv)
 	{
 		const msg_div = document.createElement("div");
@@ -180,7 +165,6 @@ function update_discu(sender, msg, discu_id, user)
 		const profile_pic = document.getElementById("profile_pic_" + sender);
 		if (profile_pic && !document.getElementById('notif_' + sender) && !discu.classList.contains("discu_selected"))
 		{
-			console.log("add notif");
 			const notif = document.createElement("div");
 			notif.setAttribute('id', 'notif_' + sender);
 			notif.setAttribute('class', 'bg-danger text-light');
@@ -249,8 +233,6 @@ function update_list_discu(sender)
 
 function msg_is_read(sender)
 {
-	console.log("verif_is_read");
-
 	const discu = document.getElementById("discu_" + sender);
 	if (discu && discu.classList.contains("discu_selected"))
 		request_for_read_message(discu.dataset.id)
@@ -275,7 +257,6 @@ function request_for_read_message(discu_id)
 		body:JSON.stringify({'read':discu_id})
 	})
 	.then(data => {
-		console.log("[DATA]", data);
 		set_global_notif()
 	});
 }

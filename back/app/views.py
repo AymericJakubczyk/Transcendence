@@ -24,7 +24,6 @@ def logout_user(request):
     return (redirect('myprofile'))
 
 def homeView(request):
-    print("[TEST]", request.POST, request.body, file=sys.stderr)
     next_url = get_url('home')
     if (request.GET.get('next')):
         next_url = request.GET.get('next')
@@ -196,7 +195,6 @@ def chatView(request):
     elif 'change_discussion' in request.POST:
         print("[CHANGE]", file=sys.stderr)
         discu = get_object_or_404(Discussion, id=request.POST.get('change_discussion'))
-        print("[LOG]", discu.user1, discu.user2, current_user, file=sys.stderr)
         if (discu.user1 != current_user and discu.user2 != current_user):
             print("[ERROR]", file=sys.stderr)
             error = "You are not in this discussion"
@@ -215,11 +213,9 @@ def chatView(request):
 
     elif request.method == 'POST':
         jsonData = json.loads(request.body)
-        print("[POST BODY]", request.body, jsonData, file=sys.stderr)
         if jsonData.get('read'):
             current_discu = get_object_or_404(Discussion, id=jsonData.get('read'))
             last_message = current_discu.get_last_message()
-            print("[LAST]", last_message.message, file=sys.stderr)
             last_message.read = True
             last_message.save()
 
