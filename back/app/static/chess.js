@@ -33,7 +33,6 @@ class Pawn {
     {
         let posx = this.posx;
         let posy = this.posy;
-        console.log(this.enPassant, " PASADO");
         if (this.color == "white")
         {
             if (posx == 6)
@@ -51,7 +50,10 @@ class Pawn {
                         this.possibleMoves[posx - 1][posy - 1] = "enPassant";
                 }
             }
-            pawnCheckCell(posx - 1, posy, this);
+            if (posx == 1)
+                pawnCheckProm(posx - 1, posy, this);
+            else
+                pawnCheckCell(posx - 1, posy, this);
             this.getAttackMove();
         }
         else
@@ -71,10 +73,12 @@ class Pawn {
                         this.possibleMoves[posx + 1][posy - 1] = "enPassant";
                 }
             }
-            pawnCheckCell(posx + 1, posy, this);
+            if (posx == 6)
+                pawnCheckProm(posx + 1, posy, this);
+            else
+                pawnCheckCell(posx + 1, posy, this);
             this.getAttackMove();
         }
-        console.log(this.possibleMoves);
     }
     getAttackMove()
     {
@@ -167,7 +171,6 @@ class Rook {
     {
         let posx = this.posx;
         let posy = this.posy;
-        console.log(posx, posy);
         for (let i = posx + 1; i < 8; i++)
         {
             if (checkCell(i, posy, this) == false)
@@ -282,7 +285,6 @@ class King {
         let posx = this.posx;
         let posy = this.posy;
         
-        console.log(posx, posy);
         if (this.count == 0)
             if (isPossibleKingMove(posx, 5, this) && isPossibleKingMove(posx, 6, this) && pieces[posx][7].id == 2 && pieces[posx][7].count == 0 && this.count == 0)
                 this.possibleMoves[posx][6] = "RightRock";
@@ -310,7 +312,6 @@ class King {
         let posx = this.posx;
         let posy = this.posy;
         
-        console.log(posx, posy);
         if (this.count == 0)
             if (isPossible(posx, 5, this) && isPossible(posx, 6, this) && pieces[posx][7].id == 2 && pieces[posx][7].count == 0 && this.count == 0)
                 this.possibleMoves[posx][6] = "RightRock";
@@ -341,6 +342,14 @@ class King {
                 this.possibleMoves[i][j] = "noPossibleMove";
         }
     }
+    resetCheck()
+    {
+        for (var i = 0; i < 8; i++)
+        {
+            for (var j = 0; j < 8; j++)
+                this.possibleMoves[i][j] = "noPossibleMove";
+        }
+    }
 }
 
 class Queen {
@@ -362,7 +371,6 @@ class Queen {
     }
     getPossibleMove()
     {
-        console.log(pieces);
         let posx = this.posx;
         let posy = this.posy;
         for (let i = posx + 1; i < 8; i++)
@@ -479,12 +487,12 @@ function isRowMove(piece, x, y, king)
     {
         if (x < posx)
         {   
-            for (let indx = posx; indx >= x; indx--)
+            for (let indx = posx; indx >= 0; indx--)
                 king.check[indx][posy] = "CheckMove";
         }
         else if (x > posx)
         {
-            for (let indx = posx; indx < x; indx++)
+            for (let indx = posx; indx < 8; indx++)
                 king.check[indx][posy] = "CheckMove";
         }
         king.check[posx][posy] = "Checker";
@@ -502,12 +510,12 @@ function isColMove(piece, x, y, king)
     {
         if (y < posy)
         {   
-            for (let indy = posy; indy >= y; indy--)
+            for (let indy = posy; indy >= 0; indy--)
                 king.check[posx][indy] = "CheckMove";
         }
         else if (y > posy)
         {   
-            for (let indy = posy; indy < y; indy++)
+            for (let indy = posy; indy < 8; indy++)
                 king.check[posx][indy] = "CheckMove";
         }
         king.check[posx][posy] = "Checker";
@@ -521,30 +529,29 @@ function isDiagMove(piece, x, y, king)
     let posx = piece.posx;
     let posy = piece.posy;
     
-    console.log(x, y, posx, posy, "x - posx :", x - posx, "y - posy :", y - posy);
+    console.log("Hello from the other side", x, y, king.posx, king.posy);
+    console.log(posx, posy);
     if (Math.abs(x - posx) == Math.abs(y - posy))
     {
-        console.log("DIAG MOVE ?");
         if (x < posx && y < posy)
         {   
-            console.log("oui");
-            for (let indx = posx, indy = posy; x < indx, y < indy; indx--, indy--)
+            for (let indx = posx, indy = posy; 0 < indx, 0 < indy; indx--, indy--)
                 king.check[indx][indy] = "CheckMove";
         }
         if (x > posx && y > posy)
         {   
-            for (let indx = posx, indy = posy; x > indx, y > indy; indx++, indy++)
+            for (let indx = posx, indy = posy; 8 > indx, 8 > indy; indx++, indy++)
                 king.check[indx][indy] = "CheckMove";
         }
         if (x < posx && y > posy)
         {
-            for (let indx = posx, indy = posy; x < indx && y > indy; indx--, indy++)
-                king.check[indy][indx] = "CheckMove";
+            for (let indx = posx, indy = posy; 0 < indx && 8 > indy; indx--, indy++)
+                king.check[indx][indy] = "CheckMove";
         }
         if (x > posx && y < posy)
         {
-            for (let indx = posx, indy = posy; x > indx, y < indy; indx++, indy--)
-                king.check[indy][indx] = "CheckMove";
+            for (let indx = posx, indy = posy; 8 > indx, 0 < indy; indx++, indy--)
+                king.check[indx][indy] = "CheckMove";
         }
         return true;
     }
@@ -574,11 +581,19 @@ function pawnCheckAttack(x, y, piece)
 {
     if (pieces[x][y] == "")
         return false;
+    let posx = piece.posx;
+    let posy = piece.posy;
+    console.log("PAWNCHECKATTACK", piece);
     if (isPossible(x, y, piece) && pieces[x][y].color != piece.color)
     {   
         if (pieces[x][y].name == "King")
             pieces[x][y].checked = 1;
-        piece.possibleMoves[x][y] = "PossibleMove";
+        if (piece.color == "white" && posx == 1)
+            piece.possibleMoves[x][y] = "PossiblePromAtq";
+        else if (piece.color == "black" && posx == 6)
+            piece.possibleMoves[x][y] = "PossiblePromAtq";
+        else                     
+            piece.possibleMoves[x][y] = "PossibleMove";
         return true;
     }
     else if (pieces[x][y].color == piece.color)
@@ -598,6 +613,18 @@ function pawnCheckCell(x, y, piece)
     if (isPossible(x, y, piece) && pieces[x][y].color != piece.color)
     {   
         piece.possibleMoves[x][y] = "PossibleMove";
+        return true;
+    }
+    return false;
+}
+
+function pawnCheckProm(x, y, piece)
+{
+    if (pieces[x][y].color != null)
+        return;
+    if (isPossible(x, y, piece) && pieces[x][y].color != piece.color)
+    {   
+        piece.possibleMoves[x][y] = "PossibleProm";
         return true;
     }
     return false;
@@ -656,13 +683,9 @@ function LeftRock(x)
 //UTILS
 function isPossibleKingMove(x, y, piece)
 {
-    console.log(x, y);
-    console.log(pieces);
     if (x >= 0 && x < 8 && y >= 0 && y < 8)
         if (pieces[x][y].color != piece.color && !isEnemyMove(x, y, piece))
             return true;
-        else if (isEnemyMove(x, y, piece))
-            console.log("IT IS", x, y, piece);
     return false;
 }
 
@@ -699,13 +722,11 @@ function isEnemyMove(x, y, piece)
         else if (team[i].name == "Pawn")
         {
             team[i].getAttackMove();
-            console.log(team[i]);
         }
         else
             team[i].getPossibleMove();
         if (team[i].possibleMoves[x][y] == "PossibleMove")
         {
-            console.log("HEY THIS IS", team[i]);
             return true;
         }
         else if (team[i].possibleMoves[x][y] == "PossibleDefense")
@@ -724,8 +745,8 @@ function initChessBoard()
         for (var j = 0; j < 8; j++)
             pieces[i][j] = "";
     }
-    // for (let i = 0; i < 8; i++)
-    //     pieces[1][i] = new Pawn("Pawn", "black", 1, i, "blackpawn.svg", 1);
+    for (let i = 0; i < 8; i++)
+        pieces[1][i] = new Pawn("Pawn", "black", 1, i, "blackpawn.svg", 1);
     pieces[0][0] = new Rook("Rook", "black", 0, 0, "blackrook.svg");
     pieces[0][1] = new Knight("Knight", "black", 0, 1, "blackknight.svg");
     pieces[0][2] = new Bishop("Bishop", "black", 0, 2, "blackbishop.svg");
@@ -734,8 +755,8 @@ function initChessBoard()
     pieces[0][5] = new Bishop("Bishop", "black", 0, 5, "blackbishop.svg");
     pieces[0][6] = new Knight("Knight", "black", 0, 6, "blackknight.svg");
     pieces[0][7] = new Rook("Rook", "black", 0, 7, "blackrook.svg", 2);
-    // for (let i = 0; i < 8; i++)
-    //     pieces[6][i] = new Pawn("Pawn", "white", 6, i, "whitepawn.svg");
+    for (let i = 0; i < 8; i++)
+        pieces[6][i] = new Pawn("Pawn", "white", 6, i, "whitepawn.svg");
     pieces[7][0] = new Rook("Rook", "white", 7, 0, "whiterook.svg", 1);
     pieces[7][1] = new Knight("Knight", "white", 7, 1, "whiteknight.svg");
     pieces[7][2] = new Bishop("Bishop", "white", 7, 2, "whitebishop.svg");
@@ -748,20 +769,20 @@ function initChessBoard()
 
 function initTeams()
 {
-    // for (let runner = 0; runner < 2; runner++)
-    // {
+    for (let runner = 0; runner < 2; runner++)
+    {
         for (let i = 0; i < 8; i++)
         {
             blackTeam[i] = pieces[0][i];   
         }
-    // }
-    // for (let runner = 6; runner < 8; runner++)
-    // {
+    }
+    for (let runner = 6; runner < 8; runner++)
+    {
         for (let i = 0; i < 8; i++)
         {
             whiteTeam[i] = pieces[7][i];   
         }
-    // }
+    }
 }
 
 //TEST
@@ -785,7 +806,6 @@ function draw(x, y, string) {
 //DRAW POSSIBLE MOVES
 function drawPossibleMove(piece, ctx)
 {
-    console.log(piece);
     if (piece == null)
         return ;
     piece.resetPossibleMove();
@@ -796,16 +816,15 @@ function drawPossibleMove(piece, ctx)
         colorEnemy = "white";
     else
         colorEnemy = "black";
-    console.log(color, colorEnemy);
     for (var i = 0; i < 8; i++)
     {
         for (var j = 0; j < 8; j++)
         {
-            if ((piece.possibleMoves[i][j] == "PossibleMove" || piece.possibleMoves[i][j] == "RightRock" || piece.possibleMoves[i][j] == "LeftRock" || piece.possibleMoves[i][j] == "PossibleDoubleMove") && pieces[i][j].color == colorEnemy)
+            if ((piece.possibleMoves[i][j] == "PossibleMove" || piece.possibleMoves[i][j] == "RightRock" || piece.possibleMoves[i][j] == "LeftRock" || piece.possibleMoves[i][j] == "PossibleDoubleMove" || piece.possibleMoves[i][j] == "PossiblePromAtq") && pieces[i][j].color == colorEnemy)
                 drawPossibleCaptureMove(i, j, ctx);
             else if (piece.possibleMoves[i][j] == "enPassant" && pieces[i][j].color == null)
                 drawPossibleCaptureMove(i, j, ctx);
-            else if ((piece.possibleMoves[i][j] == "PossibleMove" || piece.possibleMoves[i][j] == "RightRock" || piece.possibleMoves[i][j] == "LeftRock" || piece.possibleMoves[i][j] == "PossibleDoubleMove") && pieces[i][j].color == null)
+            else if ((piece.possibleMoves[i][j] == "PossibleMove" || piece.possibleMoves[i][j] == "RightRock" || piece.possibleMoves[i][j] == "LeftRock" || piece.possibleMoves[i][j] == "PossibleDoubleMove" || piece.possibleMoves[i][j] == "PossibleProm") && pieces[i][j].color == null)
                 drawTheMove(i, j, ctx);
         }
     }
@@ -855,18 +874,19 @@ function drawPossibleDefenseMove(context)
     else
         colorEnemy = "black";
     console.log(color, colorEnemy);
+    console.log("SELECTEDONE", selectedOne);
     for (var i = 0; i < 8; i++)
     {
         for (var j = 0; j < 8; j++)
         {
-            if ((selectedOne.possibleMoves[i][j] == "PossibleMove") && king.check[i][j] == "Checker")
+            if ((selectedOne.possibleMoves[i][j] == "PossibleMove" || selectedOne.possibleMoves[i][j] == "PossiblePromAtq") && king.check[i][j] == "Checker")
                 drawPossibleCaptureMove(i, j, context);
             else if (selectedOne.possibleMoves[i][j] == "enPassant" && pieces[i][j].color == null && king.check[i][j] == "Checker")
                 drawPossibleCaptureMove(i, j, context);
-            else if ((selectedOne.possibleMoves[i][j] == "PossibleMove" || selectedOne.possibleMoves[i][j] == "PossibleDoubleMove") && king.check[i][j] == "CheckMove")
-            {
+            else if ((selectedOne.possibleMoves[i][j] == "PossibleMove" || selectedOne.possibleMoves[i][j] == "PossibleDoubleMove" || selectedOne.possibleMoves[i][j] == "PossibleProm") && king.check[i][j] == "CheckMove" && selectedOne.name != "King")
                 drawTheMove(i, j, context);
-            }
+            else if (selectedOne.name == "King" && selectedOne.possibleMoves[i][j] == "PossibleMove" && king.check[i][j] == "noPossibleMove")
+                drawTheMove(i, j, context);
         }
     }
 }
@@ -881,7 +901,7 @@ function game(x, y, context)
     var NULL = null;
     
     console.log(whiteKing);
-    console.log(blackKing);    
+    console.log(blackKing);
     console.log("test1");
     if (!selected)
     {
@@ -899,12 +919,11 @@ function game(x, y, context)
             else
                 drawPossibleMove(selectedOne, context);
         }
+        console.log(selectedOne);
     }
     else
     {
         console.log("test3");
-        if (isChecked() == true)
-           handleCheck(context);
         redrawPossibleCapture(context);
         if (!selectedOne.color)
         {
@@ -912,6 +931,17 @@ function game(x, y, context)
             selectedOne = null;
             return ;
         }
+        if (isChecked() == true && pieces[posy][posx] != selectedOne)
+        {
+            let king = oldColor === "white" ? blackKing : whiteKing;
+            king.checked = 0;
+            king.resetCheck();
+            king.getPossibleMove();
+            moveCheck(context, king, posy, posx);
+            return ;
+        }
+        selectedOne.getPossibleMove();
+        console.log(selectedOne);
         if (selectedOne.possibleMoves[posy][posx] == "PossibleMove")
 			movePiece(posy, posx, context);
 		else if (selectedOne.possibleMoves[posy][posx] == "PossibleDoubleMove")
@@ -922,6 +952,10 @@ function game(x, y, context)
 			doLeftRock(posy, posx, context);
 		else if (selectedOne.possibleMoves[posy][posx] == "enPassant")
 			doEnpassant(posy, posx, context);
+        else if (selectedOne.possibleMoves[posy][posx] == "PossiblePromAtq")
+			doPromotion(posy, posx, context);
+        else if (selectedOne.possibleMoves[posy][posx] == "PossibleProm")
+			doPromotion(posy, posx, context);
         else
         {
             selected = false;
@@ -930,6 +964,29 @@ function game(x, y, context)
         handleEnPassant(context);
 		drawChess(context);
     }
+}
+
+function moveCheck(context, king, posy, posx)
+{
+    console.log("MOVECHECKK");
+    if ((selectedOne.possibleMoves[posy][posx] == "PossibleMove") && king.check[posy][posx] == "Checker")
+        movePiece(posy, posx, context);
+    else if (selectedOne.possibleMoves[posy][posx] == "enPassant" && pieces[posy][posx].color == null && king.check[posy][posx] == "Checker")
+        doEnpassant(posy, posx, context);
+    else if ((selectedOne.possibleMoves[posy][posx] == "PossibleDoubleMove") && king.check[posy][posx] == "CheckMove" && selectedOne.name != "King")
+        giveEnpassant(posy, posx, context);
+    else if ((selectedOne.possibleMoves[posy][posx] == "PossibleDoubleMove") && king.check[posy][posx] == "CheckMove" && selectedOne.name != "King")
+        movePiece(posy, posx, context);
+    else if (selectedOne.name == "King" && selectedOne.possibleMoves[posy][posx] == "PossibleMove" && king.check[posy][posx] == "noPossibleMove")
+        movePiece(posy, posx, context);
+    else
+    {
+        console.log("nul");
+        selected = false;
+        selectedOne = null;
+    }
+    handleEnPassant(context);
+    drawChess(context);
 }
 
 function handleCheck(context, posx, posy)
@@ -945,6 +1002,7 @@ function handleCheck(context, posx, posy)
     }
     if (isDefendable() == false)
     {
+        console.log("ISDEF", selectedOne);
         selected = false;
         selectedOne = null;
         drawChess(context);
@@ -965,7 +1023,8 @@ function handleCheck(context, posx, posy)
 
 function isDefendable()
 {
-    let king = oldColor === "white" ? blackKing : whiteKing;
+    let king = (oldColor === "white" ? blackKing : whiteKing);
+    selectedOne.getPossibleMove();
     for (let x = 0; x < 8; x++)
     {
         for (let y = 0; y < 8; y++)
@@ -975,6 +1034,8 @@ function isDefendable()
                 console.log("I CAN DEFEND", selectedOne);
                 return true;
             }
+            else if (selectedOne.name == "King" && selectedOne.possibleMoves[x][y] == "PossibleMove" && selectedOne.check[x][y] == "noPossibleMove")
+                return true;
         }
     }
     return false;
@@ -1065,6 +1126,7 @@ function handleEnPassant(context)
 //MOVES
 function movePiece(posy, posx)
 {
+    console.log(selectedOne);
 	replaceCell(posy, posx, selectedOne);
 	pieces[posy][posx] = selectedOne;
 	selectedOne.posx = posy;
@@ -1074,6 +1136,7 @@ function movePiece(posy, posx)
 	pieces[oldy][oldx] = '';
 	if (selectedOne.name == "King" || selectedOne.name == "Rook")
 		selectedOne.count = 1;
+    selectedOne.resetPossibleMove();
     if (selectedOne.name == "Pawn")
         selectedOne.getAttackMove();
     else
@@ -1149,12 +1212,59 @@ function doEnpassant(posy, posx)
 	selectedOne = null;
 }
 
+function doPromotion(posy, posx, context)
+{
+    console.log("PROMOTION");
+    createNewCanvas(context);
+    redrawPossibleCapture(context);
+    movePiece(posy, posx);
+}
+
+function createNewCanvas(event) {
+    const newCanvas = document.getElementById('promote');
+    const newctx = newCanvas.getContext('2d');
+    newCanvas.style.border = '3px solid #000000';
+    drawProm(newctx);
+}
+
+function drawProm(newctx)
+{
+    let color = oldColor === "white" ? "black" : "white";
+    let arr = [];
+    arr[0] = "../static/srcs/chess/" + color + "knight.svg";
+    arr[1] = "../static/srcs/chess/" + color + "bishop.svg";
+    arr[2] = "../static/srcs/chess/" + color + "rook.svg";
+    arr[3] = "../static/srcs/chess/" + color + "queen.svg";
+    for(let i= 0;i < 100; i+=50) 
+    {
+        for (let j = 0; j < 100; j+=50)
+        {
+            drawPromPieces(i, j, arr[i / 50 + j / 50], newctx);
+            newctx.fillStyle = "beige";
+            newctx.fillRect(i, j, 50, 50);
+            if (i != 0)
+            {   
+                newctx.fillStyle = "black";
+                newctx.fillRect(i, j, 03, 50);
+            }
+        }
+        newctx.fillStyle = "black";
+        newctx.fillRect(i, 50, 50, 03);
+    }
+}
+
+function drawPromPieces(x, y, string, newctx) {	
+    console.log(string);
+    const img = new Image();
+    img.src = string;
+    img.onload = () => {
+        newctx.drawImage(img, x, y, 50, 50);
+    };
+}
 
 //REDRAW MOVES OR REPLACE CELLS
 function replaceCell(x, y, piece)
 {
-    let count1 = x;
-    let count2 = y;
     let count = y + x + 1;
     ctx.fillStyle = "burlywood";
     if (count % 2 == 1)
@@ -1178,7 +1288,7 @@ function redrawPossibleCapture(context)
     {
         for (var j = 0; j < 8; j++)
         {
-            if (selectedOne.possibleMoves[i][j] == "PossibleMove" && pieces[i][j].color == colorEnemy)
+            if ((selectedOne.possibleMoves[i][j] == "PossibleMove" || selectedOne.possibleMoves[i][j] == "PossiblePromAtq") && pieces[i][j].color == colorEnemy)
             {   
                 reDrawPossibleCaptureMove(i, j, context);
             }
@@ -1292,4 +1402,5 @@ var blackTeam = new Array(16);
 initTeams();
 
 drawChess(ctx);
+createNewCanvas(ctx);
 canvas.addEventListener('click', function() {game(event.layerX, event.layerY, ctx)}, false);
