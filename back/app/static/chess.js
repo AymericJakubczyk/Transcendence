@@ -747,7 +747,7 @@ function initChessBoard()
     }
     for (let i = 0; i < 8; i++)
         pieces[1][i] = new Pawn("Pawn", "black", 1, i, "blackpawn.svg", 1);
-    pieces[0][0] = new Rook("Rook", "black", 0, 0, "blackrook.svg");
+    pieces[0][0] = new Rook("Rook", "black", 0, 0, "blackrook.svg", 1);
     pieces[0][1] = new Knight("Knight", "black", 0, 1, "blackknight.svg");
     pieces[0][2] = new Bishop("Bishop", "black", 0, 2, "blackbishop.svg");
     pieces[0][3] = new Queen("Queen", "black", 0, 3, "blackqueen.svg");
@@ -773,14 +773,14 @@ function initTeams()
     {
         for (let i = 0; i < 8; i++)
         {
-            blackTeam[i] = pieces[0][i];   
+            blackTeam[i] = pieces[runner][i];
         }
     }
     for (let runner = 6; runner < 8; runner++)
     {
         for (let i = 0; i < 8; i++)
         {
-            whiteTeam[i] = pieces[7][i];   
+            whiteTeam[i] = pieces[runner][i];   
         }
     }
 }
@@ -898,7 +898,6 @@ function game(x, y, context)
     var size = width / 8;
     var posx = Math.floor((x / size));
     var posy = Math.floor((y / size));
-    var NULL = null;
     
     console.log(whiteKing);
     console.log(blackKing);
@@ -1217,39 +1216,93 @@ function doPromotion(posy, posx, context)
     console.log("PROMOTION");
     createNewCanvas(context);
     redrawPossibleCapture(context);
+    replacePiece(selectedOne, posy, posx);
     movePiece(posy, posx);
 }
 
-function createNewCanvas(event) {
+function replacePiece(selectedOne, posy, posx)
+{
+    let team = oldColor === "white" ? blackTeam : whiteTeam;
+    let tmp = selectedOne;
+    if (newPiece == "queen")
+        selectedOne = new Queen("Queen", selectedOne.color, posy, posx, selectedOne.color+"queen.svg");
+    else if (newPiece == "knight")
+        selectedOne = new Knight("Knight", selectedOne.color, posy, posx, selectedOne.color+"knight.svg");
+    else if (newPiece == "rook")
+        selectedOne = new Rook("Rook", selectedOne.color, posy, posx, selectedOne.color+"rook.svg");
+    else if (newPiece == "bishop")
+        selectedOne = new Bishop("Bishop", selectedOne.color, posy, posx, selectedOne.color+"bishop.svg");
+    findAndReplace(team, tmp, selectedOne);
+}
+
+function findAndReplace(team, tmp, selectedOne)
+{
+    for (let i = 0; i < 8; i++)
+    {
+        if (team[i] == tmp)
+        {
+            team[i] = selectedOne;
+            return ;
+        }
+    }
+}
+
+function createNewCanvas(piece) {
     const newCanvas = document.getElementById('promote');
     const newctx = newCanvas.getContext('2d');
     newCanvas.style.border = '3px solid #000000';
     drawProm(newctx);
+    canvas.removeEventListener('click', function() {game()}, false);
+    newCanvas.addEventListener('click', function(event) {selectNewPiece(event.layerX, event.layerY, newCanvas)}, false);
+    // canvas.addEventListener('click', function() {game(event.layerX, event.layerY, ctx)}, false);
+}
+
+function selectNewPiece(x, y, newCanvas)
+{
+    console.log(x, y);
+    var width = newCanvas.offsetWidth;
+    var size = 50;
+    var posx = Math.floor((x / size));
+    var posy = Math.floor((y / size));
+    
+    console.log(posx, posy);
+    console.log(posx, posy);
+    var newPiece = "pawn";
+    if (posx == 0 && posy == 0)
+        newPiece = "queen";
+    else if (posx == 0 && posy == 1)
+        newPiece = "knight"
+    else if (posx == 1 && posy == 0)
+        newPiece = "rook";
+    else if (posx == 1 && posx == 1)
+        newPiece = "bishop";
 }
 
 function drawProm(newctx)
 {
     let color = oldColor === "white" ? "black" : "white";
     let arr = [];
-    arr[0] = "../static/srcs/chess/" + color + "knight.svg";
-    arr[1] = "../static/srcs/chess/" + color + "bishop.svg";
+    arr[0] = "../static/srcs/chess/" + color + "queen.svg";
+    arr[1] = "../static/srcs/chess/" + color + "knight.svg";
     arr[2] = "../static/srcs/chess/" + color + "rook.svg";
-    arr[3] = "../static/srcs/chess/" + color + "queen.svg";
+    arr[3] = "../static/srcs/chess/" + color + "bishop.svg";
+    let count = 0;
     for(let i= 0;i < 100; i+=50) 
     {
         for (let j = 0; j < 100; j+=50)
         {
-            drawPromPieces(i, j, arr[i / 50 + j / 50], newctx);
+            drawPromPieces(i, j, arr[count], newctx);
             newctx.fillStyle = "beige";
             newctx.fillRect(i, j, 50, 50);
             if (i != 0)
             {   
                 newctx.fillStyle = "black";
-                newctx.fillRect(i, j, 03, 50);
+                newctx.fillRect(i, j, 3, 50);
             }
+            count++;
         }
         newctx.fillStyle = "black";
-        newctx.fillRect(i, 50, 50, 03);
+        newctx.fillRect(i, 50, 50, 3);
     }
 }
 
@@ -1402,5 +1455,4 @@ var blackTeam = new Array(16);
 initTeams();
 
 drawChess(ctx);
-createNewCanvas(ctx);
 canvas.addEventListener('click', function() {game(event.layerX, event.layerY, ctx)}, false);
