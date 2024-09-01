@@ -3,10 +3,15 @@ var selected = 0;
 var selectedOne = null;
 var oldx;
 var oldy;
+var newx;
+var newy;
 var oldColor = "black";
 var enPassant = new Array(2);
 var whiteKing;
 var blackKing;
+var newCanvas;
+var newctx;
+var newPiece = "init";
 whosPlaying(oldColor);
 
 class Pawn {
@@ -535,13 +540,16 @@ function isDiagMove(piece, x, y, king)
     {
         if (x < posx && y < posy)
         {   
-            for (let indx = posx, indy = posy; 0 < indx, 0 < indy; indx--, indy--)
+            for (let indx = posx, indy = posy; 0 < indx && 0 < indy; indx--, indy--)
                 king.check[indx][indy] = "CheckMove";
         }
         if (x > posx && y > posy)
         {   
-            for (let indx = posx, indy = posy; 8 > indx, 8 > indy; indx++, indy++)
+            for (let indx = posx, indy = posy; 8 > indx && 8 > indy; indx++, indy++)
+            {
                 king.check[indx][indy] = "CheckMove";
+                console.log(indx, indy);   
+            }
         }
         if (x < posx && y > posy)
         {
@@ -550,7 +558,7 @@ function isDiagMove(piece, x, y, king)
         }
         if (x > posx && y < posy)
         {
-            for (let indx = posx, indy = posy; 8 > indx, 0 < indy; indx++, indy--)
+            for (let indx = posx, indy = posy; 8 > indx && 0 < indy; indx++, indy--)
                 king.check[indx][indy] = "CheckMove";
         }
         return true;
@@ -772,16 +780,12 @@ function initTeams()
     for (let runner = 0; runner < 2; runner++)
     {
         for (let i = 0; i < 8; i++)
-        {
-            blackTeam[i] = pieces[runner][i];
-        }
+            blackTeam[i + runner * 8] = pieces[runner][i];
     }
     for (let runner = 6; runner < 8; runner++)
     {
         for (let i = 0; i < 8; i++)
-        {
-            whiteTeam[i] = pieces[runner][i];   
-        }
+            whiteTeam[i + (runner - 6) * 8] = pieces[runner][i];
     }
 }
 
@@ -898,6 +902,8 @@ function game(x, y, context)
     var size = width / 8;
     var posx = Math.floor((x / size));
     var posy = Math.floor((y / size));
+    newx = posx;
+    newy = posy;
     
     console.log(whiteKing);
     console.log(blackKing);
@@ -970,6 +976,8 @@ function moveCheck(context, king, posy, posx)
     console.log("MOVECHECKK");
     if ((selectedOne.possibleMoves[posy][posx] == "PossibleMove") && king.check[posy][posx] == "Checker")
         movePiece(posy, posx, context);
+    else if ((selectedOne.possibleMoves[posy][posx] == "PossibleMove") && king.check[posy][posx] == "CheckMove")
+        movePiece(posy, posx, context);
     else if (selectedOne.possibleMoves[posy][posx] == "enPassant" && pieces[posy][posx].color == null && king.check[posy][posx] == "Checker")
         doEnpassant(posy, posx, context);
     else if ((selectedOne.possibleMoves[posy][posx] == "PossibleDoubleMove") && king.check[posy][posx] == "CheckMove" && selectedOne.name != "King")
@@ -984,6 +992,8 @@ function moveCheck(context, king, posy, posx)
         selected = false;
         selectedOne = null;
     }
+    king.checked = 0;
+    king.resetCheck();
     handleEnPassant(context);
     drawChess(context);
 }
@@ -1084,15 +1094,9 @@ function isChecked()
     let team = whiteTeam;
     if (color == "black")
         team = blackTeam;
-    for (let i = 0; i < 16; i++)
-    {
-        if (team[i].name == "King")
-        {
-            if (team[i].checked == 1)
-                return true;
-            return false;
-        }
-    }
+    let king = oldColor === "white" ? blackKing : whiteKing;
+    if (king.checked == 1)
+        return true;
     return false;
 }
 
@@ -1216,58 +1220,72 @@ function doPromotion(posy, posx, context)
     console.log("PROMOTION");
     createNewCanvas(context);
     redrawPossibleCapture(context);
-    replacePiece(selectedOne, posy, posx);
-    movePiece(posy, posx);
 }
 
-function replacePiece(selectedOne, posy, posx)
+function replacePiece(posy, posx, context, newCanvas)
 {
     let team = oldColor === "white" ? blackTeam : whiteTeam;
+    let color = oldColor === "white" ? "black" : "white";
     let tmp = selectedOne;
+    console.log(posy, posx);
+    console.log(tmp.posy, tmp.posx);
+    if (newPiece == "init")
+        return ;
     if (newPiece == "queen")
-        selectedOne = new Queen("Queen", selectedOne.color, posy, posx, selectedOne.color+"queen.svg");
+        selectedOne = new Queen("Queen", color, newy, newx, color+"queen.svg");
     else if (newPiece == "knight")
-        selectedOne = new Knight("Knight", selectedOne.color, posy, posx, selectedOne.color+"knight.svg");
+        selectedOne = new Knight("Knight", color, newy, newx, color+"knight.svg");
     else if (newPiece == "rook")
-        selectedOne = new Rook("Rook", selectedOne.color, posy, posx, selectedOne.color+"rook.svg");
+        selectedOne = new Rook("Rook", color, newy, newx, color+"rook.svg");
     else if (newPiece == "bishop")
-        selectedOne = new Bishop("Bishop", selectedOne.color, posy, posx, selectedOne.color+"bishop.svg");
-    findAndReplace(team, tmp, selectedOne);
+        selectedOne = new Bishop("Bishop", color, newy, newx, color+"bishop.svg");
+    findAndReplace(team, tmp, context, newCanvas);
 }
 
-function findAndReplace(team, tmp, selectedOne)
+function findAndReplace(team, tmp, context, newCanvas)
 {
-    for (let i = 0; i < 8; i++)
+    console.log("findandreplace");
+    for (let i = 0; i < 16; i++)
     {
+        console.log(team[i], tmp);
         if (team[i] == tmp)
         {
+            console.log(team[i], i);
+            pieces[oldy][oldx] = "";
+            pieces[newy][newx] = "";
             team[i] = selectedOne;
-            return ;
+            break;
         }
     }
+    drawChess(context);
+    pieces[newy][newx] = selectedOne;
+    console.log(pieces);
+    drawChess(context);
+    if (newCanvas)
+        newCanvas.parentNode.removeChild(newCanvas);
+    selectedOne.getPossibleMove();
+    oldColor = selectedOne.color;
+	whosPlaying(oldColor);
+    selected = false;
+    selectedOne = null;
 }
 
-function createNewCanvas(piece) {
-    const newCanvas = document.getElementById('promote');
-    const newctx = newCanvas.getContext('2d');
+function createNewCanvas(context) {
     newCanvas.style.border = '3px solid #000000';
     drawProm(newctx);
-    canvas.removeEventListener('click', function() {game()}, false);
-    newCanvas.addEventListener('click', function(event) {selectNewPiece(event.layerX, event.layerY, newCanvas)}, false);
+    newCanvas.style.display = 'block';
+    newCanvas.addEventListener('click', function(event) {selectNewPiece(event.layerX, event.layerY, newCanvas, context)}, false);
     // canvas.addEventListener('click', function() {game(event.layerX, event.layerY, ctx)}, false);
 }
 
-function selectNewPiece(x, y, newCanvas)
+function selectNewPiece(x, y, newCanvas, context)
 {
-    console.log(x, y);
     var width = newCanvas.offsetWidth;
     var size = 50;
     var posx = Math.floor((x / size));
     var posy = Math.floor((y / size));
     
     console.log(posx, posy);
-    console.log(posx, posy);
-    var newPiece = "pawn";
     if (posx == 0 && posy == 0)
         newPiece = "queen";
     else if (posx == 0 && posy == 1)
@@ -1276,6 +1294,9 @@ function selectNewPiece(x, y, newCanvas)
         newPiece = "rook";
     else if (posx == 1 && posx == 1)
         newPiece = "bishop";
+    console.log(newPiece);
+    replacePiece(posy, posx, context, newCanvas);
+    console.log(pieces);
 }
 
 function drawProm(newctx)
@@ -1411,11 +1432,11 @@ function drawChess(ctx)
 
 function drawCheckers(ctx)
 {
-    const arrV = ['1', '2', '3', '4', '5', '6', '7', '8'];
+    const arrV = ['8', '7', '6', '5', '4', '3', '2', '1'];
 	const arrC = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 
     var count = 0;
-    ctx.font = '408px Arial';
+    ctx.font = '16px Arial';
     for(var i= 0;i < 800; i+=100) 
     {
         count++;
@@ -1436,6 +1457,10 @@ function drawCheckers(ctx)
                 ctx.fillStyle = "antiquewhite";
             else if (count % 2 == 0)
                 ctx.fillStyle = "burlywood";
+            if (j == 700)
+                ctx.fillText(arrC[i / 100], i + 90, j + 95);
+            if (i == 0)
+                ctx.fillText(arrV[j / 100], i + 3, j + 15);
             count++;
         }
     }
@@ -1445,6 +1470,9 @@ function drawCheckers(ctx)
 
 const canvas = document.getElementById("chess");
 const ctx = canvas.getContext("2d");
+newCanvas = document.getElementById('promote');
+newctx = newCanvas.getContext('2d');
+newCanvas.style.display = "none";
 enPassant[0] = "";
 enPassant[1] = "";
 drawCheckers(ctx);
@@ -1453,6 +1481,8 @@ initChessBoard();
 var whiteTeam = new Array(16);
 var blackTeam = new Array(16);
 initTeams();
+console.log(blackTeam);
+console.log(whiteTeam);
 
 drawChess(ctx);
 canvas.addEventListener('click', function() {game(event.layerX, event.layerY, ctx)}, false);
