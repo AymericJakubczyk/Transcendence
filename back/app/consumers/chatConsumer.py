@@ -4,13 +4,8 @@ from channels.generic.websocket import AsyncWebsocketConsumer, WebsocketConsumer
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync, sync_to_async
 from channels.db import database_sync_to_async
-from .models import User, Discussion, Message
+from app.models import User, Discussion, Message
 from django.db.models import Q
-
-
-
-
-
 from channels.consumer import SyncConsumer
 
 import sys #for print
@@ -25,6 +20,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_add(
             self.room_group_name,
             self.channel_name
+        )
+
+        await self.channel_layer.group_send(
+            self.room_group_name,
+            {
+                'type': 'connect_message',
+                'statut': 'connect',
+                'sender': self.scope["user"].username,
+            }
         )
 
         all_username =  await self.get_all()

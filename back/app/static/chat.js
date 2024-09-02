@@ -165,6 +165,13 @@ window.addEventListener('htmx:beforeSwap', function(evt) {
         set_global_notif()
         document.getElementById("mini_chat").hidden = false
     }
+    
+    if (old_path == "/game/chess/ranked/" && chessSocket)
+    {
+        console.log("[WS] chess socket closed")
+        chessSocket.close()
+        chessSocket = null
+    }
 });
 
 

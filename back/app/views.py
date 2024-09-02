@@ -91,6 +91,21 @@ def chessView(request):
         return render(request, 'page_full.html', {'page':'chess.html', 'user':user})
     return render(request, 'chess.html', {'user':user})
 
+def chessModeView(request):
+    if request.META.get("HTTP_HX_REQUEST") != 'true':
+        return render(request, 'page_full.html', {'page':'chessMode.html', 'user':request.user})
+    return render(request, 'chessMode.html', {'user':request.user})
+
+def chessFoundGameView(request):
+    if request.META.get("HTTP_HX_REQUEST") != 'true':
+        return render(request, 'page_full.html', {'page':'chessFoundGame.html', 'user':request.user})
+    return render(request, 'chessFoundGame.html', {'user':request.user})
+
+def chessGameView(request, gameID):
+    if request.META.get("HTTP_HX_REQUEST") != 'true':
+        return render(request, 'page_full.html', {'page':'chess.html', 'user':request.user})
+    return render(request, 'chess.html', {'user':request.user})
+
 def registrationView(request):
     if request.method == 'POST':
         form = SignupForm(request.POST, request.FILES)

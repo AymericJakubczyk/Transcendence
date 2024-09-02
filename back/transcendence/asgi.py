@@ -13,13 +13,15 @@ from django.core.asgi import get_asgi_application
 from django.urls import re_path
 import os
 
-from app.consumers import ChatConsumer
+from app.consumers.chatConsumer import ChatConsumer
+from app.consumers.chessConsumer import ChessConsumer
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'transcendence.settings')
 
 
 websocket_urlpatterns = [
 	re_path(r'ws/chat/$', ChatConsumer.as_asgi()),
+	re_path(r'ws/chess/$', ChessConsumer.as_asgi()),
 ]
 
 application = ProtocolTypeRouter({
