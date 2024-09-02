@@ -22,7 +22,6 @@ class Pawn {
     {
         let posx = this.posx;
         let posy = this.posy;
-        console.log(this.enPassant, " PASADO");
         if (this.color == "white")
         {
             if (posx == 6)
@@ -40,7 +39,10 @@ class Pawn {
                         this.possibleMoves[posx - 1][posy - 1] = "enPassant";
                 }
             }
-            pawnCheckCell(posx - 1, posy, this);
+            if (posx == 1)
+                pawnCheckProm(posx - 1, posy, this);
+            else
+                pawnCheckCell(posx - 1, posy, this);
             this.getAttackMove();
         }
         else
@@ -60,10 +62,12 @@ class Pawn {
                         this.possibleMoves[posx + 1][posy - 1] = "enPassant";
                 }
             }
-            pawnCheckCell(posx + 1, posy, this);
+            if (posx == 6)
+                pawnCheckProm(posx + 1, posy, this);
+            else
+                pawnCheckCell(posx + 1, posy, this);
             this.getAttackMove();
         }
-        console.log(this.possibleMoves);
     }
     getAttackMove()
     {
@@ -156,7 +160,6 @@ class Rook {
     {
         let posx = this.posx;
         let posy = this.posy;
-        console.log(posx, posy);
         for (let i = posx + 1; i < 8; i++)
         {
             if (checkCell(i, posy, this) == false)
@@ -271,7 +274,6 @@ class King {
         let posx = this.posx;
         let posy = this.posy;
         
-        console.log(posx, posy);
         if (this.count == 0)
             if (isPossibleKingMove(posx, 5, this) && isPossibleKingMove(posx, 6, this) && pieces[posx][7].id == 2 && pieces[posx][7].count == 0 && this.count == 0)
                 this.possibleMoves[posx][6] = "RightRock";
@@ -299,7 +301,6 @@ class King {
         let posx = this.posx;
         let posy = this.posy;
         
-        console.log(posx, posy);
         if (this.count == 0)
             if (isPossible(posx, 5, this) && isPossible(posx, 6, this) && pieces[posx][7].id == 2 && pieces[posx][7].count == 0 && this.count == 0)
                 this.possibleMoves[posx][6] = "RightRock";
@@ -330,6 +331,14 @@ class King {
                 this.possibleMoves[i][j] = "noPossibleMove";
         }
     }
+    resetCheck()
+    {
+        for (var i = 0; i < 8; i++)
+        {
+            for (var j = 0; j < 8; j++)
+                this.possibleMoves[i][j] = "noPossibleMove";
+        }
+    }
 }
 
 class Queen {
@@ -351,7 +360,6 @@ class Queen {
     }
     getPossibleMove()
     {
-        console.log(pieces);
         let posx = this.posx;
         let posy = this.posy;
         for (let i = posx + 1; i < 8; i++)
@@ -468,12 +476,12 @@ function isRowMove(piece, x, y, king)
     {
         if (x < posx)
         {   
-            for (let indx = posx; indx >= x; indx--)
+            for (let indx = posx; indx >= 0; indx--)
                 king.check[indx][posy] = "CheckMove";
         }
         else if (x > posx)
         {
-            for (let indx = posx; indx < x; indx++)
+            for (let indx = posx; indx < 8; indx++)
                 king.check[indx][posy] = "CheckMove";
         }
         king.check[posx][posy] = "Checker";
@@ -491,12 +499,12 @@ function isColMove(piece, x, y, king)
     {
         if (y < posy)
         {   
-            for (let indy = posy; indy >= y; indy--)
+            for (let indy = posy; indy >= 0; indy--)
                 king.check[posx][indy] = "CheckMove";
         }
         else if (y > posy)
         {   
-            for (let indy = posy; indy < y; indy++)
+            for (let indy = posy; indy < 8; indy++)
                 king.check[posx][indy] = "CheckMove";
         }
         king.check[posx][posy] = "Checker";
@@ -510,30 +518,32 @@ function isDiagMove(piece, x, y, king)
     let posx = piece.posx;
     let posy = piece.posy;
     
-    console.log(x, y, posx, posy, "x - posx :", x - posx, "y - posy :", y - posy);
+    console.log("Hello from the other side", x, y, king.posx, king.posy);
+    console.log(posx, posy);
     if (Math.abs(x - posx) == Math.abs(y - posy))
     {
-        console.log("DIAG MOVE ?");
         if (x < posx && y < posy)
         {   
-            console.log("oui");
-            for (let indx = posx, indy = posy; x < indx, y < indy; indx--, indy--)
+            for (let indx = posx, indy = posy; 0 < indx && 0 < indy; indx--, indy--)
                 king.check[indx][indy] = "CheckMove";
         }
         if (x > posx && y > posy)
         {   
-            for (let indx = posx, indy = posy; x > indx, y > indy; indx++, indy++)
+            for (let indx = posx, indy = posy; 8 > indx && 8 > indy; indx++, indy++)
+            {
                 king.check[indx][indy] = "CheckMove";
+                console.log(indx, indy);   
+            }
         }
         if (x < posx && y > posy)
         {
-            for (let indx = posx, indy = posy; x < indx && y > indy; indx--, indy++)
-                king.check[indy][indx] = "CheckMove";
+            for (let indx = posx, indy = posy; 0 < indx && 8 > indy; indx--, indy++)
+                king.check[indx][indy] = "CheckMove";
         }
         if (x > posx && y < posy)
         {
-            for (let indx = posx, indy = posy; x > indx, y < indy; indx++, indy--)
-                king.check[indy][indx] = "CheckMove";
+            for (let indx = posx, indy = posy; 8 > indx && 0 < indy; indx++, indy--)
+                king.check[indx][indy] = "CheckMove";
         }
         return true;
     }
