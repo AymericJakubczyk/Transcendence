@@ -3,9 +3,11 @@ from django.contrib.auth import login, authenticate, logout, update_session_auth
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from .forms import SignupForm, LoginForm, UpdateForm
-from .models import User, Friend_Request, Discussion, Message
+from .models import User, Tournament, Friend_Request, Discussion, Message
 from django.urls import reverse as get_url
 from django.db.models import Q
+import json
+from django.http import JsonResponse, HttpResponse
 
 import sys
 import logging
@@ -22,7 +24,6 @@ def logout_user(request):
     return (redirect('myprofile'))
 
 def homeView(request):
-    print("[TEST]", request.POST, file=sys.stderr)
     next_url = get_url('home')
     if (request.GET.get('next')):
         next_url = request.GET.get('next')
@@ -44,13 +45,44 @@ def homeView(request):
     return render(request, 'home.html', {'form':form, 'next_url':next_url, 'refresh':0})
 
 def gameView(request):
-    if request.user.is_authenticated == False:
+    if not request.user.is_authenticated:
         messages.error(request, 'Log-in to play cool games !')
         return redirect('myprofile')
     else:
+        print("REQUETE POST :")
+        print(request.POST)
+        all_tournaments = Tournament.objects.all()
+        if 'create_tournament' in request.POST:
+            game_played = request.POST.get('crea-game')
+            max_users = request.POST.get('group-size')
+            if game_played:
+                obj = Tournament()
+                obj.host_user = request.user
+                obj.game_played = game_played
+                obj.max_users = max_users
+                obj.save()
+                obj.participants.add(request.user)
+                obj.save()
+                request.user.tournament_id = obj.id
+                request.user.save()
+
+        if 'join_tournament' in request.POST:
+            tournament_id = request.POST.get('join_tournament')
+            tournament = Tournament.objects.get(id=tournament_id)
+            if request.user not in tournament.participants.all():
+                tournament.participants.add(request.user)
+                tournament.save()
+                request.user.tournament_id = tournament.id
+                request.user.save()
+
         if request.META.get("HTTP_HX_REQUEST") != 'true':
-            return render(request, 'page_full.html', {'page':'game.html', 'user':request.user})
-        return render(request, 'game.html', {'user':request.user})
+            return render(request, 'page_full.html', {'page':'game.html', 'user':request.user, 'all_tournaments': all_tournaments})
+        return render(request, 'game.html', {'user':request.user, 'all_tournaments': all_tournaments})
+
+def pongView(request):
+    if request.META.get("HTTP_HX_REQUEST") != 'true':
+        return render(request, 'page_full.html', {'page':'pong.html', 'user':request.user})
+    return render(request, 'pong.html', {'user':request.user})
 
 @login_required
 def chessView(request):
@@ -58,6 +90,21 @@ def chessView(request):
     if request.META.get("HTTP_HX_REQUEST") != 'true':
         return render(request, 'page_full.html', {'page':'chess.html', 'user':user})
     return render(request, 'chess.html', {'user':user})
+
+def chessModeView(request):
+    if request.META.get("HTTP_HX_REQUEST") != 'true':
+        return render(request, 'page_full.html', {'page':'chessMode.html', 'user':request.user})
+    return render(request, 'chessMode.html', {'user':request.user})
+
+def chessFoundGameView(request):
+    if request.META.get("HTTP_HX_REQUEST") != 'true':
+        return render(request, 'page_full.html', {'page':'chessFoundGame.html', 'user':request.user})
+    return render(request, 'chessFoundGame.html', {'user':request.user})
+
+def chessGameView(request, gameID):
+    if request.META.get("HTTP_HX_REQUEST") != 'true':
+        return render(request, 'page_full.html', {'page':'chess.html', 'user':request.user})
+    return render(request, 'chess.html', {'user':request.user})
 
 def registrationView(request):
     if request.method == 'POST':
@@ -85,8 +132,8 @@ def myProfilView(request):
     if request.user.is_authenticated:
         all_friend_requests = Friend_Request.objects.filter(to_user=request.user)
         if request.META.get("HTTP_HX_REQUEST") != 'true':
-            return render(request, 'page_full.html', {'page':'myprofil.html', 'user':request.user, 'all_friend_requests': all_friend_requests})
-        return render(request, 'myprofil.html', {'user':request.user, 'all_friend_requests': all_friend_requests})
+            return render(request, 'page_full.html', {'page':'myprofil.html', 'user':request.user, 'all_friend_requests': all_friend_requests, 'refresh':True})
+        return render(request, 'myprofil.html', {'user':request.user, 'all_friend_requests': all_friend_requests, 'refresh':False})
 
     next_url = get_url('myprofile')
     if (request.GET.get('next')):
@@ -96,6 +143,7 @@ def myProfilView(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
+            print("form valid", file=sys.stderr)
             user = authenticate(
                 username=form.cleaned_data['username'],
                 password=form.cleaned_data['password'],
@@ -180,7 +228,7 @@ def accept_friend_request(request, requestID):
         return redirect('myprofile')
 
 def chatView(request):
-
+    print("[CHAT]", request.POST, request.body, request.user, file=sys.stderr)
     if request.user.is_authenticated == False:
         messages.error(request, 'Log-in to chat with friends !')
         return redirect('myprofile')
@@ -188,6 +236,7 @@ def chatView(request):
     interlocutor = None
     msg = None
     current_discu = None
+    error = None
     current_user = request.user
 
     if 'add_discussion' in request.POST:
@@ -199,31 +248,44 @@ def chatView(request):
         obj.save()
         current_discu = obj
 
-    if 'change_discussion' in request.POST:
+    elif 'change_discussion' in request.POST:
+        print("[CHANGE]", file=sys.stderr)
         discu = get_object_or_404(Discussion, id=request.POST.get('change_discussion'))
-        current_discu = discu
-        interlocutor = discu.get_other_username(current_user.username)
+        if (discu.user1 != current_user and discu.user2 != current_user):
+            print("[ERROR]", file=sys.stderr)
+            error = "You are not in this discussion"
+        else:
+            current_discu = discu
+            other_user = current_discu.get_other_username(current_user.username)
+            interlocutor = get_object_or_404(User, username=other_user)
+            last_message = current_discu.get_last_message()
+            if last_message and last_message.sender != current_user:
+                last_message.read = True
+                last_message.save()
 
-    if 'msg' in request.POST:
-        msg = request.POST.get('msg')
-        current_discu = get_object_or_404(Discussion, id=request.POST.get('discu_id'))
-        other_user = current_discu.get_other_username(current_user.username)
-        interlocutor = get_object_or_404(User, username=other_user)
-        obj = Message()
-        obj.discussion = current_discu
-        obj.sender = current_user
-        obj.message = msg
-        obj.save()
+    elif 'display_profile' in request.POST:
+        interlocutor = get_object_or_404(User, username=request.POST.get('display_profile'))
+        return redirect('profile', username=interlocutor.username)
+
+    elif request.method == 'POST':
+        jsonData = json.loads(request.body)
+        if jsonData.get('read'):
+            current_discu = get_object_or_404(Discussion, id=jsonData.get('read'))
+            last_message = current_discu.get_last_message()
+            last_message.read = True
+            last_message.save()
 
     all_user = User.objects.all()
-    all_message = Message.objects.filter(Q(discussion=current_discu))
-    all_discussion = Discussion.objects.filter(Q(user1=current_user) | Q(user2=current_user))
+    all_message = Message.objects.filter(Q(discussion=current_discu)).order_by('id')
+    all_discussion = Discussion.objects.filter(Q(user1=current_user) | Q(user2=current_user)).order_by('-last_activity')
     all_discussion_name = []
     all_username = []
     for discussion in all_discussion:
-        obj = {'id': discussion.id, 'name_discu':discussion.get_other_username(current_user.username)}
+        other_username = discussion.get_other_username(current_user.username)
+        other_user = get_object_or_404(User, username=other_username)
+        obj = {'id': discussion.id, 'name_discu':other_username, 'last_message':discussion.get_last_message(), 'profile_picture':other_user.profile_picture, 'other_user':other_user}
         all_discussion_name.append(obj)
-        all_username.append(discussion.get_other_username(current_user.username))
+        all_username.append(other_username)
 
 
     all_addable_user = []
@@ -233,5 +295,60 @@ def chatView(request):
 
 
     if request.META.get("HTTP_HX_REQUEST") != 'true':
-        return render(request, 'page_full.html', {'page':'chat.html', 'interlocutor':interlocutor, 'all_user':all_addable_user, 'all_discussion': all_discussion_name, 'current_discu':current_discu, 'all_message': all_message})
-    return render(request, 'chat.html', {'interlocutor':interlocutor, 'all_user':all_addable_user, 'all_discussion': all_discussion_name, 'current_discu':current_discu, 'all_message': all_message})
+        return render(request, 'page_full.html', {'page':'chat.html', 'interlocutor':interlocutor, 'all_user':all_addable_user, 'all_discussion': all_discussion_name, 'current_discu':current_discu, 'all_message': all_message, 'error':error})
+    return render(request, 'chat.html', {'interlocutor':interlocutor, 'all_user':all_addable_user, 'all_discussion': all_discussion_name, 'current_discu':current_discu, 'all_message': all_message, 'error':error})
+
+
+def mini_chat(request):
+    current_user = request.user
+    all_discussion_name = []
+    all_obj_msg = []
+    if request.method == "POST" and request.user.is_authenticated:
+        jsonData = json.loads(request.body)
+        request_type = jsonData.get('type')
+        if (request_type == "get_all"):
+            all_discussion = Discussion.objects.filter(Q(user1=current_user) | Q(user2=current_user)).order_by('-last_activity')
+            for discussion in all_discussion:
+                other_username = discussion.get_other_username(current_user.username)
+                other_user = get_object_or_404(User, username=other_username)
+                last_message = discussion.get_last_message()
+                if last_message:
+                    sender = last_message.sender.username
+                    is_readed = last_message.read
+                    last_message = last_message.message
+                else:
+                    last_message = "No message"
+                    sender = "No sender"
+                    is_readed = True
+                obj = { 
+                    'id': discussion.id,
+                    'name_discu':other_username,
+                    'profile_picture':other_user.profile_picture.url,
+                    'last_message':last_message,
+                    'last_message_sender':sender,
+                    'last_message_is_readed':is_readed,
+                    'state':other_user.state
+                }
+                all_discussion_name.append(obj)
+            return JsonResponse({'type': request_type, 'all_discu': all_discussion_name, 'current_username':current_user.username})
+        elif (request_type == "get_discu"):
+            discu = get_object_or_404(Discussion, id=jsonData.get('id'))
+            last_message = discu.get_last_message()
+            if (last_message and last_message.sender != current_user):
+                last_message.read = True
+                last_message.save()
+            all_message = Message.objects.filter(Q(discussion=discu)).order_by('id')
+            for msg in all_message:
+                obj = {'message': msg.message, 'sender':msg.sender.username}
+                all_obj_msg.append(obj)
+            return JsonResponse({'type': request_type, 'all_message': all_obj_msg, 'current_username':current_user.username})
+        elif (request_type == "get_global_notif"):
+            all_discussion = Discussion.objects.filter(Q(user1=current_user) | Q(user2=current_user))
+            for discussion in all_discussion:
+                last_message = discussion.get_last_message()
+                if last_message and not last_message.read and last_message.sender != current_user:
+                    return JsonResponse({'type': request_type, 'notif': True})
+            return JsonResponse({'type': request_type, 'notif': False})
+        return JsonResponse({'type': request_type})
+    else:
+        return JsonResponse({'type': 'error', 'message':'not authenticated or not good request'})

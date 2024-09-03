@@ -25,6 +25,3 @@ clean :
 	docker volume rm $$(docker volume ls -q)
 
 .PHONY: all down re clean update_ip
-
-
-# @NEW_LINE=$$(ifconfig | grep "inet " | awk -F'[: ]+' '{ print $$3 }' | sed "s/^/'/;s/$$/',/" | sed '1i"' | sed "1iIPHOST=" | tr '\n' ' ' | sed -e "s/\(.*\), /\1/" | sed 's/$$/"/') ; \

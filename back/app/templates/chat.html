@@ -1,59 +1,118 @@
 {% load static %}
+{% if error %}
+<script>
+    console.log("[ERROR] {{error}}");
+    error_message("{{error}}", 2000);
+</script>
+
+{% endif %}
 <div>
     <h1>Chat</h1>
 
     <div class="d-flex flex-row" style="height:50vh">
-        <div class="d-flex flex-column rounded w-25 bg-secondary bg-gradient mx-2 p-2">
+        <div class="d-flex flex-column rounded mx-2 p-2 all_discu_panel">
             <div class="d-flex flex-row justify-content-between">
                 <div class="align-self-center" id="txt_discu">all discussions</div>
                 <button class="d-inline" id="add_btn" style="right:0" onclick="display_addable_discussion()">ADD +</button>
             </div>
             <div id="all_discussion">
                 {% for discu in all_discussion %}
-                <form hx-post="{{request.path}}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
+                <form id="form_discu_{{discu.name_discu}}" hx-post="{{request.path}}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader"> 
                     {% csrf_token %}
                     <input type="hidden" name="change_discussion" value="{{discu.id}}"/>
-                    <input class="my-1 p-2 bg-darkgray" style="width:100%" type="submit" value="{{discu.name_discu}}">
+                    <button id="discu_{{discu.name_discu}}" data-id="{{discu.id}}" value="{{discu.name_discu}}"
+                        {% if discu.id == current_discu.id %}
+                            class="rounded-2 my-1 p-2 discu_selected"
+                            type="button"
+                        {% else %}
+                            class="rounded-2 my-1 p-2 discu"
+                            type="submit"
+                        {% endif %}
+                    >
+                        <div id="profile_pic_{{discu.name_discu}}" style="position: relative;">
+                            <img src="{{ discu.profile_picture.url }}" class="pp" alt="Profile Picture">
+                            {% if discu.last_message and not discu.last_message.read and discu.last_message.sender != request.user %}
+                                <div class="bg-danger text-light rounded-circle" style="position: absolute; width:20px;height:20px ;left: 0;top: 0">!</div>
+                            {% endif %}
+                            <div id="statut_{{discu.name_discu}}" class="rounded-circle"
+                                {% if discu.id == current_discu.id %}
+                                    style="background-color: green; border: 4px rgb(81,81,81) solid;position: absolute; right: -5px; bottom: -5px;width:40%;height:40%"
+                                {% else %}
+                                    style="background-color: green; border: 4px rgb(61,61,61) solid;position: absolute; right: -5px; bottom: -5px;width:40%;height:40%"
+                                {% endif %}
+                                {% if discu.other_user.state == 'OFF' %}
+                                    hidden
+                                {% endif %}
+                            ></div>
+                        </div>
+                        <div class="d-flex flex-column mx-2" style="overflow: hidden;">
+                            <span style="font-size: 24px; font-weight: 400;color:#ffffff; text-align: start;text-overflow: ellipsis;">
+                                {{discu.name_discu}}
+                            </span>
+                            <span id="last_msg_{{discu.name_discu}}" style="font-size: 14px; font-weight: 100; color:#c0c0c0 ;padding-left: 5px;text-align: start;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;width:100%">
+                                {% if not discu.last_message %}
+                                    No message
+                                {% elif discu.last_message.sender == request.user %}
+                                    vous : {{discu.last_message.message}}
+                                {% else %}
+                                    {{discu.last_message.message}}
+                                {% endif %}
+                            </span>
+                        </div>
+                    </button>
                 </form>
                 {% endfor %}
             </div>
             <div hidden id="all_addable">
                 {% for usr in all_user %}
                     {% if usr.username != request.user.username %}
-                    <form hx-post="{{request.path}}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
-                        {% csrf_token %}
-                        <input type="hidden" name="add_discussion" value="{{usr.username}}"/>
-                        <input class="my-1 p-2 bg-darkgray" style="width:100%" type="submit" value="{{usr.username}}">
-                    </form>
+                        <form hx-post="{{request.path}}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
+                            {% csrf_token %}
+                            <input type="hidden" name="add_discussion" value="{{usr.username}}"/>
+                            <input class="rounded-2 shadow my-1 p-2 bg-darkgray" style="width:100%" type="submit" value="{{usr.username}}">
+                        </form>
                     {% endif %}
                 {% endfor %}
             </div>
         </div>
-        
-        <div style="position:relative" class="d-flex flex-column rounded w-75 bg-secondary bg-gradient mx-2 p-2">
-            <p class="fs-1" id="interlocutor">{{interlocutor}}</p>
-            <div class="d-flex flex-column my-1 rounded" id="all_msg" style="overflow-y:scroll; background-color: darkgray;height:100%; position: relative;">
-                {% for msg in all_message %}
-                    {% if msg.sender.id == request.user.id %}
-                        <div class="my_msg" style="white-space: pre-line;overflow-wrap: break-word">{{msg.message}}</div>
-                    {% else %}
-                        <div class="other_msg" style="white-space: pre-line;overflow-wrap: break-word">{{msg.message}}</div>
-                    {% endif  %}
-                {% endfor %}
-            </div>
-            <script>
-                var objDiv = document.getElementById("all_msg");
-                objDiv.scrollTop = objDiv.scrollHeight;
-            </script>
-            <form class="d-flex flex-row" id="form_message" hx-post="{{request.path}}" hx-swap="none">
-                {% csrf_token %}
-                <input type="hidden" name="send_to" value="{{ interlocutor }}"/>
-                <input type="hidden" name="sender" value="{{ request.user.username }}"/>
-                <input type="hidden" name="discu_id" value="{{current_discu.id}}"/>
-                <input style="flex-grow:1" type="text" name="msg" value="" autofocus="autofocus" autocomplete="off"/>
-                <input type="submit" value="SEND">
+  
+        <div class="d-flex flex-column rounded mx-2 p-1 chat_panel">
+            {% if interlocutor %}
+            <form hx-post="{{request.path}}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader"> 
+                <input type="hidden" name="display_profile" value="{{interlocutor.username}}"/>
+                <button class="fs-1 text-light bg-transparent border-0" id="interlocutor" type="submit">{{ interlocutor }}</button>
             </form>
-            <script>custom_submit()</script>
+            {% else %}
+                <div class="fs-1" id="interlocutor">No discussion selected</div>
+            {% endif %}
+            {% if interlocutor != None %}
+                <div class="my-1 rounded" id="div_msg" style=" overflow-y:scroll; background-color: darkgray;height:100%; position: relative;">
+                    <div class="d-flex flex-column" id="all_msg_{{ interlocutor }}" style="visibility: hidden">
+                    {% for msg in all_message %}
+                        {% if msg.sender.id == request.user.id %}
+                            <div class="my_msg rounded-2 shadow">{{msg.message}}</div>
+                        {% else %}
+                            <div class="other_msg rounded-2 shadow">{{msg.message}}</div>
+                        {% endif  %}
+                    {% endfor %}
+                    </div>
+                </div>
+                <script>
+                    var div_msg = document.getElementById("div_msg");
+                    div_msg.scrollTop = div_msg.scrollHeight;
+                    var all_msg_interlocutor = document.getElementById("all_msg_{{ interlocutor }}");
+                    all_msg_interlocutor.style.visibility = "visible";
+                </script>
+                <form class="d-flex flex-row" id="form_message">
+                    {% csrf_token %}
+                    <input type="hidden" name="send_to" value="{{ interlocutor.username }}"/>
+                    <input type="hidden" name="sender" value="{{ request.user.username }}"/>
+                    <input type="hidden" name="discu_id" value="{{current_discu.id}}"/>
+                    <input class="rounded-start-3 px-2" style="flex-grow:1" type="text" name="msg" value="" autofocus="autofocus" autocomplete="off"/>
+                    <input class="rounded-end-3" type="submit" value="SEND">
+                </form>
+                <script>custom_submit("form_message");set_global_notif()</script>
+            {% endif %}
         </div>
     </div>
 </div>

@@ -1,17 +1,82 @@
 .other_msg {
     background-color:gray;
-    width: max-content;
+    color:white;
+    width: fit-content;
     padding: 10px;
     margin: 10px;
     max-width:80%;
+    white-space: pre-line;
+    overflow-wrap: anywhere;
 }
 
 .my_msg {
     background-color:cadetblue;
-    width: max-content;
+    color:white;
+    width: fit-content;
     padding: 10px;
     margin: 10px;
     margin-left: auto;
     margin-right: 10px;
     max-width:80%;
+    white-space: pre-line;
+    overflow-wrap: anywhere;
 }
+
+.discu
+{
+    background-color: transparent;
+    width:100%;
+    border-width: 0px;
+    display:inline-flex
+}
+
+.discu_selected
+{
+    background-color: rgb(81,81,81);
+    width:100%;
+    border-width: 0px;
+    display:inline-flex
+}
+
+.pp 
+{
+  clip-path: ellipse(50% 50%);
+  height:4vw;
+  max-height: 80px;
+}
+
+
+.all_discu_panel
+{
+  width:25%;
+  height: 100%;
+  background-color: rgb(61, 61, 61);
+  overflow:hidden;
+}
+
+.chat_panel
+{
+  width:75%;
+  height: 100%;
+  background-color: rgb(61, 61, 61);
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    /* box-shadow: inset 0 0 5px grey;  */
+    border-radius: 10px;
+    padding:20px;
+  }
+   
+  ::-webkit-scrollbar-thumb {
+    background: grey;
+    width:5px;
+    border-radius: 10px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: #bbbbbb; 
+  }
