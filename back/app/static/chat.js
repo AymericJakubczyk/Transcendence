@@ -68,9 +68,9 @@ function display_mini_chat()
                 document.getElementById("statut_mini_" + data.all_discu[i].name_discu).hidden = false
 
             if (data.all_discu[i].last_message_sender == data.current_username)
-                document.getElementById("last_msg_mini_" + data.all_discu[i].name_discu).innerHTML = "vous : " + data.all_discu[i].last_message
+                document.getElementById("last_msg_mini_" + data.all_discu[i].name_discu).innerText = "vous : " + data.all_discu[i].last_message
             else
-                document.getElementById("last_msg_mini_" + data.all_discu[i].name_discu).innerHTML = data.all_discu[i].last_message
+                document.getElementById("last_msg_mini_" + data.all_discu[i].name_discu).innerText = data.all_discu[i].last_message
             
             if (data.all_discu[i].last_message_is_readed == false && data.all_discu[i].last_message_sender != data.current_username)
             {
@@ -141,9 +141,19 @@ function display_mini_discu(name, id)
         for (i = 0; i < data.all_message.length; i++)
         {
             if (data.current_username == data.all_message[i].sender)
-                all_discu.innerHTML += '<div class="my_msg rounded-2 shadow">'+ data.all_message[i].message +'</div>'
+            {
+                let messageDiv = document.createElement('div');
+                messageDiv.className = "my_msg rounded-2 shadow";
+                messageDiv.innerText = data.all_message[i].message;
+                all_discu.appendChild(messageDiv);
+            }
             else
-                all_discu.innerHTML += '<div class="other_msg rounded-2 shadow">'+ data.all_message[i].message +'</div>'
+            {
+                let messageDiv = document.createElement('div');
+                messageDiv.className = "other_msg rounded-2 shadow";
+                messageDiv.innerText = data.all_message[i].message;
+                all_discu.appendChild(messageDiv);
+            }
         }
         all_discu.scrollTop = all_discu.scrollHeight;
      });
