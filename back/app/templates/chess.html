@@ -5,12 +5,31 @@
     <h5 class="header">Worst chess game you ever saw</h5>		
 	<div><p>Ca arrive lourd tu veux que jte l'dise en quelle langue ? On est l'feu et les pompiers en meme temps</p></div>
 	<div class="test">
-		
-		<div class="PlayerName" id="BlackPlayer">Player 1</div>
-		<canvas class="chessBox" height="800" width="800" id="chess">
+		{% if game %}
+			<div class="d-flex w-100" id="BlackPlayer">
+				<img src="{{ game.black_player.profile_picture.url }}" class="pp_game">
+				<div>
+					<h2 class="mb-0">{{ game.black_player.username }}</h2>
+					<h5>rank</h5>
+				</div>
+			</div>
+		{% else %}
+			<div class="PlayerName" id="BlackPlayer">Player 1</div>
+		{% endif %}
+		<canvas class="chessBox my-3" height="800" width="800" id="chess">
 		</canvas>
 		<canvas class = "promotePawn" height="100" width="100" id="promote" style="position :absolute;"></canvas>
-		<div class="PlayerName" id="WhitePlayer">Player 2</div>
+		{% if game %}
+			<div class="d-flex w-100" id="WhitePlayer">
+				<img src="{{ game.white_player.profile_picture.url }}" class="pp_game">
+				<div>
+					<h2 class="mb-0">{{ game.white_player.username }}</h2>
+					<h5>rank</h5>
+				</div>
+			</div>
+		{% else %}
+			<div class="PlayerName" id="WhitePlayer">Player 2</div>
+		{% endif %}
 	</div>
 </div>
 <script>init_game()</script>

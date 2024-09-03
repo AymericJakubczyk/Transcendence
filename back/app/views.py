@@ -3,7 +3,7 @@ from django.contrib.auth import login, authenticate, logout, update_session_auth
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from .forms import SignupForm, LoginForm, UpdateForm
-from .models import User, Tournament, Friend_Request, Discussion, Message
+from .models import User, Tournament, Friend_Request, Discussion, Message, Game_Chess
 from django.urls import reverse as get_url
 from django.db.models import Q
 import json
@@ -102,9 +102,10 @@ def chessFoundGameView(request):
     return render(request, 'chessFoundGame.html', {'user':request.user})
 
 def chessGameView(request, gameID):
+    game = get_object_or_404(Game_Chess, id=gameID)
     if request.META.get("HTTP_HX_REQUEST") != 'true':
-        return render(request, 'page_full.html', {'page':'chess.html', 'user':request.user})
-    return render(request, 'chess.html', {'user':request.user})
+        return render(request, 'page_full.html', {'page':'chess.html', 'user':request.user, 'game':game})
+    return render(request, 'chess.html', {'user':request.user, 'game':game})
 
 def registrationView(request):
     if request.method == 'POST':
