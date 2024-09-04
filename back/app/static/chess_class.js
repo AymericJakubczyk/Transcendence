@@ -518,8 +518,6 @@ function isDiagMove(piece, x, y, king)
     let posx = piece.posx;
     let posy = piece.posy;
     
-    console.log("Hello from the other side", x, y, king.posx, king.posy);
-    console.log(posx, posy);
     if (Math.abs(x - posx) == Math.abs(y - posy))
     {
         if (x < posx && y < posy)
@@ -532,7 +530,6 @@ function isDiagMove(piece, x, y, king)
             for (let indx = posx, indy = posy; 8 > indx && 8 > indy; indx++, indy++)
             {
                 king.check[indx][indy] = "CheckMove";
-                console.log(indx, indy);   
             }
         }
         if (x < posx && y > posy)
