@@ -129,6 +129,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def set_state(self, user, state):
+        # update user if there is changement before
+        update_user = User.objects.get(id=user.id)
+        user = update_user
+        
         user.state = state
         user.save()
 
