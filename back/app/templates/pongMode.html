@@ -8,7 +8,7 @@
     <div class="chooseMode">
         <h1>Multiplayer</h1>
     </div>
-    <div class="chooseMode">
+    <div class="chooseMode" hx-get="{% url 'pong_tournament' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
         <h1>Tournament</h1>
     </div>
 </div>

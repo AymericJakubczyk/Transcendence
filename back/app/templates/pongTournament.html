@@ -1,0 +1,61 @@
+<br>
+<h2 class="text-center">PONG TOURNAMENTS</h2>
+<br>
+{% if user.tournament_id != -1 %}
+<div>
+    <h4>ACTUAL TOURNAMENT</h4>
+    <h6>TOURNAMENT ID : {{ mytournament.id }}</h6>
+    <h6>PARTICIPANTS: </h6>
+    {% for people in tournament_members %}
+        <span>{{ people }}</span>
+    {% endfor %}
+    <p>finish this tournament before join or create others</p>
+    <form method="POST" hx-post="{{ request.path }}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
+        {% csrf_token %}
+        <input type="hidden" name="leave_tournament" value="{{ mytournament.id }}"/>
+        <button type="submit">LEAVE</button>
+    </form>
+</div>
+{% else %}
+<div>
+    <h4>TOURNAMENT LIST</h4>
+    {% if all_tournaments %}
+        {% for tournament in all_tournaments %}
+        <div>
+            <h8>{{ tournament.host_user }}'s tournament</h8>
+            <span>{{ tournament.participants.count }}/{{ tournament.max_users }}</span>
+            {% if tournament.game_played == "PONG" %}
+                <span>🏓</span>
+            {% elif tournament.game_played == "CHESS" %}
+                <span>♟️</span>
+            {% endif %}
+            {% if user not in tournament.participants.all %}
+                <form method="POST" hx-post="{{ request.path }}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
+                    {% csrf_token %}
+                    <input type="hidden" name="join_tournament" value="{{ tournament.id }}"/>
+                    <button type="submit">JOIN</button>
+                </form>
+            {% endif %}
+        </div>
+        {% endfor %}
+    {% else %}
+        <p>No tournament here yet.</p>
+    {% endif %}
+    <br>
+    <hr>
+    <br>
+    <h5>HOST YOUR TOURNAMENT</h5>
+    <div class="bg-info justify-content-center d-flex">
+        <form method="POST" hx-post="{{ request.path }}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
+            {% csrf_token %}
+            <input type="range" name="group-size" min="4" max="32" step="2" value="16" list="values" id="player_range">
+            <br>
+            <span>Max players: <output id="value"></output></span>
+            <input type="hidden" name="create_tournament"/>
+            <br>
+            <button type="submit">CREATE</button>
+        </form>
+    </div> 
+</div>
+<script> beautifulrangeforaymeric() </script>
+{% endif %}
