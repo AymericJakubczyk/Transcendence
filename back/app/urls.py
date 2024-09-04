@@ -10,7 +10,9 @@ handler404 = custom_404
 urlpatterns = [
     path('', views.homeView, name='home'),
 	path('game/', views.gameView, name='game'),
-	path('game/pong/', views.pongView, name='pong'),
+	path('game/pong/', views.pongModeView, name='pong'),
+	path('game/pong/local/', views.pongView, name='pong_local'),
+
 	path('game/chess/', views.chessModeView, name='chess'),
     path('game/chess/local/', views.chessView, name='chess_local'),
     path('game/chess/ranked/', views.chessFoundGameView, name='chess_found_game'),

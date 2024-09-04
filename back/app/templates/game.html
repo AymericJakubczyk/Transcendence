@@ -4,23 +4,13 @@
 
 	<div class="justify-content-around d-flex text-center">
 		<br><br>
-		<div class="d-block">
+		<div class="d-block chooseGame" hx-get="{% url 'pong' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
 			<h1>🏓</h1>
-			<a hx-get="{% url 'pong' %}" 
-			hx-push-url="true" 
-			hx-target="#page" 
-			hx-swap="innerHTML" 
-			hx-indicator="#content-loader" 
-			class="route col-sm">PONG</a>
+			<a class="route col-sm">PONG</a>
 		</div>
-		<div class="d-block">
+		<div class="d-block chooseGame" hx-get="{% url 'chess' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
 			<h1>♟️</h1>
-			<a hx-get="{% url 'chess' %}" 
-			hx-push-url="true" 
-			hx-target="#page" 
-			hx-swap="innerHTML" 
-			hx-indicator="#content-loader" 
-			class="route col-sm">CHESS</a>
+			<a class="route col-sm">CHESS</a>
 		</div>
 		<br><br>
 	</div>

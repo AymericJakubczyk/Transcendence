@@ -1,0 +1,14 @@
+<div class="d-flex flex-row justify-content-around">
+    <div class="chooseMode" hx-get="{% url 'pong_local' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
+        <h1>Local Game</h1>
+    </div>
+    <div class="chooseMode">
+        <h1>Ranked Game</h1>
+    </div>
+    <div class="chooseMode">
+        <h1>Multiplayer</h1>
+    </div>
+    <div class="chooseMode">
+        <h1>Tournament</h1>
+    </div>
+</div>

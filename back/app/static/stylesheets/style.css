@@ -7,7 +7,7 @@ body {
 .chooseMode {
     border: 1px solid black;
     height: 30vh;
-    width:25vw;
+    width:20vw;
     border-radius: 10px;
     text-align: center;
     align-content: center;
@@ -16,5 +16,9 @@ body {
 
 .chooseMode:hover {
     background-color: rgb(100,100,100);
+    cursor: pointer;
+}
+
+.chooseGame:hover {
     cursor: pointer;
 }
