@@ -9,6 +9,8 @@ from django.db.models import Q
 import json
 from django.http import JsonResponse, HttpResponse
 
+from app.consumers.pongTournamentConsumer import pongTournamentConsumer
+
 import sys
 import logging
 from django.contrib import messages
@@ -58,6 +60,7 @@ def pongTournament(request):
             tournament.participants.add(request.user)
             request.user.save()
             tournament.save()
+            pongTournamentConsumer.receive()
 
     if 'leave_tournament' in request.POST:
         print("trying to leave", file=sys.stderr)

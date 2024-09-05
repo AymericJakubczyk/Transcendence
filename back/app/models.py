@@ -41,6 +41,7 @@ class Friend_Request(models.Model):
 	to_user = models.ForeignKey(User, related_name='to_user', on_delete=models.CASCADE)
 
 class Tournament(models.Model):
+	name = models.CharField(max_length = 25, default='Unamed Tournament')
 	host_user = models.ForeignKey(User, related_name='host_user', on_delete=models.CASCADE)
 	participants = models.ManyToManyField("User", blank=True)
 	max_users = models.IntegerField(default=8)

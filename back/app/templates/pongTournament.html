@@ -2,14 +2,16 @@
 <h2 class="text-center">PONG TOURNAMENTS</h2>
 <br>
 {% if user.tournament_id != -1 %}
+<!-- <script> create_pong_tournament_ws() </script> -->
 <div>
-    <h4>ACTUAL TOURNAMENT</h4>
+    <h4>TOURNAMENT :</h4>
+    <h5>{{ mytournament.name }}</h5>
     <h6>TOURNAMENT ID : {{ mytournament.id }}</h6>
     <h6>PARTICIPANTS: </h6>
-    {% for people in tournament_members %}
-        <span>{{ people }}</span>
+    {% for user in mytournament.participants.all %}
+        <span>{{ user.username }} - ({{ user.pong_rank }}) </span>
     {% endfor %}
-    <p>finish this tournament before join or create others</p>
+    <h6>finish this tournament before join or create others</h6>
     <form method="POST" hx-post="{{ request.path }}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
         {% csrf_token %}
         <input type="hidden" name="leave_tournament" value="{{ mytournament.id }}"/>
@@ -33,7 +35,7 @@
                 <form method="POST" hx-post="{{ request.path }}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
                     {% csrf_token %}
                     <input type="hidden" name="join_tournament" value="{{ tournament.id }}"/>
-                    <button type="submit">JOIN</button>
+                    <button type="submit" onclick="join_pong_tournament()">JOIN</button>
                 </form>
             {% endif %}
         </div>
@@ -53,7 +55,7 @@
             <span>Max players: <output id="value"></output></span>
             <input type="hidden" name="create_tournament"/>
             <br>
-            <button type="submit">CREATE</button>
+            <button type="submit" onclick="join_pong_tournament()">CREATE</button>
         </form>
     </div> 
 </div>

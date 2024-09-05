@@ -114,8 +114,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
             }
         )
 
-
-
     @database_sync_to_async
     def save_message(self, discu_id, sender, message, send_to):
         current_discu =  get_object_or_404(Discussion, id=discu_id)
