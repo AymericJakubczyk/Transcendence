@@ -34,7 +34,7 @@ def pongModeView(request):
 
 
 def pongTournament(request):
-    print(request.POST, file=sys.stderr)
+    print("[PONG]", request.POST, file=sys.stderr)
     all_tournaments = Tournament.objects.filter(game_played="PONG")
 
     if 'create_tournament' in request.POST:
@@ -60,7 +60,6 @@ def pongTournament(request):
             tournament.participants.add(request.user)
             request.user.save()
             tournament.save()
-            pongTournamentConsumer.receive()
 
     if 'leave_tournament' in request.POST:
         print("trying to leave", file=sys.stderr)

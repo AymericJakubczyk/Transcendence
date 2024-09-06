@@ -2,7 +2,7 @@
 <h2 class="text-center">PONG TOURNAMENTS</h2>
 <br>
 {% if user.tournament_id != -1 %}
-<!-- <script> create_pong_tournament_ws() </script> -->
+<script> create_pong_tournament_ws() </script>
 <div>
     <h4>TOURNAMENT :</h4>
     <h5>{{ mytournament.name }}</h5>
@@ -35,7 +35,7 @@
                 <form method="POST" hx-post="{{ request.path }}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
                     {% csrf_token %}
                     <input type="hidden" name="join_tournament" value="{{ tournament.id }}"/>
-                    <button type="submit" onclick="join_pong_tournament()">JOIN</button>
+                    <button type="submit" onclick="join_pong_tournament({{ tournament.id }})">JOIN</button>
                 </form>
             {% endif %}
         </div>
@@ -55,7 +55,7 @@
             <span>Max players: <output id="value"></output></span>
             <input type="hidden" name="create_tournament"/>
             <br>
-            <button type="submit" onclick="join_pong_tournament()">CREATE</button>
+            <button type="submit">CREATE</button>
         </form>
     </div> 
 </div>

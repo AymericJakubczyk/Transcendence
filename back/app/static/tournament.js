@@ -12,7 +12,13 @@ function beautifulrangeforaymeric(){
 
 function create_pong_tournament_ws()
 {
+    if (pongTournamentSocket != null)
+        pongTournamentSocket.close();
     pongTournamentSocket = new WebSocket('ws://' + window.location.host + '/ws/pongTournament/');
+
+    pongTournamentSocket.onopen = function() {
+		console.log('[WS pongTournament] WebSocket pongTournament connection established.');
+	};
 
     pongTournamentSocket.onmessage = function(a) {
         const data = JSON.parse(a.data);
@@ -20,16 +26,17 @@ function create_pong_tournament_ws()
     }
 }
 
-async function join_pong_tournament()
+async function join_pong_tournament(id_tournament)
 {
-
-    await new Promise(r => setTimeout(r, 2000));
     pongTournamentSocket = new WebSocket('ws://' + window.location.host + '/ws/pongTournament/');
 
     pongTournamentSocket.onopen = function() {
 		console.log('[WS pongTournament] WebSocket pongTournament connection established.');
-        // const obj = {'type': 'join'};
-        // pongTournamentSocket.send(JSON.stringify(obj))
+        const obj = {
+            'type': 'join',
+            'id_tournament': id_tournament
+        };
+        pongTournamentSocket.send(JSON.stringify(obj))
 	};
 
     pongTournamentSocket.onmessage = function(a) {
