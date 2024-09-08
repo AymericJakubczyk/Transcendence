@@ -24,6 +24,7 @@ class Pawn {
         let posy = this.posy;
         if (this.color == "white")
         {
+            this.getAttackMove();
             if (posx == 6)
                 pawnCheckCellDouble(posx, posy, this);
             if (this.enPassant == 1)
@@ -43,10 +44,10 @@ class Pawn {
                 pawnCheckProm(posx - 1, posy, this);
             else
                 pawnCheckCell(posx - 1, posy, this);
-            this.getAttackMove();
         }
         else
         {
+            this.getAttackMove();
             if (posx == 1)
                 pawnCheckCellDouble(posx, posy, this);
             if (this.enPassant == 1)
@@ -66,7 +67,6 @@ class Pawn {
                 pawnCheckProm(posx + 1, posy, this);
             else
                 pawnCheckCell(posx + 1, posy, this);
-            this.getAttackMove();
         }
     }
     getAttackMove()

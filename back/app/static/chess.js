@@ -14,8 +14,6 @@ var newctx;
 var newPiece = "init";
 whosPlaying(oldColor);
 
-
-
 //PAWN UTILS
 function pawnAttackCell(x, y, piece)
 {
@@ -33,11 +31,14 @@ function pawnCheckAttack(x, y, piece)
         return ;
     }
     let posx = piece.posx;
-    console.log(piece, x, y);
+    let posy = piece.posy;
     if (isPossible(x, y, piece) && pieces[x][y].color != piece.color)
     {   
         if (pieces[x][y].name == "King")
+        {
+            pieces[x][y].check[posx][posy] = "Checker";
             pieces[x][y].checked = 1;
+        }
         if (piece.color == "white" && posx == 1)
             piece.possibleMoves[x][y] = "PossiblePromAtq";
         else if (piece.color == "black" && posx == 6)
@@ -127,12 +128,11 @@ function LeftRock(x)
     pieces[x][0] = "NoPossibleMove";
 }
 
-
 //UTILS
 function isPossibleKingMove(x, y, piece)
 {
     if (x >= 0 && x < 8 && y >= 0 && y < 8)
-        if (pieces[x][y].color != piece.color && !isEnemyMove(x, y, piece))
+        if (pieces[x][y].color != piece.color && isEnemyMove(x, y, piece) == false)
             return true;
     return false;
 }
@@ -159,6 +159,9 @@ function isEnemyPawn(x, y, piece)
 function isEnemyMove(x, y, piece)
 {
     let team = oldColor === "white" ? whiteTeam : blackTeam;
+    console.log(x, y);
+    console.log(piece);
+    console.log();
     for (let i = 0; i < 8; i++)
     {
         team[i].resetPossibleMove();
@@ -170,7 +173,6 @@ function isEnemyMove(x, y, piece)
         }
         else
             team[i].getPossibleMove();
-        console.log(team[i]);
         if (team[i].possibleMoves[x][y] == "PossibleMove" || team[i].possibleMoves[x][y] == "PossibleAtq")
         {
             return true;
@@ -303,6 +305,7 @@ function drawTheMove(x, y, context)
 
 function drawPossibleDefenseMove(context)
 {
+    console.log("DPDM");
     if (selectedOne == null)
         return ;
     let king = oldColor === "white" ? blackKing : whiteKing;
@@ -340,8 +343,8 @@ function game(x, y, context)
     newx = posx;
     newy = posy;
     
-    console.log(blackTeam);
-    console.log(whiteTeam);
+    console.log(blackKing);
+    console.log(whiteKing);
     console.log(pieces);
     if (!selected)
     {
@@ -371,9 +374,9 @@ function game(x, y, context)
         }
         if (isChecked() == true && pieces[posy][posx] != selectedOne)
         {
+            console.log("checked");
             let king = oldColor === "white" ? blackKing : whiteKing;
-            king.checked = 0;
-            king.resetCheck();
+            king.resetPossibleMove();
             king.getPossibleMove();
             moveCheck(context, king, posy, posx);
             return ;
@@ -393,7 +396,7 @@ function game(x, y, context)
         else if (selectedOne.possibleMoves[posy][posx] == "PossiblePromAtq")
         {
             doPromotion(posy, posx, context);
-            return ;   
+            return ;
         }
         else if (selectedOne.possibleMoves[posy][posx] == "PossibleProm")
 			doPromotion(posy, posx, context);
@@ -423,9 +426,10 @@ function moveCheck(context, king, posy, posx)
         movePiece(posy, posx, context);
     else
     {
-        console.log("nul");
         selected = false;
         selectedOne = null;
+        drawChess(context);
+        return ;
     }
     king.checked = 0;
     king.resetCheck();
@@ -449,13 +453,7 @@ function handleCheck(context, posx, posy)
         return ;
     }
     else
-    {
         drawPossibleDefenseMove(context);
-    }
-    // if ((selectedOne.possibleMoves[posy][posx] == "PossibleMove" && king.check[posy][posx] == "checkMove") || selectedOne.name == "King")
-    // {
-    //     movePiece(posy, posx, context);
-    // }
     return ;
 }
 
@@ -482,7 +480,38 @@ function isCheckMate()
 {
     let team = oldColor === "white" ? blackTeam : whiteTeam;
     let king = oldColor === "white" ? blackKing : whiteKing;
-    for (let i = 0; i < 8; i++)
+    if (canKingMove(king))
+        return false;
+    if (canSomeoneBlock(team, king))
+        return false;
+    if (canSomeoneDefend(team, king))
+        return false;
+    return true;
+}
+
+function canSomeoneDefend(team, king)
+{
+    for (let i = 0; i < 16; i++)
+    {
+        if (team[i].name != "King")
+            team[i].getPossibleMove();
+        if (team[i].name == "Pawn")
+            team[i].getAttackMove();
+        for (let x = 0; x < 8; x++)
+        {
+            for (let y = 0; y < 8; y++)
+            {
+                if (team[i].possibleMoves[x][y] == "PossibleMove" && (king.check[x][y] == "Checker"))
+                    return true;
+            }
+        }
+    }
+    return false;
+}
+
+function canSomeoneBlock(team, king)
+{
+    for (let i = 0; i < 16; i++)
     {
         if (team[i].name != "King")
             team[i].getPossibleMove();
@@ -492,35 +521,41 @@ function isCheckMate()
         {
             for (let y = 0; y < 8; y++)
             {
-                if (team[i].possibleMoves[x][y] == "PossibleMove" && (king.check[x][y] == "CheckMove" || king.check[x][y] == "Checker"))
-                {
-                    return false;
-                }
+                if (team[i].possibleMoves[x][y] == "PossibleMove" && (king.check[x][y] == "CheckMove"))
+                    return true;
             }
         }
     }
+    return false;
+}
+
+function canKingMove(king)
+{
     for (let i = 0; i < 8; i++)
     {
         for (let j = 0; j < 8; j++)
         {
             if (king.possibleMoves[i][j] == "PossibleMove")
             {
-                return false;
+                return true;
             }
         }
     }
-    return true;
+    return false;
 }
 
 function isChecked()
 {
-    let color = "white";
-    if (oldColor == "white")
-        color = "black";
-    let team = whiteTeam;
-    if (color == "black")
-        team = blackTeam;
+    let color = oldColor === "white" ? "black" : "white";
+    let team = color === "white" ? whiteTeam : blackTeam;
     let king = oldColor === "white" ? blackKing : whiteKing;
+    for (let i = 0; i< 16; i++)
+    {
+        if (team[i].name == "Pawn")
+            team[i].getAttackMove();
+        else
+            team[i].getPossibleMove();
+    }
     if (king.checked == 1)
         return true;
     return false;
@@ -896,7 +931,6 @@ enPassant[1] = "";
 var pieces = new Array(8);
 var whiteTeam = new Array(16);
 var blackTeam = new Array(16);
-
 
 function init_game()
 {
