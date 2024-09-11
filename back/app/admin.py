@@ -15,4 +15,5 @@ admin.site.register(Game)
 admin.site.register(Pong)
 
 class Game(admin.ModelAdmin):
-	list_display = ('player1', 'player2', 'gametype', 'over', 'winner')
+	list_display = ['player1', 'player2', 'player1_score', 'player2_score', 'status', 'created_at', 'updated_at']
+	search_fields = ['player1__username', 'player2__username']

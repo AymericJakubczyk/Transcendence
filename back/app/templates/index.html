@@ -25,7 +25,7 @@
     <script src="{% static 'chat.js' %}"></script>
     <script src="{% static 'ws.js' %}"></script>
     {% if user.is_authenticated %}
-        <script>create_ws()</script>
+    <script>create_ws()</script>
     {% endif %}
 </head>
 
@@ -39,7 +39,8 @@
         </nav>
     </div>
     <div id="page">{% block content %}{% endblock %}</div>
-
+    
+    <script src="{% static 'pong.js' %}"></script>
 	<script src="{% static 'profile.js' %}"></script>
     <script src="{% static 'app.js' %}"></script>
 </body>

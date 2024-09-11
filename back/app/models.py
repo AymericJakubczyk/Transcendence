@@ -56,28 +56,18 @@ class Pong(models.Model):
 	player1_x = models.IntegerField(default=0)
 	player2_x = models.IntegerField(default=0)
 
+
 class Game(models.Model):
 	player1 = models.ForeignKey(User, related_name='player1', on_delete=models.CASCADE)
-	player2 = models.ForeignKey(User, related_name='player2', on_delete=models.CASCADE)
-	#if game is pong or chess
-	class GameType(models.TextChoices):
-		PONG = 'PONG'
-		CHESS = 'CHESS'
-	gametype = models.fields.CharField(choices=GameType.choices, default=GameType.PONG, max_length=5)
+	player2 = models.ForeignKey(User, related_name='player2', on_delete=models.CASCADE, null=True, blank=True)
+	player1_score = models.IntegerField(default=0)
+	player2_score = models.IntegerField(default=0)
+	status = models.CharField(max_length=20, default='waiting')
+	gametype = models.CharField(max_length=5)
+	winner = models.ForeignKey(User, related_name='winner', on_delete=models.CASCADE, null=True, blank=True)
+	pong = models.ForeignKey('Pong', on_delete=models.CASCADE, null=True, blank=True)
+	created_at = models.DateTimeField(auto_now_add=True)
+	updated_at = models.DateTimeField(auto_now=True)
 
-	pong = models.ForeignKey(Pong, null=True, blank=True, on_delete=models.SET_NULL)
-
-	# elseif gametype is chess
-	#chess = models.ForeignKey(Chess, null=True, on_delete=models.SET_NULL)
-
-	# if game is over
-	over = models.BooleanField(default=False)
-	winner = models.ForeignKey(User, related_name='winner', null=True, blank=True, on_delete=models.SET_NULL)
 	def __str__(self):
 		return self.player1.username + " vs " + self.player2.username
-
-
-
-
-
-	

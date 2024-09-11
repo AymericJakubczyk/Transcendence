@@ -45,13 +45,15 @@ def homeView(request):
     return render(request, 'home.html', {'form':form, 'next_url':next_url, 'refresh':0})
 
 def gameView(request):
-    if request.user.is_authenticated == False:
-        messages.error(request, 'Log-in to play cool games !')
+    if not request.user.is_authenticated:
+        messages.error(request, 'Log-in to play cool games!')
         return redirect('myprofile')
+    if request.META.get("HTTP_HX_REQUEST") == 'true':
+        return render(request, 'game.html', {'user': request.user})
     else:
-        if request.META.get("HTTP_HX_REQUEST") != 'true':
-            return render(request, 'page_full.html', {'page':'game.html', 'user':request.user})
-        return render(request, 'game.html', {'user':request.user})
+        return render(request, 'page_full.html', {'page': 'game.html', 'user': request.user})
+
+
 
 def registrationView(request):
     if request.method == 'POST':
