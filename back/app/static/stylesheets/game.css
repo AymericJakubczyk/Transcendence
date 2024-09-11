@@ -1,3 +1,105 @@
+#page {
+	background-color: rgb(50, 50, 50);
+	color: white;
+	font-family: "Audiowide", sans-serif;
+  	font-weight: 400;
+  	font-style: normal;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+h1.header {
+	text-align: center;
+    margin-top: 15px;
+	color: rgb(255, 255, 255);
+	background: linear-gradient(to right, rgb(0, 0, 0) 0, #FF5E5E 15%, rgb(0, 0, 0) 0);
+	background-position: 0;
+	background-clip: text;
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	animation: move 3.8s infinite linear;
+	animation-fill-mode: forwards;
+}
+
+@keyframes move {
+	0%{
+		background-position: 0vw;
+	}
+	50%{
+		background-position: 50vw;
+	}
+	100%{
+		background-position: 95vw;
+	}
+}
+
+.main-box {
+    display: flex;
+}
+
+.game-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 500px;
+    background-color: rgb(243, 237, 230);
+}
+
+.stats-box {
+    background-color: rgb(6, 219, 219);
+	border-radius: 0.5rem;
+	max-width: 800px;
+    margin: auto;
+	margin-top: 10px;
+}
+
+.stats-id img{
+    margin-top: 10px;
+    max-width: 100%;
+    border-radius: 50%;
+}
+
+.stats-id h2{
+    text-align: center;
+	font-weight: 700;
+    margin-top: 10px;
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.stats-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stats-content-place {
+    padding: 0 0 0 25px;
+    display: block;
+    text-align: center;
+}
+
+.stats-content-others {
+    margin: 15px 0 15px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.stats-content-others .col-6{
+    display: block;
+    padding: 10px 0 0 0;
+}
+
+.stats-content-others h3{
+    font-size: 1.5rem;
+}
+
 body {
     background-color: #1E1E1E;
     color: #FFFFFF;

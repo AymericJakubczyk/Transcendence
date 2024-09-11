@@ -29,6 +29,6 @@ urlpatterns = [
     
     # API URLS
     path('api-auth/', include('rest_framework.urls')),
-    path('api/', include(router.urls)),
+    path('initialize-game/', views.initialize_game, name='initialize-game'),
 
 ]

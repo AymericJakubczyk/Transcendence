@@ -70,4 +70,5 @@ class Game(models.Model):
 	updated_at = models.DateTimeField(auto_now=True)
 
 	def __str__(self):
-		return self.player1.username + " vs " + self.player2.username
+		player2_name = self.player2.username if self.player2 else "No Opponent"
+		return f"Game {self.id} - {self.player1.username} vs {player2_name}"

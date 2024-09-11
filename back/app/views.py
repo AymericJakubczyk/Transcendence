@@ -3,7 +3,7 @@ from django.contrib.auth import login, authenticate, logout, update_session_auth
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from .forms import SignupForm, LoginForm, UpdateForm
-from .models import User, Friend_Request, Discussion, Message, Game
+from .models import User, Friend_Request, Discussion, Message, Game, Pong
 from django.urls import reverse as get_url
 from django.db.models import Q
 
@@ -236,6 +236,8 @@ def chatView(request):
 # API
 
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 
 from .serializers import GameSerializer
 
@@ -245,3 +247,40 @@ class GameViewSet(ModelViewSet):
 
     def get_queryset(self):
         return Game.objects.all()
+
+@api_view(['POST'])
+def initialize_game(request):
+    """
+    API endpoint to initialize a new Pong game.
+    """
+
+    # On récupère les joueurs depuis la requête (ou les valeurs par défaut pour tester)
+    player1 = request.user
+    player2_id = request.data.get('player2_id', None)
+    
+    if player2_id:
+        player2 = User.objects.get(id=player2_id)
+    else:
+        player2 = None  # Si un adversaire n'est pas encore assigné
+
+    # Création d'une nouvelle instance de Pong (pour stocker les mouvements du jeu)
+    pong_instance = Pong.objects.create(
+        ball_x=0, ball_y=0, ball_dx=2, ball_dy=2,
+        player1_x=0, player2_x=0
+    )
+    
+    # Création d'une nouvelle partie
+    new_game = Game.objects.create(
+        player1=player1,
+        player2=player2,
+        player1_score=0,
+        player2_score=0,
+        status='waiting',  # Le jeu n'a pas encore commencé
+        gametype='PONG',
+        pong=pong_instance  # Lien vers l'instance de Pong
+    )
+    
+    # Sérialisation de la partie
+    serializer = GameSerializer(new_game)
+    
+    return Response(serializer.data)
