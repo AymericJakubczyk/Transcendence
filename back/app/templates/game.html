@@ -9,13 +9,22 @@
     </div>
     
     {% csrf_token %}
-    <div class="text-center mt-4">
+    
+    <div id="pauseMenu" style="display: none;">
+        <h3>Le jeu est en pause</h3>
+        <button id="resumeButton">Reprendre</button>
+        <button id="quitButton">Quitter</button>
+    </div>
+
+    <div id= "playMenu" class="text-center mt-4" style="display: block;">
         <button id="playButton" onclick="startGame()" class="btn">JOUER</button>
     </div>
 
     <div class="row main-box" style="display: none;" id="gameContainer">
         <canvas id="pongCanvas" width="720" height="480"></canvas>
     </div>
+
+
 </div>
 
 <script>

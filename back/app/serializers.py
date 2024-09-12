@@ -17,3 +17,7 @@ class GameSerializer(ModelSerializer):
         model = Game
         fields = '__all__'
 
+class GameStatusUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Game
+        fields = ['status', 'winner']

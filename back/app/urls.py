@@ -30,5 +30,9 @@ urlpatterns = [
     # API URLS
     path('api-auth/', include('rest_framework.urls')),
     path('initialize-game/', views.initialize_game, name='initialize-game'),
+    path('update-score/', views.update_score, name='update-score'),
+    path('move-paddle/', views.move_paddle, name='move-paddle'),
+    path('get-paddle-position/<int:game_id>/<str:player>/', views.get_paddle_position, name='get-paddle-position'),
+    path('end-game/<int:game_id>/', views.end_game, name='end-game'),
 
 ]

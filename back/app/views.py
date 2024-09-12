@@ -275,7 +275,7 @@ def initialize_game(request):
         player2=player2,
         player1_score=0,
         player2_score=0,
-        status='waiting',  # Le jeu n'a pas encore commencé
+        status='playing',  # Le jeu n'a pas encore commencé
         gametype='PONG',
         pong=pong_instance  # Lien vers l'instance de Pong
     )
@@ -284,3 +284,103 @@ def initialize_game(request):
     serializer = GameSerializer(new_game)
     
     return Response(serializer.data)
+
+@api_view(['POST'])
+def update_score(request):
+    """
+    API endpoint to update the score for a player.
+    """
+    game_id = request.data.get('game_id')
+    player = request.data.get('player')  # 'player1' ou 'player2'
+
+    try:
+        game = Game.objects.get(id=game_id)
+
+        if player == 'player1':
+            game.player1_score += 1
+        elif player == 'player2':
+            game.player2_score += 1
+        else:
+            return Response({'error': 'Invalid player'}, status=400)
+
+        game.save()
+        return Response({'message': 'Score updated successfully'})
+    except Game.DoesNotExist:
+        return Response({'error': 'Game not found'}, status=404)
+
+@api_view(['POST'])
+def move_paddle(request):
+    """
+    API endpoint to move a paddle for a player.
+    """
+    game_id = request.data.get('game_id')
+    player = request.data.get('player')  # 'player1' ou 'player2'
+    new_position = request.data.get('new_position')
+
+    try:
+        game = Game.objects.get(id=game_id)
+        pong = game.pong
+
+        if player == 'player1':
+            pong.player1_x = new_position
+        elif player == 'player2':
+            pong.player2_x = new_position
+        else:
+            return Response({'error': 'Invalid player'}, status=400)
+
+        pong.save()
+        return Response({'message': 'Paddle moved successfully'})
+    except Game.DoesNotExist:
+        return Response({'error': 'Game not found'}, status=404)
+        
+@api_view(['GET'])
+def get_paddle_position(request, game_id, player):
+    """
+    API endpoint to get the current position of a player's paddle.
+    """
+    try:
+        game = Game.objects.get(id=game_id)
+        pong = game.pong
+
+        if player == 'player1':
+            return Response({'position': pong.player1_x})
+        elif player == 'player2':
+            return Response({'position': pong.player2_x})
+        else:
+            return Response({'error': 'Invalid player'}, status=400)
+    except Game.DoesNotExist:
+        return Response({'error': 'Game not found'}, status=404)
+
+@api_view(['POST'])
+def end_game(request, game_id):
+    try:
+        # Récupérer la partie via l'ID
+        game = Game.objects.get(id=game_id)
+        
+        # Vérifier que la partie n'est pas déjà terminée
+        if game.status == 'finished':
+            return Response({'error': 'Game is already finished.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Récupérer le gagnant depuis les données de la requête
+        winner_id = request.data.get('winner_id')
+        if winner_id:
+            try:
+                winner = User.objects.get(id=winner_id)
+                game.winner = winner
+            except User.DoesNotExist:
+                return Response({'error': 'Winner not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Mettre à jour le statut de la partie à "finished"
+        game.status = 'finished'
+        game.save()
+
+        # Utiliser un serializer pour renvoyer les données mises à jour
+        serializer = GameStatusUpdateSerializer(game)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    except Game.DoesNotExist:
+        return Response({'error': 'Game not found.'}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        # Attraper toutes les autres erreurs et les loguer
+        print(f"Erreur lors de la fin de la partie : {e}")
+        return Response({'error': 'Internal Server Error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
