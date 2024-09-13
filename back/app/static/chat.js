@@ -182,6 +182,13 @@ window.addEventListener('htmx:beforeSwap', function(evt) {
         chessSocket.close()
         chessSocket = null
     }
+    if (old_path == "/game/pong/local/")
+    {
+        console.log("[LOG] Stop local game")
+        clearInterval(gameInterval)
+        clearInterval(moveIAInterval)
+        clearInterval(IAInterval)
+    }
 });
 
 

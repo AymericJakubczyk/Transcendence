@@ -12,14 +12,22 @@
 	</div>
 	
 	<!-- Bouton pour démarrer le jeu -->
-	<div class="text-center mt-4">
-		{% comment %} <button id="playButton" onclick="startGame()" class="btn">JOUER</button> {% endcomment %}
-		<button id="playButton" onclick="display3D()" class="btn">JOUER</button>
+	<div id="playButton" class="text-center mt-4">
+		<button onclick="startGame()" class="playButton">JOUER</button>
+		<button onclick="startIAGame()" class="playButton">vs IA</button>
 	</div>
 
 	<!-- Canevas du jeu, masqué par défaut -->
-	<div class="main-box w-100" style="display: none" id="gameContainer">
+	<div class="main-box w-100 align-items-center" style="display: none" id="gameContainer">
+		<div style="z-index:1000">
+			<h1 class="key" id="keyw">w</h1>
+			<h1 class="key" id="keys">s</h1>
+		</div>
 		<canvas class="w-100" id="pongCanvas" width="720" height="480"></canvas>
+		<div id="opponentController">
+			<h1 class="key" id="keyup">🠕</h1>
+			<h1 class="key" id="keydown">🠗</h1>
+		</div>
 	</div>
 
 	<script>

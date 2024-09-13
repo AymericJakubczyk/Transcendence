@@ -1,115 +1,155 @@
+let upPressed = false;
+let downPressed = false;
+let wPressed = false;
+let sPressed = false;
+
+gameInterval = null
+
 var scene = undefined;
-
 var camera = undefined;
-// const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
-
-// const renderer = new THREE.WebGLRenderer();
 var renderer = undefined;
-// renderer.setAnimationLoop( animate );
-// document.body.appendChild( renderer.domElement );
 
-// const geometry = new THREE.BoxGeometry( 1, 1, 1 );
 const arenaWidth = 100
 const arenaLength = 150
 const ballRadius = 1;
 const paddleWidth = 1;
-const paddleHeight = 15;
+const paddleHeight = 17;
+const thickness = 1;
 
-const geometry = new THREE.SphereGeometry(ballRadius, 32, 16 );
-const raquette = new THREE.BoxGeometry( paddleWidth, paddleHeight, ballRadius * 2);
-const wallBorder = new THREE.BoxGeometry(arenaLength, 1, ballRadius * 2);
-const goalBorder = new THREE.BoxGeometry(1, arenaWidth, ballRadius * 2);
-
-const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-const whiteMaterial = new THREE.MeshBasicMaterial( { color: 0xffffff } );
-const material1 = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
 var myCanvas;
 
+var nbrHit = 0;
+var ball, paddle_1, paddle_2;
 
-// var geometry = new THREE.BufferGeometry();
-// const vertices = new Float32Array( [
-// 	-1.0, -1.0,  1.0, // v0
-// 	 1.0, -1.0,  1.0, // v1
-// 	 1.0,  1.0,  1.0, // v2
-// 	-1.0,  1.0,  1.0, // v3
-// ] );
+let x = arenaLength / 2;
+let y = arenaWidth / 2;
+let baseSpeed = 0.5;
+let dx = 0.5;
+let dy = 0.5;
 
-// const indices = [
-// 	0, 1, 2,
-// 	2, 3, 0,
-// ];
+let playerScore = 0;
+let opponentScore = 0;
+let ballDirection = (Math.random() > 0.5 ? 1 : -1);
 
-// geometry.setIndex( indices );
-// geometry.setAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
-
-const cube = new THREE.Mesh( geometry, material );
-
-const raquette_1 = new THREE.Mesh( raquette, material1 );
-raquette_1.position.x = (arenaLength / 2) - paddleWidth * 2;
-const raquette_2 = new THREE.Mesh( raquette, material1 );
-raquette_2.position.x = -(arenaLength / 2) + paddleWidth * 2;
-const eastBorder = new THREE.Mesh( goalBorder, whiteMaterial);
-eastBorder.position.x = -(arenaLength / 2);
-const westBorder = new THREE.Mesh( goalBorder, whiteMaterial);
-westBorder.position.x = arenaLength / 2;
-const northBorder = new THREE.Mesh( wallBorder, whiteMaterial);
-northBorder.position.y = arenaWidth / 2;
-const southBorder = new THREE.Mesh( wallBorder, whiteMaterial);
-southBorder.position.y = -(arenaWidth / 2);
+const winningScore = 5;
 
 
+function startGame()
+{
+    playerScore = 0;
+    opponentScore = 0;
+    ballDirection = (Math.random() > 0.5 ? 1 : -1);
+    nbrHit = 0;
+    upPressed = false
+    downPressed = false
+    updateScore()
+    resetBall()
 
-let x = 0;
-let y = 0;
-let dx = 0.2;
-let dy = 0.2;
+    document.getElementById("playButton").style.display = "none"; // Réafficher le bouton "JOUER"
+    document.getElementById("gameContainer").style.display = "flex"; // Masquer le canevas du jeu
+    
+    document.addEventListener("keydown", keyDownHandler);
+    document.addEventListener("keyup", keyUpHandler);
+    function keyDownHandler(e) {
+        if (e.key === "Up" || e.key === "ArrowUp")
+            upPressed = true;
+        else if (e.key === "Down" || e.key === "ArrowDown")
+            downPressed = true;
+        else if (e.key === "w" || e.key === "W")
+            wPressed = true;
+        else if (e.key === "s" || e.key === "S")
+            sPressed = true;
+    }
 
+    function keyUpHandler(e) {
+        if (e.key === "Up" || e.key === "ArrowUp")
+            upPressed = false;
+        else if (e.key === "Down" || e.key === "ArrowDown")
+            downPressed = false;
+        else if (e.key === "w" || e.key === "W")
+            wPressed = false;
+        else if (e.key === "s" || e.key === "S")
+            sPressed = false;
+    }
 
-let playerPaddleY = 0;
-let opponentPaddleY = 0;
-const opponentPaddleX = 10;
-
-
-// let gameInterval;
-// let gameStarted = false;
-// let playerScore = 0;
-// let opponentScore = 0;
-// const winningScore = 5;
-// let ballDirection = 1; // 1 = vers le joueur, -1 = vers l'adversaire
+    display3D()
+}
 
 
 function display3D()
 {
-    document.getElementById("playButton").style.display = "none"; // Réafficher le bouton "JOUER"
-    document.getElementById("gameContainer").style.display = "inline"; // Masquer le canevas du jeu
     console.log("TEST3D")
     myCanvas = document.getElementById("pongCanvas")
 
-    playerPaddleY = (myCanvas.height - paddleHeight) / 2;
-    opponentPaddleY = (myCanvas.height - paddleHeight) / 2;
-
     console.log("[SIZE]", myCanvas.clientWidth, myCanvas.clientHeight)
     console.log("[SIZE]", myCanvas.scrollWidth, myCanvas.scrollHeight)
-    renderer = new THREE.WebGLRenderer({canvas: myCanvas});
+    renderer = new THREE.WebGLRenderer({canvas: myCanvas,antialias: true});
     renderer.setSize( myCanvas.clientWidth, myCanvas.clientHeight);
-    camera = new THREE.PerspectiveCamera( 75, myCanvas.clientWidth / myCanvas.clientHeight, 0.1, 1000 );
+    camera = new THREE.PerspectiveCamera( 75, (myCanvas.clientWidth * 10) / (myCanvas.clientHeight * 10), 0.1, 1000 );
+
+    addEventListener("keypress", (event) => {
+        if (event.key == '1')
+            cam1()
+        if (event.key == '2')
+            cam2()  
+    });
+    
     scene = new THREE.Scene()
+    scene.background = new THREE.Color( 0x323232 );
 
-    scene.add( cube );
-    scene.add( raquette_1, raquette_2 );
-    scene.add( eastBorder, westBorder, northBorder, southBorder );
 
-    camera.position.z = 75;
-    camera.position.y = -5;
-    camera.lookAt(cube.position)
+    //define all objects and materials
+    const geometry = new THREE.SphereGeometry(ballRadius, 32, 16 );
+    const paddle = new THREE.BoxGeometry( paddleWidth, paddleHeight, ballRadius * 2);
+    const wallBorder = new THREE.BoxGeometry(arenaLength, thickness, ballRadius * 2);
+    const goalBorder = new THREE.BoxGeometry(thickness, arenaWidth, ballRadius * 2);
+    const plane_geometry = new THREE.PlaneGeometry(arenaLength, arenaWidth);
 
-    // camera.position.z = 0;
-    // camera.position.x = -25;
-    // camera.position.y = 5;
-    // camera.lookAt(cube.position)
+    const ballMaterial = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+    const wallMaterial = new THREE.MeshPhongMaterial( { color: 0xffffff} )
+    const paddleMaterial = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
+
+    //create and place all objects in scene
+    ball = new THREE.PointLight( 0x00ff00, 1, 15 );
+    ball.add( new THREE.Mesh( geometry, ballMaterial) );
+
+    paddle_1 = new THREE.Mesh( paddle, paddleMaterial );
+    paddle_1.position.x =  paddleWidth;
+    paddle_1.position.y = arenaWidth / 2;
+
+    paddle_2 = new THREE.Mesh( paddle, paddleMaterial );
+    paddle_2.position.x = arenaLength - paddleWidth;
+    paddle_2.position.y = arenaWidth / 2;
+
+
+    const westBorder = new THREE.Mesh( goalBorder, wallMaterial);
+    westBorder.position.x = 0;
+    westBorder.position.y = arenaWidth / 2;
+    const eastBorder = new THREE.Mesh( goalBorder, wallMaterial);
+    eastBorder.position.x = arenaLength;
+    eastBorder.position.y = arenaWidth / 2;
+    const northBorder = new THREE.Mesh( wallBorder, wallMaterial);
+    northBorder.position.y = arenaWidth;
+    northBorder.position.x = arenaLength / 2;
+    const southBorder = new THREE.Mesh( wallBorder, wallMaterial);
+    southBorder.position.y = 0;
+    southBorder.position.x = arenaLength / 2;
+    const plane = new THREE.Mesh( plane_geometry, wallMaterial );
+    plane.position.set(arenaLength/2,arenaWidth/2,-ballRadius)
+
+    const ambientLight = new THREE.PointLight( 0xffffff, 1, 200 );
+    ambientLight.position.set(arenaLength/2,arenaWidth/2,50)
+    
+    //add objects to the scene and render
+    scene.add( ball );
+    scene.add( paddle_1, paddle_2 );
+    scene.add( eastBorder, westBorder, northBorder, southBorder, plane);
+
+    cam1()
 
     renderer.render( scene, camera );
-    renderer.dispose()
+    if (gameInterval)
+        clearInterval(gameInterval)
     gameInterval = setInterval(calculBall, 10);
 }
 
@@ -117,106 +157,137 @@ function calculBall() {
     // drawScore();  // Affichez le score en direct
 
     // Gestion des collisions avec les murs
-    console.log("[SIZE]", myCanvas.width, myCanvas.height)
-    if (y + dy > myCanvas.height - ballRadius || y + dy < ballRadius) {
+    if (y + dy > arenaWidth - thickness/2 - ballRadius || y + dy < thickness/2 + ballRadius ) {
+        console.log("[WALL]")
         dy = -dy;
     }
 
     // Gestion des collisions avec les paddles
-    if (x > myCanvas.width - paddleWidth - 10 - ballRadius) {
-        if (y > playerPaddleY - (ballRadius / 2) && y < playerPaddleY + paddleHeight + (ballRadius / 2)) {
-            if (dx < 0)
-                dx = dx - 0.2
-            else
-                dx = dx + 0.2
-            dx = -dx;
-            let hitPos = y - (playerPaddleY + paddleHeight / 2);
-            console.log("[HIT]", hitPos);
-            dy = hitPos * 0.1;
-            const maxSpeed = 5;
-            if (Math.abs(dy) > maxSpeed) dy = maxSpeed * Math.sign(dy);
-            if (Math.abs(dx) > maxSpeed) dx = maxSpeed * Math.sign(dx);
+    if (x > arenaLength - thickness * 2) {
+        if (y > paddle_2.position.y - paddleHeight / 2 && y < paddle_2.position.y + paddleHeight / 2) {
+            nbrHit++
+            dx = -baseSpeed - (0.02 * nbrHit)
+            let hitPos = y - paddle_2.position.y;
+            dy = hitPos * 0.15;
         } else {
+            nbrHit = 0;
             playerScore++; // Opponent marque un point
             ballDirection = -1; // Le ballon se dirige vers l'adversaire
-            // checkWin();
-            // resetBall();
+            updateScore()
+            resetBall();
         }
     }
 
-    if (x < paddleWidth + 10 + ballRadius) {
-        if (y > opponentPaddleY - (ballRadius / 2) && y < opponentPaddleY + paddleHeight + (ballRadius / 2)) {
-            if (dx < 0)
-                dx = dx - 0.2
-            else
-                dx = dx + 0.2
-            dx = -dx;
-            let hitPos = y - (opponentPaddleY + paddleHeight / 2);
-            dy = hitPos * 0.1;
-            const maxSpeed = 5;
-            if (Math.abs(dy) > maxSpeed) dy = maxSpeed * Math.sign(dy);
-            if (Math.abs(dx) > maxSpeed) dx = maxSpeed * Math.sign(dx);
+    if (x < thickness * 2) {
+        if (y > paddle_1.position.y - paddleHeight / 2 && y < paddle_1.position.y + paddleHeight / 2) {
+            nbrHit++
+            dx = baseSpeed + (0.02 * nbrHit)
+            let hitPos = y - paddle_1.position.y;
+            dy = hitPos * 0.15;
         } else {
+            nbrHit = 0;
             opponentScore++; // Player marque un point
             ballDirection = 1; // Le ballon se dirige vers le joueur
-            // checkWin();
-            // resetBall();
+            updateScore()
+            resetBall();
         }
     }
-
-    // Mouvement des paddles
-    // if (upPressed && playerPaddleY > 0) {
-    //     playerPaddleY -= 3;
-    // } else if (downPressed && playerPaddleY < myCanvas.height - paddleHeight) {
-    //     playerPaddleY += 3;
-    // }
-
-    // if (wPressed && opponentPaddleY > 0) {
-    //     opponentPaddleY -= 3;
-    // } else if (sPressed && opponentPaddleY < myCanvas.height - paddleHeight) {
-    //     opponentPaddleY += 3;
-    // }
 
     x += dx;
     y += dy;
-    cube.position.x = x;
-    cube.position.y = y;
+    ball.position.x = x;
+    ball.position.y = y;
+
+    // Mouvement des paddles
+    if (wPressed && paddle_1.position.y < arenaWidth - thickness / 2 - paddleHeight / 2)
+        paddle_1.position.y += 0.6;
+    if (sPressed && paddle_1.position.y > thickness / 2 + paddleHeight / 2)
+        paddle_1.position.y -= 0.6;
+
+    if (upPressed && paddle_2.position.y < arenaWidth - thickness / 2 - paddleHeight / 2)
+        paddle_2.position.y += 0.6;
+    if (downPressed && paddle_2.position.y > thickness / 2 + paddleHeight / 2)
+        paddle_2.position.y -= 0.6;
+
+    renderer.render( scene, camera );
+
+    style_controllers()
+}
+
+
+function style_controllers()
+{
+    if (wPressed && !document.getElementById("keyw").classList.contains("pressed"))
+        document.getElementById("keyw").classList.add("pressed");
+    if (!wPressed && document.getElementById("keyw").classList.contains("pressed"))
+        document.getElementById("keyw").classList.remove("pressed");
+
+    if (sPressed && !document.getElementById("keys").classList.contains("pressed"))
+        document.getElementById("keys").classList.add("pressed");
+    if (!sPressed && document.getElementById("keys").classList.contains("pressed"))
+        document.getElementById("keys").classList.remove("pressed");
+
+    if (upPressed && !document.getElementById("keyup").classList.contains("pressed"))
+        document.getElementById("keyup").classList.add("pressed");
+    if (!upPressed && document.getElementById("keyup").classList.contains("pressed"))
+        document.getElementById("keyup").classList.remove("pressed");
+
+    if (downPressed && !document.getElementById("keydown").classList.contains("pressed"))
+        document.getElementById("keydown").classList.add("pressed");
+    if (!downPressed && document.getElementById("keydown").classList.contains("pressed"))
+        document.getElementById("keydown").classList.remove("pressed");
+
+}
+
+function resetBall()
+{
+    x = arenaLength / 2;
+    y = arenaWidth / 2;
+    dx = ballDirection * baseSpeed;
+    // dy = 0.5;
+    dy = Math.random() - 0.5
+
+}
+
+function updateScore() {
+    if (document.getElementById('playerScore') && document.getElementById('opponentScore'))
+    {
+        document.getElementById('playerScore').innerText = 'Player: ' + playerScore;
+        document.getElementById('opponentScore').innerText = 'Opponent: ' + opponentScore;
+    }
+    if (playerScore == winningScore || opponentScore == winningScore)
+        stopGame()
+}
+
+function stopGame()
+{
+    upPressed = false
+    downPressed = false
+    clearInterval(gameInterval); // Arrêter l'intervalle de jeu
+    clearInterval(IAInterval)
+    clearInterval(moveIAInterval)
+    gameStarted = false; // Réinitialiser l'état du jeu
+    document.getElementById("playButton").style.display = "block"; // Réafficher le bouton "JOUER"
+    document.getElementById("gameContainer").style.display = "none"; // Masquer le canevas du jeu
+}
+
+function cam1()
+{
+    camera.position.z = arenaLength / 2
+    camera.position.y = arenaWidth / 2 - 5;
+    camera.position.x = arenaLength/2; 
+    camera.up.set(0,0,0);
+    camera.lookAt(new THREE.Vector3(arenaLength/2,arenaWidth/2,0))
     renderer.render( scene, camera );
 }
 
-function resetBall() {
-    x = myCanvas.width / 2;
-    y = myCanvas.height / 2;
-    dx = 2 * ballDirection; // Direction du ballon vers le joueur qui vient de prendre un but
-    dy = 2 * (Math.random() > 0.5 ? 1 : -1); // Garder un mouvement vertical aléatoire
-}
-
-
-addEventListener("keypress", (event) => {
-    console.log(event)
-    if (event.key == '1')
-        cam1()
-    if (event.key == '2')
-        cam2()
-    
-});
-
-function cam1() {
-    camera.position.z = 150;
-    camera.position.x = 0;
-    camera.position.y = 150;
-    camera.lookAt(cube.position)
-    
-    renderer.render( scene, camera );
-}
-
-function cam2() {
-    camera.position.z = 100;
-    camera.position.x = -100;
-    camera.position.y = 0;
-    camera.lookAt(cube.position)
-    // camera.rotation.y = -Math.PI/2
-    // camera.rotation.x += 0.1
-    // camera.updateProjectionMatrix();
-    renderer.render( scene, camera );
+function cam2()
+{
+    camera.position.z = 30;
+    camera.position.x = -(arenaWidth / 3);
+    camera.position.y = arenaWidth / 2;
+    camera.up.set(1,0,0)
+    camera.lookAt(new THREE.Vector3(arenaLength/2,arenaWidth/2,0))
+    console.log("pos", ball.position)
+    renderer.render(scene, camera);
 }

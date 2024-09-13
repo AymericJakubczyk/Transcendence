@@ -19,7 +19,38 @@
     color: #FFF;
 }
 
-#playButton {
+.key
+{
+    border : 5px solid red;
+    border-radius: 10%;
+    color : red;
+    width:100px;
+    height:100px;
+    text-align: center;
+    align-content: center;
+}
+
+.pressed
+{
+    border : 5px solid white;
+    background-color: red;
+    border-radius: 10%;
+    color : white;
+    text-shadow:
+        0 0 7px #fff,
+        0 0 10px #fff,
+        0 0 21px #fff;
+    width:100px;
+    height:100px;
+    text-align: center;
+    align-content: center;
+    box-shadow: 0 0 .2rem #fff,
+                0 0 2rem red,
+                0 0 0.8rem red,
+                inset 0 0 1.3rem #fff;
+}
+
+.playButton {
     margin-top: 20px;
     font-size: 1.5em;
     padding: 10px 20px;
@@ -31,7 +62,7 @@
     transition: background-color 0.3s;
 }
 
-#playButton:hover {
+.playButton:hover {
     background-color: #FF3030;
 }
 
