@@ -149,6 +149,9 @@ function startGame() {
     let opponentPaddleY = (canvas.height - paddleHeight) / 2;
     const playerPaddleX = 10;
 
+    movePaddle('player1', playerPaddleY);  // Mettre à jour la position de la raquette de player1
+    movePaddle('player2', opponentPaddleY);  // Mettre à jour la position de la raquette de player1
+
     resetBall(null, true);
 
     document.addEventListener("keydown", keyDownHandler);
@@ -340,7 +343,7 @@ function startGame() {
     
     
 
-    gameInterval = setInterval(draw, 10);
+    gameInterval = setInterval(draw, 8);
 }
 
 function stopGame(gameId, winnerId) {
