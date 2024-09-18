@@ -1,9 +1,14 @@
+import * as THREE from "three";
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+
 let upPressed = false;
 let downPressed = false;
 let wPressed = false;
 let sPressed = false;
 
-gameInterval = null
+var gameInterval = null
 
 var scene = undefined;
 var camera = undefined;
@@ -20,7 +25,6 @@ var myCanvas;
 
 var nbrHit = 0;
 var ball, paddle_1, paddle_2;
-var paddle_1Light, paddle_2Light;
 
 let x = arenaLength / 2;
 let y = arenaWidth / 2;
@@ -75,6 +79,7 @@ function startGame()
 
     display3D()
 }
+window.startGame = startGame
 
 
 function display3D()
@@ -107,16 +112,11 @@ function display3D()
     const plane_geometry = new THREE.PlaneGeometry(arenaLength, arenaWidth);
 
     const ballMaterial = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-    // const wallMaterial = new THREE.MeshPhongMaterial( { color: 0xffffff} )
-    const wallMaterial = new THREE.MeshStandardMaterial( { color: 0xffffff, emissive:0xffffff, emissiveIntensity: 0.2} )
-    const groundMaterial = new THREE.MeshStandardMaterial( { color: 0xffffff} )
-
-    // const paddleMaterial = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
-    const paddleMaterial = new THREE.MeshStandardMaterial( { color: 0xff0000, emissive:0xff0000, emissiveIntensity: 0.5 } );
-
+    const wallMaterial = new THREE.MeshPhongMaterial( { color: 0x999999} )
+    const paddleMaterial = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
 
     //create and place all objects in scene
-    ball = new THREE.PointLight( 0x00ff00, 1, 15 );
+    ball = new THREE.PointLight( 0x00ff00, 10, 20 );
     ball.add( new THREE.Mesh( geometry, ballMaterial) );
 
     paddle_1 = new THREE.Mesh( paddle, paddleMaterial );
@@ -140,41 +140,19 @@ function display3D()
     const southBorder = new THREE.Mesh( wallBorder, wallMaterial);
     southBorder.position.y = 0;
     southBorder.position.x = arenaLength / 2;
-    const plane = new THREE.Mesh( plane_geometry, groundMaterial );
+    const plane = new THREE.Mesh( plane_geometry, wallMaterial );
     plane.position.set(arenaLength/2,arenaWidth/2,-ballRadius)
 
-    const ambientLight = new THREE.PointLight( 0xffffff, 1, 200 );
-    ambientLight.position.set(arenaLength/2,arenaWidth/2,50)
-
-    // const rectLight = new THREE.RectAreaLight( 0xffffff, intensity, width, height );
-    const northWallLight = new THREE.RectAreaLight( 0xffffff, 5, arenaLength, thickness);
-    northWallLight.position.set( arenaLength/2, arenaWidth - 1, 2 );
-    northWallLight.lookAt( arenaLength/2, arenaWidth, 1);
-    const southWallLight = new THREE.RectAreaLight( 0xffffff, 5, arenaLength, thickness);
-    southWallLight.position.set( arenaLength/2, 1, 2 );
-    southWallLight.lookAt( arenaLength/2, 0, 1);
-    const eastWallLight = new THREE.RectAreaLight( 0xffffff, 5, 1, arenaWidth);
-    eastWallLight.position.set( arenaLength - 2, arenaWidth/2, 1 );
-    eastWallLight.lookAt( arenaLength, arenaWidth/2, 1);
-    const westWallLight = new THREE.RectAreaLight( 0xffffff, 5, thickness, arenaWidth);
-    westWallLight.position.set( 1, arenaWidth/2, 1 );
-    westWallLight.lookAt( 0, arenaWidth/2, 1);
-
-    paddle_1Light = new THREE.RectAreaLight( 0xff0000, 5, thickness, paddleHeight + 2);
-    paddle_1Light.position.set(paddle_1.position.x + 2 , paddle_1.position.y, 1.5);
-    paddle_1Light.lookAt(paddle_1.position.x , paddle_1.position.y, 1);
-    paddle_2Light = new THREE.RectAreaLight( 0xff0000, 5, thickness, paddleHeight + 2);
-    paddle_2Light.position.set(paddle_2.position.x - 1 , paddle_2.position.y, 1.5);
-    paddle_2Light.lookAt(paddle_2.position.x , paddle_2.position.y, 1);
-
+    const ambientLight = new THREE.AmbientLight(0x111111)
+    const spotLight = new THREE.PointLight( 0x999999, 1, 200 );
+    spotLight.position.set(arenaLength/2,arenaWidth/2,10)
     
     //add objects to the scene and render
     scene.add( ball );
     scene.add( paddle_1, paddle_2 );
-    // scene.add( paddle_1Light, paddle_2Light );
     scene.add( eastBorder, westBorder, northBorder, southBorder, plane);
-    scene.add( northWallLight, southWallLight, eastWallLight, westWallLight );
-
+    scene.add(ambientLight)
+    // scene.add(spotLight)
 
     cam1()
 
@@ -240,11 +218,6 @@ function calculBall() {
     if (downPressed && paddle_2.position.y > thickness / 2 + paddleHeight / 2)
         paddle_2.position.y -= 0.6;
 
-    if (paddle_1Light.position.y != paddle_1.position.y)
-        paddle_1Light.position.y = paddle_1.position.y
-    if (paddle_2Light.position.y != paddle_2.position.y)
-        paddle_2Light.position.y = paddle_2.position.y
-
     renderer.render( scene, camera );
 
     style_controllers()
@@ -302,7 +275,6 @@ function stopGame()
     clearInterval(gameInterval); // Arrêter l'intervalle de jeu
     clearInterval(IAInterval)
     clearInterval(moveIAInterval)
-    gameStarted = false; // Réinitialiser l'état du jeu
     document.getElementById("playButton").style.display = "block"; // Réafficher le bouton "JOUER"
     document.getElementById("gameContainer").style.display = "none"; // Masquer le canevas du jeu
 }

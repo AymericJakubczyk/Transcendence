@@ -23,15 +23,15 @@
 	<!-- JQUERY -->
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- threejs -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.js"></script>
-    <!-- <script type="importmap">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r79/three.js"></script>
+    <script type="importmap">
     {
         "imports": {
         "three": "https://cdn.jsdelivr.net/npm/three@v0.168.0/build/three.module.js",
         "three/addons/": "https://cdn.jsdelivr.net/npm/three@v0.168.0/examples/jsm/"
         }
     }
-    </script> -->
+    </script>
     
     <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}"/>
     <script src="{% static 'ws.js' %}"></script>
@@ -41,7 +41,7 @@
     <script type="text/javascript" src="{% static 'chess_class.js' %}"></script>
     <script type="text/javascript" src="{% static 'chess.js' %} "></script>
     <!-- <script type="text/javascript" src="{% static 'pong.js' %} "></script> -->
-    <script type="text/javascript" src="{% static 'pong3D.js' %} "></script>
+    <script type="module" src="{% static 'pong3D.js' %} "></script>
     <script type="text/javascript" src="{% static 'pongIA.js' %} "></script>
     <script>
         var csrftoken = '{{ csrf_token }}';
