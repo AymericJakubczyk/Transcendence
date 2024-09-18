@@ -102,13 +102,13 @@ function display3D()
     //define all objects and materials
     const geometry = new THREE.SphereGeometry(ballRadius, 32, 16 );
     const paddle = new THREE.BoxGeometry( paddleWidth, paddleHeight, ballRadius * 2);
-    const wallBorder = new THREE.BoxGeometry(arenaLength, thickness, ballRadius * 2);
+    const wallBorder = new THREE.BoxGeometry(arenaLength + thickness, thickness, ballRadius * 2);
     const goalBorder = new THREE.BoxGeometry(thickness, arenaWidth, ballRadius * 2);
     const plane_geometry = new THREE.PlaneGeometry(arenaLength, arenaWidth);
 
     const ballMaterial = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
     // const wallMaterial = new THREE.MeshPhongMaterial( { color: 0xffffff} )
-    const wallMaterial = new THREE.MeshStandardMaterial( { color: 0xffffff, emissive:0xffffff, emissiveIntensity: 0.2} )
+    const wallMaterial = new THREE.MeshStandardMaterial( { color: 0xffffff, emissive:0xffffff, emissiveIntensity: 0.4} )
     const groundMaterial = new THREE.MeshStandardMaterial( { color: 0xffffff} )
 
     // const paddleMaterial = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
@@ -146,32 +146,34 @@ function display3D()
     const ambientLight = new THREE.PointLight( 0xffffff, 1, 200 );
     ambientLight.position.set(arenaLength/2,arenaWidth/2,50)
 
+    // light for neon effect
     // const rectLight = new THREE.RectAreaLight( 0xffffff, intensity, width, height );
-    const northWallLight = new THREE.RectAreaLight( 0xffffff, 5, arenaLength, thickness);
+    const colorLightWall = 0x0000ff
+    const northWallLight = new THREE.RectAreaLight( colorLightWall, 3, arenaLength - thickness, thickness);
     northWallLight.position.set( arenaLength/2, arenaWidth - 1, 2 );
-    northWallLight.lookAt( arenaLength/2, arenaWidth, 1);
-    const southWallLight = new THREE.RectAreaLight( 0xffffff, 5, arenaLength, thickness);
+    northWallLight.lookAt( arenaLength/2, arenaWidth, 0);
+    const southWallLight = new THREE.RectAreaLight( colorLightWall, 3, arenaLength - thickness, thickness);
     southWallLight.position.set( arenaLength/2, 1, 2 );
-    southWallLight.lookAt( arenaLength/2, 0, 1);
-    const eastWallLight = new THREE.RectAreaLight( 0xffffff, 5, 1, arenaWidth);
-    eastWallLight.position.set( arenaLength - 2, arenaWidth/2, 1 );
-    eastWallLight.lookAt( arenaLength, arenaWidth/2, 1);
-    const westWallLight = new THREE.RectAreaLight( 0xffffff, 5, thickness, arenaWidth);
-    westWallLight.position.set( 1, arenaWidth/2, 1 );
-    westWallLight.lookAt( 0, arenaWidth/2, 1);
+    southWallLight.lookAt( arenaLength/2, 0, 0);
+    const eastWallLight = new THREE.RectAreaLight( colorLightWall, 3, thickness, arenaWidth - thickness);
+    eastWallLight.position.set( arenaLength - 1, arenaWidth/2, 2);
+    eastWallLight.lookAt( arenaLength, arenaWidth/2, 0);
+    const westWallLight = new THREE.RectAreaLight( colorLightWall, 3, thickness, arenaWidth - thickness);
+    westWallLight.position.set(1, arenaWidth/2, 2);
+    westWallLight.lookAt( 0, arenaWidth/2, 0);
 
-    paddle_1Light = new THREE.RectAreaLight( 0xff0000, 5, thickness, paddleHeight + 2);
-    paddle_1Light.position.set(paddle_1.position.x + 2 , paddle_1.position.y, 1.5);
+    paddle_1Light = new THREE.RectAreaLight( 0xff0000, 5, thickness, paddleHeight + 1);
+    paddle_1Light.position.set(paddle_1.position.x + 2 , paddle_1.position.y, 3);
     paddle_1Light.lookAt(paddle_1.position.x , paddle_1.position.y, 1);
-    paddle_2Light = new THREE.RectAreaLight( 0xff0000, 5, thickness, paddleHeight + 2);
-    paddle_2Light.position.set(paddle_2.position.x - 1 , paddle_2.position.y, 1.5);
+    paddle_2Light = new THREE.RectAreaLight( 0xff0000, 5, thickness, paddleHeight + 1);
+    paddle_2Light.position.set(paddle_2.position.x - 1 , paddle_2.position.y, 3);
     paddle_2Light.lookAt(paddle_2.position.x , paddle_2.position.y, 1);
 
     
     //add objects to the scene and render
     scene.add( ball );
     scene.add( paddle_1, paddle_2 );
-    // scene.add( paddle_1Light, paddle_2Light );
+    scene.add( paddle_1Light, paddle_2Light );
     scene.add( eastBorder, westBorder, northBorder, southBorder, plane);
     scene.add( northWallLight, southWallLight, eastWallLight, westWallLight );
 
@@ -185,8 +187,6 @@ function display3D()
 }
 
 function calculBall() {
-    // drawScore();  // Affichez le score en direct
-
     // Gestion des collisions avec les murs
     if (y + dy > arenaWidth - thickness/2 - ballRadius || y + dy < thickness/2 + ballRadius ) {
         console.log("[WALL]")
@@ -196,6 +196,7 @@ function calculBall() {
     // Gestion des collisions avec les paddles
     if (x > arenaLength - thickness * 2) {
         if (y > paddle_2.position.y - paddleHeight / 2 && y < paddle_2.position.y + paddleHeight / 2) {
+            paddle_2Light.intensity = 50
             nbrHit++
             dx = -baseSpeed - (0.02 * nbrHit)
             let hitPos = y - paddle_2.position.y;
@@ -211,6 +212,7 @@ function calculBall() {
 
     if (x < thickness * 2) {
         if (y > paddle_1.position.y - paddleHeight / 2 && y < paddle_1.position.y + paddleHeight / 2) {
+            paddle_1Light.intensity = 50
             nbrHit++
             dx = baseSpeed + (0.02 * nbrHit)
             let hitPos = y - paddle_1.position.y;
@@ -230,14 +232,14 @@ function calculBall() {
     ball.position.y = y;
 
     // Mouvement des paddles
-    if (wPressed && paddle_1.position.y < arenaWidth - thickness / 2 - paddleHeight / 2)
+    if (wPressed && paddle_1.position.y + 0.6 < arenaWidth - thickness / 2 - paddleHeight / 2)
         paddle_1.position.y += 0.6;
-    if (sPressed && paddle_1.position.y > thickness / 2 + paddleHeight / 2)
+    if (sPressed && paddle_1.position.y - 0.6 > thickness / 2 + paddleHeight / 2)
         paddle_1.position.y -= 0.6;
 
-    if (upPressed && paddle_2.position.y < arenaWidth - thickness / 2 - paddleHeight / 2)
+    if (upPressed && paddle_2.position.y + 0.6 < arenaWidth - thickness / 2 - paddleHeight / 2)
         paddle_2.position.y += 0.6;
-    if (downPressed && paddle_2.position.y > thickness / 2 + paddleHeight / 2)
+    if (downPressed && paddle_2.position.y - 0.6 > thickness / 2 + paddleHeight / 2)
         paddle_2.position.y -= 0.6;
 
     if (paddle_1Light.position.y != paddle_1.position.y)
@@ -246,6 +248,10 @@ function calculBall() {
         paddle_2Light.position.y = paddle_2.position.y
 
     renderer.render( scene, camera );
+    if (paddle_1Light.intensity > 5)
+        paddle_1Light.intensity -= 5
+    if (paddle_2Light.intensity > 5)
+        paddle_2Light.intensity -= 5
 
     style_controllers()
 }
@@ -280,7 +286,6 @@ function resetBall()
     x = arenaLength / 2;
     y = arenaWidth / 2;
     dx = ballDirection * baseSpeed;
-    // dy = 0.5;
     dy = Math.random() - 0.5
 
 }
