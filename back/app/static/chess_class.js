@@ -1,6 +1,9 @@
+var canCheck = 0;
+
 class Pawn {
     constructor (name, color, posx, posy, img)
     {
+        this.defended = 0;
         this.enPassant = 0;
         this.ePleft = 0;
         this.ePright = 0;
@@ -20,6 +23,7 @@ class Pawn {
     }
     getPossibleMove()
     {
+        this.defended = 0;
         let posx = this.posx;
         let posy = this.posy;
         if (this.color == "white")
@@ -97,6 +101,7 @@ class Pawn {
 class Knight {
     constructor (name, color, posx, posy, img)
     {
+        this.defended = 0;
         this.name = name;
         this.color = color;
         this.posx = posx;
@@ -113,8 +118,10 @@ class Knight {
     }
     getPossibleMove()
     {
+        this.defended = 0;
         let posx = this.posx;
         let posy = this.posy;
+        if (canCheck == 1) {canCheck = 0;}
         checkCell(posx + 2, posy + 1, this);
         checkCell(posx + 2, posy - 1, this);
 
@@ -126,6 +133,7 @@ class Knight {
  
         checkCell(posx + 1, posy - 2, this);
         checkCell(posx - 1, posy - 2, this);
+        if (canCheck == 1) {registerMoves(this)}
     }
     resetPossibleMove()
     {
@@ -141,6 +149,7 @@ class Rook {
     constructor (name, color, posx, posy, img, id)
     {
         this.id = id;
+        this.defended = 0;
         this.name = name;
         this.color = color;
         this.posx = posx;
@@ -158,8 +167,10 @@ class Rook {
     }
     getPossibleMove()
     {
+        this.defended = 0;
         let posx = this.posx;
         let posy = this.posy;
+        if (canCheck == 1) {canCheck = 0;}
         for (let i = posx + 1; i < 8; i++)
         {
             if (checkCell(i, posy, this) == false)
@@ -180,6 +191,7 @@ class Rook {
             if (checkCell(posx, i, this) == false)
                 break;
         }
+        if (canCheck == 1) {registerMoves(this)}
     }
     resetPossibleMove()
     {
@@ -195,6 +207,7 @@ class Bishop {
     constructor (name, color, posx, posy, img)
     {
         this.name = name;
+        this.defended = 0;
         this.color = color;
         this.posx = posx;
         this.posy = posy;
@@ -210,8 +223,10 @@ class Bishop {
     }
     getPossibleMove()
     {
+        this.defended = 0;
         let posx = this.posx;
         let posy = this.posy;
+        if (canCheck == 1) {canCheck = 0;}
         for (let x = this.posx + 1, y = this.posy + 1; x < 8 && y < 8; x++, y++)
         {
             if (checkCell(x, y, this) == false)
@@ -232,6 +247,7 @@ class Bishop {
             if (checkCell(x, y, this) == false)
                 break;
         }
+        if (canCheck == 1) {registerMoves(this)}
     }
     resetPossibleMove()
     {
@@ -362,6 +378,7 @@ class Queen {
     {
         let posx = this.posx;
         let posy = this.posy;
+        if (canCheck == 1) {canCheck = 0;}
         for (let i = posx + 1; i < 8; i++)
         {
             if (checkCell(i, posy, this) == false)
@@ -402,6 +419,7 @@ class Queen {
             if (checkCell(x, y, this) == false)
                 break;
         }
+        if (canCheck == 1) {registerMoves(this)}
     }
     resetPossibleMove()
     {
@@ -419,6 +437,8 @@ function checkCell(x, y, piece)
     let color = "white";
     if (piece.color == "black")
         color = "black";
+    let count = 0;
+    let tmpx, tmpy;
     if (x >= 0 && x < 8 && y >= 0 && y < 8)
     {   
         if (pieces[x][y] == "")
@@ -429,6 +449,50 @@ function checkCell(x, y, piece)
             {
                 if (pieces[x][y].name == "King")
                 {
+                    canCheck = 1;
+                    count += 1;
+                    tmpx = x;
+                    tmpy = y;
+                    pieces[x][y].checked = 1;
+                }
+            }    
+            if (pieces[x][y].color == piece.color)
+            {
+                pieces[x][y].defended = 1;
+                piece.possibleMoves[x][y] = "PossibleDefense";
+                return false;
+            }
+            else
+            {
+                piece.possibleMoves[x][y] = "PossibleMove";
+                return false;
+            }
+        }
+        return true;
+    }
+    return false;
+}
+
+function checkCheckerCell(x, y, piece)
+{
+    let color = "white";
+    if (piece.color == "black")
+        color = "black";
+    let count = 0;
+    let tmpx, tmpy;
+    if (x >= 0 && x < 8 && y >= 0 && y < 8)
+    {   
+        if (pieces[x][y] == "")
+            piece.possibleMoves[x][y] = "PossibleMove";
+        else
+        {
+            if (pieces[x][y].color != piece.color)
+            {
+                if (pieces[x][y].name == "King")
+                {
+                    count += 1;
+                    tmpx = x;
+                    tmpy = y;
                     registerCheckMoves(piece, x, y);
                     pieces[x][y].checked = 1;
                 }
@@ -454,24 +518,41 @@ function registerCheckMoves(piece, x, y)
     let posx = piece.posx;
     let posy = piece.posy;
     let king = piece.color === "black" ? whiteKing : blackKing;
-    if (isKnightMove(piece, x, y) == true)
+    console.log(king);
+    console.log(piece);
+    isKnightMove(piece, x, y);
+    if (y == posy && x < posx || y == posy && x > posx)
+        isRowMove(piece, x, y, king);
+    if (x == posx && y < posy || x == posx && y > posy)
+    isColMove(piece, x, y, king);
+    if (Math.abs(x - posx) == Math.abs(y - posy))
+        isDiagMove(piece, x, y, king);
+    king.check[posx][posy] = "Checker";
+    console.log(king);
+}
+
+function registerMoves(piece)
+{
+    let king = piece.color === "black" ? whiteKing : blackKing;
+    for (let i = 0; i < 8; i++)
     {
-        king.check[x][y] = "CheckMove";
-        king.check[posx][posy] = "Checker";
+        for (let j = 0; j < 8; j++)
+        {
+            if (i == piece.posx && j == piece.posy)
+                king.check[i][j] = "Checker";
+            if (piece.possibleMoves[i][j] == "PossibleMove")
+                king.check[i][j] = "CheckMove";
+        }
     }
-    else if (isRowMove(piece, x, y, king))
-        king.check[posx][posy] = "Checker";
-    else if (isColMove(piece, x, y, king))
-        king.check[posx][posy] = "Checker";
-    else if (isDiagMove(piece, x, y, king))
-        king.check[posx][posy] = "Checker";
 }
 
 function isRowMove(piece, x, y, king)
 {
+    console.log("rowMove");
     let posx = piece.posx;
     let posy = piece.posy;
-    
+
+    registerMoves(piece, x, y, king);
     if (y == posy && x < posx || y == posy && x > posx)
     {
         if (x < posx)
@@ -485,16 +566,16 @@ function isRowMove(piece, x, y, king)
                 king.check[indx][posy] = "CheckMove";
         }
         king.check[posx][posy] = "Checker";
-        return true;
     }
-    return false;
 }
 
 function isColMove(piece, x, y, king)
 {
     let posx = piece.posx;
     let posy = piece.posy;
+    console.log("colMove");
     
+    registerMoves(piece, x, y, king);
     if (x == posx && y < posy || x == posx && y > posy)
     {
         if (y < posy)
@@ -508,16 +589,16 @@ function isColMove(piece, x, y, king)
                 king.check[posx][indy] = "CheckMove";
         }
         king.check[posx][posy] = "Checker";
-        return true;
     }
-    return false;
 }
 
 function isDiagMove(piece, x, y, king)
 {
     let posx = piece.posx;
     let posy = piece.posy;
+    console.log("DiagMove");
     
+    registerMoves(piece, x, y, king);
     if (Math.abs(x - posx) == Math.abs(y - posy))
     {
         if (x < posx && y < posy)
@@ -542,9 +623,7 @@ function isDiagMove(piece, x, y, king)
             for (let indx = posx, indy = posy; 8 > indx && 0 < indy; indx++, indy--)
                 king.check[indx][indy] = "CheckMove";
         }
-        return true;
     }
-    return false;
 }
 
 function isKnightMove(piece, x, y)

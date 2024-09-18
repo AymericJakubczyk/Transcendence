@@ -132,7 +132,7 @@ function LeftRock(x)
 function isPossibleKingMove(x, y, piece)
 {
     if (x >= 0 && x < 8 && y >= 0 && y < 8)
-        if (pieces[x][y].color != piece.color && isEnemyMove(x, y, piece) == false)
+        if (pieces[x][y].color != piece.color && isEnemyMove(x, y, piece) == false && pieces[x][y].defended == 0)
             return true;
     return false;
 }
@@ -305,7 +305,6 @@ function drawTheMove(x, y, context)
 
 function drawPossibleDefenseMove(context)
 {
-    console.log("DPDM");
     if (selectedOne == null)
         return ;
     let king = oldColor === "white" ? blackKing : whiteKing;
@@ -521,12 +520,30 @@ function canSomeoneBlock(team, king)
         {
             for (let y = 0; y < 8; y++)
             {
-                if (team[i].possibleMoves[x][y] == "PossibleMove" && (king.check[x][y] == "CheckMove"))
+                if (team[i].possibleMoves[x][y] == "PossibleMove" && (king.check[x][y] == "CheckMove") && isStillCheck(team[i], x, y) == false)
                     return true;
             }
         }
     }
     return false;
+}
+
+function isStillCheck(piece, newx, newy)
+{
+    var newTab = new Array(8);
+    for (let i = 0; i < 8; i++)
+    {
+        newTab[i] = new Array(8);
+        for (let j = 0; j < 8; j++)
+        {
+            newTab[i][j] = pieces[i][j];
+        }
+    }
+    newTab[piece.posx][piece.posy] = "";
+    newTab[newx][newy] = piece;
+    for (let i = 0; i < 8; i++)
+        delete newTab[i];
+    delete newTab;
 }
 
 function canKingMove(king)
