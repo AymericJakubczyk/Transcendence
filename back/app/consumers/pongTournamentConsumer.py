@@ -42,13 +42,15 @@ class pongTournamentConsumer(AsyncWebsocketConsumer):
         self.room_group_name = "pong_tournament_" + str(id_tournament)
 
         tournamentName = await self.get_Name(id_tournament)
+        tournamentNB = await self.get_NB(id_tournament)
         await self.channel_layer.group_send(
             self.room_group_name,
             {
                 'type': 'refresh_infos',
                 'user_username': self.scope["user"].username,
                 'user_rank': self.scope["user"].pong_rank,
-                'tournamentName': tournamentName
+                'tournamentName': tournamentName,
+                'tournamentNB': tournamentNB,
             }
         )
 
@@ -63,7 +65,8 @@ class pongTournamentConsumer(AsyncWebsocketConsumer):
             'type': 'refresh_infos',
             'user_username': event['user_username'],
             'user_rank': event['user_rank'],
-            'tournamentName': event['tournamentName']
+            'tournamentName': event['tournamentName'],
+            'tournamentNB': event['tournamentNB']
         }))
 
     @database_sync_to_async
@@ -73,4 +76,12 @@ class pongTournamentConsumer(AsyncWebsocketConsumer):
             return None
         tournamentName = tournamentObj.name
         return tournamentName
+
+    @database_sync_to_async
+    def get_NB(self, id):
+        tournamentObj = Tournament.objects.get(id=id)
+        if (tournamentObj == None):
+            return None
+        tournamentNB = tournamentObj.participants.count()
+        return tournamentNB
 

@@ -89,6 +89,23 @@ class Game_Chess(models.Model):
         ),
         size=8
     )
-
 	over = models.BooleanField(default=False)
-	winner = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name='winner')
+	winner = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name='chesswinner')
+
+
+class Game_Pong(models.Model):
+	player1 = models.ForeignKey(User, related_name='player1', on_delete=models.CASCADE)
+	player1_score = models.IntegerField(default=0)
+	player2 = models.ForeignKey(User, related_name='player2', on_delete=models.CASCADE, null=True, blank=True)
+	player2_score = models.IntegerField(default=0)
+	status = models.CharField(max_length=20, default='waiting')
+	gametype = models.CharField(max_length=5)
+	winner = models.ForeignKey(User, related_name='pongwinner', on_delete=models.CASCADE, null=True, blank=True)
+	created_at = models.DateTimeField(auto_now_add=True)
+	updated_at = models.DateTimeField(auto_now=True)
+
+	tournament = models.BooleanField(default=False)
+
+	def __str__(self):
+		player2_name = self.player2.username if self.player2 else "No Opponent"
+		return f"Game {self.id} - {self.player1.username} vs {player2_name}"

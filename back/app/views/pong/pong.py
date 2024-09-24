@@ -3,7 +3,7 @@ from django.contrib.auth import login, authenticate, logout, update_session_auth
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from app.forms import SignupForm, LoginForm, UpdateForm
-from app.models import User, Tournament, Friend_Request, Discussion, Message, Game_Chess
+from app.models import User, Tournament, Friend_Request, Discussion, Message, Game_Chess, Game_Pong
 from django.urls import reverse as get_url
 from django.db.models import Q
 import json
@@ -50,6 +50,40 @@ def pongTournament(request):
             tournament.save()
             request.user.tournament_id = tournament.id
             request.user.save()
+
+
+    if 'bracket_tournament' in request.POST:
+        print("making brackets", file=sys.stderr)
+        tournament_id = request.POST.get('bracket_tournament')
+        tournament = Tournament.objects.get(id=tournament_id)
+
+        playercount = tournament.participants.count()
+        playerlist = tournament.participants.all()
+
+        players = playercount
+        rounds = 1
+        placed = 0
+        # if odd, adapt it
+        while placed != players :
+            newGame = Game_Pong()
+            # seeding
+            newGame.player1 = playerlist[placed]
+            newGame.player2 = playerlist[placed + 1]
+            newGame.tournament = True
+            newGame.save()
+            placed = placed + 2
+            print("GAME ID :", newGame.id, "- ROUND :", rounds, "- MATCH :", newGame.player1, "VS", newGame.player2, file=sys.stderr)
+            print("PLACED :", placed, "/", players, file=sys.stderr)
+
+
+    if 'launch_tournament' in request.POST:
+        print("launching tournament", file=sys.stderr)
+        # launch games
+        # wait results
+        # get winners
+        # players = winners.count()
+        # redo games
+
 
     if 'join_tournament' in request.POST:
         print("trying to join", file=sys.stderr)
