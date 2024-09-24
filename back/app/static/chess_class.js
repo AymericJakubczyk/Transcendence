@@ -101,7 +101,6 @@ class Pawn {
 class Knight {
     constructor (name, color, posx, posy, img)
     {
-        this.defended = 0;
         this.name = name;
         this.color = color;
         this.posx = posx;
@@ -360,6 +359,7 @@ class King {
 class Queen {
     constructor (name, color, posx, posy, img)
     {
+        this.defended = 0;
         this.name = name;
         this.color = color;
         this.posx = posx;
@@ -518,22 +518,25 @@ function registerCheckMoves(piece, x, y)
     let posx = piece.posx;
     let posy = piece.posy;
     let king = piece.color === "black" ? whiteKing : blackKing;
-    console.log(king);
+    console.log(piece, king.posx, king.posy);
     console.log(piece);
     isKnightMove(piece, x, y);
     if (y == posy && x < posx || y == posy && x > posx)
         isRowMove(piece, x, y, king);
     if (x == posx && y < posy || x == posx && y > posy)
-    isColMove(piece, x, y, king);
+        isColMove(piece, x, y, king);
     if (Math.abs(x - posx) == Math.abs(y - posy))
         isDiagMove(piece, x, y, king);
-    king.check[posx][posy] = "Checker";
+    // king.check[posx][posy] = "Checker";
     console.log(king);
 }
 
 function registerMoves(piece)
 {
+    console.log("registerMoves");
     let king = piece.color === "black" ? whiteKing : blackKing;
+    let posxking = king.posx;
+    let posyking = king.posy;
     for (let i = 0; i < 8; i++)
     {
         for (let j = 0; j < 8; j++)
@@ -544,6 +547,7 @@ function registerMoves(piece)
                 king.check[i][j] = "CheckMove";
         }
     }
+    registerCheckMoves(piece, posxking, posyking);
 }
 
 function isRowMove(piece, x, y, king)
@@ -552,7 +556,6 @@ function isRowMove(piece, x, y, king)
     let posx = piece.posx;
     let posy = piece.posy;
 
-    registerMoves(piece, x, y, king);
     if (y == posy && x < posx || y == posy && x > posx)
     {
         if (x < posx)
@@ -575,7 +578,7 @@ function isColMove(piece, x, y, king)
     let posy = piece.posy;
     console.log("colMove");
     
-    registerMoves(piece, x, y, king);
+    console.log("MAIS QUE PASA", piece, king);
     if (x == posx && y < posy || x == posx && y > posy)
     {
         if (y < posy)
@@ -598,7 +601,6 @@ function isDiagMove(piece, x, y, king)
     let posy = piece.posy;
     console.log("DiagMove");
     
-    registerMoves(piece, x, y, king);
     if (Math.abs(x - posx) == Math.abs(y - posy))
     {
         if (x < posx && y < posy)

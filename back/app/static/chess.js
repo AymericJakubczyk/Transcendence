@@ -132,16 +132,24 @@ function LeftRock(x)
 function isPossibleKingMove(x, y, piece)
 {
     if (x >= 0 && x < 8 && y >= 0 && y < 8)
+    {   
         if (pieces[x][y].color != piece.color && isEnemyMove(x, y, piece) == false && pieces[x][y].defended == 0)
             return true;
+        else if (pieces[x][y].color == null && isEnemyMove(x, y, piece) == false)
+            return true;
+    }
     return false;
 }
 
 function isPossible(x, y, piece)
 {
     if (x >= 0 && x < 8 && y >= 0 && y < 8)
+    {   
         if (pieces[x][y].color != piece.color)
             return true;
+        else if (pieces[x][y] == "")
+            return true;
+    }
     return false;
 }
 
@@ -477,14 +485,18 @@ function isDefendable()
 
 function isCheckMate()
 {
+    console.log("ISCHECKMATE");
     let team = oldColor === "white" ? blackTeam : whiteTeam;
     let king = oldColor === "white" ? blackKing : whiteKing;
     if (canKingMove(king))
         return false;
+    console.log("move");
     if (canSomeoneBlock(team, king))
         return false;
+    console.log("block");
     if (canSomeoneDefend(team, king))
         return false;
+    console.log("defend");
     return true;
 }
 
@@ -552,10 +564,8 @@ function canKingMove(king)
     {
         for (let j = 0; j < 8; j++)
         {
-            if (king.possibleMoves[i][j] == "PossibleMove")
-            {
+            if (king.possibleMoves[i][j] == "PossibleMove" && king.check[i][j] == "noPossibleMove")
                 return true;
-            }
         }
     }
     return false;
