@@ -328,9 +328,9 @@ function drawPossibleDefenseMove(context)
     {
         for (var j = 0; j < 8; j++)
         {
-            if ((selectedOne.possibleMoves[i][j] == "PossibleMove" || selectedOne.possibleMoves[i][j] == "PossiblePromAtq") && king.check[i][j] == "Checker")
+            if ((selectedOne.possibleMoves[i][j] == "PossibleMove" || selectedOne.possibleMoves[i][j] == "PossiblePromAtq") && king.check[i][j] == "Checker" && isStillCheck(selectedOne, i, j, king) == false)
                 drawPossibleCaptureMove(i, j, context);
-            else if (selectedOne.possibleMoves[i][j] == "enPassant" && pieces[i][j].color == null && king.check[i][j] == "Checker")
+            else if (selectedOne.possibleMoves[i][j] == "enPassant" && pieces[i][j].color == null && king.check[i][j] == "Checker" && isStillCheck(selectedOne, i, j, king) == false)
                 drawPossibleCaptureMove(i, j, context);
             else if ((selectedOne.possibleMoves[i][j] == "PossibleMove" || selectedOne.possibleMoves[i][j] == "PossibleDoubleMove" || selectedOne.possibleMoves[i][j] == "PossibleProm") && king.check[i][j] == "CheckMove" && selectedOne.name != "King")
                 drawTheMove(i, j, context);
@@ -446,7 +446,6 @@ function moveCheck(context, king, posy, posx)
 
 function handleCheck(context, posx, posy)
 {
-    let king = oldColor === "white" ? blackKing : whiteKing;
     if (isCheckMate())
     {
         console.log("I AM CHECKEDMATED");
@@ -490,13 +489,13 @@ function isCheckMate()
     let king = oldColor === "white" ? blackKing : whiteKing;
     if (canKingMove(king))
         return false;
-    console.log("move");
+    console.log("CAN KING MOVE");
     if (canSomeoneBlock(team, king))
         return false;
-    console.log("block");
+    console.log("CAN SOMEONE BLOCK");
     if (canSomeoneDefend(team, king))
         return false;
-    console.log("defend");
+    console.log("CAN SOMEONE DEFEND");
     return true;
 }
 
@@ -512,7 +511,7 @@ function canSomeoneDefend(team, king)
         {
             for (let y = 0; y < 8; y++)
             {
-                if (team[i].possibleMoves[x][y] == "PossibleMove" && (king.check[x][y] == "Checker"))
+                if (team[i].alive == 0 && team[i].possibleMoves[x][y] == "PossibleMove" && (king.check[x][y] == "Checker") && isStillCheck(team[i], x, y, king) == false)
                     return true;
             }
         }
@@ -532,7 +531,7 @@ function canSomeoneBlock(team, king)
         {
             for (let y = 0; y < 8; y++)
             {
-                if (team[i].possibleMoves[x][y] == "PossibleMove" && (king.check[x][y] == "CheckMove") && isStillCheck(team[i], x, y) == false)
+                if (team[i].possibleMoves[x][y] == "PossibleMove" && (king.check[x][y] == "CheckMove") && isStillCheck(team[i], x, y, king) == false)
                     return true;
             }
         }
@@ -540,22 +539,44 @@ function canSomeoneBlock(team, king)
     return false;
 }
 
-function isStillCheck(piece, newx, newy)
+function isStillCheck(piece, newx, newy, king)
 {
+    let kingposx = king.posx;
+    let kingposy = king.posy;
     var newTab = new Array(8);
     for (let i = 0; i < 8; i++)
     {
         newTab[i] = new Array(8);
         for (let j = 0; j < 8; j++)
         {
+            newTab[i][j] = "";
             newTab[i][j] = pieces[i][j];
         }
     }
+    pieces[newx][newy].alive = 1;
+    console.log(piece);
     newTab[piece.posx][piece.posy] = "";
     newTab[newx][newy] = piece;
-    for (let i = 0; i < 8; i++)
-        delete newTab[i];
-    delete newTab;
+    let team = oldColor === "white" ? whiteTeam : blackTeam;
+    console.log(newTab, team, king);
+    for (let i = 0; i < 16; i++)
+    {
+        team[i].resetPossibleMove();
+        if (team[i].name == "Pawn")
+            team[i].getAttackMove();
+        else
+        {
+            team[i].getPossibleMove();
+            console.log(team[i], "ALED PLS");
+        }
+        if (team[i].alive == 0 && team[i].possibleMoves[kingposx][kingposy] == "PossibleMove")
+        {
+            return true;        
+        }
+        team[i].resetPossibleMove();
+    }
+    pieces[newx][newy].alive = 0;
+    return false;
 }
 
 function canKingMove(king)
@@ -618,6 +639,8 @@ function handleEnPassant(context)
 function movePiece(posy, posx)
 {
 	replaceCell(posy, posx, selectedOne);
+    if (pieces[posy][posx] != "")
+        pieces[posy][posx].alive = 1;
 	pieces[posy][posx] = selectedOne;
 	selectedOne.posx = posy;
 	selectedOne.posy = posx;
@@ -685,6 +708,8 @@ function giveEnpassant(posx, posy)
 function doEnpassant(posy, posx)
 {
 	replaceCell(posy, posx, selectedOne);
+    if (pieces[posy][posx] != "")
+        pieces[posy][posx].alive = 1;
 	if (selectedOne.color == "white")
 		pieces[posy + 1][posx] = '';
 	else
@@ -733,6 +758,8 @@ function findAndReplace(team, tmp, context, newCanvas)
     let pos;
     if (selectedOne == null)
         return ;
+    if (pieces[oldy][oldx] != "")
+        pieces[oldy][oldx].alive = 1;
     for (let i = 0; i < 16; i++)
     {
         if (team[i] == selectedOne)

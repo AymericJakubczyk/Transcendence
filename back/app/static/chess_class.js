@@ -13,6 +13,7 @@ class Pawn {
         this.posy = posy;
         this.img = img;
         this.isSelected = 0;
+        this.alive = 0;
         this.possibleMoves = [];
         for (var i = 0; i < 8; i++)
         {
@@ -107,6 +108,7 @@ class Knight {
         this.posy = posy;
         this.img = img;
         this.isSelected = 0;
+        this.alive = 0;
         this.possibleMoves = [];
         for (var i = 0; i < 8; i++)
         {
@@ -156,6 +158,7 @@ class Rook {
         this.img = img;
         this.count = 0;
         this.isSelected = 0;
+        this.alive = 0;
         this.possibleMoves = [];
         for (var i = 0; i < 8; i++)
         {
@@ -212,6 +215,7 @@ class Bishop {
         this.posy = posy;
         this.img = img;
         this.isSelected = 0;
+        this.alive = 0;
         this.possibleMoves = [];
         for (var i = 0; i < 8; i++)
         {
@@ -267,6 +271,7 @@ class King {
         this.color = color;
         this.posx = posx;
         this.posy = posy;
+        this.alive = 0;
         this.img = img;
         this.isSelected = 0;
         this.possibleMoves = [];
@@ -365,6 +370,7 @@ class Queen {
         this.posx = posx;
         this.posy = posy;
         this.img = img;
+        this.alive = 0;
         this.isSelected = 0;
         this.possibleMoves = [];
         for (var i = 0; i < 8; i++)
