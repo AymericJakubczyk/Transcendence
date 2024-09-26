@@ -1,8 +1,6 @@
 .env
 __pycache__
 /volumes
-/back/app/migrations/*
-!back/app/migrations/__init__.py
-!back/app/migrations/0001_initial.py
+/back/app/migrations
 /back/media/imgs/profils/*
 !creepy-cat.webp

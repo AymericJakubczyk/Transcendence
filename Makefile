@@ -9,7 +9,7 @@ update_ip :
 
 prod :
 	mkdir -p ./volumes/nginx
-	docker compose up --build -d
+	docker compose up --build
 
 down : 
 	docker compose down
@@ -24,4 +24,10 @@ clean :
 	docker volume prune --force
 	docker volume rm $$(docker volume ls -q)
 
-.PHONY: all down re clean update_ip
+clean_db :
+	rm -rf ./back/app/migrations
+	docker-compose down
+	docker rm postgres
+	docker volume rm transcendence_db
+
+.PHONY: all down re clean update_ip clean_db

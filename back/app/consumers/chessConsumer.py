@@ -2,7 +2,6 @@ import json
 from django.shortcuts import get_object_or_404
 from channels.generic.websocket import AsyncWebsocketConsumer, WebsocketConsumer
 from channels.db import database_sync_to_async
-from app.models import User, Game_Chess
 
 import sys #for print
 
@@ -69,6 +68,7 @@ class ChessConsumer(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def create_game(self, player1_username, player2_username):
+        from app.models import User, Game_Chess
         # do random for white player now i don't care
 
         # remove _chess from username

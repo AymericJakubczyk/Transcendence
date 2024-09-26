@@ -3,7 +3,7 @@ while ! nc -z postgres 5432; do
     sleep 2
 done
 
-python transcendence/manage.py makemigrations
+python transcendence/manage.py makemigrations app
 python transcendence/manage.py migrate
 python transcendence/manage.py createsuperuser --noinput
 

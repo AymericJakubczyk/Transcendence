@@ -2,7 +2,6 @@ import json
 from django.shortcuts import get_object_or_404
 from channels.generic.websocket import AsyncWebsocketConsumer, WebsocketConsumer
 from channels.db import database_sync_to_async
-from app.models import User, Game_Chess, Tournament
 
 import sys #for print
 import time
@@ -76,6 +75,8 @@ class pongTournamentConsumer(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def get_Name(self, id):
+        from app.models import Tournament
+
         tournamentObj = Tournament.objects.get(id=id)
         if (tournamentObj == None):
             return None
@@ -84,6 +85,8 @@ class pongTournamentConsumer(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def get_NB(self, id):
+        from app.models import Tournament
+
         tournamentObj = Tournament.objects.get(id=id)
         if (tournamentObj == None):
             return None
