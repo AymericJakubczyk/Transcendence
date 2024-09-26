@@ -26,7 +26,7 @@
     <form method="POST" hx-post="{{ request.path }}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
         {% csrf_token %}
         <input type="hidden" name="leave_tournament" value="{{ mytournament.id }}"/>
-        <button type="submit">LEAVE</button>
+        <button type="submit" onclick="leave_pong_tournament({{ mytournament.id }})">LEAVE</button>
     </form>
 </div>
 {% else %}

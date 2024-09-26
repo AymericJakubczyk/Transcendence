@@ -34,7 +34,10 @@ class pongTournamentConsumer(AsyncWebsocketConsumer):
         text_data_json = json.loads(text_data)
         print("[RECEIVE WS]", text_data_json, file=sys.stderr)
 
+        action = text_data_json['type']
         if ("type" in text_data_json and text_data_json["type"] == "join"):
+            id_tournament = text_data_json['id_tournament']
+        elif ("type" in text_data_json and text_data_json["type"] == "leave"):
             id_tournament = text_data_json['id_tournament']
         else :
             print("[ERROR]", file=sys.stderr)
@@ -47,6 +50,7 @@ class pongTournamentConsumer(AsyncWebsocketConsumer):
             self.room_group_name,
             {
                 'type': 'refresh_infos',
+                'action': action,
                 'user_username': self.scope["user"].username,
                 'user_rank': self.scope["user"].pong_rank,
                 'tournamentName': tournamentName,
@@ -63,6 +67,7 @@ class pongTournamentConsumer(AsyncWebsocketConsumer):
         print("[REFRESH INFOS]", event, file=sys.stderr)
         await self.send(text_data=json.dumps({
             'type': 'refresh_infos',
+            'action': event['action'],
             'user_username': event['user_username'],
             'user_rank': event['user_rank'],
             'tournamentName': event['tournamentName'],
