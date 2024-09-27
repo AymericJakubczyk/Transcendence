@@ -74,6 +74,9 @@ function startGame()
     }
 
     display3D()
+    if (gameInterval)
+        clearInterval(gameInterval)
+    gameInterval = setInterval(calculBall, 10);
 }
 
 
@@ -181,9 +184,6 @@ function display3D()
     cam1()
 
     renderer.render( scene, camera );
-    if (gameInterval)
-        clearInterval(gameInterval)
-    gameInterval = setInterval(calculBall, 10);
 }
 
 function calculBall() {

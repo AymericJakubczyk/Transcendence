@@ -1,0 +1,31 @@
+{% load static %}
+
+<div class="container">
+	<h1 class="header">ULTIMATE EXTRA COOL SUPER PONG TOURNAMENT EXTREME BATTLE</h1>
+	<h5 class="header">Welcome in the history</h5>
+	
+	<!-- Affichage des scores -->
+	<div class="scoreboard">
+		<div id="playerScore" class="score">Player: 0</div>
+		<div id="opponentScore" class="score">Opponent: 0</div>
+	</div>
+	
+
+	<!-- Canevas du jeu, masqué par défaut -->
+	<div class="main-box w-100 align-items-center justify-content-center" style="display: flex" id="gameContainer">
+		<div style="z-index:1000">
+			<h1 class="key" id="keyw">w</h1>
+			<h1 class="key" id="keys">s</h1>
+		</div>
+		<canvas class="w-100" id="pongCanvas" width="780" height="480"></canvas>
+		<div id="opponentController">
+			<h1 class="key" id="keyup">🠕</h1>
+			<h1 class="key" id="keydown">🠗</h1>
+		</div>
+		<h1 id="countdown" style="position:absolute">3</h1>
+	</div>
+
+	<script>
+		start_ranked_pong({{ gameID }})
+	</script>
+</div>

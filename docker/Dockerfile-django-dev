@@ -10,6 +10,7 @@ RUN pip install Pillow
 # install channels for use websocket
 RUN pip install channels
 RUN pip install daphne
+RUN pip install djangorestframework
 COPY django-setup-dev.sh /
 RUN chmod +x django-setup-dev.sh
 CMD ./django-setup-dev.sh

@@ -1,11 +1,12 @@
 from django.conf.urls import handler404
-from django.urls import path
+from django.urls import path, include
 from .views import views
 from .views.pong import pong
 from .views.chess import chess
 from .views.users import users, chat, profils
 from .views.views import custom_404
 from django.contrib.auth.views import PasswordChangeView
+from .views.api import initialize_game
 
 
 handler404 = custom_404
@@ -17,6 +18,8 @@ urlpatterns = [
 	path('game/pong/', pong.pongModeView, name='pong'),
     path('game/pong/tournament/', pong.pongTournament, name='pong_tournament'),
 	path('game/pong/local/', pong.pongView, name='pong_local'),
+    path('game/pong/ranked/', pong.pongFoundGameView, name='pong_found_game'),
+    path('game/pong/ranked/<int:gameID>/', pong.pongGameView, name='pong_game'),
 
 	path('game/chess/', chess.chessModeView, name='chess'),
     path('game/chess/local/', chess.chessView, name='chess_local'),
@@ -36,4 +39,8 @@ urlpatterns = [
 
 	path('send_friend_request/<str:username>/', users.send_friend_request, name='send_friend_request'),
 	path('accept_friend_request/<int:requestID>/', users.accept_friend_request, name='accept_friend_request'),
+
+    # API URLS
+    path('api-auth/', include('rest_framework.urls')),
+    path('initialize-game/', initialize_game, name='initialize-game'),
 ]
