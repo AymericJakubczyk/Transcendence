@@ -481,48 +481,6 @@ function checkCell(x, y, piece, tab)
     return false;
 }
 
-function checkCheckerCell(x, y, piece)
-{
-    let king = piece.color === "black" ? whiteKing : blackKing;
-    let color = "white";
-    if (piece.color == "black")
-        color = "black";
-    let count = 0;
-    let tmpx, tmpy;
-    if (x >= 0 && x < 8 && y >= 0 && y < 8)
-    {   
-        if (pieces[x][y] == "")
-            piece.possibleMoves[x][y] = "PossibleMove";
-        else
-        {
-            if (pieces[x][y].color != piece.color)
-            {
-                if (pieces[x][y].name == "King")
-                {
-                    count += 1;
-                    tmpx = x;
-                    tmpy = y;
-                    registerCheckMoves(piece, x, y);
-                    king.check[x][y] = "Checker";
-                    pieces[x][y].checked = 1;
-                }
-            }    
-            if (pieces[x][y].color == piece.color)
-            {
-                piece.possibleMoves[x][y] = "PossibleDefense";
-                return false;
-            }
-            else
-            {
-                piece.possibleMoves[x][y] = "PossibleMove";
-                return false;
-            }
-        }
-        return true;
-    }
-    return false;
-}
-
 function registerCheckMoves(piece, x, y)
 {
     let posx = piece.posx;
@@ -535,7 +493,6 @@ function registerCheckMoves(piece, x, y)
         isColMove(piece, x, y, king);
     if (Math.abs(x - posx) == Math.abs(y - posy))
         isDiagMove(piece, x, y, king);
-    // king.check[posx][posy] = "Checker";
 }
 
 function registerMoves(piece)
@@ -543,7 +500,6 @@ function registerMoves(piece)
     let king = piece.color === "black" ? whiteKing : blackKing;
     let posxking = king.posx;
     let posyking = king.posy;
-    console.log("register Moves", king);
     for (let i = 0; i < 8; i++)
     {
         for (let j = 0; j < 8; j++)

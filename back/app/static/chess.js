@@ -312,7 +312,6 @@ function drawTheMove(x, y, context)
 
 function drawPossibleDefenseMove(context)
 {
-    console.log("Draw Possible Defense Move");
     if (selectedOne == null)
         return ;
     let king = oldColor === "white" ? blackKing : whiteKing;
@@ -325,7 +324,6 @@ function drawPossibleDefenseMove(context)
     else
         colorEnemy = "black";
     getEnemyMoves();
-    console.log(selectedOne, king);
     for (var i = 0; i < 8; i++)
     {
         for (var j = 0; j < 8; j++)
@@ -458,10 +456,9 @@ function moveCheck(context, king, posy, posx)
 
 function handleCheck(context, posx, posy)
 {
-    console.log("Handle Check");
     if (isCheckMate())
     {
-        alert("YOU GOT CHECKMATED");
+        alert(oldColor + " won the game");
     }
     if (isDefendable() == false)
     {
@@ -500,13 +497,10 @@ function isCheckMate()
     let king = oldColor === "white" ? blackKing : whiteKing;
     if (canKingMove(king))
         return false;
-    console.log("King can't move");
     if (canSomeoneBlock(team, king))
         return false;
-    console.log("Can't block");
     if (canSomeoneDefend(team, king))
         return false;
-    console.log("Can't defend");
     return true;
 }
 
@@ -547,10 +541,7 @@ function canSomeoneBlock(team, king)
             for (let y = 0; y < 8; y++)
             {
                 if (team[i].name != "King" && team[i].possibleMoves[x][y] == "PossibleMove" && (king.check[x][y] == "CheckMove") && isStillCheck(team[i], x, y, king) == false)
-                {
-                    console.log(team[i]);
                     return true;
-                }    
             }
         }
     }
@@ -848,12 +839,10 @@ function createNewCanvas(context) {
     drawProm(newctx);
     newCanvas.style.display = 'block';
     newCanvas.addEventListener('click', function(event) {selectNewPiece(event.layerX, event.layerY, newCanvas, context)}, false);
-    // canvas.addEventListener('click', function() {game(event.layerX, event.layerY, ctx)}, false);
 }
 
 function selectNewPiece(x, y, newCanvas, context)
 {
-    var width = newCanvas.offsetWidth;
     var size = 50;
     var posx = Math.floor((x / size));
     var posy = Math.floor((y / size));
