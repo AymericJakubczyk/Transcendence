@@ -15,13 +15,6 @@ var newPiece = "init";
 whosPlaying(oldColor);
 
 
-//TEST
-function printMousePos(event) {
-    document.body.textContent =
-    "clientX: " + event.clientX +
-    " - clientY: " + event.clientY;
-}
-
 // MAIN GAME FUNCTION
 function game(x, y, context)
 {
@@ -90,52 +83,6 @@ function game(x, y, context)
         }
         handleEnPassant(context);
 		drawChess(context);
-    }
-}
-
-//INIT FUNCTIONS
-function initChessBoard()
-{
-    for (var i = 0; i < 8; i++)
-        pieces[i] = new Array(8);
-    for (var i = 0; i < 8; i++)
-    {
-        for (var j = 0; j < 8; j++)
-            pieces[i][j] = "";
-    }
-    for (let i = 0; i < 8; i++)
-        pieces[1][i] = new Pawn("Pawn", "black", 1, i, "blackpawn.svg", 1);
-    pieces[0][0] = new Rook("Rook", "black", 0, 0, "blackrook.svg", 1);
-    pieces[0][1] = new Knight("Knight", "black", 0, 1, "blackknight.svg");
-    pieces[0][2] = new Bishop("Bishop", "black", 0, 2, "blackbishop.svg");
-    pieces[0][3] = new Queen("Queen", "black", 0, 3, "blackqueen.svg");
-    blackKing = pieces[0][4] = new King("King", "black", 0, 4, "blackking.svg");
-    pieces[0][5] = new Bishop("Bishop", "black", 0, 5, "blackbishop.svg");
-    pieces[0][6] = new Knight("Knight", "black", 0, 6, "blackknight.svg");
-    pieces[0][7] = new Rook("Rook", "black", 0, 7, "blackrook.svg", 2);
-    for (let i = 0; i < 8; i++)
-        pieces[6][i] = new Pawn("Pawn", "white", 6, i, "whitepawn.svg");
-    pieces[7][0] = new Rook("Rook", "white", 7, 0, "whiterook.svg", 1);
-    pieces[7][1] = new Knight("Knight", "white", 7, 1, "whiteknight.svg");
-    pieces[7][2] = new Bishop("Bishop", "white", 7, 2, "whitebishop.svg");
-    pieces[7][3] = new Queen("Queen", "white", 7, 3, "whitequeen.svg");
-    whiteKing = pieces[7][4] = new King("King", "white", 7, 4, "whiteking.svg");
-    pieces[7][5] = new Bishop("Bishop", "white", 7, 5, "whitebishop.svg");
-    pieces[7][6] = new Knight("Knight", "white", 7, 6, "whiteknight.svg");
-    pieces[7][7] = new Rook("Rook", "white", 7, 7, "whiterook.svg", 2);
-}
-
-function initTeams()
-{
-    for (let runner = 0; runner < 2; runner++)
-    {
-        for (let i = 0; i < 8; i++)
-            blackTeam[i + runner * 8] = pieces[runner][i];
-    }
-    for (let runner = 6; runner < 8; runner++)
-    {
-        for (let i = 0; i < 8; i++)
-            whiteTeam[i + (runner - 6) * 8] = pieces[runner][i];
     }
 }
 
