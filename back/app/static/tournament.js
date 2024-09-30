@@ -71,6 +71,7 @@ function receive_ws(data)
         console.log("JOIN", data)
         const div = document.getElementById("tournament_players")
         const line = document.createElement("span")
+        line.setAttribute("id", data.user_username);
         const node = document.createTextNode(data.user_username + " - ("+ data.user_rank + ") / ")
         if (line != null)
             line.appendChild(node);
@@ -81,5 +82,9 @@ function receive_ws(data)
     if (data.action =="leave")
     {
         console.log("LEAVE", data)
+        const element = document.getElementById(data.user_username);
+        if (element != null)
+            element.remove();
+        document.getElementById("tournament_count").innerHTML = data.tournamentNB;
     }
 }

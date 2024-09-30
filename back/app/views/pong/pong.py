@@ -31,6 +31,24 @@ def pongModeView(request):
         return render(request, 'page_full.html', {'page':'pongMode.html', 'user':request.user})
     return render(request, 'pongMode.html', {'user':request.user})
 
+def ranking(user):
+    return (user.pong_rank)
+
+def seedPlayers(playerlist):
+    print("Starting seeding...", file=sys.stderr)
+    seededPlayers = []
+    n = 0
+    while (n < playerlist.count()):
+        seededPlayers.append(playerlist[n])
+        n = n + 1
+    
+    seededPlayers.sort(reverse=True, key=ranking)
+    print("Players seeded :", file=sys.stderr)
+    n = 0
+    while (n < len(seededPlayers)):
+        print("\tseed", n, seededPlayers[n], file=sys.stderr)
+        n = n + 1
+    return (seededPlayers)
 
 
 def pongTournament(request):
@@ -58,7 +76,7 @@ def pongTournament(request):
         tournament = Tournament.objects.get(id=tournament_id)
 
         playercount = tournament.participants.count()
-        playerlist = tournament.participants.all()
+        playerlist = seedPlayers(tournament.participants.all())
 
         players = playercount
         rounds = 1

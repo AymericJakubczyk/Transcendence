@@ -10,7 +10,7 @@
     <div id="tournament_players">
         <h6>PARTICIPANTS: <span id="tournament_count" class="text-white">{{mytournament.participants.count}}</span> / {{mytournament.max_users}}</h6>
         {% for user in mytournament.participants.all %}
-            <span>{{ user.username }} - ({{ user.pong_rank }}) /</span>
+            <span id="{{ user.username }}">{{ user.username }} - ({{ user.pong_rank }}) /</span>
         {% endfor %}
     </div>
     <br>
