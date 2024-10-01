@@ -15,11 +15,13 @@
     </div>
     <br>
     <br>
+    {% if mytournament.host_user == user %}
     <form method="POST" hx-post="{{ request.path }}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
         {% csrf_token %}
         <input type="hidden" name="bracket_tournament" value="{{ mytournament.id }}"/>
         <button type="submit">MAKE BRACKET</button>
     </form>
+    {% endif %}
     <br>
     <br>
     <h6>finish this tournament before join or create others</h6>
@@ -31,11 +33,16 @@
 </div>
 {% else %}
 <div>
-    <h4>TOURNAMENT LIST</h4>
+    <div class="d-flex justify-content-between">
+        <h4>TOURNAMENT LIST</h4>
+        <button onClick="window.location.reload();">REFRESH</button>
+    </div>
+    <br>
     {% if all_tournaments %}
         {% for tournament in all_tournaments %}
-        <div>
-            <h8>{{ tournament.host_user }}'s tournament</h8>
+        <div class="d-flex justify-content-between"></divclass>
+            <h8>{{ tournament.name }}</h8>
+            <span>Hosted by {{ tournament.host_user }}</span>
             <span>{{ tournament.participants.count }}/{{ tournament.max_users }}</span>
             {% if tournament.game_played == "PONG" %}
                 <span>🏓</span>

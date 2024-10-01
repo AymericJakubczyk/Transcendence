@@ -84,7 +84,6 @@ def pongTournament(request):
         # if odd, adapt it
         while placed != players :
             newGame = Game_Pong()
-            # seeding
             newGame.player1 = playerlist[placed]
             newGame.player2 = playerlist[placed + 1]
             newGame.tournament = True
@@ -121,8 +120,11 @@ def pongTournament(request):
             tournament.participants.remove(request.user)
             request.user.tournament_id = -1
             request.user.save()
+            if (request.user == tournament.host_user and tournament.participants.count() > 0):
+                tournament.host_user = tournament.participants.all()[0]
+                print("NEW HOST IS :", tournament.host_user, file=sys.stderr)
             tournament.save()
-            if tournament.participants.count() == 0:
+            if (tournament.participants.count() == 0):
                 tournament.delete()
 
     if request.user.tournament_id != -1:

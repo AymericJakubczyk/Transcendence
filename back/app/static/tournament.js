@@ -86,5 +86,6 @@ function receive_ws(data)
         if (element != null)
             element.remove();
         document.getElementById("tournament_count").innerHTML = data.tournamentNB;
+        
     }
 }
