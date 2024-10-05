@@ -6,7 +6,7 @@ from app.forms import SignupForm, LoginForm, UpdateForm
 from app.models import User, Tournament, Friend_Request, Discussion, Message, Game_Chess, Game_Pong
 from django.urls import reverse as get_url
 from django.db.models import Q
-import json
+import json, math
 from django.http import JsonResponse, HttpResponse
 
 from app.consumers.pongTournamentConsumer import pongTournamentConsumer
@@ -24,8 +24,6 @@ def pongView(request):
         return render(request, 'page_full.html', {'page':'pong.html', 'user':request.user})
     return render(request, 'pong.html', {'user':request.user})
 
-
-
 def pongModeView(request):
     if request.META.get("HTTP_HX_REQUEST") != 'true':
         return render(request, 'page_full.html', {'page':'pongMode.html', 'user':request.user})
@@ -34,22 +32,80 @@ def pongModeView(request):
 def ranking(user):
     return (user.pong_rank)
 
+def match_place(game):
+    return (game.tournament_pos)
+
 def seedPlayers(playerlist):
     print("Starting seeding...", file=sys.stderr)
     seededPlayers = []
-    n = 0
-    while (n < playerlist.count()):
-        seededPlayers.append(playerlist[n])
-        n = n + 1
+    for player in playerlist:
+        seededPlayers.append(player)
     
     seededPlayers.sort(reverse=True, key=ranking)
     print("Players seeded :", file=sys.stderr)
     n = 0
-    while (n < len(seededPlayers)):
-        print("\tseed", n, seededPlayers[n], file=sys.stderr)
+    for player in seededPlayers:
+        print("\tseed", n, player, player.pong_rank, file=sys.stderr)
         n = n + 1
     return (seededPlayers)
 
+
+# 1
+#           2
+# 3
+#       4
+# 5
+#       6
+# 7
+#       8
+# 9
+#           10
+
+def makematchs(playerlist, number):
+
+    half = math.ceil(number / 2)
+    nbmatch = 1
+    while pow(2, nbmatch) < half:
+        nbmatch+= 1
+    nbmatch = pow(2, nbmatch)
+    print("Players:", number, "Nb match 1er round:", nbmatch, file=sys.stderr)
+    while (len(playerlist) != nbmatch * 2):
+        playerlist.append(None)
+    print("None players added.", file=sys.stderr)
+    first = playerlist[:nbmatch]
+    second = playerlist[nbmatch:]
+
+    matchs = []
+    i = 1
+    y = 1
+    while (len(matchs) != nbmatch):
+        newGame = Game_Pong()
+
+        if (len(first) != 0 and first[0] != None):
+            newGame.player1 = first[0]
+        first.pop(0)
+
+        if (len(second) != 0 and second[-1] != None):
+            newGame.player2 = second[-1]
+        second.pop(-1)
+
+        newGame.tournament = True
+        if (len(matchs) % 2 == 0):
+            newGame.tournament_pos = int(i)
+            i += 1
+        else :
+            newGame.tournament_pos = math.ceil((nbmatch / 2) + y)
+            y += 1
+        newGame.save()
+        matchs.append(newGame)
+
+    matchs.sort(reverse=False, key=match_place)
+
+    for game in matchs:
+        print("\tGAME ID:", game.id, "- R1", game.tournament_pos, "- MATCH :", game.player1, "VS", game.player2, file=sys.stderr)
+        if (game.tournament_pos == math.ceil(nbmatch / 2)):
+            print("\t-------------------", file=sys.stderr)
+    return matchs
 
 def pongTournament(request):
     print("[PONG]", request.POST, file=sys.stderr)
@@ -75,22 +131,13 @@ def pongTournament(request):
         tournament_id = request.POST.get('bracket_tournament')
         tournament = Tournament.objects.get(id=tournament_id)
 
+        print("Tournament Players:", file=sys.stderr)
+        for player in tournament.participants.all():
+            print("\tPlayer:", player.username, file=sys.stderr)
+
         playercount = tournament.participants.count()
         playerlist = seedPlayers(tournament.participants.all())
-
-        players = playercount
-        rounds = 1
-        placed = 0
-        # if odd, adapt it
-        while placed != players :
-            newGame = Game_Pong()
-            newGame.player1 = playerlist[placed]
-            newGame.player2 = playerlist[placed + 1]
-            newGame.tournament = True
-            newGame.save()
-            placed = placed + 2
-            print("GAME ID :", newGame.id, "- ROUND :", rounds, "- MATCH :", newGame.player1, "VS", newGame.player2, file=sys.stderr)
-            print("PLACED :", placed, "/", players, file=sys.stderr)
+        r1_games = makematchs(playerlist, playercount)
 
 
     if 'launch_tournament' in request.POST:
