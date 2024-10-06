@@ -1,13 +1,46 @@
 {% load static %}
-
+<script>
+	console.log("[LOG PONG RANKED]", "{{ game.player1.username }}", "{{ game.player2.username }}")
+</script>
 <div class="container">
 	<h1 class="header">ULTIMATE EXTRA COOL SUPER PONG TOURNAMENT EXTREME BATTLE</h1>
 	<h5 class="header">Welcome in the history</h5>
 	
 	<!-- Affichage des scores -->
-	<div class="scoreboard">
-		<div id="playerScore" class="score">Player: 0</div>
-		<div id="opponentScore" class="score">Opponent: 0</div>
+	<div class="d-flex position-relative justify-content-between scoreboard">
+		<div class="d-flex">
+			<img src="{{ request.user.profile_picture.url }}" class="pp_game">
+			<div>
+				<h2 class="mb-0">{{ request.user.username }}</h2>
+				<h5>rank</h5>
+			</div>
+		</div>
+		<div class="d-flex position-absolute start-50 top-50 translate-middle score">
+			{% if game.player1.username == request.user.username %}
+			<div id="player1Score">0</div>
+			:
+			<div id="player2Score">0</div>
+			{% else %}
+			<div id="player2Score">0</div>
+			:
+			<div id="player1Score">0</div>
+			{% endif %}
+		</div>
+		<div class="d-flex">
+			{% if game.player1.username != request.user.username %}
+			<div>
+				<h2 class="mb-0">{{ game.player1.username }}</h2>
+				<h5>rank</h5>
+			</div>
+			<img src="{{ game.player1.profile_picture.url }}" class="pp_game">
+			{% else %}
+			<div>
+				<h2 class="mb-0">{{ game.player2.username }}</h2>
+				<h5>rank</h5>
+			</div>
+			<img src="{{ game.player2.profile_picture.url }}" class="pp_game">
+			{% endif %}
+		</div>
 	</div>
 	
 
@@ -26,6 +59,6 @@
 	</div>
 
 	<script>
-		start_ranked_pong({{ gameID }})
+		start_ranked_pong({game_id:{{gameID}}, player1:"{{game.player1.username}}", player2:"{{game.player2.username}}"}, "{{request.user.username}}");
 	</script>
 </div>

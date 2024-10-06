@@ -6,7 +6,7 @@ from .views.chess import chess
 from .views.users import users, chat, profils
 from .views.views import custom_404
 from django.contrib.auth.views import PasswordChangeView
-from .views.api import initialize_game
+from .views.api import initialize_game, move_paddle
 
 
 handler404 = custom_404
@@ -43,4 +43,5 @@ urlpatterns = [
     # API URLS
     path('api-auth/', include('rest_framework.urls')),
     path('initialize-game/', initialize_game, name='initialize-game'),
+    path('move-paddle/', move_paddle, name='move-paddle'),
 ]

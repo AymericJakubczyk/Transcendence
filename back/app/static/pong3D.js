@@ -169,7 +169,7 @@ function display3D()
     paddle_1Light.position.set(paddle_1.position.x + 2 , paddle_1.position.y, 3);
     paddle_1Light.lookAt(paddle_1.position.x , paddle_1.position.y, 1);
     paddle_2Light = new THREE.RectAreaLight( 0xff0000, 5, thickness, paddleHeight + 1);
-    paddle_2Light.position.set(paddle_2.position.x - 1 , paddle_2.position.y, 3);
+    paddle_2Light.position.set(paddle_2.position.x - 2 , paddle_2.position.y, 3);
     paddle_2Light.lookAt(paddle_2.position.x , paddle_2.position.y, 1);
 
     
@@ -331,4 +331,22 @@ function cam2()
     camera.lookAt(new THREE.Vector3(arenaLength/2,arenaWidth/2,0))
     console.log("pos", ball.position)
     renderer.render(scene, camera);
+}
+
+function render_ball(x, y)
+{
+    ball.position.x = x;
+    ball.position.y = y;
+    renderer.render(scene, camera);
+}
+
+function reverse_cam()
+{
+    camera.position.y = arenaWidth / 2 - (camera.position.y - arenaWidth / 2);
+    camera.position.x = arenaLength/2; 
+    // camera.up.set(0,0,0);
+    camera.lookAt(new THREE.Vector3(arenaLength/2,arenaWidth/2,0))
+    // rotate camera to 180 degree
+    camera.rotation.z = Math.PI;
+    renderer.render( scene, camera );
 }

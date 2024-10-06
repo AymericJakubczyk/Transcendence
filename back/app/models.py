@@ -93,12 +93,14 @@ class Game_Chess(models.Model):
 	winner = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name='chesswinner')
 
 class PongDataGame(models.Model):
-	ball_x = models.IntegerField(default=0)
-	ball_y = models.IntegerField(default=0)
+	ball_x = models.FloatField(default=0)
+	ball_y = models.FloatField(default=0)
 	ball_dx = models.FloatField(default=0)
 	ball_dy = models.FloatField(default=0)
-	player1_x = models.IntegerField(default=0)
-	player2_x = models.IntegerField(default=0)
+	paddle1_y = models.FloatField(default=0)
+	paddle2_y = models.FloatField(default=0)
+	score_player1 = models.IntegerField(default=0)
+	score_player2 = models.IntegerField(default=0)
 
 class Game_Pong(models.Model):
 	player1 = models.ForeignKey(User, related_name='player1', on_delete=models.CASCADE)
@@ -113,6 +115,12 @@ class Game_Pong(models.Model):
 	updated_at = models.DateTimeField(auto_now=True)
 
 	tournament = models.BooleanField(default=False)
+
+	def get_other_username(self, name):
+		if self.player2.username == name:
+			return self.player1.username
+		else :
+			return self.player2.username
 
 	def __str__(self):
 		player2_name = self.player2.username if self.player2 else "No Opponent"

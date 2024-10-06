@@ -7,11 +7,27 @@ function search_pong_game()
     pongSocket = new WebSocket('ws://' + window.location.host + '/ws/pong/');
 
     pongSocket.onopen = function() {
-		console.log('[WS CHESS] WebSocket CHESS connection established.');
+		console.log('[WS PONG] WebSocket PONG connection established.');
 	};
 
     pongSocket.onmessage = function(e) {
         const data = JSON.parse(e.data);
+        if (!data.game_id)
+        {
+            x = data.x;
+            y = data.y;
+            dx = data.dx;
+            dy = data.dy;
+            paddle_1.position.y = data.paddle1_y;
+            paddle_2.position.y = data.paddle2_y;
+            paddle_1Light.position.y = data.paddle1_y;
+            paddle_2Light.position.y = data.paddle2_y;
+            document.getElementById("player1Score").innerHTML = data.score_player1;
+            document.getElementById("player2Score").innerHTML = data.score_player2;
+
+            render_ball(x, y);
+            return;
+        }
         console.log("[RECEIVE MATCH FOUND]", data);
         // document.getElementById("text").innerHTML = "Match found with " + data.adversaire + " !";
         redirect = document.createElement("a")
@@ -26,13 +42,18 @@ function search_pong_game()
     }
 
     chatSocket.onclose = (event) => {
-		console.log("[WS CHESS] The connection has been closed successfully.");
+		console.log("[WS PONG] The connection has been closed successfully.");
 	}
 }
 
-function start_ranked_pong(game_id)
-{
-    console.log("start ranked pong", game_id)
+function start_ranked_pong(game, you)
+{   
+    console.log("[LOG START]", you)
+    if (gameInterval)
+        clearInterval(gameInterval)
+    if (countdownInterval)
+        clearInterval(countdownInterval)
+    console.log("start ranked pong", game.game_id)
     // do API request for get all info about the game
     const response = fetch("/initialize-game/", {
         method: "POST",
@@ -41,7 +62,7 @@ function start_ranked_pong(game_id)
             "X-CSRFToken": csrftoken,
         },
         body: JSON.stringify({
-            game_id : game_id,
+            game_id : game.game_id,
         })
     })
     .then(response => response.json())
@@ -86,11 +107,12 @@ function start_ranked_pong(game_id)
     }
 
     display3D()
+    display_ranked(game, you)
 
-    countdownInterval = setInterval(countdown, 1000);
+    countdownInterval = setInterval(function() { countdown(game, you) }, 1000);
 }
 
-function countdown()
+function countdown(game, you)
 {
     countdownElement = document.getElementById("countdown")
     console.log("countdown", countdownElement.innerHTML)
@@ -104,12 +126,53 @@ function countdown()
     {
         countdownElement.innerHTML = ""
         clearInterval(countdownInterval);
-        launch_pong_ranked_game()
+        // launch_pong_ranked_game()
+        gameInterval = setInterval(function() { catch_input(game, you) }, 10);
     }
 }
 
-function launch_pong_ranked_game()
+function catch_input(game, you)
 {
-    gameInterval = setInterval(calculBall, 10);
+    if (upPressed)
+        move_paddle("up", game, you)
+    else if (downPressed)
+        move_paddle("down", game, you)
+    else if (wPressed)
+        move_paddle("w", game, you)
+    else if (sPressed)
+        move_paddle("s", game, you)
+    
+}
+
+function display_ranked(game, you)
+{
+    if (you == game.player2)
+        reverse_cam()
+}
+
+function move_paddle(move, game, you)
+{
+    // game_id = window.location.pathname.split("/")[4]
+    // console.log("move paddle", move, game_id)
+    // const response = fetch("/move-paddle/", {
+    //     method: "POST",
+    //     headers: {
+    //         "Content-Type": "application/json",
+    //         "X-CSRFToken": csrftoken,
+    //     },
+    //     body: JSON.stringify({
+    //         'game_id' : game_id,
+    //         'player' : 1,
+    //         'move' : move
+    //     })
+    // })
+    const obj = {
+        'type': 'move_paddle',
+        'player': 1,
+        'move': move
+    };
+    if (game.player2 == you)
+        obj.player = 2
+    pongSocket.send(JSON.stringify(obj))
 }
 
