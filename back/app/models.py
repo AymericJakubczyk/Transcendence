@@ -50,6 +50,10 @@ class Tournament(models.Model):
 		CHESS = 'CHESS'
 	game_played = models.CharField(max_length=5, choices=GameState.choices, default=GameState.PONG)
 
+	pong_matchs = models.ManyToManyField("Game_Pong", blank=True)
+	matchspertree = models.IntegerField(default=0)
+	started = models.BooleanField(default=False)
+
 
 class Discussion(models.Model):
 	user1 = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name='user1')
@@ -94,7 +98,7 @@ class Game_Chess(models.Model):
 
 
 class Game_Pong(models.Model):
-	player1 = models.ForeignKey(User, related_name='player1', on_delete=models.CASCADE)
+	player1 = models.ForeignKey(User, related_name='player1', on_delete=models.CASCADE, null=True, blank=True)
 	player1_score = models.IntegerField(default=0)
 	player2 = models.ForeignKey(User, related_name='player2', on_delete=models.CASCADE, null=True, blank=True)
 	player2_score = models.IntegerField(default=0)
@@ -104,8 +108,11 @@ class Game_Pong(models.Model):
 	created_at = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
 
-	tournament = models.BooleanField(default=False)
 	tournament_pos = models.IntegerField(default=-1)
+	tournament_round = models.IntegerField(default=1)
+
+	class Meta:
+		ordering = ('tournament_pos', 'id', )
 
 	def __str__(self):
 		player2_name = self.player2.username if self.player2 else "No Opponent"

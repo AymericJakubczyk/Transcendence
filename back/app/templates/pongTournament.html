@@ -15,7 +15,7 @@
     </div>
     <br>
     <br>
-    {% if mytournament.host_user == user %}
+    {% if mytournament.host_user == user and mytournament.started == False %}
     <form method="POST" hx-post="{{ request.path }}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
         {% csrf_token %}
         <input type="hidden" name="bracket_tournament" value="{{ mytournament.id }}"/>
@@ -23,6 +23,7 @@
     </form>
     {% endif %}
     <br>
+    {% include 'bracket.html' %}
     <br>
     <h6>finish this tournament before join or create others</h6>
     <form method="POST" hx-post="{{ request.path }}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
@@ -49,12 +50,14 @@
             {% elif tournament.game_played == "CHESS" %}
                 <span>♟️</span>
             {% endif %}
-            {% if user not in tournament.participants.all %}
+            {% if user not in tournament.participants.all and tournament.started == False %}
                 <form method="POST" hx-post="{{ request.path }}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
                     {% csrf_token %}
                     <input type="hidden" name="join_tournament" value="{{ tournament.id }}"/>
                     <button type="submit" onclick="join_pong_tournament({{ tournament.id }})">JOIN</button>
                 </form>
+            {% else %}
+                <span class="text-secondary">ONGOING</span>
             {% endif %}
         </div>
         {% endfor %}

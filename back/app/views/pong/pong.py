@@ -61,13 +61,15 @@ def seedPlayers(playerlist):
 # 9
 #           10
 
-def makematchs(playerlist, number):
+def makematchs(playerlist, number, tournament):
 
     half = math.ceil(number / 2)
     nbmatch = 1
     while pow(2, nbmatch) < half:
         nbmatch+= 1
     nbmatch = pow(2, nbmatch)
+    tournament.matchspertree = math.ceil(nbmatch / 2)
+    tournament.save()
     print("Players:", number, "Nb match 1er round:", nbmatch, file=sys.stderr)
     while (len(playerlist) != nbmatch * 2):
         playerlist.append(None)
@@ -89,7 +91,6 @@ def makematchs(playerlist, number):
             newGame.player2 = second[-1]
         second.pop(-1)
 
-        newGame.tournament = True
         if (len(matchs) % 2 == 0):
             newGame.tournament_pos = int(i)
             i += 1
@@ -105,6 +106,10 @@ def makematchs(playerlist, number):
         print("\tGAME ID:", game.id, "- R1", game.tournament_pos, "- MATCH :", game.player1, "VS", game.player2, file=sys.stderr)
         if (game.tournament_pos == math.ceil(nbmatch / 2)):
             print("\t-------------------", file=sys.stderr)
+        if not game.player2:
+            game.winner = game.player1
+            game.save()
+
     return matchs
 
 def pongTournament(request):
@@ -136,11 +141,33 @@ def pongTournament(request):
             print("\tPlayer:", player.username, file=sys.stderr)
 
         playercount = tournament.participants.count()
+
+        # if playercount < 3 display error
+
         playerlist = seedPlayers(tournament.participants.all())
-        r1_games = makematchs(playerlist, playercount)
+        tournament_matchs = makematchs(playerlist, playercount, tournament)
+
+        nbmatch = len(tournament_matchs)
+        roundcount = 2
+        while (nbmatch > 1):
+            i = math.ceil(nbmatch / 2)
+            while (i > 0):
+                newGame = Game_Pong()
+                newGame.tournament_round = roundcount
+                newGame.tournament_pos = roundcount * 100 + i
+                newGame.save()
+                print("Game created:", newGame.tournament_round, "round,", newGame.tournament_pos, "pos.", file=sys.stderr)
+                tournament_matchs.append(newGame)
+                i-= 1
+            roundcount += 1
+            nbmatch = math.ceil(nbmatch / 2)
+
+        tournament.pong_matchs.set(tournament_matchs)
+        tournament.started = True
+        tournament.save()
 
 
-    if 'launch_tournament' in request.POST:
+    if 'update_tournament' in request.POST:
         print("launching tournament", file=sys.stderr)
         # launch games
         # wait results
