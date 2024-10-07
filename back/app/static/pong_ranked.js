@@ -12,6 +12,12 @@ function search_pong_game()
 
     pongSocket.onmessage = function(e) {
         const data = JSON.parse(e.data);
+        if (data.type === 'end_game')
+        {
+            console.log("[END GAME]", data);
+            display_endgame(data);
+            return;
+        }
         if (!data.game_id)
         {
             x = data.x;
@@ -45,6 +51,27 @@ function search_pong_game()
 		console.log("[WS PONG] The connection has been closed successfully.");
 	}
 }
+
+function display_endgame(data)
+{
+    const endgame = document.createElement("div");
+    
+    endgame.style.position = "absolute";
+    endgame.style.backgroundColor = "rgba(50, 50, 50, 0.7)";
+    endgame.style.border = "2px solid gray";
+    endgame.style.borderRadius = "10px";
+    
+
+    if (data.score_player1 > data.score_player2)
+        endgame.innerHTML = "Winner : " + data.player1;
+    else
+        endgame.innerHTML = "Winner : " + data.player2;
+    
+    document.getElementById("gameContainer").style.position = "relative";
+    document.getElementById("gameContainer").appendChild(endgame);
+
+}
+
 
 function start_ranked_pong(game, you)
 {   

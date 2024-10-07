@@ -21,6 +21,7 @@ paddleHeight = 17
 thickness = 1
 baseSpeed = 0.5
 nbrHit = 0
+winningScore = 2
 
 class PongConsumer(AsyncWebsocketConsumer):
     data = None
@@ -154,7 +155,7 @@ class PongConsumer(AsyncWebsocketConsumer):
         )
 
     async def calcul_ball(self):
-        global arenaWidth, arenaLength, thickness, ballRadius, paddleWidth, paddleHeight, baseSpeed, nbrHit, all_data
+        global arenaWidth, arenaLength, thickness, ballRadius, paddleWidth, paddleHeight, baseSpeed, nbrHit, all_data, winningScore
 
         await asyncio.sleep(4)
 
@@ -182,7 +183,7 @@ class PongConsumer(AsyncWebsocketConsumer):
                     all_data[self.game.id].ball_dx = random.choice([0.5, -0.5])
                     all_data[self.game.id].ball_x = arenaLength / 2
                     all_data[self.game.id].ball_y = arenaWidth / 2
-                    if (all_data[self.game.id].score_player1 == 5 or all_data[self.game.id].score_player2 == 5):
+                    if (all_data[self.game.id].score_player1 == winningScore or all_data[self.game.id].score_player2 == winningScore):
                         await self.stop_game()
 
             if (all_data[self.game.id].ball_x < thickness * 2):
@@ -199,7 +200,7 @@ class PongConsumer(AsyncWebsocketConsumer):
                     all_data[self.game.id].ball_dx = random.choice([0.5, -0.5])
                     all_data[self.game.id].ball_x = arenaLength / 2
                     all_data[self.game.id].ball_y = arenaWidth / 2
-                    if (all_data[self.game.id].score_player1 == 5 or all_data[self.game.id].score_player2 == 5):
+                    if (all_data[self.game.id].score_player1 == winningScore or all_data[self.game.id].score_player2 == winningScore):
                         await self.stop_game()
 
     async def game_update(self, event):
@@ -211,7 +212,20 @@ class PongConsumer(AsyncWebsocketConsumer):
         self.should_calcul_ball = False
         print("[END GAME]", file=sys.stderr)
         await self.send_updates() # Send final update for the score
+        await self.channel_layer.group_send(
+            "ranked_pong_" + str(self.game.id),
+            {
+                'type': 'end_game',
+                'score_player1': all_data[self.game.id].score_player1,
+                'score_player2': all_data[self.game.id].score_player2,
+                'player1' : self.game.player1.username,
+                'player2' : self.game.player2.username
+            }
+        )
 
+    async def end_game(self, event):
+        # Send message to WebSocket
+        await self.send(text_data=json.dumps(event))
 
     def move_paddle(self, move, player):
         global all_data, arenaWidth, paddleHeight
@@ -236,6 +250,8 @@ class PongConsumer(AsyncWebsocketConsumer):
         if (not self.game):
             self.game = game
         self.data = game.data
+
+    
 
     async def update_paddle(self, event):
         # Send message to WebSocket
