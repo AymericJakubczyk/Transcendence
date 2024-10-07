@@ -24,10 +24,11 @@ def move_paddle(request):
     # print("[API] move_paddle", file=sys.stderr)
     channel_layer = get_channel_layer()
     async_to_sync(channel_layer.group_send)(
-        request.user.username + "_pong",
+        "ranked_pong_" + request.data.get('game_id', None),
         {
             "type": "update_paddle",
-            "move": request.data.get('move', None)
+            "move": request.data.get('move', None),
+            "player": request.data.get('player', None)
         }
     )
 

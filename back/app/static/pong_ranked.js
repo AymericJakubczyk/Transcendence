@@ -31,7 +31,7 @@ function search_pong_game()
         console.log("[RECEIVE MATCH FOUND]", data);
         // document.getElementById("text").innerHTML = "Match found with " + data.adversaire + " !";
         redirect = document.createElement("a")
-        redirect.setAttribute("hx-get", window.location.href + data.game_id + "/");
+        redirect.setAttribute("hx-get", window.location.pathname + data.game_id + "/");
         redirect.setAttribute("hx-push-url", "true");
         redirect.setAttribute("hx-target", "#page");
         redirect.setAttribute("hx-swap", "innerHTML");
@@ -152,20 +152,42 @@ function display_ranked(game, you)
 
 function move_paddle(move, game, you)
 {
+    // =================== via API ===================
     // game_id = window.location.pathname.split("/")[4]
     // console.log("move paddle", move, game_id)
-    // const response = fetch("/move-paddle/", {
-    //     method: "POST",
-    //     headers: {
-    //         "Content-Type": "application/json",
-    //         "X-CSRFToken": csrftoken,
-    //     },
-    //     body: JSON.stringify({
-    //         'game_id' : game_id,
-    //         'player' : 1,
-    //         'move' : move
+    // if (game.player1 == you)
+    // {
+    //     const response = fetch("/move-paddle/", {
+    //         method: "POST",
+    //         headers: {
+    //             "Content-Type": "application/json",
+    //             "X-CSRFToken": csrftoken,
+    //         },
+    //         body: JSON.stringify({
+    //             'game_id' : game_id,
+    //             'player' : 1,
+    //             'move' : move
+    //         })
     //     })
-    // })
+    // }
+    // else
+    // {
+    //     const response = fetch("/move-paddle/", {
+    //         method: "POST",
+    //         headers: {
+    //             "Content-Type": "application/json",
+    //             "X-CSRFToken": csrftoken,
+    //         },
+    //         body: JSON.stringify({
+    //             'game_id' : game_id,
+    //             'player' : 2,
+    //             'move' : move
+    //         })
+    //     })
+    // }
+
+
+    // =================== via WebSocket ===================
     const obj = {
         'type': 'move_paddle',
         'player': 1,
