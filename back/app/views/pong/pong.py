@@ -8,6 +8,8 @@ from django.urls import reverse as get_url
 from django.db.models import Q
 import json, math
 from django.http import JsonResponse, HttpResponse
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 
 from app.consumers.pongTournamentConsumer import pongTournamentConsumer
 
@@ -48,6 +50,15 @@ def seedPlayers(playerlist):
         print("\tseed", n, player, player.pong_rank, file=sys.stderr)
         n = n + 1
     return (seededPlayers)
+
+def updateTournamentRoom(tournament_id):
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        "pong_tournament_" + str(tournament_id),
+        {
+            "type": "update_room",
+        }
+    )
 
 
 # 1
@@ -120,10 +131,15 @@ def pongTournament(request):
         print("trying to create", file=sys.stderr)
         game_played = "PONG"
         max_users = request.POST.get('group-size')
-        if game_played:
+        if request.POST.get('tournament_name') == "":
+            name = "Unamed Tournament"
+        else :
+            name = request.POST.get('tournament_name')
+        if game_played and len(request.POST.get('tournament_name')) < 26:
             tournament = Tournament()
             tournament.host_user = request.user
             tournament.max_users = max_users
+            tournament.name = name
             tournament.save()
             tournament.participants.add(request.user)
             tournament.save()
@@ -141,31 +157,31 @@ def pongTournament(request):
             print("\tPlayer:", player.username, file=sys.stderr)
 
         playercount = tournament.participants.count()
+        # TO CHANGE TO 2
+        if playercount > 1:
+            playerlist = seedPlayers(tournament.participants.all())
+            tournament_matchs = makematchs(playerlist, playercount, tournament)
 
-        # if playercount < 3 display error
+            nbmatch = len(tournament_matchs)
+            roundcount = 2
+            while (nbmatch > 1):
+                i = math.ceil(nbmatch / 2)
+                while (i > 0):
+                    newGame = Game_Pong()
+                    newGame.tournament_round = roundcount
+                    newGame.tournament_pos = roundcount * 100 + i
+                    newGame.save()
+                    print("Game created:", newGame.tournament_round, "round,", newGame.tournament_pos, "pos.", file=sys.stderr)
+                    tournament_matchs.append(newGame)
+                    i-= 1
+                roundcount += 1
+                nbmatch = math.ceil(nbmatch / 2)
 
-        playerlist = seedPlayers(tournament.participants.all())
-        tournament_matchs = makematchs(playerlist, playercount, tournament)
-
-        nbmatch = len(tournament_matchs)
-        roundcount = 2
-        while (nbmatch > 1):
-            i = math.ceil(nbmatch / 2)
-            while (i > 0):
-                newGame = Game_Pong()
-                newGame.tournament_round = roundcount
-                newGame.tournament_pos = roundcount * 100 + i
-                newGame.save()
-                print("Game created:", newGame.tournament_round, "round,", newGame.tournament_pos, "pos.", file=sys.stderr)
-                tournament_matchs.append(newGame)
-                i-= 1
-            roundcount += 1
-            nbmatch = math.ceil(nbmatch / 2)
-
-        tournament.pong_matchs.set(tournament_matchs)
-        tournament.started = True
-        tournament.save()
-
+            tournament.pong_matchs.set(tournament_matchs)
+            tournament.started = True
+            tournament.save()
+            updateTournamentRoom(tournament.id)
+            
 
     if 'update_tournament' in request.POST:
         print("launching tournament", file=sys.stderr)

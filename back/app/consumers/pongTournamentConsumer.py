@@ -42,7 +42,10 @@ class pongTournamentConsumer(AsyncWebsocketConsumer):
             print("[ERROR]", file=sys.stderr)
             return
         self.room_group_name = "pong_tournament_" + str(id_tournament)
-
+        await self.channel_layer.group_add(
+            self.room_group_name,
+            self.channel_name
+        )
         tournamentName = await self.get_Name(id_tournament)
         tournamentNB = await self.get_NB(id_tournament)
         await self.channel_layer.group_send(
@@ -72,6 +75,9 @@ class pongTournamentConsumer(AsyncWebsocketConsumer):
             'tournamentName': event['tournamentName'],
             'tournamentNB': event['tournamentNB']
         }))
+    
+    async def update_room(self, event):
+        await self.send(text_data=json.dumps(event))
 
     @database_sync_to_async
     def get_Name(self, id):
