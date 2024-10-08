@@ -121,6 +121,8 @@ function display3D()
     //create and place all objects in scene
     ball = new THREE.PointLight( 0x00ff00, 1, 15 );
     ball.add( new THREE.Mesh( geometry, ballMaterial) );
+    ball.position.x = arenaLength / 2;
+    ball.position.y = arenaWidth / 2;
 
     paddle_1 = new THREE.Mesh( paddle, paddleMaterial );
     paddle_1.position.x =  paddleWidth;

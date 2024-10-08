@@ -15,7 +15,7 @@ function search_pong_game()
         if (data.type === 'end_game')
         {
             console.log("[END GAME]", data);
-            display_endgame(data);
+            display_endgame(data.player1, data.player2, data.score_player1, data.score_player2);
             return;
         }
         if (!data.game_id)
@@ -35,7 +35,7 @@ function search_pong_game()
             return;
         }
         console.log("[RECEIVE MATCH FOUND]", data);
-        // document.getElementById("text").innerHTML = "Match found with " + data.adversaire + " !";
+        document.getElementById("text").innerHTML = "Match found with " + data.adversaire + " !";
         redirect = document.createElement("a")
         redirect.setAttribute("hx-get", window.location.pathname + data.game_id + "/");
         redirect.setAttribute("hx-push-url", "true");
@@ -45,6 +45,12 @@ function search_pong_game()
         htmx.process(redirect);
         document.getElementById("page").appendChild(redirect);
         redirect.click();
+        // redirect_path = window.location.pathname + data.game_id + "/"
+        // history.pushState(null, '', redirect_path);
+        // htmx.ajax('GET', redirect_path, {
+        //     target: '#page',
+        //     swap: 'innerHTML'
+        // })
     }
 
     chatSocket.onclose = (event) => {
@@ -52,23 +58,29 @@ function search_pong_game()
 	}
 }
 
-function display_endgame(data)
+function display_endgame(player1, player2, player1Score, player2Score)
 {
-    const endgame = document.createElement("div");
-    
-    endgame.style.position = "absolute";
-    endgame.style.backgroundColor = "rgba(50, 50, 50, 0.7)";
-    endgame.style.border = "2px solid gray";
-    endgame.style.borderRadius = "10px";
-    
-
-    if (data.score_player1 > data.score_player2)
-        endgame.innerHTML = "Winner : " + data.player1;
+    if (player2Score > player1Score)
+    {
+        document.getElementById("winnerScore").innerHTML = player2Score;
+        document.getElementById("loserScore").innerHTML = player1Score;
+        document.getElementById("winnerName").innerHTML = player2;
+        document.getElementById("loserName").innerHTML = player1;
+        stock_src = document.getElementById("winnerpp").src;
+        document.getElementById("winnerpp").src = document.getElementById("loserpp").src;
+        document.getElementById("loserpp").src = stock_src;
+    }
     else
-        endgame.innerHTML = "Winner : " + data.player2;
+    {
+        document.getElementById("winnerScore").innerHTML = player1Score;
+        document.getElementById("loserScore").innerHTML = player2Score;
+    }
+    endgame = document.getElementById("endgame")
+    endgame.style.display = "flex";
+
     
-    document.getElementById("gameContainer").style.position = "relative";
-    document.getElementById("gameContainer").appendChild(endgame);
+    // document.getElementById("gameContainer").style.position = "relative";
+    // document.getElementById("gameContainer").appendChild(endgame);
 
 }
 

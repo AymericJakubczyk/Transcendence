@@ -212,6 +212,10 @@ class PongConsumer(AsyncWebsocketConsumer):
         self.should_calcul_ball = False
         print("[END GAME]", file=sys.stderr)
         await self.send_updates() # Send final update for the score
+        if (all_data[self.game.id].score_player1 == winningScore):
+            await self.save_winner(self.game.player1)
+        elif (all_data[self.game.id].score_player2 == winningScore):
+            await self.save_winner(self.game.player2)
         await self.channel_layer.group_send(
             "ranked_pong_" + str(self.game.id),
             {
@@ -251,6 +255,17 @@ class PongConsumer(AsyncWebsocketConsumer):
             self.game = game
         self.data = game.data
 
+    @database_sync_to_async
+    def save_winner(self, winner):
+        global winningScore, all_data
+
+        self.game.player1_score = all_data[self.game.id].score_player1
+        self.game.player2_score = all_data[self.game.id].score_player2
+        if (all_data[self.game.id].score_player1 == winningScore):
+            self.game.winner = self.game.player1
+        elif (all_data[self.game.id].score_player2 == winningScore):
+            self.game.winner = self.game.player2
+        self.game.save()
     
 
     async def update_paddle(self, event):
