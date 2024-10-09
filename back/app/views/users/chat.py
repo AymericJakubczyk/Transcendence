@@ -16,6 +16,7 @@ from django.contrib import messages
 logger = logging.getLogger(__name__)
 
 def chatView(request):
+        
     print("[CHAT]", request.POST, request.body, request.user, file=sys.stderr)
     if request.user.is_authenticated == False:
         messages.error(request, 'Log-in to chat with friends !')
@@ -26,6 +27,18 @@ def chatView(request):
     current_discu = None
     error = None
     current_user = request.user
+    # get more message when you scroll to the top
+    if request.method == 'GET' and request.headers.get('type') and request.headers.get('type') == 'more_message':
+        print("[GET MORE MESSAGE]", request.headers.get('type'), request.headers.get('nbrMessage'), request.headers.get('id'), file=sys.stderr)
+        discu = get_object_or_404(Discussion, id=request.headers.get('id'))
+        nbr_message = int(request.headers.get('nbrMessage'))
+        more_message = Message.objects.filter(Q(discussion=discu)).order_by('-id')[nbr_message:nbr_message+20]
+        print("[MORE]", more_message, file=sys.stderr)
+        json_message = []
+        for msg in more_message:
+            json_message.append({'message':msg.message, 'sender':msg.sender.username})
+
+        return JsonResponse({'more_message': json_message, 'current_username':request.user.username})
 
     if 'add_discussion' in request.POST:
         print("[ADD]", file=sys.stderr)
@@ -64,7 +77,8 @@ def chatView(request):
             last_message.save()
 
     all_user = User.objects.all()
-    all_message = Message.objects.filter(Q(discussion=current_discu)).order_by('id')
+    # get 20 last message
+    all_message = Message.objects.filter(Q(discussion=current_discu)).order_by('-id')[0:20:-1]
     all_discussion = Discussion.objects.filter(Q(user1=current_user) | Q(user2=current_user)).order_by('-last_activity')
     all_discussion_name = []
     all_username = []

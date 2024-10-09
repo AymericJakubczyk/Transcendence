@@ -226,3 +226,69 @@ function error_message(msg, time)
         }
     }, time)
 }
+
+
+function detect_scroll_to_top(id)
+{
+    page = 1;
+    div_msg = document.getElementById("div_msg")
+    // get child of div_msg
+    div_all_msg = div_msg.children[0]
+
+
+    div_msg.addEventListener('scroll', (event) => {
+
+        if (div_msg.scrollTop == 0)
+        {
+            console.log("TOP")
+            nbr_message = div_all_msg.children.length
+            url = "/chat/"
+            fetch(url, {
+                method:'GET',
+                headers:{
+                'Content-Type':'application/json',
+                'X-CSRFToken':csrftoken,
+                'type':'more_message',
+                'nbrMessage':nbr_message,
+                'id':id
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("NEW MESSAGE", data);
+                for (i = 0; i < data.more_message.length; i++)
+                {
+                    if (data.current_username == data.more_message[i].sender)
+                    {
+                        let messageDiv = document.createElement('div');
+                        messageDiv.className = "my_msg rounded-2 shadow";
+                        messageDiv.innerText = data.more_message[i].message;
+                        div_all_msg.prepend(messageDiv);
+                    }
+                    else
+                    {
+                        let messageDiv = document.createElement('div');
+                        messageDiv.className = "other_msg rounded-2 shadow";
+                        messageDiv.innerText = data.more_message[i].message;
+                        div_all_msg.prepend(messageDiv);
+                    }
+                }
+            });
+        }
+    });
+
+}
+
+// FOR TESTING DELETE LATER
+function make_discu(send_to, id)
+{
+    for (i = 0; i < 100; i++)
+    {
+        const obj = {
+            'message': i.toString(),
+            'send_to': send_to,
+            'discu_id': id
+        };
+        chatSocket.send(JSON.stringify(obj));
+    }
+}

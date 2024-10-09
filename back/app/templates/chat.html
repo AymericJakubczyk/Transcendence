@@ -111,8 +111,11 @@
                     <input class="rounded-start-3 px-2" style="flex-grow:1" type="text" name="msg" value="" autofocus="autofocus" autocomplete="off"/>
                     <input class="rounded-end-3" type="submit" value="SEND">
                 </form>
-                <script>custom_submit("form_message");set_global_notif()</script>
+                <script>custom_submit("form_message");set_global_notif();detect_scroll_to_top({{current_discu.id}})</script>
             {% endif %}
         </div>
     </div>
+    {% if interlocutor != None %}
+    <button onclick="make_discu('{{interlocutor.username}}', {{current_discu.id}})">make discusion</button>
+    {% endif %}
 </div>
