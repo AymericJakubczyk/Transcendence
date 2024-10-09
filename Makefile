@@ -27,7 +27,6 @@ clean :
 
 clean_db :
 	rm -rf ./back/app/migrations
-	docker-compose down
 	docker rm postgres
 	docker volume rm transcendence_db
 

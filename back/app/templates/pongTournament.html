@@ -54,7 +54,7 @@
                 <form class="tournament-list-state" method="POST" hx-post="{{ request.path }}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
                     {% csrf_token %}
                     <input type="hidden" name="join_tournament" value="{{ tournament.id }}"/>
-                    <button class="button-custom" type="submit" onclick="join_pong_tournament({{ tournament.id }})">JOIN</button>
+                    <button class="button-custom" type="submit">JOIN</button>
                 </form>
             {% else %}
                 <span class="text-secondary tournament-list-state">ONGOING</span>

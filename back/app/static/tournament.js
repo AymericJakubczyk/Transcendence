@@ -39,38 +39,9 @@ function create_pong_tournament_ws()
     }
 }
 
-async function join_pong_tournament(id_tournament)
-{
-    pongTournamentSocket = new WebSocket('ws://' + window.location.host + '/ws/pongTournament/');
-
-    pongTournamentSocket.onopen = function() {
-		console.log('[WS pongTournament] WebSocket pongTournament connection established.');
-        const obj = {
-            'type': 'join',
-            'id_tournament': id_tournament
-        };
-        pongTournamentSocket.send(JSON.stringify(obj))
-	};
-
-    pongTournamentSocket.onmessage = function(a) {
-        const data = JSON.parse(a.data);
-        receive_ws(data);
-    }
-
-    pongTournamentSocket.onclose = (event) => {
-		console.log("[WS pongTournament] The connection has been closed successfully.");
-	}
-
-}
-
 function leave_pong_tournament(id_tournament)
 {
     console.log("LEAVE TOURNAMENT", id_tournament)
-    const obj = {
-        'type': 'leave',
-        'id_tournament': id_tournament
-    };
-    pongTournamentSocket.send(JSON.stringify(obj))
     pongTournamentSocket.close();
     pongTournamentSocket = null;
 }

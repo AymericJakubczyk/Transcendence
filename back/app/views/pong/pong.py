@@ -201,6 +201,18 @@ def pongTournament(request):
             tournament.participants.add(request.user)
             request.user.save()
             tournament.save()
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                "pong_tournament_" + str(tournament_id),
+                {
+                    'type': 'refresh_infos',
+                    'action': 'join',
+                    'user_username': request.user.username,
+                    'user_rank': request.user.pong_rank,
+                    'tournamentName': tournament.name,
+                    'tournamentNB': tournament.participants.count()
+                }
+            )
 
     if 'leave_tournament' in request.POST:
         print("trying to leave", file=sys.stderr)
@@ -216,6 +228,19 @@ def pongTournament(request):
             tournament.save()
             if (tournament.participants.count() == 0):
                 tournament.delete()
+            else :
+                channel_layer = get_channel_layer()
+                async_to_sync(channel_layer.group_send)(
+                    "pong_tournament_" + str(tournament_id),
+                    {
+                        'type': 'refresh_infos',
+                        'action': 'leave',
+                        'user_username': request.user.username,
+                        'user_rank': request.user.pong_rank,
+                        'tournamentName': tournament.name,
+                        'tournamentNB': tournament.participants.count()
+                    }
+                )
 
     if request.user.tournament_id != -1:
         mytournament = Tournament.objects.get(id=request.user.tournament_id)
