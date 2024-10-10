@@ -29,11 +29,10 @@ def chatView(request):
     current_user = request.user
     # get more message when you scroll to the top
     if request.method == 'GET' and request.headers.get('type') and request.headers.get('type') == 'more_message':
-        print("[GET MORE MESSAGE]", request.headers.get('type'), request.headers.get('nbrMessage'), request.headers.get('id'), file=sys.stderr)
+        print("[GET MORE MESSAGE]", request.headers.get('nbrMessage'), request.headers.get('id'), file=sys.stderr)
         discu = get_object_or_404(Discussion, id=request.headers.get('id'))
         nbr_message = int(request.headers.get('nbrMessage'))
-        more_message = Message.objects.filter(Q(discussion=discu)).order_by('-id')[nbr_message:nbr_message+20]
-        print("[MORE]", more_message, file=sys.stderr)
+        more_message = Message.objects.filter(Q(discussion=discu)).order_by('-id')[nbr_message:nbr_message+42]
         json_message = []
         for msg in more_message:
             json_message.append({'message':msg.message, 'sender':msg.sender.username})
@@ -77,8 +76,8 @@ def chatView(request):
             last_message.save()
 
     all_user = User.objects.all()
-    # get 20 last message
-    all_message = Message.objects.filter(Q(discussion=current_discu)).order_by('-id')[0:20:-1]
+    # get 42 last message
+    all_message = Message.objects.filter(Q(discussion=current_discu)).order_by('-id')[0:42:-1]
     all_discussion = Discussion.objects.filter(Q(user1=current_user) | Q(user2=current_user)).order_by('-last_activity')
     all_discussion_name = []
     all_username = []

@@ -228,7 +228,7 @@ function error_message(msg, time)
 }
 
 
-function detect_scroll_to_top(id)
+function detect_scroll(id)
 {
     page = 1;
     div_msg = document.getElementById("div_msg")
@@ -236,12 +236,45 @@ function detect_scroll_to_top(id)
     div_all_msg = div_msg.children[0]
 
 
-    div_msg.addEventListener('scroll', (event) => {
+    div_msg.addEventListener('scroll', async (event) => {
+        if (div_msg.scrollTop < div_msg.scrollHeight - div_msg.clientHeight * 3)
+        {
+            //display button to go to bottom
+            if (!document.getElementById("go_to_bottom"))
+            {
+                const go_to_bottom = document.createElement("div");
+                go_to_bottom.setAttribute("id", "go_to_bottom");
+                go_to_bottom.setAttribute("class", "to_bot_btn rounded-circle d-flex justify-content-center align-items-center");
+                go_to_bottom.innerHTML ="🠟"
+                go_to_bottom.addEventListener('click', (event) => {
+                    div_msg.scrollTo({
+                        top: div_msg.scrollHeight,
+                        behavior: 'smooth'
+                    });
+                    go_to_bottom.remove()
+                }
+                )
+                div_msg.append(go_to_bottom)
+            }
+        }
+        if (div_msg.scrollTop > div_msg.scrollHeight - div_msg.clientHeight - 5)
+        {
+            if (document.getElementById("go_to_bottom"))
+                document.getElementById("go_to_bottom").remove()
+        }
 
         if (div_msg.scrollTop == 0)
         {
             console.log("TOP")
             nbr_message = div_all_msg.children.length
+            if (div_all_msg.children[0].id == "no_more_message")
+                return
+            //do little animation of loading
+            let loader = document.createElement('div');
+            loader.className = "loader align-self-center";
+            div_all_msg.prepend(loader);
+            await new Promise(r => setTimeout(r, 500)); // wait 0.5s for loader to be displayed same if request is fast
+
             url = "/chat/"
             fetch(url, {
                 method:'GET',
@@ -255,7 +288,10 @@ function detect_scroll_to_top(id)
             })
             .then(response => response.json())
             .then(data => {
-                console.log("NEW MESSAGE", data);
+                heigthLoader = loader.offsetHeight
+                loader.remove()
+                if (data.more_message.length > 0)
+                    div_msg.scrollTop = 5
                 for (i = 0; i < data.more_message.length; i++)
                 {
                     if (data.current_username == data.more_message[i].sender)
@@ -273,10 +309,21 @@ function detect_scroll_to_top(id)
                         div_all_msg.prepend(messageDiv);
                     }
                 }
+                if (data.more_message.length < 42)
+                {
+                    // no more message
+                    let noMoreMessage = document.createElement('div');
+                    noMoreMessage.className = "align-self-center";
+                    noMoreMessage.style = "font-size: 20px;";
+                    noMoreMessage.innerText = "No more message";
+                    noMoreMessage.id = "no_more_message";
+                    div_all_msg.prepend(noMoreMessage);
+                }
+                div_msg.scrollTop -= (heigthLoader + 5)
+
             });
         }
     });
-
 }
 
 // FOR TESTING DELETE LATER
