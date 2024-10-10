@@ -1,4 +1,9 @@
 var canCheck = 0;
+console.log(color);
+// if (username.sender == white)
+//     color = "white";
+// else
+//     color = "black";
 
 class Pawn {
     constructor (name, color, posx, posy, img)
@@ -462,7 +467,6 @@ function checkCell(x, y, piece, tab)
                     tmpx = x;
                     tmpy = y;
                     tab[x][y].checked = 1;
-                    console.log(tab[x][y]);
                 }
             }    
             if (tab[x][y].color == piece.color)

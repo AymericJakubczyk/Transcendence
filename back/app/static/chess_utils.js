@@ -1,3 +1,10 @@
+var color;
+console.log(username);
+// if (username.sender == white)
+//     color = "white";
+// else
+//     color = "black";
+
 function isPossibleKingMove(x, y, piece)
 {
     if (x >= 0 && x < 8 && y >= 0 && y < 8)
@@ -225,22 +232,39 @@ function isStillCheck(piece, newx, newy, king)
     pieces[newx][newy].alive = 1;
     newTab[piece.posx][piece.posy] = "";
     newTab[newx][newy] = piece;
-    let team = oldColor === "white" ? whiteTeam : blackTeam;
+    var newteam = new Array(16);
+    console.log(newTab);
+    let count = 0;
+    for (let i = 0; i < 8; i++)
+    {
+        for (let j = 0; j < 8; j++)
+        {
+            if (newTab[i][j] != "")
+            {
+                if (newTab[i][j].color == oldColor)
+                {
+                    newteam[count] = newTab[i][j];
+                    console.log(newTab[i][j]);
+                    count++;
+                }
+            }
+        }
+    }
     for (let i = 0; i < 16; i++)
     {
-        team[i].resetPossibleMove();
-        if (team[i].name == "Pawn")
-            team[i].getAttackMove();
+        if (newteam[i].alive == 0)
+            newteam[i].resetPossibleMove();
+        if (newteam[i].name == "Pawn")
+            newteam[i].getAttackMove();
         else
+            newteam[i].getPossibleMove(newTab);
+        if (newteam[i].alive == 0 && newteam[i].possibleMoves[newx][newy] == "PossibleMove")
         {
-            team[i].getPossibleMove(newTab);
-        }
-        if (team[i].alive == 0 && team[i].possibleMoves[kingposx][kingposy] == "PossibleMove")
-        {
-			pieces[newx][newy].alive = 0;
+			newTab[newx][newy].alive = 0;
+            console.log(newTab[newx][newy] ,"pieces : ", newteam[i], "king");
             return true;        
         }
-        team[i].resetPossibleMove();
+        newteam[i].resetPossibleMove();
     }
     pieces[newx][newy].alive = 0;
     return false;
@@ -365,6 +389,38 @@ function initChessBoard()
         for (var j = 0; j < 8; j++)
             pieces[i][j] = "";
     }
+    if (color == "black")
+        initBlack();
+    else
+        initWhite();
+}
+
+function initBlack()
+{
+    for (let i = 0; i < 8; i++)
+        pieces[1][i] = new Pawn("Pawn", "black", 1, i, "blackpawn.svg", 1);
+    pieces[0][0] = new Rook("Rook", "black", 0, 0, "blackrook.svg", 1);
+    pieces[0][1] = new Knight("Knight", "black", 0, 1, "blackknight.svg");
+    pieces[0][2] = new Bishop("Bishop", "black", 0, 2, "blackbishop.svg");
+    pieces[0][3] = new Queen("Queen", "black", 0, 3, "blackqueen.svg");
+    blackKing = pieces[0][4] = new King("King", "black", 0, 4, "blackking.svg");
+    pieces[0][5] = new Bishop("Bishop", "black", 0, 5, "blackbishop.svg");
+    pieces[0][6] = new Knight("Knight", "black", 0, 6, "blackknight.svg");
+    pieces[0][7] = new Rook("Rook", "black", 0, 7, "blackrook.svg", 2);
+    for (let i = 0; i < 8; i++)
+        pieces[6][i] = new Pawn("Pawn", "white", 6, i, "whitepawn.svg");
+    pieces[7][0] = new Rook("Rook", "white", 7, 0, "whiterook.svg", 1);
+    pieces[7][1] = new Knight("Knight", "white", 7, 1, "whiteknight.svg");
+    pieces[7][2] = new Bishop("Bishop", "white", 7, 2, "whitebishop.svg");
+    pieces[7][3] = new Queen("Queen", "white", 7, 3, "whitequeen.svg");
+    whiteKing = pieces[7][4] = new King("King", "white", 7, 4, "whiteking.svg");
+    pieces[7][5] = new Bishop("Bishop", "white", 7, 5, "whitebishop.svg");
+    pieces[7][6] = new Knight("Knight", "white", 7, 6, "whiteknight.svg");
+    pieces[7][7] = new Rook("Rook", "white", 7, 7, "whiterook.svg", 2);
+}
+
+function initWhite()
+{
     for (let i = 0; i < 8; i++)
         pieces[1][i] = new Pawn("Pawn", "black", 1, i, "blackpawn.svg", 1);
     pieces[0][0] = new Rook("Rook", "black", 0, 0, "blackrook.svg", 1);

@@ -1,4 +1,5 @@
 import json
+import random
 from django.shortcuts import get_object_or_404
 from channels.generic.websocket import AsyncWebsocketConsumer, WebsocketConsumer
 from channels.db import database_sync_to_async
@@ -27,6 +28,8 @@ class ChessConsumer(AsyncWebsocketConsumer):
                 self.room_group_name,
                 {
                     'type': 'match_found',
+                    'white' : game.white_player.username,
+                    'black' : game.black_player.username,
                     'adversaire': list_waiter[0],
                     'game_id': game.id
                 }
@@ -35,6 +38,8 @@ class ChessConsumer(AsyncWebsocketConsumer):
                 list_waiter[0],
                 {
                     'type': 'match_found',
+                    'white' : game.white_player.username,
+                    'black' : game.black_player.username,
                     'adversaire': self.room_group_name,
                     'game_id': game.id
                 }
@@ -64,7 +69,9 @@ class ChessConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps({
             'type': 'match_found',
             'adversaire': event['adversaire'],
-            'game_id': event['game_id']
+            'game_id': event['game_id'],
+            'white': event['white'],
+            'black': event['black']
         }))
 
     @database_sync_to_async
@@ -79,8 +86,14 @@ class ChessConsumer(AsyncWebsocketConsumer):
         player1 = get_object_or_404(User, username=player1_username)
         player2 = get_object_or_404(User, username=player2_username)
         game = Game_Chess()
-        game.white_player = player1
-        game.black_player = player2
+        value = random.random()
+        print(value, file=sys.stderr)
+        if value < 0.5:
+            game.white_player = player1
+            game.black_player = player2
+        else :
+            game.white_player = player2
+            game.black_player = player1
         game.board = []
         for i in range(8):
             game.board.append([])

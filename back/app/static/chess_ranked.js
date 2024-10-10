@@ -1,4 +1,6 @@
 chessSocket = null;
+var white = null;
+var black = null;
 
 function search_game()
 {
@@ -11,6 +13,8 @@ function search_game()
     chessSocket.onmessage = function(e) {
         const data = JSON.parse(e.data);
         console.log("[RECEIVE MATCH FOUND]", data);
+        white = data.white;
+        black = data.black;
         // document.getElementById("text").innerHTML = "Match found with " + data.adversaire + " !";
         redirect = document.createElement("a")
         redirect.setAttribute("hx-get", window.location.href + data.game_id + "/");

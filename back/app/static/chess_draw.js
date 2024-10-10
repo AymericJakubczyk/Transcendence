@@ -38,6 +38,11 @@ function drawPossibleMove(piece, ctx)
 
 function drawPossibleCaptureMove(x, y, context)
 {
+    if (color == "black")
+    {
+        x = 7 - x;
+        y = 7 - y;
+    }    
     var width = canvas.offsetWidth;
     size = width / 8;
     const centerX = x * 100 + 50;
@@ -53,6 +58,11 @@ function drawPossibleCaptureMove(x, y, context)
 
 function drawTheMove(x, y, context)
 {
+    if (color == "black")
+    {
+        x = 7 - x;
+        y = 7 - y;
+    }    
     var width = canvas.offsetWidth;
     size = width / 8;
     const centerX = x * 100 + 50;
@@ -141,35 +151,72 @@ function drawChess(ctx)
     const arrV = ['8', '7', '6', '5', '4', '3', '2', '1'];
 	const arrC = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
     ctx.font = '16px Arial';
-    for(let i= 0;i < 800; i+=100) 
+    if (color == "black")
     {
-        count++;
-        for (let j = 0; j < 800; j+=100)
+        console.log("im the black player");
+        for(let i = 700, x = 0;i >= 0; i-=100, x+=100) 
         {
-            var pos = i + j + 150;
-            var count1 = i / 100;
-            var count2 = j / 100;
-            if (pieces[count2][count1].color != null)
-                draw(i, j, "/static/srcs/chess/" + pieces[count2][count1].img);
-            else if (count % 2 == 1)
-            {
-                ctx.fillStyle = "antiquewhite";
-                ctx.fillRect(i, j, 100, 100);
-            }
-            else if (count % 2 == 0)
-            {
-                ctx.fillStyle = "burlywood";
-                ctx.fillRect(i, j, 100, 100);
-            }
-            if (count % 2 == 1)
-                ctx.fillStyle = "burlywood";
-            else if (count % 2 == 0)
-                ctx.fillStyle = "antiquewhite";
-            if (j == 700)
-                ctx.fillText(arrC[i / 100], i + 90, j + 95);
-            if (i == 0)
-                ctx.fillText(arrV[j / 100], i + 3, j + 15);
             count++;
+            for (let j = 700, y = 0; j >= 0; j-=100, y+=100)
+            {
+                var count1 = x / 100;
+                var count2 = y / 100;
+                console.log("count1 : ", count1, " count2 : ", count2);
+                if (pieces[count2][count1].color != null)
+                    draw(i, j, "/static/srcs/chess/" + pieces[count2][count1].img);
+                else if (count % 2 == 1)
+                {
+                    ctx.fillStyle = "antiquewhite";
+                    ctx.fillRect(i, j, 100, 100);
+                }
+                else if (count % 2 == 0)
+                {
+                    ctx.fillStyle = "burlywood";
+                    ctx.fillRect(i, j, 100, 100);
+                }
+                if (count % 2 == 1)
+                    ctx.fillStyle = "burlywood";
+                else if (count % 2 == 0)
+                    ctx.fillStyle = "antiquewhite";
+                if (j == 700)
+                    ctx.fillText(arrC[i / 100], i + 90, j + 95);
+                if (i == 0)
+                    ctx.fillText(arrV[j / 100], i + 3, j + 15);
+                count++;
+            }
+        }
+    }
+    else
+    {
+        for(let i= 0;i < 800; i+=100) 
+        {
+            count++;
+            for (let j = 0; j < 800; j+=100)
+            {
+                var count1 = i / 100;
+                var count2 = j / 100;
+                if (pieces[count2][count1].color != null)
+                    draw(i, j, "/static/srcs/chess/" + pieces[count2][count1].img);
+                else if (count % 2 == 1)
+                {
+                    ctx.fillStyle = "antiquewhite";
+                    ctx.fillRect(i, j, 100, 100);
+                }
+                else if (count % 2 == 0)
+                {
+                    ctx.fillStyle = "burlywood";
+                    ctx.fillRect(i, j, 100, 100);
+                }
+                if (count % 2 == 1)
+                    ctx.fillStyle = "burlywood";
+                else if (count % 2 == 0)
+                    ctx.fillStyle = "antiquewhite";
+                if (j == 700)
+                    ctx.fillText(arrC[i / 100], i + 90, j + 95);
+                if (i == 0)
+                    ctx.fillText(arrV[j / 100], i + 3, j + 15);
+                count++;
+            }
         }
     }
 }
@@ -181,31 +228,65 @@ function drawCheckers(ctx)
 
     var count = 0;
     ctx.font = '16px Arial';
-    for(var i= 0;i < 800; i+=100) 
+    if (color == "black")
     {
-        count++;
-        for (var j = 0; j < 800; j+=100)
+        console.log("im the black player");
+        for(var i = 700;i >= 0; i-=100) 
         {
-            var pos = i + j + 150;
-            if (count % 2 == 1)
-            {
-                ctx.fillStyle = "antiquewhite";
-                ctx.fillRect(i, j, 100, 100);
-            }
-            else if (count % 2 == 0)
-            {
-                ctx.fillStyle = "burlywood";
-                ctx.fillRect(i, j, 100, 100);
-            }
-            if (count % 2 == 1)
-                ctx.fillStyle = "antiquewhite";
-            else if (count % 2 == 0)
-                ctx.fillStyle = "burlywood";
-            if (j == 700)
-                ctx.fillText(arrC[i / 100], i + 90, j + 95);
-            if (i == 0)
-                ctx.fillText(arrV[j / 100], i + 3, j + 15);
             count++;
+            for (var j = 700; j >= 0; j-=100)
+            {
+                var pos = i + j + 150;
+                if (count % 2 == 1)
+                {
+                    ctx.fillStyle = "antiquewhite";
+                    ctx.fillRect(i, j, 100, 100);
+                }
+                else if (count % 2 == 0)
+                {
+                    ctx.fillStyle = "burlywood";
+                    ctx.fillRect(i, j, 100, 100);
+                }
+                if (count % 2 == 1)
+                    ctx.fillStyle = "antiquewhite";
+                else if (count % 2 == 0)
+                    ctx.fillStyle = "burlywood";
+                if (j == 700)
+                    ctx.fillText(arrC[i / 100], i + 90, j + 95);
+                if (i == 0)
+                    ctx.fillText(arrV[j / 100], i + 3, j + 15);
+                count++;
+            }
+        }
+    }
+    else
+    {
+        for(var i= 0;i < 800; i+=100) 
+        {
+            count++;
+            for (var j = 0; j < 800; j+=100)
+            {
+                var pos = i + j + 150;
+                if (count % 2 == 1)
+                {
+                    ctx.fillStyle = "antiquewhite";
+                    ctx.fillRect(i, j, 100, 100);
+                }
+                else if (count % 2 == 0)
+                {
+                    ctx.fillStyle = "burlywood";
+                    ctx.fillRect(i, j, 100, 100);
+                }
+                if (count % 2 == 1)
+                    ctx.fillStyle = "antiquewhite";
+                else if (count % 2 == 0)
+                    ctx.fillStyle = "burlywood";
+                if (j == 700)
+                    ctx.fillText(arrC[i / 100], i + 90, j + 95);
+                if (i == 0)
+                    ctx.fillText(arrV[j / 100], i + 3, j + 15);
+                count++;
+            }
         }
     }
 }
@@ -226,9 +307,7 @@ function redrawPossibleCapture(context)
         for (var j = 0; j < 8; j++)
         {
             if ((selectedOne.possibleMoves[i][j] == "PossibleMove" || selectedOne.possibleMoves[i][j] == "PossiblePromAtq") && pieces[i][j].color == colorEnemy)
-            {   
                 reDrawPossibleCaptureMove(i, j, context);
-            }
         }
     }
 }

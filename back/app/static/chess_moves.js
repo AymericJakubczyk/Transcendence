@@ -111,6 +111,12 @@ function createNewCanvas(context) {
 //MOVES
 function movePiece(posy, posx)
 {
+    console.log(pieces);
+    if (color == "black")
+    {
+        posx = 7 - x;
+        posy = 7 - y;
+    }    
 	replaceCell(posy, posx, selectedOne);
     if (pieces[posy][posx] != "")
         pieces[posy][posx].alive = 1;
@@ -127,12 +133,14 @@ function movePiece(posy, posx)
         selectedOne.getAttackMove();
     else
         selectedOne.getPossibleMove(pieces);
+    console.log(pieces);
 	selected = false;
 	selectedOne = null;
 }
 
 function moveCheck(context, king, posy, posx)
 {
+    console.log("move check");
     if (selectedOne.name == "King" && selectedOne.possibleMoves[posy][posx] == "PossibleMove" && king.check[posy][posx] == "noPossibleMove" && (pieces[posy][posx].defended == 0 || pieces[posy][posx] == "") && isStillCheck(selectedOne, posy, posx, king) == false)
         movePiece(posy, posx, context);
     else if ((selectedOne.possibleMoves[posy][posx] == "PossibleMove") && king.check[posy][posx] == "Checker" && isStillCheck(selectedOne, posy, posx, king) == false)
@@ -147,6 +155,7 @@ function moveCheck(context, king, posy, posx)
         movePiece(posy, posx, context);
     else
     {
+        console.log("move check out", king);
         selected = false;
         selectedOne = null;
         drawChess(context);

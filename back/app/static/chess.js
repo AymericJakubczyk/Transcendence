@@ -14,7 +14,6 @@ var newctx;
 var newPiece = "init";
 whosPlaying(oldColor);
 
-
 // MAIN GAME FUNCTION
 function game(x, y, context)
 {
@@ -22,6 +21,14 @@ function game(x, y, context)
     var size = width / 8;
     var posx = Math.floor((x / size));
     var posy = Math.floor((y / size));
+    console.log("posx : ", posx, " posy : ", posy);
+    if (color == "black")
+    {
+        posx = 7 - posx;
+        posy = 7 - posy;
+    }
+    console.log("posx : ", posx, " posy : ", posy);
+    console.log(pieces[posy][posx]);
     newx = posx;
     newy = posy;
     
@@ -33,6 +40,7 @@ function game(x, y, context)
         {
             selected = true;
             selectedOne = pieces[posy][posx];
+            console.log(selectedOne);
             oldx = posx;
             oldy = posy;
             if (isChecked() == true)
@@ -95,9 +103,21 @@ enPassant[1] = "";
 var pieces = new Array(8);
 var whiteTeam = new Array(16);
 var blackTeam = new Array(16);
+var color;
 
 function init_game()
 {
+    if (username != null)
+    {
+        console.log(username.sender);   
+        if (username.sender == black)
+            color = "black";
+        else
+            color = "white";
+    }
+    console.log(white);
+    console.log(black);
+    console.log("color: " + color);
     newCanvas = document.getElementById('promote');
     newctx = newCanvas.getContext('2d');
     newCanvas.style.display = "none";

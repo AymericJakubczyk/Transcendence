@@ -1,6 +1,6 @@
 var ws_created = false;
 var chatSocket = null;
-
+var username = null;
 
 function custom_submit(form_id)
 {
@@ -43,6 +43,7 @@ function create_ws()
 	chatSocket.onmessage = function(event) {
 		const data = JSON.parse(event.data);
 		console.log('Received ws:', data);
+		username = data;
 		var statut_elem = document.getElementById("statut_" + data.sender);
 		var statut_mini_elem = document.getElementById("statut_mini_" + data.sender);
 		if (data.type == 'chat')
