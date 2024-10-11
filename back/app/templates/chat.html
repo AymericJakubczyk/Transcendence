@@ -78,10 +78,15 @@
   
         <div class="d-flex flex-column rounded mx-2 p-1 chat_panel">
             {% if interlocutor %}
-            <form hx-post="{{request.path}}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader"> 
-                <input type="hidden" name="display_profile" value="{{interlocutor.username}}"/>
-                <button class="fs-1 text-light bg-transparent border-0" id="interlocutor" type="submit">{{ interlocutor }}</button>
-            </form>
+            <div class="d-flex align-items-center">
+                <form hx-post="{{request.path}}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader"> 
+                    <input type="hidden" name="display_profile" value="{{interlocutor.username}}"/>
+                    <button class="fs-1 text-light bg-transparent border-0" id="interlocutor" type="submit">{{ interlocutor.username }}</button>
+                </form>
+                {% if interlocutor.state == 'ON' %}
+                <div id="invite" style="background:grey; cursor:pointer; display:flex;" class="rounded p-1" onclick="invite('{{ interlocutor.username }}')">invite ⚔️</div>
+                {% endif %}
+            </div>
             {% else %}
                 <div class="fs-1" id="interlocutor">No discussion selected</div>
             {% endif %}

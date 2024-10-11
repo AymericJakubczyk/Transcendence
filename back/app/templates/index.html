@@ -68,7 +68,7 @@
     </div>
     <div id="page">{% block content %}{% endblock %}</div>
 
-    <div id="mini_chat" class="border border-bottom-0 rounded-top p-1 pb-0" style="position:fixed;bottom:0;right:10px;background-color: rgb(61, 61, 61)"
+    <div id="mini_chat" class="invisible-md border border-bottom-0 rounded-top" style="position:fixed;bottom:0;right:10px;background-color: rgb(61, 61, 61)"
     {% if not user.is_authenticated or request.path == '/chat/' %}
         hidden
     {% endif %}

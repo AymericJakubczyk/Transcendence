@@ -18,17 +18,76 @@ function display_addable_discussion()
 
 function display_mini_chat()
 {
+    mini_chat = document.getElementById("mini_chat")
+    mini_chat.style.padding = "0px"
     document.getElementById("mini_chat").innerHTML = `
         <div style="width:25vw">
-            <div id="mini_headbar" class="d-flex flex-row justify-content-between p-2">
-                <h2 class="m-0 text-white">Discussions</h2>
+            <div id="mini_headbar" class="d-flex flex-row justify-content-between p-2 pb-0">
+                <div class="d-flex">
+                    <div id="discu_tab" class="d-flex align-items-center px-1 rounded-top-2" style="cursor:pointer;" onclick="display_all_discu()">
+                        <h5 style="font-size:14px" class="m-0 text-white">discussions</h5>
+                        <h3 class="m-0" style="cursor:pointer">💬</h3>
+                    </div>
+                    <div id="invite_tab" class="d-flex align-items-center px-1 rounded-top-2" style="cursor:pointer" onclick="display_all_invite()">
+                        <h5 style="font-size:14px" class="m-0 text-white">invitations</h5>
+                        <h3 class="m-0" style="cursor:pointer">⚔️</h3>
+                    </div>
+                    <div id="invite_tab" class="d-flex align-items-center px-1 rounded-top-2" style="cursor:pointer" onclick="display_all_invite()">
+                        <h5 style="font-size:14px" class="m-0 text-white">request</h5>
+                        <h3 class="m-0" style="cursor:pointer">🫂</h3>
+                    </div>
+                </div>
                 <h2 class="m-0" onclick="minimize_mini_chat()" style="color:red;cursor:pointer">X</h2>
             </div>
-            <div id="all_discu_mini" style="overflow-y:scroll;height:35vh;">
+            <div id="all_discu_mini" style="overflow-y:scroll;height:35vh;background:rgb(80,80,80)">
             </div>
         </div>
     `
+    display_all_discu()
+}
 
+
+function display_all_invite()
+{
+    document.getElementById("invite_tab").style.background = "rgb(80,80,80)"
+    document.getElementById("discu_tab").style.background = "transparent"
+    url = "/mini_chat/"
+    fetch(url, {
+        method:'POST',
+        headers:{
+         'Content-Type':'application/json',
+         'X-CSRFToken':csrftoken,
+        }, 
+        body:JSON.stringify({'type':'get_invites'})
+    })
+    .then(response => response.json())
+    .then(data => {
+        all_invite = data.all_invite
+        console.log("[GET ALL]", all_invite, all_invite.length)
+        all_discu_div = document.getElementById("all_discu_mini")
+        all_discu_div.innerHTML = ''
+        for (i = 0; i < all_invite.length; i++)
+        {
+            invite_div = document.createElement("div")
+            invite_div.setAttribute("class", "rounded-2 my-1 p-1 text-white")
+            
+            invite_div.innerHTML = `
+                <div>`+ all_invite[i].game_type +` against `+ all_invite[i].from_user +`</div>
+                <div>
+                    <button class="btn btn-success">Accept</button>
+                    <button class="btn btn-danger">Decline</button>
+                </div>
+
+            `
+            all_discu_div.append(invite_div)
+        }
+    });
+}
+
+function display_all_discu()
+{
+    document.getElementById("invite_tab").style.background = "transparent"
+    document.getElementById("discu_tab").style.background = "rgb(80,80,80)"
     url = "/mini_chat/"
     fetch(url, {
         method:'POST',
@@ -40,8 +99,8 @@ function display_mini_chat()
     })
     .then(response => response.json())
     .then(data => {
-        all_discu = document.getElementById("all_discu_mini")
-        all_discu.innerHTML = ''
+        all_discu_div = document.getElementById("all_discu_mini")
+        all_discu_div.innerHTML = ''
         for (i = 0; i < data.all_discu.length; i++)
         {
             const discu_div = document.createElement("button");
@@ -53,7 +112,7 @@ function display_mini_chat()
             `
                 <div id="profile_pic_mini_`+ data.all_discu[i].name_discu +`" style="position: relative;">
                     <img src="` + data.all_discu[i].profile_picture + `" class="pp" alt="Profile Picture">
-                    <div id="statut_mini_`+ data.all_discu[i].name_discu +`" class="rounded-circle" style="background-color: green; border: 4px rgb(61,61,61) solid;position: absolute; right: -5px; bottom: -5px;width:40%;height:40%" hidden></div>
+                    <div id="statut_mini_`+ data.all_discu[i].name_discu +`" class="rounded-circle bg-success" style="border: 4px rgb(80,80,80) solid;position: absolute; right: -5px; bottom: -5px;width:40%;height:40%" hidden></div>
                 </div>
                 <div class="d-flex flex-column mx-2" style="overflow: hidden;">
                     <span style="font-size: 24px; font-weight: 400;color:#ffffff; text-align: start;text-overflow: ellipsis;">
@@ -63,7 +122,7 @@ function display_mini_chat()
                     </span>
                 </div>
             `
-            all_discu.append(discu_div)
+            all_discu_div.append(discu_div)
             if (data.all_discu[i].state == "ON")
                 document.getElementById("statut_mini_" + data.all_discu[i].name_discu).hidden = false
 
@@ -81,7 +140,6 @@ function display_mini_chat()
                 notif.innerHTML = "!";
                 document.getElementById("profile_pic_mini_" + data.all_discu[i].name_discu).append(notif);
             }
-
         }
      });
 }
@@ -99,7 +157,7 @@ function display_mini_discu(name, id)
 
     document.getElementById("mini_chat").innerHTML = `
         <div style="width:25vw">
-            <div id="mini_headbar" class="d-flex flex-row justify-content-between p-2">
+            <div id="mini_headbar" class="d-flex flex-row justify-content-between p-2 pb-0">
                 <h2 class="m-0 text-white" style="cursor: pointer;" onclick="display_mini_chat()"><-</h2>
                 <form id="test_form" hx-post="/chat/" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
                     <input type="hidden" name="change_discussion" value="`+ id +`"/>
@@ -107,7 +165,7 @@ function display_mini_discu(name, id)
                 </form>
                 <h2 class="m-0" onclick="minimize_mini_chat()" style="color:red;cursor:pointer">X</h2>
             </div>
-            <div id="discu_mini_`+ name +`" data-id="`+ id +`" class="d-flex flex-column" style="overflow-y:scroll;height:35vh; position: relative;">
+            <div id="discu_mini_`+ name +`" data-id="`+ id +`" class="d-flex flex-column px-2" style="height:35vh; position: relative;">
                 <div id="all_msg_mini_`+ name +`" class="d-flex flex-column rounded" style="overflow-y:scroll; background-color: darkgray;height:100%;">
                 </div>
                 <form id="mini_send_msg" class="d-flex flex-row">
@@ -135,7 +193,7 @@ function display_mini_discu(name, id)
     })
     .then(response => response.json())
     .then(data => {
-        set_global_notif()
+        // set_global_notif()
         all_discu = document.getElementById("all_msg_mini_" + name)
         all_discu.innerHTML = ''
         for (i = 0; i < data.all_message.length; i++)
@@ -338,4 +396,32 @@ function make_discu(send_to, id)
         };
         chatSocket.send(JSON.stringify(obj));
     }
+}
+
+function invite(opponent)
+{
+    invite_div = document.getElementById("invite")
+    invite_div.innerHTML = ""
+    invite_div.setAttribute("class", "bg-transparent rounded")
+    invite_div.style.cursor = "initial"
+
+    pong_div = document.createElement("div")
+    pong_div.setAttribute("style", "cursor:pointer; background: grey")
+    pong_div.setAttribute("class", "rounded p-1 m-1")
+    pong_div.setAttribute("onclick", "send_invite('"+opponent+"', 'pong')")
+    pong_div.innerHTML = "🏓PONG"
+
+    chess_div = document.createElement("div")
+    chess_div.setAttribute("style", "cursor:pointer; background: grey")
+    chess_div.setAttribute("class", "rounded p-1 m-1")
+    chess_div.setAttribute("onclick", "send_invite('"+opponent+"', 'chess')")
+    chess_div.innerHTML = "♟️CHESS"
+
+    invite_div.append(pong_div)
+    invite_div.append(chess_div)
+}
+
+function send_invite(opponent, game)
+{
+    htmx_request("/invite/", "POST", {"opponent":opponent, "game":game})
 }

@@ -36,6 +36,14 @@ class User(AbstractUser):
     # online checker to do
 	state = models.CharField(max_length=3, choices=State.choices, default=State.OFFLINE)
 
+class Invite(models.Model):
+	from_user = models.ForeignKey(User, related_name='from_user_invite', on_delete=models.CASCADE)
+	to_user = models.ForeignKey(User, related_name='to_user_invite', on_delete=models.CASCADE)
+	class GameType(models.TextChoices):
+		PONG = 'PONG'
+		CHESS = 'CHESS'
+	game_type = models.CharField(max_length=5, choices=GameType.choices)
+
 class Friend_Request(models.Model):
 	from_user = models.ForeignKey(User, related_name='from_user', on_delete=models.CASCADE)
 	to_user = models.ForeignKey(User, related_name='to_user', on_delete=models.CASCADE)
