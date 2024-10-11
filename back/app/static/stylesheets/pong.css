@@ -1,5 +1,5 @@
 .header {
-    color: #FF5E5E;
+    color: white;
     font-size: 2em;
     margin-bottom: 10px;
 }
@@ -8,8 +8,8 @@
     font-size: 2em;
     margin-top: 20px;
     display: flex;
-    justify-content: center;
-    gap: 100px;
+    justify-content: space-around;
+    gap: 2rem;
 }
 
 .score {
@@ -50,10 +50,16 @@
                 inset 0 0 1.3rem #fff;
 }
 
+.buttongroup{
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+}
+
 .playButton {
-    margin-top: 20px;
     font-size: 1.5em;
     padding: 10px 20px;
+    width: 10rem;
     background-color: #FF5E5E;
     color: #FFFFFF;
     border: none;
@@ -63,7 +69,15 @@
 }
 
 .playButton:hover {
-    background-color: #FF3030;
+    background-color: rgb(255, 28, 28);
+    box-shadow: 0 0 .2rem rgb(198, 96, 96),
+    0 0 .2rem rgb(198, 96, 96),
+    0 0 2rem rgb(198, 96, 96),
+    0 0 0.8rem rgb(198, 96, 96),
+    0 0 2.8rem rgb(198, 96, 96),
+    inset 0 0 1.3rem rgb(198, 96, 96);
+    cursor: pointer;
+    transition: 0.4s;
 }
 
 #pongCanvas {

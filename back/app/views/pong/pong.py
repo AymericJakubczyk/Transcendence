@@ -61,6 +61,26 @@ def updateTournamentRoom(tournament_id):
     )
 
 
+def moveWinners(tournament_matchs):
+    for game in tournament_matchs:
+        if (game.winner):
+            if (game.tournament_pos % 2 == 1):
+                new_game_pos = 100 + game.tournament_pos
+            else :
+                new_game_pos = 100 + game.tournament_pos - 1
+
+            for game_obj in tournament_matchs:
+                if (game_obj.tournament_pos == new_game_pos):
+                    if (not game_obj.player1):
+                        game_obj.player1 = game.winner
+                    elif (not game_obj.player2):
+                        game_obj.player2 = game.winner
+                    game_obj.save()
+                    print("\tMOVED", game.winner, "TO", game_obj.tournament_pos, file=sys.stderr)
+    return tournament_matchs
+
+
+
 # 1
 #           2
 # 3
@@ -89,8 +109,8 @@ def makematchs(playerlist, number, tournament):
     second = playerlist[nbmatch:]
 
     matchs = []
-    i = 1
-    y = 1
+    i = 101
+    y = 101
     while (len(matchs) != nbmatch):
         newGame = Game_Pong()
 
@@ -177,6 +197,7 @@ def pongTournament(request):
                 roundcount += 1
                 nbmatch = math.ceil(nbmatch / 2)
 
+            tournament_matchs = moveWinners(tournament_matchs)
             tournament.pong_matchs.set(tournament_matchs)
             tournament.started = True
             tournament.save()

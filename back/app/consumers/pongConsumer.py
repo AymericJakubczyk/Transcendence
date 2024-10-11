@@ -26,6 +26,7 @@ winningScore = 2
 class PongConsumer(AsyncWebsocketConsumer):
     data = None
     game = None
+    tournament = None
 
     async def connect(self):
         global nbr_waiter
@@ -226,6 +227,48 @@ class PongConsumer(AsyncWebsocketConsumer):
                 'player2' : self.game.player2.username
             }
         )
+        if (self.game.tournament_pos != -1):
+            await self.update_tournament()
+
+    @database_sync_to_async
+    def update_tournament(self):
+        from app.models import Tournament
+
+        # GET TOURNAMENT OBJ
+        bracket_id = self.player1.tournament_id
+        print("UPDATING TOURNAMENT", bracket_id, file=sys.stderr)
+        tournament = get_object_or_404(Tournament, id=bracket_id)
+        if (not tournament):
+            return
+        elif (not self.tournament):
+            self.tournament = tournament
+
+        # GET GAME POSITION IN TOURNAMENT
+        game_position = self.game.tournament_pos
+        if (game_position % 2 == 1):
+            new_game_pos = 100 + game_position
+        else :
+            new_game_pos = 100 + game_position - 1
+        # GET GAME WITH THIS POS
+        for game_obj in tournament.pong_matchs.all():
+            if (game_obj.tournament_pos == new_game_pos):
+                next_game = game_obj
+        # PUT WINNER IN THE GAME
+        if (not next_game.player1):
+            next_game.player1 = self.game.winner
+        elif (not next_game.player2):
+            next_game.player2 = self.game.winner
+            
+        print("UPDATING TOURNAMENT", self.game.winner, "will play in game_pos ", new_game_pos, file=sys.stderr)
+        self.game.save()
+        # UPDATE BARCKET (PAS SUR CA MARCHE LA)
+        self.channel_layer.group_send(
+            "pong_tournament_" + str(tournament_id),
+            {
+                "type": "update_room",
+            }
+        )
+
 
     async def end_game(self, event):
         # Send message to WebSocket
