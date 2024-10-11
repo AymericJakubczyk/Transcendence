@@ -40,9 +40,11 @@
     <script src="{% static 'ws.js' %}"></script>
     <script src="{% static 'chess_ranked.js' %}"></script>
     <script src="{% static 'chat.js' %}"></script>
+    <script type="text/javascript" src="{% static 'utils.js' %}"></script>
     <script type="text/javascript" src="{% static 'tournament.js' %}"></script>
     <script type="text/javascript" src="{% static 'player.js' %}"></script>
     <script type="text/javascript" src="{% static 'chess_class.js' %}"></script>
+    <script type="text/javascript" src="{% static 'pong_ranked.js' %} "></script>
     <script type="text/javascript" src="{% static 'chess.js' %} "></script>
     <!-- <script type="text/javascript" src="{% static 'pong.js' %} "></script> -->
     <script type="text/javascript" src="{% static 'pong3D.js' %} "></script>
@@ -64,7 +66,7 @@
                 <div id="chat_headbar" style="position:relative">Chat</div>
             </a>
             <a hx-get="{% url 'myprofile' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route col-sm" id="nav3">Profile</a>
-            <a hx-get="{% url 'pong_tournament' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route col-sm" id="nav4">TEST</a>
+            <a hx-get="{% url 'pong_found_game' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route col-sm" id="nav4">TEST</a>
         </nav>
     </div>
     <div id="page">{% block content %}{% endblock %}</div>

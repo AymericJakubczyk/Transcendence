@@ -252,3 +252,15 @@ def pongTournament(request):
         return render(request, 'page_full.html', {'page':'pongTournament.html', 'user':request.user, 'all_tournaments': all_tournaments, 'mytournament': mytournament})
     return render(request, 'pongTournament.html', {'user':request.user, 'all_tournaments': all_tournaments, 'mytournament': mytournament})
 
+
+def pongFoundGameView(request):
+    if request.META.get("HTTP_HX_REQUEST") != 'true':
+        return render(request, 'page_full.html', {'page':'pongFoundGame.html', 'user':request.user})
+    return render(request, 'pongFoundGame.html', {'user':request.user})
+
+def pongGameView(request, gameID):
+    game = get_object_or_404(Game_Pong, id=gameID)
+    if request.META.get("HTTP_HX_REQUEST") != 'true':
+        return render(request, 'page_full.html', {'page':'pong_ranked.html', 'user':request.user, 'game':game, 'gameID':gameID})
+    return render(request, 'pong_ranked.html', {'user':request.user, 'game':game, 'gameID':gameID})
+

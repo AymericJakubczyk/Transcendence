@@ -71,3 +71,13 @@
     /* border: 2px solid #FFF; */
     background-color: #000;
 }
+
+.endgame {
+    justify-content: space-evenly;
+    box-shadow: 0 0 .2rem #fff,
+    0 0 .2rem #fff,
+    0 0 2rem blue,
+    0 0 0.8rem blue,
+    0 0 2.8rem blue,
+    inset 0 0 1.3rem blue;
+}

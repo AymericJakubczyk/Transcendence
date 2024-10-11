@@ -22,3 +22,9 @@ body {
 .chooseGame:hover {
     cursor: pointer;
 }
+
+.pp_game {
+	border-radius: 10%;
+	height:6vw;
+	max-height: 80px;
+}
