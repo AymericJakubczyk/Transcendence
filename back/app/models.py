@@ -24,7 +24,7 @@ class User(AbstractUser):
 	tournament_id = models.IntegerField(default=-1)
 
 	# PONG ATTRIBUTS
-	pong_rank = models.IntegerField(default=0)
+	pong_rank = models.IntegerField(default=700)
 	pong_games_played = models.IntegerField(default=0)
 	pong_winrate = models.IntegerField(default=0)
 	pong_max_exchange = models.IntegerField(default=0)
@@ -107,6 +107,10 @@ class Game_Pong(models.Model):
 	player1_score = models.IntegerField(default=0)
 	player2 = models.ForeignKey(User, related_name='player2', on_delete=models.CASCADE, null=True, blank=True)
 	player2_score = models.IntegerField(default=0)
+	player1_rank = models.IntegerField(default=0)
+	player2_rank = models.IntegerField(default=0)
+	player1_rank_win = models.IntegerField(default=0)
+	player2_rank_win = models.IntegerField(default=0)
 	data = models.OneToOneField(PongDataGame, on_delete=models.SET_NULL, null=True, blank=True)
 	status = models.CharField(max_length=20, default='waiting')
 	gametype = models.CharField(max_length=5)

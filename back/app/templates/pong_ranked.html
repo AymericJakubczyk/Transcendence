@@ -16,7 +16,7 @@
 			<img src="{{ request.user.profile_picture.url }}" class="pp_game">
 			<div>
 				<h2 class="mb-0" id="yourName">{{ request.user.username }}</h2>
-				<h5>rank</h5>
+				<h5>{{ request.user.pong_rank }}</h5>
 			</div>
 		</div>
 		<div class="d-flex position-absolute start-50 top-50 translate-middle score">
@@ -34,13 +34,13 @@
 			{% if game.player1.username != request.user.username %}
 			<div>
 				<h2 class="mb-0" id="opponentName">{{ game.player1.username }}</h2>
-				<h5>rank</h5>
+				<h5>{{ game.player1.pong_rank }}</h5>
 			</div>
 			<img src="{{ game.player1.profile_picture.url }}" class="pp_game">
 			{% else %}
 			<div>
 				<h2 class="mb-0" id="opponentName">{{ game.player2.username }}</h2>
-				<h5>rank</h5>
+				<h5>{{ game.player2.pong_rank }}</h5>
 			</div>
 			<img src="{{ game.player2.profile_picture.url }}" class="pp_game">
 			{% endif %}
@@ -68,15 +68,23 @@
 					<h3 id="loserScore">{{game.player2_score}}</h3>
 				</div>
 				<div class="d-flex justify-content-around">
-					<div id="winner" class="d-flex flex-column align-items-center">
+					<div id="winner" class="d-flex flex-column align-items-center justify-content-center w-50">
 						<img id="winnerpp" src="{{ game.player1.profile_picture.url }}" class="pp_game" style="height:8vw; max-height:100px">
 						<h2 id="winnerName" class="mb-0">{{ game.player1.username }}</h2>
-						rank
+						{%if game.player1_rank %}
+							<h5 id="winnerRank">{{ game.player1_rank}}</h5>
+						{% else %}
+							<h5 id="winnerRank">{{ game.player1.pong_rank}}</h5>
+						{% endif %}
 					</div>
-					<div id="loser" class="d-flex flex-column align-items-center" style="opacity:0.6">
+					<div id="loser" class="d-flex flex-column align-items-center justify-content-center w-50" style="opacity:0.5">
 						<img id="loserpp" src="{{ game.player2.profile_picture.url }}" class="pp_game">
 						<h3 id="loserName" class="mb-0">{{ game.player2.username }}</h3>
-						rank
+						{%if game.player2_rank %}
+							<h5 id="loserRank">{{ game.player2_rank}}</h5>
+						{% else %}
+							<h5 id="loserRank">{{ game.player2.pong_rank}}</h5>
+						{% endif %}
 					</div>
 				</div>
 			</div>
@@ -90,7 +98,7 @@
 	<script>
 		{% if game.winner %}
 			display3D()
-			display_endgame("{{game.player1.username}}", "{{game.player2.username}}", {{game.player1_score}}, {{game.player2_score}});
+			display_endgame("{{game.player1.username}}", "{{game.player2.username}}", {{game.player1_score}}, {{game.player2_score}}, {{game.player1_rank_win}}, {{game.player2_rank_win}} );
 		{% else %}
 			start_ranked_pong({game_id:{{gameID}}, player1:"{{game.player1.username}}", player2:"{{game.player2.username}}"}, "{{request.user.username}}");
 		{% endif %}

@@ -15,7 +15,7 @@ function search_pong_game()
         if (data.type === 'end_game')
         {
             console.log("[END GAME]", data);
-            display_endgame(data.player1, data.player2, data.score_player1, data.score_player2);
+            display_endgame(data.player1, data.player2, data.score_player1, data.score_player2, data.win_elo_p1, data.win_elo_p2)
             return;
         }
         if (!data.game_id)
@@ -53,12 +53,12 @@ function search_pong_game()
         // })
     }
 
-    chatSocket.onclose = (event) => {
+    pongSocket.onclose = (event) => {
 		console.log("[WS PONG] The connection has been closed successfully.");
 	}
 }
 
-function display_endgame(player1, player2, player1Score, player2Score)
+function display_endgame(player1, player2, player1Score, player2Score, win_elo_p1, win_elo_p2)
 {
     if (player2Score > player1Score)
     {
@@ -69,19 +69,21 @@ function display_endgame(player1, player2, player1Score, player2Score)
         stock_src = document.getElementById("winnerpp").src;
         document.getElementById("winnerpp").src = document.getElementById("loserpp").src;
         document.getElementById("loserpp").src = stock_src;
+        stock_rank = document.getElementById("winnerRank").innerHTML;
+        document.getElementById("winnerRank").innerHTML = document.getElementById("loserRank").innerHTML;
+        document.getElementById("loserRank").innerHTML = stock_rank;
+        document.getElementById("winnerRank").innerHTML += "<span style='color:green'> +"+win_elo_p2+"</span>";
+        document.getElementById("loserRank").innerHTML += "<span style='color:red'> "+win_elo_p1+"</span>";
     }
     else
     {
         document.getElementById("winnerScore").innerHTML = player1Score;
         document.getElementById("loserScore").innerHTML = player2Score;
+        document.getElementById("winnerRank").innerHTML += "<span style='color:green'> +"+win_elo_p1+"</span>";
+        document.getElementById("loserRank").innerHTML += "<span style='color:red'> "+win_elo_p2+"</span>";
     }
     endgame = document.getElementById("endgame")
     endgame.style.display = "flex";
-
-    
-    // document.getElementById("gameContainer").style.position = "relative";
-    // document.getElementById("gameContainer").appendChild(endgame);
-
 }
 
 

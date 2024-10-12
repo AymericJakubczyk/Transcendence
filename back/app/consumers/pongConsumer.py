@@ -213,9 +213,9 @@ class PongConsumer(AsyncWebsocketConsumer):
         print("[END GAME]", file=sys.stderr)
         await self.send_updates() # Send final update for the score
         if (all_data[self.game.id].score_player1 == winningScore):
-            await self.save_winner(self.game.player1)
+            win_elo = await self.save_winner(self.game.player1)
         elif (all_data[self.game.id].score_player2 == winningScore):
-            await self.save_winner(self.game.player2)
+            win_elo = await self.save_winner(self.game.player2)
         await self.channel_layer.group_send(
             "ranked_pong_" + str(self.game.id),
             {
@@ -223,7 +223,9 @@ class PongConsumer(AsyncWebsocketConsumer):
                 'score_player1': all_data[self.game.id].score_player1,
                 'score_player2': all_data[self.game.id].score_player2,
                 'player1' : self.game.player1.username,
-                'player2' : self.game.player2.username
+                'player2' : self.game.player2.username,
+                'win_elo_p1': win_elo['win_elo_p1'],
+                'win_elo_p2': win_elo['win_elo_p2']
             }
         )
 
@@ -259,13 +261,29 @@ class PongConsumer(AsyncWebsocketConsumer):
     def save_winner(self, winner):
         global winningScore, all_data
 
+        # calcul elo
+        proba_win_p1 = 1 / (1 + 10 ** ((self.game.player2.pong_rank - self.game.player1.pong_rank) / 400))
+        proba_win_p2 = 1 / (1 + 10 ** ((self.game.player1.pong_rank - self.game.player2.pong_rank) / 400))
+        if (self.game.player1 == winner):
+            win_elo_p1 = round(20 * (1 - proba_win_p1))
+            win_elo_p2 = round(20 * (0 - proba_win_p2))
+        else:
+            win_elo_p1 = round(20 * (0 - proba_win_p1))
+            win_elo_p2 = round(20 * (1 - proba_win_p2))
+        self.game.player1_rank = self.game.player1.pong_rank
+        self.game.player2_rank = self.game.player2.pong_rank
+        self.game.player1_rank_win += win_elo_p1
+        self.game.player2_rank_win += win_elo_p2
+        self.game.player1.pong_rank += win_elo_p1
+        self.game.player2.pong_rank += win_elo_p2
+        self.game.player1.save()
+        self.game.player2.save()
+        
         self.game.player1_score = all_data[self.game.id].score_player1
         self.game.player2_score = all_data[self.game.id].score_player2
-        if (all_data[self.game.id].score_player1 == winningScore):
-            self.game.winner = self.game.player1
-        elif (all_data[self.game.id].score_player2 == winningScore):
-            self.game.winner = self.game.player2
+        self.game.winner = winner
         self.game.save()
+        return ({'win_elo_p1': win_elo_p1, 'win_elo_p2': win_elo_p2})
     
 
     async def update_paddle(self, event):
