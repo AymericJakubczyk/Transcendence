@@ -80,3 +80,72 @@
 .bracket-finished{
     color: wheat;
 }
+
+/* TOURNAMENT END */
+
+.bracket-result-box{
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    border: 3px solid white;
+    border-radius: 15px;
+    padding: 1rem 2rem;
+    width: 20vw;
+}
+
+.bracket-result-list{
+    padding: 0 0.5rem;
+    font-size: 1.3rem;
+}
+
+.bracket-result-list li::marker{
+    /* ??? */
+}
+
+.bracket-result-list li{
+    margin: 1rem 0.5rem;
+    font-size: 1.3rem;
+    justify-content: space-between;
+}
+
+.bracket-result-box hr{
+    width: 90%;
+}
+
+.bracket-result-list li:nth-child(1) {
+    color: #fac355;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.bracket-result-list li:nth-child(2) {
+    color: #bfbfbf;
+}
+
+.bracket-result-list li:nth-child(3) {
+    color: #9e6900;
+}
+
+
+
+
+.bracket-result-box-button{
+    margin-top: 10px;
+    background-color: rgb(255, 114, 114);
+    padding: 0.12rem 0.5rem;
+    border: solid 2px black;
+    border-radius: 10px;
+    border-color: white;
+    color: black;
+    text-decoration: none;
+}
+
+.bracket-result-box-button:hover{
+    background-color: rgba(250, 63, 63, 0.644);
+    color: whitesmoke;
+    transition: 0.4s;
+    cursor: pointer;
+}

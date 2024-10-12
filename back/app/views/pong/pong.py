@@ -165,7 +165,22 @@ def pongTournament(request):
             tournament.save()
             request.user.tournament_id = tournament.id
             request.user.save()
+    
+    # TO REMOVE
+    if 'win_tournament' in request.POST:
+        tournament_id = request.POST.get('win_tournament')
+        tournament = Tournament.objects.get(id=tournament_id)
 
+        tournament.winner = request.user
+        print("STARTING RESULTS", file=sys.stderr)
+        place = 1
+        for user in tournament.participants.all().reverse():
+            tournament.results.append(user.id)
+            print("\tAdded", place, "-", user.username, file=sys.stderr)
+            place+= 1
+        tournament.started = True
+        tournament.save()
+    # ------
 
     if 'bracket_tournament' in request.POST:
         print("making brackets", file=sys.stderr)

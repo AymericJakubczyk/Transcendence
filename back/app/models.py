@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.contrib.postgres.fields import ArrayField
 from django.db.models import Q
+from django.db.models import JSONField
 
 # ---- USER HERITE DE TOUT CA ----
 # id
@@ -53,7 +54,13 @@ class Tournament(models.Model):
 	pong_matchs = models.ManyToManyField("Game_Pong", blank=True)
 	matchspertree = models.IntegerField(default=0)
 	started = models.BooleanField(default=False)
+	winner = models.ForeignKey(User, related_name='tournamentwinner', on_delete=models.CASCADE, null=True, blank=True)
+	results = JSONField(default=list)
 
+	def display_results(self):
+		players = User.objects.filter(id__in=self.results)
+		ordered = sorted(players, key=lambda player: self.results.index(player.id))
+		return ordered[::-1]
 
 class Discussion(models.Model):
 	user1 = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name='user1')

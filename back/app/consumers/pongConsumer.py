@@ -243,6 +243,16 @@ class PongConsumer(AsyncWebsocketConsumer):
         elif (not self.tournament):
             self.tournament = tournament
 
+        # ADD LOSER TO RESULTS
+        if self.game.winner == self.game.player1:
+            if self.game.player2.id not in self.tournament.results:
+                self.tournament.results.append(self.game.player2.id)
+                self.tournament.save()
+        elif self.game.winner == self.game.player2:
+            if self.game.player1.id not in self.tournament.results:
+                self.tournament.results.append(self.game.player1.id)
+                self.tournament.save()
+
         # GET GAME POSITION IN TOURNAMENT
         game_position = self.game.tournament_pos
         if (game_position % 2 == 1):
@@ -250,17 +260,25 @@ class PongConsumer(AsyncWebsocketConsumer):
         else :
             new_game_pos = 100 + game_position - 1
         # GET GAME WITH THIS POS
+        next_game = None
         for game_obj in tournament.pong_matchs.all():
             if (game_obj.tournament_pos == new_game_pos):
                 next_game = game_obj
-        # PUT WINNER IN THE GAME
-        if (not next_game.player1):
-            next_game.player1 = self.game.winner
-        elif (not next_game.player2):
-            next_game.player2 = self.game.winner
-            
-        print("UPDATING TOURNAMENT", self.game.winner, "will play in game_pos ", new_game_pos, file=sys.stderr)
-        self.game.save()
+        # IF NOT FOUND HE WON TOURNAMENT
+        if next_game == None:
+            self.tournament.winner = self.game.winner
+            self.tournament.results.add(self.game.winner)
+            self.tournament.save()
+            print("UPDATING TOURNAMENT:", self.game.winner, "WON THE TOURNAMENT", file=sys.stderr)
+        else:
+            # PUT WINNER IN THE GAME
+            if (not next_game.player1):
+                next_game.player1 = self.game.winner
+            elif (not next_game.player2):
+                next_game.player2 = self.game.winner
+            print("UPDATING TOURNAMENT:", self.game.winner, "will play in game_pos ", new_game_pos, file=sys.stderr)
+            next_game.save()
+        
         # UPDATE BARCKET (PAS SUR CA MARCHE LA)
         self.channel_layer.group_send(
             "pong_tournament_" + str(tournament_id),
