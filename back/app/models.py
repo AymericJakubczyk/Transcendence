@@ -100,22 +100,22 @@ class Game_Chess(models.Model):
 	over = models.BooleanField(default=False)
 	winner = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name='chesswinner')
 
-class PongDataGame(models.Model):
-	ball_x = models.FloatField(default=0)
-	ball_y = models.FloatField(default=0)
-	ball_dx = models.FloatField(default=0)
-	ball_dy = models.FloatField(default=0)
-	paddle1_y = models.FloatField(default=0)
-	paddle2_y = models.FloatField(default=0)
-	score_player1 = models.IntegerField(default=0)
-	score_player2 = models.IntegerField(default=0)
+# class PongDataGame(models.Model):
+# 	ball_x = models.FloatField(default=0)
+# 	ball_y = models.FloatField(default=0)
+# 	ball_dx = models.FloatField(default=0)
+# 	ball_dy = models.FloatField(default=0)
+# 	paddle1_y = models.FloatField(default=0)
+# 	paddle2_y = models.FloatField(default=0)
+# 	score_player1 = models.IntegerField(default=0)
+# 	score_player2 = models.IntegerField(default=0)
 
 class Game_Pong(models.Model):
 	player1 = models.ForeignKey(User, related_name='player1', on_delete=models.CASCADE)
 	player1_score = models.IntegerField(default=0)
 	player2 = models.ForeignKey(User, related_name='player2', on_delete=models.CASCADE, null=True, blank=True)
 	player2_score = models.IntegerField(default=0)
-	data = models.OneToOneField(PongDataGame, on_delete=models.SET_NULL, null=True, blank=True)
+	# data = models.OneToOneField(PongDataGame, on_delete=models.SET_NULL, null=True, blank=True)
 	status = models.CharField(max_length=20, default='waiting')
 	gametype = models.CharField(max_length=5)
 	winner = models.ForeignKey(User, related_name='pongwinner', on_delete=models.CASCADE, null=True, blank=True)

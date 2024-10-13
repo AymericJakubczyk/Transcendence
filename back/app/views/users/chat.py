@@ -3,7 +3,7 @@ from django.contrib.auth import login, authenticate, logout, update_session_auth
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from app.forms import SignupForm, LoginForm, UpdateForm
-from app.models import User, Tournament, Friend_Request, Discussion, Message, Game_Chess, Invite
+from app.models import User, Tournament, Friend_Request, Discussion, Message, Game_Chess, Invite, Game_Pong
 from django.urls import reverse as get_url
 from django.db.models import Q
 import json
@@ -143,7 +143,7 @@ def mini_chat(request):
             # all_invite = serializers.serialize("json", Invite.objects.filter(to_user=current_user))
             all_invite = Invite.objects.filter(to_user=current_user)
             for invite in all_invite:
-                obj = {'from_user':invite.from_user.username, 'game_type':invite.game_type}
+                obj = {'from_user':invite.from_user.username, 'game_type':invite.game_type, 'id':invite.id}
                 json_all_invite.append(obj)
             return JsonResponse({'type': request_type, 'all_invite': json_all_invite, 'current_username':current_user.username})
 
@@ -158,6 +158,13 @@ def mini_chat(request):
                 obj = {'message': msg.message, 'sender':msg.sender.username}
                 all_obj_msg.append(obj)
             return JsonResponse({'type': request_type, 'all_message': all_obj_msg, 'current_username':current_user.username})
+        elif (request_type == "get_friend_request"):
+            all_request = Friend_Request.objects.filter(to_user=current_user)
+            json_all_request = []
+            for request in all_request:
+                obj = {'from_user':request.from_user.username}
+                json_all_request.append(obj)
+            return JsonResponse({'type': request_type, 'all_request': json_all_request, 'current_username':current_user.username})
         elif (request_type == "get_global_notif"):
             all_discussion = Discussion.objects.filter(Q(user1=current_user) | Q(user2=current_user))
             for discussion in all_discussion:
@@ -172,7 +179,7 @@ def mini_chat(request):
 def invite(request):
     current_user = request.user
     print("[INVITE]", request.POST, file=sys.stderr)
-    if (request.method == "POST" and request.POST.get('opponent')):
+    if (request.method == "POST" and request.POST.get('type') == 'invite'):
         # create invite object in db
         obj = Invite()
         obj.from_user = current_user
@@ -193,6 +200,36 @@ def invite(request):
                 "player": request.user.username
             }
         )
+    if (request.method == "POST" and request.POST.get('type') == 'accept'):
+        print("[ACCEPT]", file=sys.stderr)
+
+        # get invite object
+        invite = get_object_or_404(Invite, id=request.POST.get('id'))
+        # create new game object
+        if invite.game_type == Invite.GameType.PONG:
+            # create pong game
+            pong = Game_Pong()
+            pong.player1 = invite.from_user
+            pong.player2 = invite.to_user
+            pong.save()
+            # send to waiting player that request is accepted
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                invite.from_user.username + "_pong",
+                {
+                    "type": "is_accepted",
+                    "id": pong.id
+                }
+            )
+            invite.delete()
+            # redirect to game
+            return redirect('pong_game', gameID=pong.id)
+        # elif invite.game_type == Invite.GameType.CHESS:
+            # create chess game
+            
+
+        invite.delete()
+
     if request.META.get("HTTP_HX_REQUEST") != 'true':
         return render(request, 'page_full.html', {'page':'waiting_game.html'})
     return render(request, 'waiting_game.html')

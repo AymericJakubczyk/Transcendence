@@ -8,32 +8,52 @@ function search_pong_game()
 
     pongSocket.onopen = function() {
 		console.log('[WS PONG] WebSocket PONG connection established.');
+        const obj = {
+            'type': 'search',
+        };
+        pongSocket.send(JSON.stringify(obj))
 	};
 
     pongSocket.onmessage = function(e) {
         const data = JSON.parse(e.data);
-        if (data.type === 'end_game')
-        {
-            console.log("[END GAME]", data);
-            display_endgame(data.player1, data.player2, data.score_player1, data.score_player2);
-            return;
-        }
-        if (!data.game_id)
-        {
-            x = data.x;
-            y = data.y;
-            dx = data.dx;
-            dy = data.dy;
-            paddle_1.position.y = data.paddle1_y;
-            paddle_2.position.y = data.paddle2_y;
-            paddle_1Light.position.y = data.paddle1_y;
-            paddle_2Light.position.y = data.paddle2_y;
-            document.getElementById("player1Score").innerHTML = data.score_player1;
-            document.getElementById("player2Score").innerHTML = data.score_player2;
+        receive_pong_ws(data)
+    }
 
-            render_ball(x, y);
-            return;
-        }
+    pongSocket.onclose = (event) => {
+		console.log("[WS PONG] The connection has been closed successfully.");
+        pongSocket = null;
+	}
+}
+
+function join_pong_game()
+{
+    console.log("[JOIN PONG GAME]")
+    pongSocket = new WebSocket('ws://' + window.location.host + '/ws/pong/');
+
+    pongSocket.onopen = function() {
+		console.log('[WS PONG] WebSocket PONG connection established.');
+        const obj = {
+            'type': 'join',
+            'game_id': window.location.pathname.split("/")[4]
+        };
+        pongSocket.send(JSON.stringify(obj))
+	};
+
+    pongSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        receive_pong_ws(data)
+    }
+
+    pongSocket.onclose = (event) => {
+		console.log("[WS PONG] The connection has been closed successfully.");
+        pongSocket = null;
+	}
+}
+
+function receive_pong_ws(data)
+{
+    if (data.type === 'match_found')
+    {
         console.log("[RECEIVE MATCH FOUND]", data);
         document.getElementById("text").innerHTML = "Match found with " + data.adversaire + " !";
         redirect = document.createElement("a")
@@ -52,11 +72,33 @@ function search_pong_game()
         //     swap: 'innerHTML'
         // })
     }
+    if (data.type === 'join_game')
+    {
+        console.log("[JOIN GAME]", data);
+        htmx_request("/game/pong/ranked/" + data.game_id + "/", "GET", {})
+    }
+    if (data.type === 'game_update')
+    {
+        x = data.x;
+        y = data.y;
+        dx = data.dx;
+        dy = data.dy;
+        paddle_1.position.y = data.paddle1_y;
+        paddle_2.position.y = data.paddle2_y;
+        paddle_1Light.position.y = data.paddle1_y;
+        paddle_2Light.position.y = data.paddle2_y;
+        document.getElementById("player1Score").innerHTML = data.score_player1;
+        document.getElementById("player2Score").innerHTML = data.score_player2;
 
-    chatSocket.onclose = (event) => {
-		console.log("[WS PONG] The connection has been closed successfully.");
-	}
+        render_ball(x, y);
+    }
+    if (data.type === 'end_game')
+    {
+        console.log("[END GAME]", data);
+        display_endgame(data.player1, data.player2, data.score_player1, data.score_player2);
+    }
 }
+
 
 function display_endgame(player1, player2, player1Score, player2Score)
 {
@@ -93,23 +135,25 @@ function start_ranked_pong(game, you)
     if (countdownInterval)
         clearInterval(countdownInterval)
     console.log("start ranked pong", game.game_id)
+    if (!pongSocket)
+        join_pong_game()
     // do API request for get all info about the game
-    const response = fetch("/initialize-game/", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": csrftoken,
-        },
-        body: JSON.stringify({
-            game_id : game.game_id,
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log("[API]", data);
-        dx = data.dx
-        dy = data.dy
-     });
+    // const response = fetch("/initialize-game/", {
+    //     method: "POST",
+    //     headers: {
+    //         "Content-Type": "application/json",
+    //         "X-CSRFToken": csrftoken,
+    //     },
+    //     body: JSON.stringify({
+    //         game_id : game.game_id,
+    //     })
+    // })
+    // .then(response => response.json())
+    // .then(data => {
+    //     console.log("[API]", data);
+    //     dx = data.dx
+    //     dy = data.dy
+    //  });
     data = null
 
     playerScore = 0;
