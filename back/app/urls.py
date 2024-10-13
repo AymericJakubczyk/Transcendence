@@ -40,6 +40,8 @@ urlpatterns = [
 	path('send_friend_request/<str:username>/', users.send_friend_request, name='send_friend_request'),
 	path('accept_friend_request/<int:requestID>/', users.accept_friend_request, name='accept_friend_request'),
 
+    path('invite/', chat.invite, name='invite'),
+
     # API URLS
     path('api-auth/', include('rest_framework.urls')),
     path('initialize-game/', initialize_game, name='initialize-game'),
