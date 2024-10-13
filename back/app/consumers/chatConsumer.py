@@ -186,3 +186,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'type': 'error',
             'message': event['message'],
         }))
+
+    async def invite(self, event):
+        print("[SEND WS]", event, file=sys.stderr)
+        await self.send(text_data=json.dumps(event))

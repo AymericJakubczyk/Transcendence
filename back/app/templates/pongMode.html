@@ -2,7 +2,7 @@
     <div class="chooseMode" hx-get="{% url 'pong_local' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
         <h1>Local Game</h1>
     </div>
-    <div class="chooseMode">
+    <div class="chooseMode" hx-get="{% url 'pong_found_game' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
         <h1>Ranked Game</h1>
     </div>
     <div class="chooseMode">

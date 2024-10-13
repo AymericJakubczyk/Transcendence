@@ -24,7 +24,7 @@ class User(AbstractUser):
 	tournament_id = models.IntegerField(default=-1)
 
 	# PONG ATTRIBUTS
-	pong_rank = models.IntegerField(default=0)
+	pong_rank = models.IntegerField(default=700)
 	pong_games_played = models.IntegerField(default=0)
 	pong_winrate = models.IntegerField(default=0)
 	pong_max_exchange = models.IntegerField(default=0)
@@ -35,6 +35,14 @@ class User(AbstractUser):
 		INGAME = 'ING'
     # online checker to do
 	state = models.CharField(max_length=3, choices=State.choices, default=State.OFFLINE)
+
+class Invite(models.Model):
+	from_user = models.ForeignKey(User, related_name='from_user_invite', on_delete=models.CASCADE)
+	to_user = models.ForeignKey(User, related_name='to_user_invite', on_delete=models.CASCADE)
+	class GameType(models.TextChoices):
+		PONG = 'PONG'
+		CHESS = 'CHESS'
+	game_type = models.CharField(max_length=5, choices=GameType.choices)
 
 class Friend_Request(models.Model):
 	from_user = models.ForeignKey(User, related_name='from_user', on_delete=models.CASCADE)
@@ -92,12 +100,15 @@ class Game_Chess(models.Model):
 	over = models.BooleanField(default=False)
 	winner = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name='chesswinner')
 
-
 class Game_Pong(models.Model):
 	player1 = models.ForeignKey(User, related_name='player1', on_delete=models.CASCADE)
 	player1_score = models.IntegerField(default=0)
 	player2 = models.ForeignKey(User, related_name='player2', on_delete=models.CASCADE, null=True, blank=True)
 	player2_score = models.IntegerField(default=0)
+	player1_rank = models.IntegerField(default=0)
+	player2_rank = models.IntegerField(default=0)
+	player1_rank_win = models.IntegerField(default=0)
+	player2_rank_win = models.IntegerField(default=0)
 	status = models.CharField(max_length=20, default='waiting')
 	gametype = models.CharField(max_length=5)
 	winner = models.ForeignKey(User, related_name='pongwinner', on_delete=models.CASCADE, null=True, blank=True)
@@ -105,6 +116,12 @@ class Game_Pong(models.Model):
 	updated_at = models.DateTimeField(auto_now=True)
 
 	tournament = models.BooleanField(default=False)
+
+	def get_other_username(self, name):
+		if self.player2.username == name:
+			return self.player1.username
+		else :
+			return self.player2.username
 
 	def __str__(self):
 		player2_name = self.player2.username if self.player2 else "No Opponent"

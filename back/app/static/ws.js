@@ -75,10 +75,9 @@ function create_ws()
 				statut_mini_elem.hidden = false;
 		}
 		if (data.type == 'error')
-		{
 			error_message(data.message, 2000)
-			return ;
-		}
+		if (data.type == 'invite')
+			add_invitation(data.game, data.player)
 	};
 	
 	chatSocket.onclose = (event) => {
