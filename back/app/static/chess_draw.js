@@ -93,7 +93,7 @@ function drawPossibleDefenseMove(context)
     {
         for (var j = 0; j < 8; j++)
         {
-            if (selectedOne.name == "King" && selectedOne.possibleMoves[i][j] == "PossibleMove" && king.check[i][j] == "noPossibleMove")
+            if (selectedOne.name == "King" && selectedOne.possibleMoves[i][j] == "PossibleMove" && king.check[i][j] == "noPossibleMove" && isStillCheck(selectedOne, i, j, king) == false)
                 drawTheMove(i, j, context);
             else if (selectedOne.name == "King" && selectedOne.possibleMoves[i][j] == "PossibleMove" && king.check[i][j] == "Checker" && pieces[i][j].defended == 0 && isStillCheck(selectedOne, i, j, king) == false)
                 drawPossibleCaptureMove(i, j, context);
@@ -303,6 +303,7 @@ function redrawPossibleCapture(context)
         colorEnemy = "black";
     if (!selectedOne.color)
         return ;
+    console.log(selectedOne);
     for (var i = 0; i < 8; i++)
     {
         for (var j = 0; j < 8; j++)
@@ -315,6 +316,11 @@ function redrawPossibleCapture(context)
 
 function reDrawPossibleCaptureMove(x, y, context)
 {
+    if (color == "black")
+    {
+        x = 7 - x;
+        y = 7 - y;
+    }
     let count = y + x + 1;
     if (count % 2 == 1)
         ctx.strokeStyle = 'antiquewhite';

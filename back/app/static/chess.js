@@ -37,7 +37,6 @@ function game(x, y, context)
         {
             selected = true;
             selectedOne = pieces[posy][posx];
-            console.log(selectedOne);
             oldx = posx;
             oldy = posy;
             if (isChecked() == true)
@@ -108,7 +107,10 @@ function init_game()
     {
         console.log(username.sender);   
         if (username.sender == black)
+        {
             color = "black";
+            oldColor = "black";
+        }
         else
             color = "white";
     }

@@ -119,14 +119,18 @@ function isDefendable()
 
 function isCheckMate()
 {
-    let team = oldColor === "white" ? blackTeam : whiteTeam;
+    let team = oldColor === "white" ? whiteTeam : blackTeam;
     let king = oldColor === "white" ? blackKing : whiteKing;
+    console.log(team, king);
     if (canKingMove(king))
         return false;
+    console.log("canKingMove");
     if (canSomeoneBlock(team, king))
         return false;
+    console.log("canSomeoneBlock");
     if (canSomeoneDefend(team, king))
         return false;
+    console.log("canSomeoneDefend");
     return true;
 }
 
@@ -154,6 +158,7 @@ function canSomeoneDefend(team, king)
 
 function canSomeoneBlock(team, king)
 {
+    console.log(team, king);
     for (let i = 0; i < 16; i++)
     {
         if (team[i].alive == 1)
@@ -162,12 +167,14 @@ function canSomeoneBlock(team, king)
             team[i].getPossibleMove(pieces);
         if (team[i].name == "Pawn")
             team[i].getAttackMove()
+        // console.log(team[i]);
         for (let x = 0; x < 8; x++)
         {
             for (let y = 0; y < 8; y++)
             {
-                if (team[i].name != "King" && team[i].possibleMoves[x][y] == "PossibleMove" && (king.check[x][y] == "CheckMove") && isStillCheck(team[i], x, y, king) == false)
+                if (team[i].name != "King" && team[i].possibleMoves[x][y] == "PossibleMove" && king.check[x][y] == "CheckMove" && isStillCheck(team[i], x, y, king) == false)
                     return true;
+                // console.log(team[i].possibleMoves[x][y], king.check[x][y], isStillCheck(team[i], x, y, king));
             }
         }
     }
@@ -233,7 +240,6 @@ function isStillCheck(piece, newx, newy, king)
     newTab[piece.posx][piece.posy] = "";
     newTab[newx][newy] = piece;
     var newteam = new Array(16);
-    console.log(newTab);
     let count = 0;
     for (let i = 0; i < 8; i++)
     {
@@ -244,7 +250,6 @@ function isStillCheck(piece, newx, newy, king)
                 if (newTab[i][j].color == oldColor)
                 {
                     newteam[count] = newTab[i][j];
-                    console.log(newTab[i][j]);
                     count++;
                 }
             }
@@ -254,17 +259,15 @@ function isStillCheck(piece, newx, newy, king)
     {
         if (newteam[i] == null)
             continue ;
-        console.log(newteam[i]);
         if (newteam[i].alive == 0)
             newteam[i].resetPossibleMove();
         if (newteam[i].name == "Pawn")
             newteam[i].getAttackMove();
         else
             newteam[i].getPossibleMove(newTab);
-        if (newteam[i].alive == 0 && newteam[i].possibleMoves[newx][newy] == "PossibleMove")
+        if (newteam[i].alive == 0 && newteam[i].possibleMoves[kingposx][kingposy] == "PossibleMove")
         {
-			newTab[newx][newy].alive = 0;
-            console.log(newTab[newx][newy] ,"pieces : ", newteam[i], "king");
+            newTab[newx][newy].alive = 0;
             return true;        
         }
         newteam[i].resetPossibleMove();
