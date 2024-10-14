@@ -1,7 +1,7 @@
 from django.conf.urls import handler404
 from django.urls import path, include
 from .views import views
-from .views.pong import pong
+from .views.pong import pong, pongMultiplayer
 from .views.chess import chess
 from .views.users import users, chat, profils
 from .views.views import custom_404
@@ -20,6 +20,9 @@ urlpatterns = [
 	path('game/pong/local/', pong.pongView, name='pong_local'),
     path('game/pong/ranked/', pong.pongFoundGameView, name='pong_found_game'),
     path('game/pong/ranked/<int:gameID>/', pong.pongGameView, name='pong_game'),
+
+    path('game/pong/multiplayer/', pongMultiplayer.pongMultiplayer, name='pong_multiplayer'),
+
 
 	path('game/chess/', chess.chessModeView, name='chess'),
     path('game/chess/local/', chess.chessView, name='chess_local'),
