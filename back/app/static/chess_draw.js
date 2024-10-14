@@ -148,11 +148,13 @@ function drawPromPieces(x, y, string, newctx) {
 function drawChess(ctx)
 {
     var count = 0;
-    const arrV = ['8', '7', '6', '5', '4', '3', '2', '1'];
-	const arrC = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+    let arrV = ['8', '7', '6', '5', '4', '3', '2', '1'];
+	let arrC = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
     ctx.font = '16px Arial';
     if (color == "black")
     {
+        arrV = ['1', '2', '3', '4', '5', '6', '7', '8'];
+        arrC = ['h', 'g', 'f', 'e', 'd', 'c', 'b', 'a'];
         for(let i = 700, x = 0;i >= 0; i-=100, x+=100) 
         {
             count++;
@@ -160,20 +162,17 @@ function drawChess(ctx)
             {
                 var count1 = x / 100;
                 var count2 = y / 100;
-                if (count % 2 == 1)
+                if (pieces[count2][count1].color != null)
+                    draw(i, j, "/static/srcs/chess/" + pieces[count2][count1].img);
+                else if (count % 2 == 1)
                 {
                     ctx.fillStyle = "antiquewhite";
                     ctx.fillRect(i, j, 100, 100);
                 }
                 else if (count % 2 == 0)
-                    {
-                        ctx.fillStyle = "burlywood";
-                        ctx.fillRect(i, j, 100, 100);
-                    }
-                if (pieces[count2][count1].color != null)
                 {
-                    draw(i, j, "/static/srcs/chess/" + pieces[count2][count1].img);
-                    console.log(pieces[count2][count1].name, " ", pieces[count2][count1].color);
+                    ctx.fillStyle = "burlywood";
+                    ctx.fillRect(i, j, 100, 100);
                 }
                 if (count % 2 == 1)
                     ctx.fillStyle = "burlywood";
@@ -224,13 +223,15 @@ function drawChess(ctx)
 
 function drawCheckers(ctx)
 {
-    const arrV = ['8', '7', '6', '5', '4', '3', '2', '1'];
-	const arrC = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+    var arrV = ['8', '7', '6', '5', '4', '3', '2', '1'];
+	var arrC = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 
     var count = 0;
     ctx.font = '16px Arial';
     if (color == "black")
     {
+        arrV = ['1', '2', '3', '4', '5', '6', '7', '8'];
+        arrC = ['h', 'g', 'f', 'e', 'd', 'c', 'b', 'a'];
         for(var i = 700;i >= 0; i-=100) 
         {
             count++;

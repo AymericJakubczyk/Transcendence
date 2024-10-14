@@ -109,44 +109,28 @@ function createNewCanvas(context) {
 }
 
 //MOVES
-function movePiece(y, x)
+function movePiece(y, x, context)
 {
     let posx = x, posy = y;
-    console.log(pieces);
-    console.log(x, y);
     if (color == "black")
     {
-        let newx = x;
-        let newy = y;
         posx = 7 - x;
         posy = 7 - y;
-        if (pieces[newy][newx] != "")
-            pieces[newy][newx].alive = 1;
-        pieces[newy][newx] = selectedOne;
-        selectedOne.defended = 0;
-        selectedOne.posx = newy;
-        selectedOne.posy = newx;
-        oldColor = selectedOne.color;
-    	whosPlaying(oldColor);
-    	pieces[oldy][oldx] = '';
-    	if (selectedOne.name == "King" || selectedOne.name == "Rook")
-    		selectedOne.count = 1;
-        selectedOne.resetPossibleMove();
-        if (selectedOne.name == "Pawn")
-            selectedOne.getAttackMove();
-        else
-            selectedOne.getPossibleMove(pieces);
-    	selected = false;
-    	selectedOne = null;
-        return ;        
+        if (pieces[y][x] != "")
+            pieces[y][x].alive = 1;
+        pieces[y][x] = selectedOne;
+        selectedOne.posx = y;
+        selectedOne.posy = x;
     }
-    console.log(posx, posy);
-	replaceCell(posy, posx, selectedOne);
-    if (pieces[posy][posx] != "")
-        pieces[posy][posx].alive = 1;
-	pieces[posy][posx] = selectedOne;
-	selectedOne.posx = posy;
-	selectedOne.posy = posx;
+    else
+    {   
+        if (pieces[posy][posx] != "")
+            pieces[posy][posx].alive = 1;
+        pieces[posy][posx] = selectedOne;
+        selectedOne.posx = posy;
+        selectedOne.posy = posx;
+    }
+    replaceCell(posy, posx, selectedOne);
     selectedOne.defended = 0;
     oldColor = selectedOne.color;
 	whosPlaying(oldColor);
@@ -158,14 +142,12 @@ function movePiece(y, x)
         selectedOne.getAttackMove();
     else
         selectedOne.getPossibleMove(pieces);
-    console.log("move piece", pieces);
 	selected = false;
 	selectedOne = null;
 }
 
 function moveCheck(context, king, posy, posx)
 {
-    console.log("move check");
     if (selectedOne.name == "King" && selectedOne.possibleMoves[posy][posx] == "PossibleMove" && king.check[posy][posx] == "noPossibleMove" && (pieces[posy][posx].defended == 0 || pieces[posy][posx] == "") && isStillCheck(selectedOne, posy, posx, king) == false)
         movePiece(posy, posx, context);
     else if ((selectedOne.possibleMoves[posy][posx] == "PossibleMove") && king.check[posy][posx] == "Checker" && isStillCheck(selectedOne, posy, posx, king) == false)
@@ -180,7 +162,6 @@ function moveCheck(context, king, posy, posx)
         movePiece(posy, posx, context);
     else
     {
-        console.log("move check out", king);
         selected = false;
         selectedOne = null;
         drawChess(context);
@@ -188,7 +169,6 @@ function moveCheck(context, king, posy, posx)
     }
     king.checked = 0;
     king.resetCheck();
-    console.log("move check", king);
     handleEnPassant(context);
     drawChess(context);
 }

@@ -21,14 +21,11 @@ function game(x, y, context)
     var size = width / 8;
     var posx = Math.floor((x / size));
     var posy = Math.floor((y / size));
-    console.log("posx : ", posx, " posy : ", posy);
     if (color == "black")
     {
         posx = 7 - posx;
         posy = 7 - posy;
     }
-    console.log("posx : ", posx, " posy : ", posy);
-    console.log(pieces[posy][posx]);
     newx = posx;
     newy = posy;
     
