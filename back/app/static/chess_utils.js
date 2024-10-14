@@ -252,6 +252,9 @@ function isStillCheck(piece, newx, newy, king)
     }
     for (let i = 0; i < 16; i++)
     {
+        if (newteam[i] == null)
+            continue ;
+        console.log(newteam[i]);
         if (newteam[i].alive == 0)
             newteam[i].resetPossibleMove();
         if (newteam[i].name == "Pawn")

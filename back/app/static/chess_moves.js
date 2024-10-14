@@ -46,7 +46,7 @@ function doLeftRock(posy)
 
 function giveEnpassant(posx, posy)
 {
-	replaceCell(posx, posy, selectedOne);
+	// replaceCell(posx, posy, selectedOne);
 	pieces[posx][posy] = selectedOne;
 	if (posx >= 0 && posy - 1 >= 0 && isEnemyPawn(posx, posy - 1, pieces[posx][posy - 1]))
 	{
@@ -73,7 +73,7 @@ function giveEnpassant(posx, posy)
 
 function doEnpassant(posy, posx)
 {
-	replaceCell(posy, posx, selectedOne);
+	// replaceCell(posy, posx, selectedOne);
     if (pieces[posy][posx] != "")
         pieces[posy][posx].alive = 1;
 	if (selectedOne.color == "white")
@@ -109,14 +109,37 @@ function createNewCanvas(context) {
 }
 
 //MOVES
-function movePiece(posy, posx)
+function movePiece(y, x)
 {
+    let posx = x, posy = y;
     console.log(pieces);
+    console.log(x, y);
     if (color == "black")
     {
+        let newx = x;
+        let newy = y;
         posx = 7 - x;
         posy = 7 - y;
-    }    
+        if (pieces[newy][newx] != "")
+            pieces[newy][newx].alive = 1;
+        pieces[newy][newx] = selectedOne;
+        selectedOne.posx = newy;
+        selectedOne.posy = newx;
+        oldColor = selectedOne.color;
+    	whosPlaying(oldColor);
+    	pieces[oldy][oldx] = '';
+    	if (selectedOne.name == "King" || selectedOne.name == "Rook")
+    		selectedOne.count = 1;
+        selectedOne.resetPossibleMove();
+        if (selectedOne.name == "Pawn")
+            selectedOne.getAttackMove();
+        else
+            selectedOne.getPossibleMove(pieces);
+    	selected = false;
+    	selectedOne = null;
+        return ;        
+    }
+    console.log(posx, posy);
 	replaceCell(posy, posx, selectedOne);
     if (pieces[posy][posx] != "")
         pieces[posy][posx].alive = 1;
@@ -133,7 +156,7 @@ function movePiece(posy, posx)
         selectedOne.getAttackMove();
     else
         selectedOne.getPossibleMove(pieces);
-    console.log(pieces);
+    console.log("move piece", pieces);
 	selected = false;
 	selectedOne = null;
 }

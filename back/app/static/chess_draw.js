@@ -153,7 +153,6 @@ function drawChess(ctx)
     ctx.font = '16px Arial';
     if (color == "black")
     {
-        console.log("im the black player");
         for(let i = 700, x = 0;i >= 0; i-=100, x+=100) 
         {
             count++;
@@ -161,18 +160,20 @@ function drawChess(ctx)
             {
                 var count1 = x / 100;
                 var count2 = y / 100;
-                console.log("count1 : ", count1, " count2 : ", count2);
-                if (pieces[count2][count1].color != null)
-                    draw(i, j, "/static/srcs/chess/" + pieces[count2][count1].img);
-                else if (count % 2 == 1)
+                if (count % 2 == 1)
                 {
                     ctx.fillStyle = "antiquewhite";
                     ctx.fillRect(i, j, 100, 100);
                 }
                 else if (count % 2 == 0)
+                    {
+                        ctx.fillStyle = "burlywood";
+                        ctx.fillRect(i, j, 100, 100);
+                    }
+                if (pieces[count2][count1].color != null)
                 {
-                    ctx.fillStyle = "burlywood";
-                    ctx.fillRect(i, j, 100, 100);
+                    draw(i, j, "/static/srcs/chess/" + pieces[count2][count1].img);
+                    console.log(pieces[count2][count1].name, " ", pieces[count2][count1].color);
                 }
                 if (count % 2 == 1)
                     ctx.fillStyle = "burlywood";
@@ -230,7 +231,6 @@ function drawCheckers(ctx)
     ctx.font = '16px Arial';
     if (color == "black")
     {
-        console.log("im the black player");
         for(var i = 700;i >= 0; i-=100) 
         {
             count++;
