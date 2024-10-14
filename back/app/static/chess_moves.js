@@ -123,6 +123,7 @@ function movePiece(y, x)
         if (pieces[newy][newx] != "")
             pieces[newy][newx].alive = 1;
         pieces[newy][newx] = selectedOne;
+        selectedOne.defended = 0;
         selectedOne.posx = newy;
         selectedOne.posy = newx;
         oldColor = selectedOne.color;
@@ -146,7 +147,8 @@ function movePiece(y, x)
 	pieces[posy][posx] = selectedOne;
 	selectedOne.posx = posy;
 	selectedOne.posy = posx;
-	oldColor = selectedOne.color;
+    selectedOne.defended = 0;
+    oldColor = selectedOne.color;
 	whosPlaying(oldColor);
 	pieces[oldy][oldx] = '';
 	if (selectedOne.name == "King" || selectedOne.name == "Rook")
