@@ -141,7 +141,20 @@ class PongConsumer(AsyncWebsocketConsumer):
             'game_id': event['game_id']
         }))
 
-        
+
+    async def send_bump(self, obj, player):
+        await self.channel_layer.group_send(
+            "ranked_pong_" + str(self.game.id),
+            {
+                'type': 'bump',
+                'x': all_data[self.game.id].ball_x,
+                'y': all_data[self.game.id].ball_y,
+                'object': obj,
+                'player': player
+            }
+        )
+
+
     async def send_updates(self):
         # print("[SEND UPDATES 2]", file=sys.stderr)
 
@@ -172,17 +185,21 @@ class PongConsumer(AsyncWebsocketConsumer):
             await self.send_updates()
             if (all_data[self.game.id].ball_y + all_data[self.game.id].ball_dy > arenaWidth - thickness/2 - ballRadius or all_data[self.game.id].ball_y + all_data[self.game.id].ball_dy < thickness/2 + ballRadius ):
                 print("[PONG WALL]", file=sys.stderr)
+                await self.send_bump('wall', 0)
                 all_data[self.game.id].ball_dy = -all_data[self.game.id].ball_dy
 
             # Gestion des collisions avec les paddles
             if (all_data[self.game.id].ball_x > arenaLength - thickness * 2):
                 if (all_data[self.game.id].ball_y > all_data[self.game.id].paddle2_y - paddleHeight / 2 and all_data[self.game.id].ball_y < all_data[self.game.id].paddle2_y + paddleHeight / 2):
                     nbrHit += 1
+                    await self.send_bump('paddle', 2)
                     all_data[self.game.id].ball_dx = -baseSpeed - (0.02 * nbrHit)
                     hitPos = all_data[self.game.id].ball_y - all_data[self.game.id].paddle2_y
                     all_data[self.game.id].ball_dy = hitPos * 0.15
                 else:
                     nbrHit = 0
+                    await self.send_bump('ball', 0)
+                    await asyncio.sleep(0.5)
                     all_data[self.game.id].score_player1 += 1
                     print("[SCORE]", all_data[self.game.id].paddle1_y, all_data[self.game.id].paddle2_y, file=sys.stderr)
                     all_data[self.game.id].ball_dy = random.random() - 0.5
@@ -195,11 +212,14 @@ class PongConsumer(AsyncWebsocketConsumer):
             if (all_data[self.game.id].ball_x < thickness * 2):
                 if (all_data[self.game.id].ball_y > all_data[self.game.id].paddle1_y - paddleHeight / 2 and all_data[self.game.id].ball_y < all_data[self.game.id].paddle1_y + paddleHeight / 2):
                     nbrHit += 1
+                    await self.send_bump('paddle', 1)
                     all_data[self.game.id].ball_dx = baseSpeed + (0.02 * nbrHit)
                     hitPos = all_data[self.game.id].ball_y - all_data[self.game.id].paddle1_y
                     all_data[self.game.id].ball_dy = hitPos * 0.15
                 else:
                     nbrHit = 0
+                    await self.send_bump('ball', 0)
+                    await asyncio.sleep(0.5)
                     all_data[self.game.id].score_player2 += 1
                     print("[SCORE]", all_data[self.game.id].paddle1_y, all_data[self.game.id].paddle2_y, file=sys.stderr)
                     all_data[self.game.id].ball_dy = random.random() - 0.5
@@ -213,6 +233,8 @@ class PongConsumer(AsyncWebsocketConsumer):
         # Send message to WebSocket
         await self.send(text_data=json.dumps(event))
 
+    async def bump(self, event):
+        await self.send(text_data=json.dumps(event))
 
     async def stop_game(self):
         global all_data, winningScore

@@ -34,6 +34,10 @@ let ballDirection = (Math.random() > 0.5 ? 1 : -1);
 
 const winningScore = 5;
 
+var explosion = false;
+const fragmentCount = 50;
+const fragments = [];
+
 
 function startGame()
 {
@@ -124,6 +128,15 @@ function display3D()
     ball.position.x = arenaLength / 2;
     ball.position.y = arenaWidth / 2;
 
+    // Create fragments for explosion of ball
+    for (let i = 0; i < fragmentCount; i++) {
+        const fragmentGeometry = new THREE.SphereGeometry(ballRadius / 3, 8, 8);
+        const fragmentMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff00 ,emissive:0x00ff00, emissiveIntensity: 1, transparent: true, opacity: 1});
+        const fragment = new THREE.Mesh(fragmentGeometry, fragmentMaterial);
+        scene.add(fragment);
+        fragments.push(fragment);
+    }
+
     paddle_1 = new THREE.Mesh( paddle, paddleMaterial );
     paddle_1.position.x =  paddleWidth;
     paddle_1.position.y = arenaWidth / 2;
@@ -174,11 +187,12 @@ function display3D()
     paddle_2Light.position.set(paddle_2.position.x - 2 , paddle_2.position.y, 3);
     paddle_2Light.lookAt(paddle_2.position.x , paddle_2.position.y, 1);
 
+    light_bump_effect_wall = new THREE.RectAreaLight( 0x0000ff, 0, paddleHeight, thickness);
     
     //add objects to the scene and render
     scene.add( ball );
     scene.add( paddle_1, paddle_2 );
-    scene.add( paddle_1Light, paddle_2Light );
+    scene.add( paddle_1Light, paddle_2Light, light_bump_effect_wall);
     scene.add( eastBorder, westBorder, northBorder, southBorder, plane);
     scene.add( northWallLight, southWallLight, eastWallLight, westWallLight );
 
@@ -188,9 +202,64 @@ function display3D()
     renderer.render( scene, camera );
 }
 
+function explodeBall() {
+    explosion = true;
+    ball.visible = false;
+    const directions = [];
+
+    fragments.forEach((fragment) => {
+        fragment.position.set(ball.position.x, ball.position.y, ball.position.z);
+        // fragment.position.set(10,10,1);
+        fragment.material.opacity = 1;
+        // Precompute direction vectors
+        const direction = new THREE.Vector3(
+            (Math.random() - 0.5),
+            (Math.random() - 0.5),
+            (Math.random() - 0.5)
+        ).normalize().divideScalar(3)
+        directions.push(direction);
+    })
+
+    const explosionDuration = 500;
+    const startTime = Date.now();
+    const animateExplosion = () => {
+        const elapsedTime = Date.now() - startTime;
+        if (elapsedTime < explosionDuration) {
+            fragments.forEach((fragment, index) => {
+                const direction = directions[index];
+                fragment.position.add(direction.clone());
+                
+                // Fade out
+                fragment.material.opacity = 1 - elapsedTime / explosionDuration;
+
+                // Collision detection with walls
+                if (fragment.position.x < 0 + thickness || fragment.position.x > arenaLength) {
+                    direction.x = -direction.x;
+                }
+                if (fragment.position.y < 0 + thickness || fragment.position.y > arenaWidth) {
+                    direction.y = -direction.y;
+                }
+                if (fragment.position.z < 0 ) {
+                    direction.z = -direction.z;
+
+                }
+            });
+        } else {
+            explosion = false;
+            ball.visible = true;
+            clearInterval(testInterval);
+            resetBall();
+        }
+        renderer.render(scene, camera);
+    };
+    testInterval = setInterval(animateExplosion, 1000 / 60);
+}
+
 function calculBall() {
     // Gestion des collisions avec les murs
     if (y + dy > arenaWidth - thickness/2 - ballRadius || y + dy < thickness/2 + ballRadius ) {
+        light_bump_effect_wall.position.set(x, y + dy * 2, 3)
+        light_bump_effect_wall.intensity = 20
         console.log("[WALL]")
         dy = -dy;
     }
@@ -208,6 +277,7 @@ function calculBall() {
             playerScore++; // Opponent marque un point
             ballDirection = -1; // Le ballon se dirige vers l'adversaire
             updateScore()
+            explodeBall()
             resetBall();
         }
     }
@@ -224,14 +294,18 @@ function calculBall() {
             opponentScore++; // Player marque un point
             ballDirection = 1; // Le ballon se dirige vers le joueur
             updateScore()
+            explodeBall()
             resetBall();
         }
     }
 
-    x += dx;
-    y += dy;
-    ball.position.x = x;
-    ball.position.y = y;
+    if (!explosion)
+    {
+        x += dx;
+        y += dy;
+        ball.position.x = x;
+        ball.position.y = y;
+    }
 
     // Mouvement des paddles
     if (wPressed && paddle_1.position.y + 0.6 < arenaWidth - thickness / 2 - paddleHeight / 2)
@@ -254,7 +328,8 @@ function calculBall() {
         paddle_1Light.intensity -= 5
     if (paddle_2Light.intensity > 5)
         paddle_2Light.intensity -= 5
-
+    if (light_bump_effect_wall.intensity > 0)
+        light_bump_effect_wall.intensity -= 2
     style_controllers()
 }
 

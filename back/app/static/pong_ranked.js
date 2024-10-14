@@ -90,11 +90,40 @@ function receive_pong_ws(data)
         document.getElementById("player1Score").innerHTML = data.score_player1;
         document.getElementById("player2Score").innerHTML = data.score_player2;
 
+        if (paddle_1Light.intensity > 5)
+            paddle_1Light.intensity -= 5
+        if (paddle_2Light.intensity > 5)
+            paddle_2Light.intensity -= 5
+        if (light_bump_effect_wall.intensity > 0)
+            light_bump_effect_wall.intensity -= 2
+
         render_ball(x, y);
+    }
+    if (data.type == 'bump')
+    {
+        if (data.object == 'paddle')
+        {
+            if (data.player == 1)
+                paddle_1Light.intensity = 50
+            else
+                paddle_2Light.intensity = 50
+        }
+        if (data.object == 'wall')
+        {
+            light_bump_effect_wall.position.set(data.x, data.y, 3)
+            light_bump_effect_wall.intensity = 20
+        }
+        if (data.object == 'ball')
+            explodeBall()
     }
     if (data.type === 'end_game')
     {
         console.log("[END GAME]", data);
+        if (light_bump_effect_wall.intensity > 0)
+        {
+            light_bump_effect_wall.intensity = 0
+            renderer.render(scene, camera);
+        }
         display_endgame(data.player1, data.player2, data.score_player1, data.score_player2, data.win_elo_p1, data.win_elo_p2);
     }
 }
