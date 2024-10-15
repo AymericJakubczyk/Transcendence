@@ -140,3 +140,22 @@ class Game_Pong(models.Model):
 	def __str__(self):
 		player2_name = self.player2.username if self.player2 else "No Opponent"
 		return f"Game {self.id} - {self.player1.username} vs {player2_name}"
+
+class PongMultiDataGame(models.Model):
+	ball_x = models.FloatField(default=0)
+	ball_y = models.FloatField(default=0)
+	ball_dx = models.FloatField(default=0)
+	ball_dy = models.FloatField(default=0)
+
+
+class Game_PongMulti(models.Model):
+	playerlist = models.ManyToManyField("User", blank=True)
+	playerlifes = ArrayField(models.IntegerField(default=2), null=True, blank=True)
+	winner = models.ForeignKey(User, related_name='pongMultiwinner', on_delete=models.CASCADE, null=True, blank=True)
+	status = models.CharField(max_length=20, default='waiting')
+	created_at = models.DateTimeField(auto_now_add=True)
+	updated_at = models.DateTimeField(auto_now=True)
+	data = models.OneToOneField(PongMultiDataGame, on_delete=models.SET_NULL, null=True, blank=True)
+
+	class Meta:
+		ordering = ('id', )

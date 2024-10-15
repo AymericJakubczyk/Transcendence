@@ -52,11 +52,10 @@ const ringRadius = 50;
 
 function testMulti()
 {
-    console.log("TEEST MUTLI")
     myCanvas = document.getElementById("pongCanvas")
 
-    console.log("[SIZE]", myCanvas.clientWidth, myCanvas.clientHeight)
-    console.log("[SIZE]", myCanvas.scrollWidth, myCanvas.scrollHeight)
+    console.log("[MULTI SIZE]", myCanvas.clientWidth, myCanvas.clientHeight)
+    console.log("[MULTI SIZE]", myCanvas.scrollWidth, myCanvas.scrollHeight)
     renderer = new THREE.WebGLRenderer({canvas: myCanvas,antialias: true});
     renderer.setSize( myCanvas.clientWidth, myCanvas.clientHeight);
     camera = new THREE.PerspectiveCamera( 75, (myCanvas.clientWidth * 10) / (myCanvas.clientHeight * 10), 0.1, 1000 );
@@ -97,7 +96,6 @@ function testMulti()
 
 function drawZones()
 {   
-    console.log("DISPLAYING ZONES")
     playerZoneSize = (2 * Math.PI) / nbPlayers;
     for (let i = 0; i < nbPlayers; i++)
     {
@@ -138,8 +136,6 @@ function drawPaddles()
         playersObjs[i].paddle.position.y = arenaWidth / 2;
         playersObjs[i].paddle.position.z = 3;
         
-        console.log("DISPLAYING Paddle", i)
-        console.log("\tPaddle Position", playersObjs[i].paddlePosition);
         scene.add( playersObjs[i].paddle );
     }
 }

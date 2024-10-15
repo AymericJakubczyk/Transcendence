@@ -17,6 +17,7 @@ from app.consumers.chatConsumer import ChatConsumer
 from app.consumers.chessConsumer import ChessConsumer
 from app.consumers.pongConsumer import PongConsumer
 from app.consumers.pongTournamentConsumer import pongTournamentConsumer
+from app.consumers.pongMultiplayerConsumer import PongMultiplayerConsumer
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'transcendence.settings')
 
@@ -26,6 +27,7 @@ websocket_urlpatterns = [
 	re_path(r'ws/chess/$', ChessConsumer.as_asgi()),
 	re_path(r'ws/pong/$', PongConsumer.as_asgi()),
 	re_path(r'ws/pongTournament/$', pongTournamentConsumer.as_asgi()),
+	re_path(r'ws/pongMultiplayer/$', PongMultiplayerConsumer.as_asgi()),
 ]
 
 application = ProtocolTypeRouter({
