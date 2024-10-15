@@ -248,7 +248,6 @@ function explodeBall() {
             explosion = false;
             ball.visible = true;
             clearInterval(testInterval);
-            resetBall();
         }
         renderer.render(scene, camera);
     };
@@ -362,6 +361,11 @@ function resetBall()
 {
     x = arenaLength / 2;
     y = arenaWidth / 2;
+    if (ball)
+    {
+        ball.position.x = x;
+        ball.position.y = y;
+    }
     dx = ballDirection * baseSpeed;
     dy = Math.random() - 0.5
 
