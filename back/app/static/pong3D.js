@@ -224,6 +224,8 @@ function explodeBall() {
     const startTime = Date.now();
     const animateExplosion = () => {
         const elapsedTime = Date.now() - startTime;
+        if (light_bump_effect_wall.intensity > 0)
+            light_bump_effect_wall.intensity -= 2
         if (elapsedTime < explosionDuration) {
             fragments.forEach((fragment, index) => {
                 const direction = directions[index];

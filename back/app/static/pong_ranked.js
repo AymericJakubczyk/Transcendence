@@ -1,5 +1,4 @@
 pongSocket = null;
-countdownInterval = null;
 
 
 function search_pong_game()
@@ -52,29 +51,8 @@ function join_pong_game()
 
 function receive_pong_ws(data)
 {
-    if (data.type === 'match_found')
+    if (data.type === 'match_found' || data.type === 'join_game')
     {
-        console.log("[RECEIVE MATCH FOUND]", data);
-        document.getElementById("text").innerHTML = "Match found with " + data.adversaire + " !";
-        redirect = document.createElement("a")
-        redirect.setAttribute("hx-get", window.location.pathname + data.game_id + "/");
-        redirect.setAttribute("hx-push-url", "true");
-        redirect.setAttribute("hx-target", "#page");
-        redirect.setAttribute("hx-swap", "innerHTML");
-        redirect.setAttribute("hx-indicator", "#content-loader");
-        htmx.process(redirect);
-        document.getElementById("page").appendChild(redirect);
-        redirect.click();
-        // redirect_path = window.location.pathname + data.game_id + "/"
-        // history.pushState(null, '', redirect_path);
-        // htmx.ajax('GET', redirect_path, {
-        //     target: '#page',
-        //     swap: 'innerHTML'
-        // })
-    }
-    if (data.type === 'join_game')
-    {
-        console.log("[JOIN GAME]", data);
         htmx_request("/game/pong/ranked/" + data.game_id + "/", "GET", {})
     }
     if (data.type === 'game_update')
@@ -126,6 +104,26 @@ function receive_pong_ws(data)
         }
         display_endgame(data.player1, data.player2, data.score_player1, data.score_player2, data.win_elo_p1, data.win_elo_p2);
     }
+    if (data.type === 'countdown')
+    {
+        console.log("[COUNTDOWN]", data);
+        countdownElement = document.getElementById("countdown")
+        countdownElement.style.opacity = 1;
+        countdownElement.style.fontSize = "100px";
+        countdownElement.innerHTML = data.countdown;
+        if (data.countdown == "GO")
+        {
+            var fadeEffect = setInterval(function () {  
+                if (countdownElement.style.opacity > 0) {
+                    countdownElement.style.opacity -= 0.05;
+                    countdownElement.style.fontSize = parseInt(countdownElement.style.fontSize) - 5 + "px";
+                } else {
+                    clearInterval(fadeEffect);
+                }
+            }, 50);
+            gameInterval = setInterval(function() { catch_input(data.player) }, 10);
+        }
+    }
 }
 
 
@@ -164,8 +162,6 @@ function start_ranked_pong(game, you)
     console.log("[LOG START]", you)
     if (gameInterval)
         clearInterval(gameInterval)
-    if (countdownInterval)
-        clearInterval(countdownInterval)
     console.log("start ranked pong", game.game_id)
     if (!pongSocket)
         join_pong_game()
@@ -223,39 +219,18 @@ function start_ranked_pong(game, you)
 
     display3D()
     display_ranked(game, you)
-
-    countdownInterval = setInterval(function() { countdown(game, you) }, 1000);
 }
 
-function countdown(game, you)
-{
-    countdownElement = document.getElementById("countdown")
-    console.log("countdown", countdownElement.innerHTML)
-    if (countdownElement.innerHTML == "3")
-        countdownElement.innerHTML = "2"
-    else if (countdownElement.innerHTML == "2")
-        countdownElement.innerHTML = "1"
-    else if (countdownElement.innerHTML == "1")
-        countdownElement.innerHTML = "GO"
-    else if (countdownElement.innerHTML == "GO")
-    {
-        countdownElement.innerHTML = ""
-        clearInterval(countdownInterval);
-        // launch_pong_ranked_game()
-        gameInterval = setInterval(function() { catch_input(game, you) }, 10);
-    }
-}
-
-function catch_input(game, you)
+function catch_input(player)
 {
     if (upPressed)
-        move_paddle("up", game, you)
+        move_paddle("up", player)
     else if (downPressed)
-        move_paddle("down", game, you)
+        move_paddle("down", player)
     else if (wPressed)
-        move_paddle("w", game, you)
+        move_paddle("w", player)
     else if (sPressed)
-        move_paddle("s", game, you)
+        move_paddle("s", player)
     
 }
 
@@ -265,7 +240,7 @@ function display_ranked(game, you)
         reverse_cam()
 }
 
-function move_paddle(move, game, you)
+function move_paddle(move, player)
 {
     // =================== via API ===================
     // game_id = window.location.pathname.split("/")[4]
@@ -305,11 +280,9 @@ function move_paddle(move, game, you)
     // =================== via WebSocket ===================
     const obj = {
         'type': 'move_paddle',
-        'player': 1,
+        'player': player,
         'move': move
     };
-    if (game.player2 == you)
-        obj.player = 2
     pongSocket.send(JSON.stringify(obj))
 }
 

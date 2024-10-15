@@ -21,7 +21,7 @@ paddleHeight = 17
 thickness = 1
 baseSpeed = 0.5
 nbrHit = 0
-winningScore = 2
+winningScore = 5
 
 class PongData():
     def __init__(self):
@@ -85,7 +85,6 @@ class PongConsumer(AsyncWebsocketConsumer):
                 self.room_group_name,
                 self.channel_name
             )
-            asyncio.create_task(self.calcul_ball())
         if (text_data_json['type'] == 'move_paddle'):
             self.move_paddle(text_data_json['move'], text_data_json['player'])
             await self.send_updates()
@@ -176,7 +175,15 @@ class PongConsumer(AsyncWebsocketConsumer):
     async def calcul_ball(self):
         global arenaWidth, arenaLength, thickness, ballRadius, paddleWidth, paddleHeight, baseSpeed, nbrHit, all_data, winningScore
 
-        await asyncio.sleep(4)
+        await asyncio.sleep(1)
+        await self.send_countdown("3")
+        await asyncio.sleep(1)
+        await self.send_countdown("2")
+        await asyncio.sleep(1)
+        await self.send_countdown("1")
+        await asyncio.sleep(1)
+        await self.send_countdown("GO")
+        await asyncio.sleep(1)
 
         while self.should_calcul_ball:
             await asyncio.sleep(0.01)  # Wait for 0.01 second
@@ -198,9 +205,10 @@ class PongConsumer(AsyncWebsocketConsumer):
                     all_data[self.game.id].ball_dy = hitPos * 0.15
                 else:
                     nbrHit = 0
+                    all_data[self.game.id].score_player1 += 1
+                    await self.send_updates()
                     await self.send_bump('ball', 0)
                     await asyncio.sleep(0.5)
-                    all_data[self.game.id].score_player1 += 1
                     print("[SCORE]", all_data[self.game.id].paddle1_y, all_data[self.game.id].paddle2_y, file=sys.stderr)
                     all_data[self.game.id].ball_dy = random.random() - 0.5
                     all_data[self.game.id].ball_dx = random.choice([0.5, -0.5])
@@ -218,9 +226,10 @@ class PongConsumer(AsyncWebsocketConsumer):
                     all_data[self.game.id].ball_dy = hitPos * 0.15
                 else:
                     nbrHit = 0
+                    all_data[self.game.id].score_player2 += 1
+                    await self.send_updates()
                     await self.send_bump('ball', 0)
                     await asyncio.sleep(0.5)
-                    all_data[self.game.id].score_player2 += 1
                     print("[SCORE]", all_data[self.game.id].paddle1_y, all_data[self.game.id].paddle2_y, file=sys.stderr)
                     all_data[self.game.id].ball_dy = random.random() - 0.5
                     all_data[self.game.id].ball_dx = random.choice([0.5, -0.5])
@@ -235,6 +244,15 @@ class PongConsumer(AsyncWebsocketConsumer):
 
     async def bump(self, event):
         await self.send(text_data=json.dumps(event))
+
+    async def send_countdown(self, countdown):
+        await self.channel_layer.group_send(
+            "ranked_pong_" + str(self.game.id),
+            {
+                'type': 'countdown',
+                'countdown': countdown
+            }
+        )
 
     async def stop_game(self):
         global all_data, winningScore
@@ -298,6 +316,30 @@ class PongConsumer(AsyncWebsocketConsumer):
             'type': 'join_game',
             'game_id': event['id']
         }))
+        # start the game
+        asyncio.create_task(self.calcul_ball())
+
+    async def countdown(self, event):
+        # get player1 and player2
+        player = await self.get_username_of_game(self.game.id)
+        if (player[0] == self.scope["user"].username):
+            await self.send(text_data=json.dumps({
+                'type': 'countdown',
+                'countdown': event['countdown'],
+                "player":1
+            }))
+        elif (player[1] == self.scope["user"].username):
+            await self.send(text_data=json.dumps({
+                'type': 'countdown',
+                'countdown': event['countdown'],
+                "player":2
+            }))
+        else: # for spectator
+            await self.send(text_data=json.dumps({
+                'type': 'countdown',
+                'countdown': event['countdown'],
+                "player":0
+            }))
 
     @database_sync_to_async
     def create_game(self, player1_username, player2_username):

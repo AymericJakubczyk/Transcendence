@@ -12,6 +12,29 @@
 		style="opacity:0"
 	{% endif %}
 	>
+		<!-- if spectator or player1 -->
+		{% if request.user.username != game.player1.username and request.user.username != game.player2.username or request.user.username == game.player1.username %}
+		<div class="d-flex">
+			<img src="{{ game.player1.profile_picture.url }}" class="pp_game">
+			<div>
+				<h2 class="mb-0" id="yourName">{{ game.player1.username }}</h2>
+				<h5>{{ game.player1.pong_rank }}</h5>
+			</div>
+		</div>
+		<div class="d-flex position-absolute start-50 top-50 translate-middle score">
+			<div id="player1Score">0</div>
+			:
+			<div id="player2Score">0</div>
+		</div>
+		<div class="d-flex">
+			<div>
+				<h2 class="mb-0" id="opponentName">{{ game.player2.username }}</h2>
+				<h5>{{ game.player2.pong_rank }}</h5>
+			</div>
+			<img src="{{ game.player2.profile_picture.url }}" class="pp_game">
+		</div>
+		<!-- else reverse view for player2 -->
+		{% else %} 
 		<div class="d-flex">
 			<img src="{{ request.user.profile_picture.url }}" class="pp_game">
 			<div>
@@ -20,31 +43,18 @@
 			</div>
 		</div>
 		<div class="d-flex position-absolute start-50 top-50 translate-middle score">
-			{% if game.player1.username == request.user.username %}
-			<div id="player1Score">0</div>
-			:
-			<div id="player2Score">0</div>
-			{% else %}
 			<div id="player2Score">0</div>
 			:
 			<div id="player1Score">0</div>
-			{% endif %}
 		</div>
 		<div class="d-flex">
-			{% if game.player1.username != request.user.username %}
 			<div>
 				<h2 class="mb-0" id="opponentName">{{ game.player1.username }}</h2>
 				<h5>{{ game.player1.pong_rank }}</h5>
 			</div>
 			<img src="{{ game.player1.profile_picture.url }}" class="pp_game">
-			{% else %}
-			<div>
-				<h2 class="mb-0" id="opponentName">{{ game.player2.username }}</h2>
-				<h5>{{ game.player2.pong_rank }}</h5>
-			</div>
-			<img src="{{ game.player2.profile_picture.url }}" class="pp_game">
-			{% endif %}
 		</div>
+		{% endif %}
 	</div>
 	
 
@@ -90,7 +100,7 @@
 			</div>
 		</div>
 		{% if not game.winner %}
-			<h1 id="countdown" style="position:absolute">3</h1>
+			<h1 id="countdown" style="position:absolute"></h1>
 		{% endif %}
 	</div>
 
