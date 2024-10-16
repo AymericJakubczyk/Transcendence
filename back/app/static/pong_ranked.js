@@ -192,29 +192,56 @@ function start_ranked_pong(game, you)
     downPressed = false
     updateScore()
     resetBall()
-    
+
+    let cmd1 = document.getElementById("cmd1")
+    let cmd2 = document.getElementById("cmd2")
+
     document.addEventListener("keydown", keyDownHandler);
     document.addEventListener("keyup", keyUpHandler);
     function keyDownHandler(e) {
         if (e.key === "Up" || e.key === "ArrowUp")
+        {
+            cmd1.classList.add("pressed")
             upPressed = true;
+        }
         else if (e.key === "Down" || e.key === "ArrowDown")
+        {
+            cmd2.classList.add("pressed")
             downPressed = true;
-        else if (e.key === "w" || e.key === "W")
-            wPressed = true;
-        else if (e.key === "s" || e.key === "S")
-            sPressed = true;
+        }
+        else if (e.key === "Left" || e.key === "ArrowLeft")
+        {
+            cmd1.classList.add("pressed")
+            upPressed = true;
+        }
+        else if (e.key === "Right" || e.key === "ArrowRight")
+        {
+            cmd2.classList.add("pressed")
+            downPressed = true;
+        }
     }
 
     function keyUpHandler(e) {
         if (e.key === "Up" || e.key === "ArrowUp")
+        {
+            cmd1.classList.remove("pressed")
             upPressed = false;
+        }
         else if (e.key === "Down" || e.key === "ArrowDown")
+        {
+            cmd2.classList.remove("pressed")
             downPressed = false;
-        else if (e.key === "w" || e.key === "W")
-            wPressed = false;
-        else if (e.key === "s" || e.key === "S")
-            sPressed = false;
+        }
+        else if (e.key === "Left" || e.key === "ArrowLeft")
+        {
+            cmd1.classList.remove("pressed")
+            upPressed = false;
+        }
+        else if (e.key === "Right" || e.key === "ArrowRight")
+        {
+            cmd2.classList.remove("pressed")
+            downPressed = false;
+        }
     }
 
     display3D()
@@ -226,16 +253,12 @@ function catch_input(player)
     if (upPressed)
         move_paddle("up", player)
     else if (downPressed)
-        move_paddle("down", player)
-    else if (wPressed)
-        move_paddle("w", player)
-    else if (sPressed)
-        move_paddle("s", player)
-    
+        move_paddle("down", player)  
 }
 
 function display_ranked(game, you)
 {
+    reverse = false
     if (you == game.player2)
         reverse_cam()
 }

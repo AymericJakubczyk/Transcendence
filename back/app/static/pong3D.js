@@ -38,6 +38,7 @@ var explosion = false;
 const fragmentCount = 50;
 const fragments = [];
 
+var reverse = false;
 
 function startGame()
 {
@@ -397,21 +398,63 @@ function stopGame()
 
 function cam1()
 {
+    // change controls style
+    let cam1 = document.getElementById("cam1")
+    let cam2 = document.getElementById("cam2")
+    if (cam1 && cam2 && !cam1.classList.contains("pressed"))
+    {
+        cam1.classList.add("pressed");
+        cam2.classList.remove("pressed");
+
+        let div_controls = document.getElementById("div-controls")
+        div_controls.style.flexDirection = "column"
+        let cmd1 = document.getElementById("cmd1")
+        let cmd2 = document.getElementById("cmd2")
+        cmd1.innerHTML = "🠕"
+        cmd2.innerHTML = "🠗"
+    }
+
+    // change camera position
     camera.position.z = arenaLength / 2
-    camera.position.y = arenaWidth / 2 - 5;
-    camera.position.x = arenaLength/2; 
+    camera.position.y = arenaWidth / 2;
+    camera.position.x = arenaLength / 2; 
     camera.up.set(0,0,0);
     camera.lookAt(new THREE.Vector3(arenaLength/2,arenaWidth/2,0))
+    if (reverse)
+        camera.rotation.z = Math.PI;
     renderer.render( scene, camera );
 }
 
 function cam2()
 {
+    // change controls style
+    let cam1 = document.getElementById("cam1")
+    let cam2 = document.getElementById("cam2")
+    if (cam1 && cam2 && !cam2.classList.contains("pressed"))
+    {
+        cam1.classList.remove("pressed");
+        cam2.classList.add("pressed");
+
+        let div_controls = document.getElementById("div-controls")
+        div_controls.style.flexDirection = "row"
+        let cmd1 = document.getElementById("cmd1")
+        let cmd2 = document.getElementById("cmd2")
+        cmd1.innerHTML = "⭠"
+        cmd2.innerHTML = "⭢"
+    }
+
+    // change camera position
     camera.position.z = 30;
     camera.position.x = -(arenaWidth / 3);
     camera.position.y = arenaWidth / 2;
     camera.up.set(1,0,0)
     camera.lookAt(new THREE.Vector3(arenaLength/2,arenaWidth/2,0))
+    if (reverse)
+    {
+        camera.position.x = arenaLength + arenaWidth / 3;
+        camera.lookAt(new THREE.Vector3(arenaLength/2,arenaWidth/2,0))
+        camera.rotation.z = Math.PI / 2;
+    }
     console.log("pos", ball.position)
     renderer.render(scene, camera);
 }
@@ -425,11 +468,6 @@ function render_ball(x, y)
 
 function reverse_cam()
 {
-    camera.position.y = arenaWidth / 2 - (camera.position.y - arenaWidth / 2);
-    camera.position.x = arenaLength/2; 
-    // camera.up.set(0,0,0);
-    camera.lookAt(new THREE.Vector3(arenaLength/2,arenaWidth/2,0))
-    // rotate camera to 180 degree
-    camera.rotation.z = Math.PI;
-    renderer.render( scene, camera );
+    reverse = true
+    cam1()
 }

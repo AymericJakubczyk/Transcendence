@@ -6,102 +6,111 @@
 	<h1 class="header">ULTIMATE EXTRA COOL SUPER PONG TOURNAMENT EXTREME BATTLE</h1>
 	<h5 class="header">Welcome in the history</h5>
 	
-	<!-- Affichage des scores -->
-	<div class="d-flex position-relative justify-content-between scoreboard"
-	{% if game.winner %}
-		style="opacity:0"
-	{% endif %}
-	>
-		<!-- if spectator or player1 -->
-		{% if request.user.username != game.player1.username and request.user.username != game.player2.username or request.user.username == game.player1.username %}
-		<div class="d-flex">
-			<img src="{{ game.player1.profile_picture.url }}" class="pp_game">
-			<div>
-				<h2 class="mb-0" id="yourName">{{ game.player1.username }}</h2>
-				<h5>{{ game.player1.pong_rank }}</h5>
+	<div class="d-flex">
+		{% if game.player1 == request.user or game.player2 == request.user %}
+		<div class="align-content-center">
+			<div class="d-flex align-items-center">
+				<h1 class="key m-1" id="cam1">1</h1>
+				<h1 class="key m-1" id="cam2">2</h1> 
 			</div>
-		</div>
-		<div class="d-flex position-absolute start-50 top-50 translate-middle score">
-			<div id="player1Score">0</div>
-			:
-			<div id="player2Score">0</div>
-		</div>
-		<div class="d-flex">
-			<div>
-				<h2 class="mb-0" id="opponentName">{{ game.player2.username }}</h2>
-				<h5>{{ game.player2.pong_rank }}</h5>
-			</div>
-			<img src="{{ game.player2.profile_picture.url }}" class="pp_game">
-		</div>
-		<!-- else reverse view for player2 -->
-		{% else %} 
-		<div class="d-flex">
-			<img src="{{ request.user.profile_picture.url }}" class="pp_game">
-			<div>
-				<h2 class="mb-0" id="yourName">{{ request.user.username }}</h2>
-				<h5>{{ request.user.pong_rank }}</h5>
-			</div>
-		</div>
-		<div class="d-flex position-absolute start-50 top-50 translate-middle score">
-			<div id="player2Score">0</div>
-			:
-			<div id="player1Score">0</div>
-		</div>
-		<div class="d-flex">
-			<div>
-				<h2 class="mb-0" id="opponentName">{{ game.player1.username }}</h2>
-				<h5>{{ game.player1.pong_rank }}</h5>
-			</div>
-			<img src="{{ game.player1.profile_picture.url }}" class="pp_game">
-		</div>
-		{% endif %}
-	</div>
-	
 
-	<!-- Canevas du jeu, masqué par défaut -->
-	<div class="main-box w-100 align-items-center justify-content-center" style="display: flex; position:relative" id="gameContainer">
-		<div style="z-index:1000">
-			<h1 class="key" id="keyw">w</h1>
-			<h1 class="key" id="keys">s</h1>
-		</div>
-		<canvas class="w-100" id="pongCanvas" width="780" height="480"></canvas>
-		<div id="opponentController">
-			<h1 class="key" id="keyup">🠕</h1>
-			<h1 class="key" id="keydown">🠗</h1>
-		</div>
-		<div id="endgame" style="position:absolute; background:rgba(50, 50, 50, 0.7); display:none" class="endgame flex-column border border-secondary rounded w-25 h-75">
-			<h1 class="text-center">Game Over</h1>
-			<div>
-				<div class="d-flex justify-content-center">
-					<h3 id="winnerScore">{{game.player1_score}}</h3>
-					<h3>-</h3>
-					<h3 id="loserScore">{{game.player2_score}}</h3>
-				</div>
-				<div class="d-flex justify-content-around">
-					<div id="winner" class="d-flex flex-column align-items-center justify-content-center w-50">
-						<img id="winnerpp" src="{{ game.player1.profile_picture.url }}" class="pp_game" style="height:8vw; max-height:100px">
-						<h2 id="winnerName" class="mb-0">{{ game.player1.username }}</h2>
-						{%if game.player1_rank %}
-							<h5 id="winnerRank">{{ game.player1_rank}}</h5>
-						{% else %}
-							<h5 id="winnerRank">{{ game.player1.pong_rank}}</h5>
-						{% endif %}
-					</div>
-					<div id="loser" class="d-flex flex-column align-items-center justify-content-center w-50" style="opacity:0.5">
-						<img id="loserpp" src="{{ game.player2.profile_picture.url }}" class="pp_game">
-						<h3 id="loserName" class="mb-0">{{ game.player2.username }}</h3>
-						{%if game.player2_rank %}
-							<h5 id="loserRank">{{ game.player2_rank}}</h5>
-						{% else %}
-							<h5 id="loserRank">{{ game.player2.pong_rank}}</h5>
-						{% endif %}
-					</div>
-				</div>
+			<div id="div-controls" class="d-flex align-items-center" style="height:216px; flex-direction:column">
+				<h1 class="key m-1" id="cmd1">🠕</h1>
+				<h1 class="key m-1" id="cmd2">🠗</h1>
 			</div>
 		</div>
-		{% if not game.winner %}
-			<h1 id="countdown" style="position:absolute"></h1>
 		{% endif %}
+
+		<div id="game_area" class="w-100">
+			<!-- Affichage des scores -->
+			<div class="d-flex position-relative justify-content-between scoreboard"
+			{% if game.winner %}
+				style="opacity:0"
+			{% endif %}
+			>
+				<!-- if spectator or player1 -->
+				{% if request.user.username != game.player1.username and request.user.username != game.player2.username or request.user.username == game.player1.username %}
+				<div class="d-flex">
+					<img src="{{ game.player1.profile_picture.url }}" class="pp_game">
+					<div>
+						<h2 class="mb-0" id="yourName">{{ game.player1.username }}</h2>
+						<h5>{{ game.player1.pong_rank }}</h5>
+					</div>
+				</div>
+				<div class="d-flex position-absolute start-50 top-50 translate-middle score">
+					<div id="player1Score">0</div>
+					:
+					<div id="player2Score">0</div>
+				</div>
+				<div class="d-flex">
+					<div>
+						<h2 class="mb-0" id="opponentName">{{ game.player2.username }}</h2>
+						<h5>{{ game.player2.pong_rank }}</h5>
+					</div>
+					<img src="{{ game.player2.profile_picture.url }}" class="pp_game">
+				</div>
+				<!-- else reverse view for player2 -->
+				{% else %} 
+				<div class="d-flex">
+					<img src="{{ request.user.profile_picture.url }}" class="pp_game">
+					<div>
+						<h2 class="mb-0" id="yourName">{{ request.user.username }}</h2>
+						<h5>{{ request.user.pong_rank }}</h5>
+					</div>
+				</div>
+				<div class="d-flex position-absolute start-50 top-50 translate-middle score">
+					<div id="player2Score">0</div>
+					:
+					<div id="player1Score">0</div>
+				</div>
+				<div class="d-flex">
+					<div>
+						<h2 class="mb-0" id="opponentName">{{ game.player1.username }}</h2>
+						<h5>{{ game.player1.pong_rank }}</h5>
+					</div>
+					<img src="{{ game.player1.profile_picture.url }}" class="pp_game">
+				</div>
+				{% endif %}
+			</div>
+			
+			<!-- Canevas du jeu -->
+			<div class="main-box w-100 align-items-center justify-content-center" style="display: flex; position:relative" id="gameContainer">
+				<canvas class="w-100 m-0" id="pongCanvas" width="780" height="480"></canvas>
+				<div id="endgame" style="position:absolute; background:rgba(50, 50, 50, 0.7); display:none" class="endgame flex-column border border-secondary rounded w-25 h-75">
+					<h1 class="text-center">Game Over</h1>
+					<div>
+						<div class="d-flex justify-content-center">
+							<h3 id="winnerScore">{{game.player1_score}}</h3>
+							<h3>-</h3>
+							<h3 id="loserScore">{{game.player2_score}}</h3>
+						</div>
+						<div class="d-flex justify-content-around">
+							<div id="winner" class="d-flex flex-column align-items-center justify-content-center w-50">
+								<img id="winnerpp" src="{{ game.player1.profile_picture.url }}" class="pp_game" style="height:8vw; max-height:100px">
+								<h2 id="winnerName" class="mb-0">{{ game.player1.username }}</h2>
+								{%if game.player1_rank %}
+									<h5 id="winnerRank">{{ game.player1_rank}}</h5>
+								{% else %}
+									<h5 id="winnerRank">{{ game.player1.pong_rank}}</h5>
+								{% endif %}
+							</div>
+							<div id="loser" class="d-flex flex-column align-items-center justify-content-center w-50" style="opacity:0.5">
+								<img id="loserpp" src="{{ game.player2.profile_picture.url }}" class="pp_game">
+								<h3 id="loserName" class="mb-0">{{ game.player2.username }}</h3>
+								{%if game.player2_rank %}
+									<h5 id="loserRank">{{ game.player2_rank}}</h5>
+								{% else %}
+									<h5 id="loserRank">{{ game.player2.pong_rank}}</h5>
+								{% endif %}
+							</div>
+						</div>
+					</div>
+				</div>
+				{% if not game.winner %}
+					<h1 id="countdown" style="position:absolute"></h1>
+				{% endif %}
+			</div>
+		</div>
 	</div>
 
 	
