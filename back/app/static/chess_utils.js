@@ -117,6 +117,41 @@ function isDefendable()
     return false;
 }
 
+function isPat()
+{
+    for (let i = 0; i < 16; i++)
+    {
+        if (whiteTeam[i].alive == 0 && whiteTeam[i].name != "King")
+        {
+            whiteTeam[i].getPossibleMove(pieces);
+            for (let x = 0; x < 8; x++)
+            {
+                for (let y = 0; y < 8; y++)
+                {
+                    if (whiteTeam[i].canMove == 1)
+                        return false;
+                }
+            }
+        }
+    }
+    for (let i = 0; i < 16; i++)
+    {
+        if (blackTeam[i].alive == 0 && blackTeam[i].name != "King")
+        {
+            blackTeam[i].getPossibleMove(pieces);
+            for (let x = 0; x < 8; x++)
+            {
+                for (let y = 0; y < 8; y++)
+                {
+                    if (blackTeam[i].canMove == 1)
+                        return false;
+                }
+            }
+        }
+    }
+    return true;
+}
+
 function isCheckMate()
 {
     let team = oldColor === "white" ? whiteTeam : blackTeam;
@@ -259,8 +294,9 @@ function isStillCheck(piece, newx, newy, king)
     {
         if (newteam[i] == null)
             continue ;
-        if (newteam[i].alive == 0)
-            newteam[i].resetPossibleMove();
+        if (newteam[i].alive == 1)
+            continue ;
+        newteam[i].resetPossibleMove();
         if (newteam[i].name == "Pawn")
             newteam[i].getAttackMove();
         else

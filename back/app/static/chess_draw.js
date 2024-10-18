@@ -93,7 +93,7 @@ function drawPossibleDefenseMove(context)
     {
         for (var j = 0; j < 8; j++)
         {
-            if (selectedOne.name == "King" && selectedOne.possibleMoves[i][j] == "PossibleMove" && king.check[i][j] == "noPossibleMove" && isStillCheck(selectedOne, i, j, king) == false)
+            if (selectedOne.name == "King" && selectedOne.possibleMoves[i][j] == "PossibleMove" && king.check[i][j] == "noPossibleMove")
                 drawTheMove(i, j, context);
             else if (selectedOne.name == "King" && selectedOne.possibleMoves[i][j] == "PossibleMove" && king.check[i][j] == "Checker" && pieces[i][j].defended == 0 && isStillCheck(selectedOne, i, j, king) == false)
                 drawPossibleCaptureMove(i, j, context);

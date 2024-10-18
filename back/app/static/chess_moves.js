@@ -144,11 +144,17 @@ function movePiece(y, x, context)
         selectedOne.getPossibleMove(pieces);
 	selected = false;
 	selectedOne = null;
+    let king = oldColor === "white" ? blackKing : whiteKing;
+    if (king.checked == 1)
+    {
+        king.checked = 0;
+        king.resetCheck();
+    }
 }
 
 function moveCheck(context, king, posy, posx)
 {
-    if (selectedOne.name == "King" && selectedOne.possibleMoves[posy][posx] == "PossibleMove" && king.check[posy][posx] == "noPossibleMove" && (pieces[posy][posx].defended == 0 || pieces[posy][posx] == "") && isStillCheck(selectedOne, posy, posx, king) == false)
+    if (selectedOne.name == "King" && selectedOne.possibleMoves[posy][posx] == "PossibleMove" && king.check[posy][posx] == "noPossibleMove" && (pieces[posy][posx].defended == 0 || pieces[posy][posx] == ""))
         movePiece(posy, posx, context);
     else if ((selectedOne.possibleMoves[posy][posx] == "PossibleMove") && king.check[posy][posx] == "Checker" && isStillCheck(selectedOne, posy, posx, king) == false)
         movePiece(posy, posx, context);

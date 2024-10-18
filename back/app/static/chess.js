@@ -29,6 +29,11 @@ function game(x, y, context)
     newx = posx;
     newy = posy;
     
+    if (isPat() == true)
+    {
+        alert("Pat");
+        return ;
+    }
     if (!selected)
     {
         if (pieces[posy][posx].color == oldColor)
@@ -39,6 +44,7 @@ function game(x, y, context)
             selectedOne = pieces[posy][posx];
             oldx = posx;
             oldy = posy;
+            selectedOne.getPossibleMove(pieces);
             if (isChecked() == true)
                 handleCheck(context, posx, posy);
             else
@@ -47,6 +53,7 @@ function game(x, y, context)
     }
     else
     {
+        let king = oldColor === "white" ? blackKing : whiteKing;
         redrawPossibleCapture(context);
         if (!selectedOne.color)
         {
@@ -56,7 +63,6 @@ function game(x, y, context)
         }
         if (isChecked() == true && pieces[posy][posx] != selectedOne)
         {
-            let king = oldColor === "white" ? blackKing : whiteKing;
             king.resetPossibleMove();
             king.getPossibleMove(pieces);
             moveCheck(context, king, posy, posx);
@@ -85,8 +91,17 @@ function game(x, y, context)
             selected = false;
             selectedOne = null;
         }
+        king.resetCheck();
         handleEnPassant(context);
 		drawChess(context);
+        
+        
+        
+        //SEND MOVE TO SERVER
+        //SEND MOVE TO SERVER        
+        
+        
+        
     }
 }
 

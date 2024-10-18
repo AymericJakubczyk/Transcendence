@@ -12,6 +12,7 @@ class Pawn {
         this.enPassant = 0;
         this.ePleft = 0;
         this.ePright = 0;
+        this.canMove = 0;
         this.name = name;
         this.color = color;
         this.posx = posx;
@@ -101,6 +102,7 @@ class Pawn {
             for (var j = 0; j < 8; j++)
                 this.possibleMoves[i][j] = "noPossibleMove";
         }
+        piece.canMove = 0;   
     }
 }
 
@@ -110,6 +112,7 @@ class Knight {
         this.name = name;
         this.color = color;
         this.posx = posx;
+        this.canMove = 0;
         this.posy = posy;
         this.img = img;
         this.isSelected = 0;
@@ -148,6 +151,7 @@ class Knight {
             for (var j = 0; j < 8; j++)
                 this.possibleMoves[i][j] = "noPossibleMove";
         }
+        piece.canMove = 0;   
     }
 }
 
@@ -156,6 +160,7 @@ class Rook {
     {
         this.id = id;
         this.defended = 0;
+        this.canMove = 0;
         this.name = name;
         this.color = color;
         this.posx = posx;
@@ -207,6 +212,7 @@ class Rook {
             for (var j = 0; j < 8; j++)
                 this.possibleMoves[i][j] = "noPossibleMove";
         }
+        piece.canMove = 0;   
     }
 }
 
@@ -215,6 +221,7 @@ class Bishop {
     {
         this.name = name;
         this.defended = 0;
+        this.canMove = 0;
         this.color = color;
         this.posx = posx;
         this.posy = posy;
@@ -264,6 +271,7 @@ class Bishop {
             for (var j = 0; j < 8; j++)
                 this.possibleMoves[i][j] = "noPossibleMove";
         }
+        piece.canMove = 0;
     }
 }
 
@@ -272,6 +280,7 @@ class King {
     {
         this.count = 0;
         this.checked = 0;
+        this.canMove = 0;
         this.name = name;
         this.color = color;
         this.posx = posx;
@@ -355,13 +364,14 @@ class King {
             for (var j = 0; j < 8; j++)
                 this.possibleMoves[i][j] = "noPossibleMove";
         }
+        piece.canMove = 0;
     }
     resetCheck()
     {
         for (var i = 0; i < 8; i++)
         {
             for (var j = 0; j < 8; j++)
-                this.possibleMoves[i][j] = "noPossibleMove";
+                this.check[i][j] = "noPossibleMove";
         }
     }
 }
@@ -370,6 +380,7 @@ class Queen {
     constructor (name, color, posx, posy, img)
     {
         this.defended = 0;
+        this.canMove = 0;
         this.name = name;
         this.color = color;
         this.posx = posx;
@@ -439,6 +450,7 @@ class Queen {
             for (var j = 0; j < 8; j++)
                 this.possibleMoves[i][j] = "noPossibleMove";
         }
+        piece.canMove = 0;   
     }
 }
 
@@ -455,7 +467,11 @@ function checkCell(x, y, piece, tab)
     if (x >= 0 && x < 8 && y >= 0 && y < 8)
     {   
         if (tab[x][y] == "")
+        {
             piece.possibleMoves[x][y] = "PossibleMove";
+            if (piece.canMove == 0)
+                piece.canMove = 1;   
+        }
         else
         {
             if (tab[x][y].color != piece.color)
@@ -477,6 +493,8 @@ function checkCell(x, y, piece, tab)
             }
             else
             {
+                if (piece.canMove == 0)
+                    piece.canMove = 1;
                 piece.possibleMoves[x][y] = "PossibleMove";
                 return false;
             }
@@ -517,6 +535,8 @@ function registerMoves(piece)
     }
     registerCheckMoves(piece, posxking, posyking);
     king.check[piece.posx][piece.posy] = "Checker";
+    if (king.count == 0)
+        king.count = 1;
 }
 
 function isRowMove(piece, x, y, king)
