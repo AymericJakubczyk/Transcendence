@@ -11,3 +11,7 @@
 	position: relative;
 	border:2px solid;
 }
+
+.PlayerName {
+	font-size : 30px;
+}

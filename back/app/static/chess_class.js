@@ -43,12 +43,19 @@ class Pawn {
                 if (this.ePright == 1)
                 {
                     if (isPossible(posx - 1, posy + 1, this) && pieces[posx - 1][posy + 1].color == null)
-                        this.possibleMoves[posx - 1][posy + 1] = "enPassant";
-                }
+                    {
+                        if (piece.canMove == 0)
+                            piece.canMove = 1;   
+                        this.possibleMoves[posx - 1][posy - 1] = "enPassant";
+                    }                }
                 if (this.ePleft == 1)
                 {
                     if (isPossible(posx - 1, posy - 1, this) && pieces[posx - 1][posy - 1].color == null)
+                    {
+                        if (piece.canMove == 0)
+                            piece.canMove = 1;   
                         this.possibleMoves[posx - 1][posy - 1] = "enPassant";
+                    }
                 }
             }
             if (posx == 1)
@@ -102,7 +109,7 @@ class Pawn {
             for (var j = 0; j < 8; j++)
                 this.possibleMoves[i][j] = "noPossibleMove";
         }
-        piece.canMove = 0;   
+        this.canMove = 0;
     }
 }
 
@@ -151,7 +158,7 @@ class Knight {
             for (var j = 0; j < 8; j++)
                 this.possibleMoves[i][j] = "noPossibleMove";
         }
-        piece.canMove = 0;   
+        this.canMove = 0;   
     }
 }
 
@@ -212,7 +219,7 @@ class Rook {
             for (var j = 0; j < 8; j++)
                 this.possibleMoves[i][j] = "noPossibleMove";
         }
-        piece.canMove = 0;   
+        this.canMove = 0;   
     }
 }
 
@@ -271,7 +278,7 @@ class Bishop {
             for (var j = 0; j < 8; j++)
                 this.possibleMoves[i][j] = "noPossibleMove";
         }
-        piece.canMove = 0;
+        this.canMove = 0;
     }
 }
 
@@ -364,7 +371,7 @@ class King {
             for (var j = 0; j < 8; j++)
                 this.possibleMoves[i][j] = "noPossibleMove";
         }
-        piece.canMove = 0;
+        this.canMove = 0;
     }
     resetCheck()
     {
@@ -450,7 +457,7 @@ class Queen {
             for (var j = 0; j < 8; j++)
                 this.possibleMoves[i][j] = "noPossibleMove";
         }
-        piece.canMove = 0;   
+        this.canMove = 0;   
     }
 }
 

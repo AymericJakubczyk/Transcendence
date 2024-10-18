@@ -211,7 +211,11 @@ function pawnCheckAttack(x, y, piece)
         else if (piece.color == "black" && posx == 6)
             piece.possibleMoves[x][y] = "PossiblePromAtq";
         else
+        {
+            if (canMove == 0)
+                canMove = 1;
             piece.possibleMoves[x][y] = "PossibleMove";
+        }
         return true;
     }
     else if (pieces[x][y].color == piece.color)
@@ -229,6 +233,8 @@ function pawnCheckCell(x, y, piece)
     if (isPossible(x, y, piece) && pieces[x][y].color != piece.color)
     {   
         piece.possibleMoves[x][y] = "PossibleMove";
+        if (piece.canMove == 0)
+            piece.canMove = 1;
         return true;
     }
     return false;
@@ -239,7 +245,9 @@ function pawnCheckProm(x, y, piece)
     if (pieces[x][y].color != null)
         return;
     if (isPossible(x, y, piece) && pieces[x][y].color != piece.color)
-    {   
+    {
+        if (piece.canMove == 0)
+            piece.canMove = 1;
         piece.possibleMoves[x][y] = "PossibleProm";
         return true;
     }
@@ -253,6 +261,8 @@ function pawnCheckCellDouble(x, y, piece)
         if (pawnCheckCell(x - 1, y, piece) == true)
         {   
             piece.possibleMoves[x - 1][y] = "PossibleMove";
+            if (piece.canMove == 0)
+                piece.canMove = 1;
             if (pawnCheckCell(x - 2, y, piece) == true)
                 piece.possibleMoves[x - 2][y] = "PossibleDoubleMove";
         }
@@ -262,6 +272,8 @@ function pawnCheckCellDouble(x, y, piece)
         if (pawnCheckCell(x + 1, y, piece) == true)
         {   
             piece.possibleMoves[x + 1][y] = "PossibleMove";
+            if (piece.canMove == 0)
+                piece.canMove = 1;
             if (pawnCheckCell(x + 2, y, piece) == true)
                 piece.possibleMoves[x + 2][y] = "PossibleDoubleMove";
         }

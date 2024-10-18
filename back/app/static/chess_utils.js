@@ -121,32 +121,22 @@ function isPat()
 {
     for (let i = 0; i < 16; i++)
     {
+        console.log(whiteTeam[i]);
         if (whiteTeam[i].alive == 0 && whiteTeam[i].name != "King")
         {
             whiteTeam[i].getPossibleMove(pieces);
-            for (let x = 0; x < 8; x++)
-            {
-                for (let y = 0; y < 8; y++)
-                {
-                    if (whiteTeam[i].canMove == 1)
-                        return false;
-                }
-            }
+            if (whiteTeam[i].canMove == 1)
+                return false;
         }
     }
     for (let i = 0; i < 16; i++)
     {
+        console.log(blackTeam[i]);
         if (blackTeam[i].alive == 0 && blackTeam[i].name != "King")
         {
             blackTeam[i].getPossibleMove(pieces);
-            for (let x = 0; x < 8; x++)
-            {
-                for (let y = 0; y < 8; y++)
-                {
-                    if (blackTeam[i].canMove == 1)
-                        return false;
-                }
-            }
+            if (blackTeam[i].canMove == 1)
+                return false;
         }
     }
     return true;

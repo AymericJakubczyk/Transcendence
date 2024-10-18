@@ -97,8 +97,8 @@ function game(x, y, context)
         
         
         
-        //SEND MOVE TO SERVER
-        //SEND MOVE TO SERVER        
+        //SEND MOVE TO SERVER  oldx oldy newx newy
+        //SEND MOVE TO SERVER  oldx oldy newx newy
         
         
         
