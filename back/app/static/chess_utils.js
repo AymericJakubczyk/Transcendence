@@ -82,10 +82,6 @@ function getEnemyMoves()
 
 function handleCheck(context, posx, posy)
 {
-    if (isCheckMate())
-    {
-        alert(oldColor + " won the game");
-    }
     if (isDefendable() == false)
     {
         selected = false;
@@ -144,9 +140,11 @@ function isPat()
 
 function isCheckMate()
 {
-    let team = oldColor === "white" ? whiteTeam : blackTeam;
+    let team = oldColor === "white" ? blackTeam : whiteTeam;
     let king = oldColor === "white" ? blackKing : whiteKing;
     console.log(team, king);
+    if (isChecked() == false)
+        return false;
     if (canKingMove(king))
         return false;
     console.log("canKingMove");
@@ -198,7 +196,10 @@ function canSomeoneBlock(team, king)
             for (let y = 0; y < 8; y++)
             {
                 if (team[i].name != "King" && team[i].possibleMoves[x][y] == "PossibleMove" && king.check[x][y] == "CheckMove" && isStillCheck(team[i], x, y, king) == false)
+                {
+                    console.log(team[i], x, y);   
                     return true;
+                }
                 // console.log(team[i].possibleMoves[x][y], king.check[x][y], isStillCheck(team[i], x, y, king));
             }
         }

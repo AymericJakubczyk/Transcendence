@@ -321,21 +321,45 @@ class King {
             if (isPossibleKingMove(posx, 1, this) && isPossibleKingMove(posx, 2, this) && isPossibleKingMove(posx, 3, this) && pieces[posx][0].id == 1 && pieces[posx][0].count == 0 && this.count == 0)
                 this.possibleMoves[posx][2] = "LeftRock";
         if (isPossibleKingMove(posx - 1, posy - 1, this) == true)
+        {
+            this.canMove = 1;
             this.possibleMoves[posx - 1][posy - 1] = "PossibleMove";
+        }    
         if (isPossibleKingMove(posx - 1, posy, this) == true)
+        {
+            this.canMove = 1;
             this.possibleMoves[posx - 1][posy] = "PossibleMove";
+        }    
         if (isPossibleKingMove(posx - 1, posy + 1, this) == true)
+        {
+            this.canMove = 1;
             this.possibleMoves[posx - 1][posy + 1] = "PossibleMove";
+        }    
         if (isPossibleKingMove(posx + 1, posy - 1, this) == true)
+        {
+            this.canMove = 1;
             this.possibleMoves[posx + 1][posy - 1] = "PossibleMove";
+        }    
         if (isPossibleKingMove(posx + 1, posy, this) == true)
+        {
+            this.canMove = 1;
             this.possibleMoves[posx + 1][posy] = "PossibleMove";
+        }    
         if (isPossibleKingMove(posx + 1, posy + 1, this) == true)
+        {
+            this.canMove = 1;
             this.possibleMoves[posx + 1][posy + 1] = "PossibleMove";   
+        }    
         if (isPossibleKingMove(posx, posy + 1, this) == true)
+        {
+            this.canMove = 1;
             this.possibleMoves[posx][posy + 1] = "PossibleMove";
+        }    
         if (isPossibleKingMove(posx , posy - 1, this) == true)
+        {
+            this.canMove = 1;
             this.possibleMoves[posx][posy - 1] = "PossibleMove";
+        }    
     }
     getPossibleNormalMove()
     {
@@ -348,21 +372,45 @@ class King {
             if (isPossible(posx, 1, this) && isPossible(posx, 2, this) && isPossible(posx, 3, this) && pieces[posx][0].id == 1 && pieces[posx][0].count == 0 && this.count == 0)
                 this.possibleMoves[posx][2] = "LeftRock";
         if (isPossible(posx - 1, posy - 1, this) == true)
+        {
+            this.canMove = 1;   
             this.possibleMoves[posx - 1][posy - 1] = "PossibleMove";
+        }
         if (isPossible(posx - 1, posy, this) == true)
+        {
+            this.canMove = 1;      
             this.possibleMoves[posx - 1][posy] = "PossibleMove";
+        }
         if (isPossible(posx - 1, posy + 1, this) == true)
+        {
+            this.canMove = 1;
             this.possibleMoves[posx - 1][posy + 1] = "PossibleMove";
+        }    
         if (isPossible(posx + 1, posy - 1, this) == true)
+        {
+            this.canMove = 1;
             this.possibleMoves[posx + 1][posy - 1] = "PossibleMove";
+        }    
         if (isPossible(posx + 1, posy, this) == true)
+        {
+            this.canMove = 1;
             this.possibleMoves[posx + 1][posy] = "PossibleMove";
+        }    
         if (isPossible(posx + 1, posy + 1, this) == true)
+        {
+            this.canMove = 1;
             this.possibleMoves[posx + 1][posy + 1] = "PossibleMove";   
+        }    
         if (isPossible(posx, posy + 1, this) == true)
+        {
+            this.canMove = 1;
             this.possibleMoves[posx][posy + 1] = "PossibleMove";
+        }    
         if (isPossible(posx , posy - 1, this) == true)
+        {
+            this.canMove = 1;
             this.possibleMoves[posx][posy - 1] = "PossibleMove";
+        }    
     }
     resetPossibleMove()
     {
@@ -542,8 +590,6 @@ function registerMoves(piece)
     }
     registerCheckMoves(piece, posxking, posyking);
     king.check[piece.posx][piece.posy] = "Checker";
-    if (king.count == 0)
-        king.count = 1;
 }
 
 function isRowMove(piece, x, y, king)

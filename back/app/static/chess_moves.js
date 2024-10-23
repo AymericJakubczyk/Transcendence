@@ -66,7 +66,7 @@ function giveEnpassant(posx, posy)
 	whosPlaying(oldColor);
 	pieces[oldy][oldx] = '';
 	if (selectedOne.name == "King" || selectedOne.name == "Rook")
-		selectedOne.count = 1;    
+		selectedOne.count = 1;
 	selected = false;
 	selectedOne = null;	
 }
@@ -212,8 +212,8 @@ function pawnCheckAttack(x, y, piece)
             piece.possibleMoves[x][y] = "PossiblePromAtq";
         else
         {
-            if (canMove == 0)
-                canMove = 1;
+            if (piece.canMove == 0)
+                piece.canMove = 1;
             piece.possibleMoves[x][y] = "PossibleMove";
         }
         return true;

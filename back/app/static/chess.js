@@ -1,5 +1,5 @@
 //INIT GLOBAL VALUES
-var selected = 0;
+var selected = false;
 var selectedOne = null;
 var oldx;
 var oldy;
@@ -36,10 +36,25 @@ function game(x, y, context)
     }
     if (!selected)
     {
+        if (isCheckMate() == true)
+        {
+            console.log("End game test");
+            canvas.removeEventListener('click', chessClickListener, false);  
+            document.getElementById("endgame").style.display = 'block';
+            document.getElementById("endgame").style.position = "static";
+            document.getElementById("endgame").style.heigth = "400";
+            document.getElementById("endgame").style.width = "400";
+            document.getElementById("chess").style.display = "none";
+            document.getElementById("WhitePlayer").style.display = "none";
+            document.getElementById("BlackPlayer").style.display = "none";
+            // document.getElementById("winner").style.display = "inline";
+            // document.getElementById("loser").style.display = "inline";
+        }
         if (pieces[posy][posx].color == oldColor)
             return ;
         if ((posy <= 8 || 0 >= posy) && (posx <= 8 || 0 >= posx))
         {
+            console.log("HERE", pieces, posy, posx);
             selected = true;
             selectedOne = pieces[posy][posx];
             oldx = posx;
@@ -111,10 +126,22 @@ var canvas;
 var ctx;
 enPassant[0] = "";
 enPassant[1] = "";
+var color;
 var pieces = new Array(8);
 var whiteTeam = new Array(16);
 var blackTeam = new Array(16);
-var color;
+const chessClickListener = function(event) {game(event.layerX, event.layerY, ctx)};
+
+function reset_game()
+{
+    delete pieces;
+    delete whiteTeam;
+    delete blackTeam;
+    oldColor = "black";
+    document.getElementById("endgame").style.display = "none";
+    document.getElementById("chess").style.display = "block";
+    init_game();
+}
 
 function init_game()
 {
@@ -140,7 +167,6 @@ function init_game()
     drawCheckers(ctx);
     initChessBoard();
     initTeams();
-
     drawChess(ctx);
-    canvas.addEventListener('click', function(event) {game(event.layerX, event.layerY, ctx)}, false);
+    canvas.addEventListener('click', chessClickListener, false);
 }
