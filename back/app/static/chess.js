@@ -11,6 +11,10 @@ var whiteKing;
 var blackKing;
 var newCanvas;
 var newctx;
+var fSoldiers;
+var Fctx;
+var Wctx;
+var wTrophies;
 var newPiece = "init";
 whosPlaying(oldColor);
 
@@ -130,6 +134,9 @@ var color;
 var pieces = new Array(8);
 var whiteTeam = new Array(16);
 var blackTeam = new Array(16);
+var whiteOrder = new Array(15);
+var blackOrder = new Array(15);
+
 const chessClickListener = function(event) {game(event.layerX, event.layerY, ctx)};
 
 function reset_game()
@@ -159,7 +166,12 @@ function init_game()
     console.log(white);
     console.log(black);
     console.log("color: " + color);
+    fSoldiers = document.getElementById('fSoldiers');
+    wTrophies = document.getElementById('wTrophies');
     newCanvas = document.getElementById('promote');
+    console.log(wTrophies, fSoldiers, newCanvas);
+    Wctx = wTrophies.getContext('2d');
+    Fctx = fSoldiers.getContext('2d');
     newctx = newCanvas.getContext('2d');
     newCanvas.style.display = "none";
     canvas = document.getElementById("chess");

@@ -4,12 +4,14 @@
     <h1 class="header">CHESS</h1>
     <h5 class="header">Best chess game you'll ever see</h5>		
 	<div class="test">
-		
-		<div class="PlayerName" id="BlackPlayer">Enemy Player</div>
-		<canvas class="chessBox" height="800" width="800" id="chess">
-		</canvas>
-		<canvas class = "promotePawn" height="100" width="100" id="promote" style="position :absolute;"></canvas>
-		<div class="PlayerName" id="WhitePlayer">You</div>
+    	<div class="PlayerName" id="BlackPlayer">Enemy Player</div>
+    		<div class="game-row">
+        		<canvas class="side-box" id="fSoldiers" height="800" width="100">Your fallen soldiers</canvas>
+        		<canvas class="chessBox" height="800" width="800" id="chess"></canvas>
+				<canvas class = "promotePawn" height="100" width="100" id="promote" style="position :absolute;"></canvas>
+        		<canvas class="side-box" id="wTrophies" height="800" width="100">Your war trophies</canvas>
+    		</div>
+    		<div class="PlayerName" id="WhitePlayer">You</div>
 		<div height="800" width="800" id="endgame" style="position:absolute; background:rgba(50, 50, 50, 0.7); display:none" class="endgame flex-column border border-secondary rounded w-100 h-100">
 			<h1 class="text-center">Game Over</h1>
 			<div>

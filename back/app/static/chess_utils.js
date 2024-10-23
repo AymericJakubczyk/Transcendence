@@ -488,4 +488,57 @@ function initTeams()
         for (let i = 0; i < 8; i++)
             whiteTeam[i + (runner - 6) * 8] = pieces[runner][i];
     }
+    initOrder();
+}
+
+function findPiece(name, team, count)
+{
+    let ind = 0;
+    for (let i = 0; i < 16; i++)
+    {
+        if (team[i].name == name)
+        {
+            if (count == ind)
+                return team[i];
+            else
+                ind++;
+        }
+    }
+    return null;
+}
+
+function initOrder()
+{
+    whiteOrder[0] = findPiece("Queen", whiteTeam, 0);
+    whiteOrder[1] = findPiece("Rook", whiteTeam, 0);
+    whiteOrder[2] = findPiece("Rook", whiteTeam, 1);
+    whiteOrder[3] = findPiece("Bishop", whiteTeam, 0);
+    whiteOrder[4] = findPiece("Bishop", whiteTeam, 1);
+    whiteOrder[5] = findPiece("Knight", whiteTeam, 0);
+    whiteOrder[6] = findPiece("Knight", whiteTeam, 1);
+    whiteOrder[7] = findPiece("Pawn", whiteTeam, 0);
+    whiteOrder[8] = findPiece("Pawn", whiteTeam, 1);
+    whiteOrder[9] = findPiece("Pawn", whiteTeam, 2);
+    whiteOrder[10] = findPiece("Pawn", whiteTeam, 3);
+    whiteOrder[11] = findPiece("Pawn", whiteTeam, 4);
+    whiteOrder[12] = findPiece("Pawn", whiteTeam, 5);
+    whiteOrder[13] = findPiece("Pawn", whiteTeam, 6);
+    whiteOrder[14] = findPiece("Pawn", whiteTeam, 7);
+    console.log("INIT", whiteOrder);
+    
+    blackOrder[0] = findPiece("Queen", blackTeam, 0);
+    blackOrder[1] = findPiece("Rook", blackTeam, 0);
+    blackOrder[2] = findPiece("Rook", blackTeam, 1);
+    blackOrder[3] = findPiece("Bishop", blackTeam, 0);
+    blackOrder[4] = findPiece("Bishop", blackTeam, 1);
+    blackOrder[5] = findPiece("Knight", blackTeam, 0);
+    blackOrder[6] = findPiece("Knight", blackTeam, 1);
+    blackOrder[7] = findPiece("Pawn", blackTeam, 0);
+    blackOrder[8] = findPiece("Pawn", blackTeam, 1);
+    blackOrder[9] = findPiece("Pawn", blackTeam, 2);
+    blackOrder[10] = findPiece("Pawn", blackTeam, 3);
+    blackOrder[11] = findPiece("Pawn", blackTeam, 4);
+    blackOrder[12] = findPiece("Pawn", blackTeam, 5);
+    blackOrder[13] = findPiece("Pawn", blackTeam, 6);
+    blackOrder[14] = findPiece("Pawn", blackTeam, 7);
 }

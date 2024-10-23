@@ -144,9 +144,51 @@ function drawPromPieces(x, y, string, newctx) {
     };
 }
 
+function drawFallenPieces()
+{
+    let teamA = whiteOrder;
+    let teamB = blackOrder;
+    let space = 50;
+    if (color == "black")
+    {
+        teamA = blackOrder;
+        teamB = whiteOrder;
+    }
+    console.log(teamA);
+    console.log(teamB);
+    for (let i = 0; i < teamA.length; i++)
+    {
+        if (teamA[i].alive == 1)
+        {
+            drawFallenPiece(teamA[i], space, Fctx);
+            space+=50;
+        }
+    }
+    space = 0;
+    for (let i = 0; i < teamB.length; i++)
+    {
+        if (teamB[i].alive == 1)
+        {
+            drawFallenPiece(teamB[i], space, Wctx);
+            space+=50;
+        }
+    }
+}
+
+function drawFallenPiece(piece, space, context)
+{
+    const img = new Image();
+    img.src = "/static/srcs/chess/" + piece.img;
+    console.log(piece.img);
+    img.onload = () => {
+        context.drawImage(img, 25, space, 50, 50);
+    };
+}
+
 //CLASSIC DRAW FUNCTIONS
 function drawChess(ctx)
 {
+    drawFallenPieces();
     var count = 0;
     let arrV = ['8', '7', '6', '5', '4', '3', '2', '1'];
 	let arrC = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
