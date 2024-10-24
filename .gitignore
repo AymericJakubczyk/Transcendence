@@ -6,3 +6,4 @@ __pycache__
 !back/app/migrations/0001_initial.py
 /back/media/imgs/profils/*
 !creepy-cat.webp
+jsconfig.json

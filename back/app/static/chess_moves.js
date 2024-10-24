@@ -111,6 +111,10 @@ function createNewCanvas(context) {
 //MOVES
 function movePiece(y, x, context)
 {
+    let king = oldColor === "white" ? blackKing : whiteKing;
+    let count = 0;
+    if (king.checked == 1)
+        count = 1;
     let posx = x, posy = y;
     if (color == "black")
     {
@@ -142,10 +146,10 @@ function movePiece(y, x, context)
         selectedOne.getAttackMove();
     else
         selectedOne.getPossibleMove(pieces);
-	selected = false;
+	console.log(selectedOne);
+    selected = false;
 	selectedOne = null;
-    let king = oldColor === "white" ? blackKing : whiteKing;
-    if (king.checked == 1)
+    if (count == 1)
     {
         king.checked = 0;
         king.resetCheck();

@@ -42,7 +42,6 @@ function game(x, y, context)
     {
         if (isCheckMate() == true)
         {
-            console.log("End game test");
             canvas.removeEventListener('click', chessClickListener, false);  
             document.getElementById("endgame").style.display = 'block';
             document.getElementById("endgame").style.position = "static";
@@ -58,7 +57,6 @@ function game(x, y, context)
             return ;
         if ((posy <= 8 || 0 >= posy) && (posx <= 8 || 0 >= posx))
         {
-            console.log("HERE", pieces, posy, posx);
             selected = true;
             selectedOne = pieces[posy][posx];
             oldx = posx;
@@ -154,7 +152,6 @@ function init_game()
 {
     if (username != null)
     {
-        console.log(username.sender);   
         if (username.sender == black)
         {
             color = "black";
@@ -169,7 +166,6 @@ function init_game()
     fSoldiers = document.getElementById('fSoldiers');
     wTrophies = document.getElementById('wTrophies');
     newCanvas = document.getElementById('promote');
-    console.log(wTrophies, fSoldiers, newCanvas);
     Wctx = wTrophies.getContext('2d');
     Fctx = fSoldiers.getContext('2d');
     newctx = newCanvas.getContext('2d');

@@ -117,7 +117,6 @@ function isPat()
 {
     for (let i = 0; i < 16; i++)
     {
-        console.log(whiteTeam[i]);
         if (whiteTeam[i].alive == 0 && whiteTeam[i].name != "King")
         {
             whiteTeam[i].getPossibleMove(pieces);
@@ -127,7 +126,6 @@ function isPat()
     }
     for (let i = 0; i < 16; i++)
     {
-        console.log(blackTeam[i]);
         if (blackTeam[i].alive == 0 && blackTeam[i].name != "King")
         {
             blackTeam[i].getPossibleMove(pieces);
@@ -142,18 +140,14 @@ function isCheckMate()
 {
     let team = oldColor === "white" ? blackTeam : whiteTeam;
     let king = oldColor === "white" ? blackKing : whiteKing;
-    console.log(team, king);
     if (isChecked() == false)
         return false;
     if (canKingMove(king))
         return false;
-    console.log("canKingMove");
     if (canSomeoneBlock(team, king))
         return false;
-    console.log("canSomeoneBlock");
     if (canSomeoneDefend(team, king))
         return false;
-    console.log("canSomeoneDefend");
     return true;
 }
 
@@ -181,7 +175,6 @@ function canSomeoneDefend(team, king)
 
 function canSomeoneBlock(team, king)
 {
-    console.log(team, king);
     for (let i = 0; i < 16; i++)
     {
         if (team[i].alive == 1)
@@ -190,17 +183,14 @@ function canSomeoneBlock(team, king)
             team[i].getPossibleMove(pieces);
         if (team[i].name == "Pawn")
             team[i].getAttackMove()
-        // console.log(team[i]);
         for (let x = 0; x < 8; x++)
         {
             for (let y = 0; y < 8; y++)
             {
                 if (team[i].name != "King" && team[i].possibleMoves[x][y] == "PossibleMove" && king.check[x][y] == "CheckMove" && isStillCheck(team[i], x, y, king) == false)
                 {
-                    console.log(team[i], x, y);   
                     return true;
                 }
-                // console.log(team[i].possibleMoves[x][y], king.check[x][y], isStillCheck(team[i], x, y, king));
             }
         }
     }
@@ -336,6 +326,9 @@ function isChecked()
     }
     if (king.checked == 1)
         return true;
+    // {
+        // drawCheck(king);
+    // }
     return false;
 }
 
@@ -524,7 +517,6 @@ function initOrder()
     whiteOrder[12] = findPiece("Pawn", whiteTeam, 5);
     whiteOrder[13] = findPiece("Pawn", whiteTeam, 6);
     whiteOrder[14] = findPiece("Pawn", whiteTeam, 7);
-    console.log("INIT", whiteOrder);
     
     blackOrder[0] = findPiece("Queen", blackTeam, 0);
     blackOrder[1] = findPiece("Rook", blackTeam, 0);

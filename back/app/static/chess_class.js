@@ -538,6 +538,7 @@ function checkCell(x, y, piece, tab)
                     tmpx = x;
                     tmpy = y;
                     tab[x][y].checked = 1;
+                    console.log("I CHECK YOU");
                 }
             }    
             if (tab[x][y].color == piece.color)

@@ -154,8 +154,6 @@ function drawFallenPieces()
         teamA = blackOrder;
         teamB = whiteOrder;
     }
-    console.log(teamA);
-    console.log(teamB);
     for (let i = 0; i < teamA.length; i++)
     {
         if (teamA[i].alive == 1)
@@ -179,16 +177,45 @@ function drawFallenPiece(piece, space, context)
 {
     const img = new Image();
     img.src = "/static/srcs/chess/" + piece.img;
-    console.log(piece.img);
     img.onload = () => {
         context.drawImage(img, 25, space, 50, 50);
     };
+}
+
+function drawCheck(king)
+{
+    let posx = king.posx;
+    let posy = king.posy;
+    if (color == "black")
+    {
+        posx = 7 - posx;
+        posy = 7 - posy;
+    }
+    const centerX = posy * 100 + 50;
+    const centerY = posx * 100 + 50;
+    const radius = 45;
+    // Create radial gradient
+    const gradient = ctx.createRadialGradient(
+        centerX, centerY, radius * 0.2,  // Inner circle
+        centerX, centerY, radius         // Outer circle
+    );
+
+    // Add color stops
+    gradient.addColorStop(0, 'rgba(255, 0, 0, 1)');    // Solid in middle
+    gradient.addColorStop(1, 'rgba(255, 0, 0, 0.1)');    // Transparent at edge
+
+    // Draw the circle
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+    ctx.fillStyle = gradient;
+    ctx.fill();
 }
 
 //CLASSIC DRAW FUNCTIONS
 function drawChess(ctx)
 {
     drawFallenPieces();
+    console.log(pieces);
     var count = 0;
     let arrV = ['8', '7', '6', '5', '4', '3', '2', '1'];
 	let arrC = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
@@ -205,7 +232,15 @@ function drawChess(ctx)
                 var count1 = x / 100;
                 var count2 = y / 100;
                 if (pieces[count2][count1].color != null)
+                {
+                    console.log(pieces[count2][count1].name);
+                    if (pieces[count2][count1].name == "King" && pieces[count2][count1].checked == 1)
+                    {
+                        console.log("HERE", pieces[count2][count1]);
+                        drawCheck(pieces[count2][count1]);
+                    }
                     draw(i, j, "/static/srcs/chess/" + pieces[count2][count1].img);
+                }
                 else if (count % 2 == 1)
                 {
                     ctx.fillStyle = "antiquewhite";
@@ -230,6 +265,7 @@ function drawChess(ctx)
     }
     else
     {
+        console.log("|||||||||||||||||||||||||||||||||||");
         for(let i= 0;i < 800; i+=100) 
         {
             count++;
@@ -238,7 +274,15 @@ function drawChess(ctx)
                 var count1 = i / 100;
                 var count2 = j / 100;
                 if (pieces[count2][count1].color != null)
+                {
+                    console.log(pieces[count2][count1].name, pieces[count2][count1]);
+                    if (pieces[count2][count1].name == "King" && pieces[count2][count1].checked == 1)
+                    {
+                        console.log("HERE", pieces[count2][count1]);
+                        drawCheck(pieces[count2][count1]);
+                    }
                     draw(i, j, "/static/srcs/chess/" + pieces[count2][count1].img);
+                }
                 else if (count % 2 == 1)
                 {
                     ctx.fillStyle = "antiquewhite";
@@ -345,7 +389,6 @@ function redrawPossibleCapture(context)
         colorEnemy = "black";
     if (!selectedOne.color)
         return ;
-    console.log(selectedOne);
     for (var i = 0; i < 8; i++)
     {
         for (var j = 0; j < 8; j++)
