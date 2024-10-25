@@ -89,17 +89,20 @@ function drawPossibleDefenseMove(context)
     else
         colorEnemy = "black";
     getEnemyMoves();
+    console.log("HERE");
     for (var i = 0; i < 8; i++)
     {
         for (var j = 0; j < 8; j++)
         {
-            if (selectedOne.name == "King" && selectedOne.possibleMoves[i][j] == "PossibleMove" && king.check[i][j] == "noPossibleMove")
+            if (pieces[i][j] != null)
+                console.log(pieces[i][j]);
+            if (selectedOne.name == "King" && selectedOne.possibleMoves[i][j] == "PossibleMove" && king.check[i][j] == "noPossibleMove" && pieces[i][j].defended == 0)
                 drawTheMove(i, j, context);
             else if (selectedOne.name == "King" && selectedOne.possibleMoves[i][j] == "PossibleMove" && king.check[i][j] == "Checker" && pieces[i][j].defended == 0 && isStillCheck(selectedOne, i, j, king) == false)
                 drawPossibleCaptureMove(i, j, context);
-            else if ((selectedOne.possibleMoves[i][j] == "PossibleMove" || selectedOne.possibleMoves[i][j] == "PossiblePromAtq") && king.check[i][j] == "Checker" && isStillCheck(selectedOne, i, j, king) == false)
+            else if ((selectedOne.possibleMoves[i][j] == "PossibleMove" || selectedOne.possibleMoves[i][j] == "PossiblePromAtq") && king.check[i][j] == "Checker" && isStillCheck(selectedOne, i, j, king) == false && selectedOne.name != "King")
                 drawPossibleCaptureMove(i, j, context);
-            else if (selectedOne.possibleMoves[i][j] == "enPassant" && pieces[i][j].color == null && king.check[i][j] == "Checker" && isStillCheck(selectedOne, i, j, king) == false)
+            else if (selectedOne.possibleMoves[i][j] == "enPassant" && pieces[i][j].color == null && king.check[i][j] == "Checker" && isStillCheck(selectedOne, i, j, king) == false && selectedOne.name != "King")
                 drawPossibleCaptureMove(i, j, context);
             else if ((selectedOne.possibleMoves[i][j] == "PossibleMove" || selectedOne.possibleMoves[i][j] == "PossibleDoubleMove" || selectedOne.possibleMoves[i][j] == "PossibleProm") && king.check[i][j] == "CheckMove" && selectedOne.name != "King"  && isStillCheck(selectedOne, i, j, king) == false)
                 drawTheMove(i, j, context);
@@ -211,100 +214,114 @@ function drawCheck(king)
     ctx.fill();
 }
 
+function drawBlack()
+{
+    let arrV = ['1', '2', '3', '4', '5', '6', '7', '8'];
+    let arrC = ['h', 'g', 'f', 'e', 'd', 'c', 'b', 'a'];
+    let count = 0;
+    for(let i = 700, x = 0;i >= 0; i-=100, x+=100) 
+    {
+        count++;
+        for (let j = 700, y = 0; j >= 0; j-=100, y+=100)
+        {
+            var count1 = x / 100;
+            var count2 = y / 100;
+            if (pieces[count2][count1].color != null)
+                {
+                    if (pieces[count2][count1].name == "King")
+                    {
+                        if (count % 2 == 1)
+                            ctx.fillStyle = "antiquewhite";
+                        else if (count % 2 == 0)
+                            ctx.fillStyle = "burlywood";
+                        ctx.fillRect(i, j, 100, 100);
+                        if (pieces[count2][count1].checked == 1)
+                            drawCheck(pieces[count2][count1]);
+                    }
+                    draw(i, j, "/static/srcs/chess/" + pieces[count2][count1].img);
+                }
+            else if (count % 2 == 1)
+            {
+                ctx.fillStyle = "antiquewhite";
+                ctx.fillRect(i, j, 100, 100);
+            }
+            else if (count % 2 == 0)
+            {
+                ctx.fillStyle = "burlywood";
+                ctx.fillRect(i, j, 100, 100);
+            }
+            if (count % 2 == 1)
+                ctx.fillStyle = "burlywood";
+            else if (count % 2 == 0)
+                ctx.fillStyle = "antiquewhite";
+            if (j == 700)
+                ctx.fillText(arrC[i / 100], i + 90, j + 95);
+            if (i == 0)
+                ctx.fillText(arrV[j / 100], i + 3, j + 15);
+            count++;
+        }
+        }
+}
+
+function drawWhite()
+{
+    var arrV = ['8', '7', '6', '5', '4', '3', '2', '1'];
+	var arrC = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+    var count = 0;
+    for(let i= 0;i < 800; i+=100) 
+    {
+        count++;
+        for (let j = 0; j < 800; j+=100)
+        {
+            var count1 = i / 100;
+            var count2 = j / 100;
+            if (pieces[count2][count1].color != null)
+            {
+                if (pieces[count2][count1].name == "King")
+                {
+                    if (count % 2 == 1)
+                        ctx.fillStyle = "antiquewhite";
+                    else if (count % 2 == 0)
+                        ctx.fillStyle = "burlywood";
+                    ctx.fillRect(i, j, 100, 100);
+                    if (pieces[count2][count1].checked == 1)
+                        drawCheck(pieces[count2][count1]);
+                }
+                draw(i, j, "/static/srcs/chess/" + pieces[count2][count1].img);
+            }
+            else if (count % 2 == 1)
+            {
+                ctx.fillStyle = "antiquewhite";
+                ctx.fillRect(i, j, 100, 100);
+            }
+            else if (count % 2 == 0)
+            {
+                ctx.fillStyle = "burlywood";
+                ctx.fillRect(i, j, 100, 100);
+            }
+            if (count % 2 == 1)
+                ctx.fillStyle = "burlywood";
+            else if (count % 2 == 0)
+                ctx.fillStyle = "antiquewhite";
+            if (j == 700)
+                ctx.fillText(arrC[i / 100], i + 90, j + 95);
+            if (i == 0)
+                ctx.fillText(arrV[j / 100], i + 3, j + 15);
+            count++;
+        }
+    }
+}
+
 //CLASSIC DRAW FUNCTIONS
 function drawChess(ctx)
 {
     drawFallenPieces();
     console.log(pieces);
-    var count = 0;
-    let arrV = ['8', '7', '6', '5', '4', '3', '2', '1'];
-	let arrC = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
     ctx.font = '16px Arial';
     if (color == "black")
-    {
-        arrV = ['1', '2', '3', '4', '5', '6', '7', '8'];
-        arrC = ['h', 'g', 'f', 'e', 'd', 'c', 'b', 'a'];
-        for(let i = 700, x = 0;i >= 0; i-=100, x+=100) 
-        {
-            count++;
-            for (let j = 700, y = 0; j >= 0; j-=100, y+=100)
-            {
-                var count1 = x / 100;
-                var count2 = y / 100;
-                if (pieces[count2][count1].color != null)
-                {
-                    console.log(pieces[count2][count1].name);
-                    if (pieces[count2][count1].name == "King" && pieces[count2][count1].checked == 1)
-                    {
-                        console.log("HERE", pieces[count2][count1]);
-                        drawCheck(pieces[count2][count1]);
-                    }
-                    draw(i, j, "/static/srcs/chess/" + pieces[count2][count1].img);
-                }
-                else if (count % 2 == 1)
-                {
-                    ctx.fillStyle = "antiquewhite";
-                    ctx.fillRect(i, j, 100, 100);
-                }
-                else if (count % 2 == 0)
-                {
-                    ctx.fillStyle = "burlywood";
-                    ctx.fillRect(i, j, 100, 100);
-                }
-                if (count % 2 == 1)
-                    ctx.fillStyle = "burlywood";
-                else if (count % 2 == 0)
-                    ctx.fillStyle = "antiquewhite";
-                if (j == 700)
-                    ctx.fillText(arrC[i / 100], i + 90, j + 95);
-                if (i == 0)
-                    ctx.fillText(arrV[j / 100], i + 3, j + 15);
-                count++;
-            }
-        }
-    }
+        drawBlack();
     else
-    {
-        console.log("|||||||||||||||||||||||||||||||||||");
-        for(let i= 0;i < 800; i+=100) 
-        {
-            count++;
-            for (let j = 0; j < 800; j+=100)
-            {
-                var count1 = i / 100;
-                var count2 = j / 100;
-                if (pieces[count2][count1].color != null)
-                {
-                    console.log(pieces[count2][count1].name, pieces[count2][count1]);
-                    if (pieces[count2][count1].name == "King" && pieces[count2][count1].checked == 1)
-                    {
-                        console.log("HERE", pieces[count2][count1]);
-                        drawCheck(pieces[count2][count1]);
-                    }
-                    draw(i, j, "/static/srcs/chess/" + pieces[count2][count1].img);
-                }
-                else if (count % 2 == 1)
-                {
-                    ctx.fillStyle = "antiquewhite";
-                    ctx.fillRect(i, j, 100, 100);
-                }
-                else if (count % 2 == 0)
-                {
-                    ctx.fillStyle = "burlywood";
-                    ctx.fillRect(i, j, 100, 100);
-                }
-                if (count % 2 == 1)
-                    ctx.fillStyle = "burlywood";
-                else if (count % 2 == 0)
-                    ctx.fillStyle = "antiquewhite";
-                if (j == 700)
-                    ctx.fillText(arrC[i / 100], i + 90, j + 95);
-                if (i == 0)
-                    ctx.fillText(arrV[j / 100], i + 3, j + 15);
-                count++;
-            }
-        }
-    }
+        drawWhite();
 }
 
 function drawCheckers(ctx)

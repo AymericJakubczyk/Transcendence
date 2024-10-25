@@ -13,6 +13,8 @@ function isPossibleKingMove(x, y, piece)
             return true;
         else if (pieces[x][y].color == null && isEnemyMove(x, y, piece) == false)
             return true;
+        else if (pieces[x][y].color == piece.color)
+            pieces[x][y].defended = 1;
     }
     return false;
 }
@@ -326,9 +328,6 @@ function isChecked()
     }
     if (king.checked == 1)
         return true;
-    // {
-        // drawCheck(king);
-    // }
     return false;
 }
 
