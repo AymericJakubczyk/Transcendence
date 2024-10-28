@@ -216,6 +216,7 @@ function make_discu(send_to, id)
     for (i = 0; i < 100; i++)
     {
         const obj = {
+            'type': 'message',
             'message': i.toString(),
             'send_to': send_to,
             'discu_id': id

@@ -216,7 +216,8 @@ def invite(request):
         async_to_sync(channel_layer.group_send)(
             request.POST.get('opponent'),
             {
-                "type": "invite",
+                "type": "send",
+                "type2": "invite",
                 "game": request.POST.get('game'),
                 "player": request.user.username,
                 "id": obj.id

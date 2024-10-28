@@ -13,6 +13,7 @@ function custom_submit(form_id)
 			let elems = event.target.elements
 
 			const obj = {
+				'type': 'message',
 				'message': elems.msg.value,
 				'send_to': elems.send_to.value,
 				'discu_id': elems.discu_id.value
@@ -45,7 +46,7 @@ function create_ws()
 		console.log('Received ws:', data);
 		var statut_elem = document.getElementById("statut_" + data.sender);
 		var statut_mini_elem = document.getElementById("statut_mini_" + data.sender);
-		if (data.type == 'chat')
+		if (data.type == 'chat_message')
 		{
 			add_msg(data.sender, data.message, false, "you")
 			update_discu(data.sender, data.message, data.discu_id, data.user)
@@ -136,24 +137,7 @@ function update_discu(sender, msg, discu_id, user)
 	{
 		console.log("create discu", user, discu_id);
 		const all_discussion = document.getElementById("all_discussion");
-		all_discussion.innerHTML += `
-			<form id="form_discu_`+ sender +`" hx-post="/chat/" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
-				<input type="hidden" name="change_discussion" value="`+ discu_id +`">
-				<button id="discu_`+ sender +`" data-id="`+ discu_id +`" value="`+ sender +`" class="rounded-2 my-1 p-2 discu" type="submit">
-					<div id="profile_pic_`+ sender +`" style="position: relative;">
-						<img src="`+ user.profile_picture +`" class="pp" alt="Profile Picture">
-						<div id="statut_`+ sender +`" class="rounded-circle" style="background-color: green; border: 4px rgb(61,61,61) solid;position: absolute; right: -5px; bottom: -5px;width:40%;height:40%"></div>
-					</div>
-					<div class="d-flex flex-column mx-2" style="overflow: hidden;">
-						<span style="font-size: 24px; font-weight: 400;color:#ffffff; text-align: start;text-overflow: ellipsis;">
-							`+ sender +`
-						</span>
-						<span id="last_msg_`+ sender +`" style="font-size: 14px; font-weight: 100; color:#c0c0c0 ;padding-left: 5px;text-align: start;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;width:100%">
-							`+ msg +`
-						</span>
-					</div>
-				</button>
-			</form>`
+		all_discussion.innerHTML += `<custom-discu sender="${sender}" discu_id="${discu_id}" msg="${msg}" img="${user.profile_picture}"></custom-discu>`
 		htmx.process(document.getElementById("form_discu_" + sender));
 	}
 	discu = document.getElementById("discu_" + sender);
@@ -177,22 +161,8 @@ function update_discu(sender, msg, discu_id, user)
 	{
 		if (document.getElementById("no_discu"))
 			document.getElementById("no_discu").remove()
-		document.getElementById("all_discu_mini").innerHTML += `
-			<button id="btn_discu_mini_`+ sender +`" onclick="display_mini_discu('`+ sender +`', `+ discu_id +`)" class="rounded-2 my-1 p-1 discu" style="background-color: transparent; width: 100%; border-width: 0px; display: inline-flex;">
-                <div id="profile_pic_mini_`+ sender +`" style="position: relative;">
-                    <img src="`+ user.profile_picture +`" class="pp" alt="Profile Picture">
-                    <div id="statut_mini_`+ sender +`" class="rounded-circle" style="background-color: green; border: 4px rgb(80,80,80) solid;position: absolute; right: -5px; bottom: -5px;width:40%;height:40%"></div>
-                </div>
-                <div class="d-flex flex-column mx-2" style="overflow: hidden;">
-                    <span style="font-size: 24px; font-weight: 400;color:#ffffff; text-align: start;text-overflow: ellipsis;">
-                        `+ sender +`
-                    </span>
-                    <span id="last_msg_mini_`+ sender +`" style="font-size: 14px; font-weight: 100; color:#c0c0c0 ;padding-left: 5px;text-align: start;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;width:100%">
-						`+ msg +`
-					</span>
-                </div>
-            </button>
-		`
+		const all_discu_mini = document.getElementById("all_discu_mini");
+		all_discu_mini.innerHTML += `<custom-mini-discu sender="${sender}" discu_id="${discu_id}" msg="${msg}" img="${user.profile_picture}"></custom-mini-discu>`
 	}
 	last_msg_mini = document.getElementById("last_msg_mini_" + sender);
 	if (last_msg_mini)
