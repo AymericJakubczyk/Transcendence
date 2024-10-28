@@ -77,7 +77,7 @@ function create_ws()
 		if (data.type == 'error')
 			error_message(data.message, 2000)
 		if (data.type == 'invite')
-			add_invitation(data.game, data.player)
+			add_invitation(data.game, data.player, data.id)
 	};
 	
 	chatSocket.onclose = (event) => {
@@ -175,11 +175,13 @@ function update_discu(sender, msg, discu_id, user)
 	var last_msg_mini = document.getElementById("last_msg_mini_" + sender);
 	if (!last_msg_mini && document.getElementById("all_discu_mini")) // if mini discu not exist create it and add it in list
 	{
+		if (document.getElementById("no_discu"))
+			document.getElementById("no_discu").remove()
 		document.getElementById("all_discu_mini").innerHTML += `
 			<button id="btn_discu_mini_`+ sender +`" onclick="display_mini_discu('`+ sender +`', `+ discu_id +`)" class="rounded-2 my-1 p-1 discu" style="background-color: transparent; width: 100%; border-width: 0px; display: inline-flex;">
                 <div id="profile_pic_mini_`+ sender +`" style="position: relative;">
                     <img src="`+ user.profile_picture +`" class="pp" alt="Profile Picture">
-                    <div id="statut_mini_`+ sender +`" class="rounded-circle" style="background-color: green; border: 4px rgb(61,61,61) solid;position: absolute; right: -5px; bottom: -5px;width:40%;height:40%"></div>
+                    <div id="statut_mini_`+ sender +`" class="rounded-circle" style="background-color: green; border: 4px rgb(80,80,80) solid;position: absolute; right: -5px; bottom: -5px;width:40%;height:40%"></div>
                 </div>
                 <div class="d-flex flex-column mx-2" style="overflow: hidden;">
                     <span style="font-size: 24px; font-weight: 400;color:#ffffff; text-align: start;text-overflow: ellipsis;">
@@ -209,7 +211,7 @@ function update_discu(sender, msg, discu_id, user)
 	}
 }
 
-function update_list_discu(sender)
+function update_list_discu(sender) // reorder discu to sort by most recent message when receive or send new message
 {
 	// update for chat
 	const discu = document.getElementById("form_discu_" + sender);

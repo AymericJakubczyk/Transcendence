@@ -107,8 +107,26 @@ def chatView(request):
 
 def mini_chat(request):
     current_user = request.user
+    print("[MINI CHAT]", current_user, file=sys.stderr)
     all_discussion_name = []
     all_obj_msg = []
+    notif_discu = False
+    notif_invite = False
+    notif_request = False
+
+    if (current_user.is_authenticated == False):
+        return JsonResponse({'type': 'error', 'message':'not authenticated'})
+    if (Invite.objects.filter(to_user=current_user).count() > 0):
+        notif_invite = True
+    if (Friend_Request.objects.filter(to_user=current_user).count() > 0):
+        notif_request = True
+
+    if request.method == "POST" and 'decline' in request.POST:
+        print("[DISPLAY PROFILE]", request.POST, file=sys.stderr)
+        invite = get_object_or_404(Invite, id=request.POST.get('decline'))
+        invite.delete()
+        return JsonResponse({'type': 'decline'})
+
     if request.method == "POST" and request.user.is_authenticated:
         jsonData = json.loads(request.body)
         request_type = jsonData.get('type')
@@ -136,15 +154,25 @@ def mini_chat(request):
                     'state':other_user.state
                 }
                 all_discussion_name.append(obj)
-            return JsonResponse({'type': request_type, 'all_discu': all_discussion_name, 'current_username':current_user.username})
+            return JsonResponse({'type': request_type, 'all_discu': all_discussion_name, 'current_username':current_user.username, 'notif_discu':notif_discu, 'notif_invite':notif_invite, 'notif_request':notif_request})
+
         elif (request_type == "get_invites"):
             json_all_invite = []
             all_invite = Invite.objects.filter(to_user=current_user)
             for invite in all_invite:
                 obj = {'from_user':invite.from_user.username, 'game_type':invite.game_type, 'id':invite.id}
                 json_all_invite.append(obj)
-            return JsonResponse({'type': request_type, 'all_invite': json_all_invite, 'current_username':current_user.username})
+            return JsonResponse({'type': request_type, 'all_invite': json_all_invite, 'current_username':current_user.username, 'notif_discu':notif_discu, 'notif_invite':notif_invite, 'notif_request':notif_request})
 
+        elif (request_type == "get_friend_request"):
+            all_request = Friend_Request.objects.filter(to_user=current_user)
+            json_all_request = []
+            for request in all_request:
+                obj = {'from_user':request.from_user.username}
+                json_all_request.append(obj)
+            return JsonResponse({'type': request_type, 'all_request': json_all_request, 'current_username':current_user.username , 'notif_discu':notif_discu, 'notif_invite':notif_invite, 'notif_request':notif_request})
+
+        
         elif (request_type == "get_discu"):
             discu = get_object_or_404(Discussion, id=jsonData.get('id'))
             last_message = discu.get_last_message()
@@ -156,14 +184,9 @@ def mini_chat(request):
                 obj = {'message': msg.message, 'sender':msg.sender.username}
                 all_obj_msg.append(obj)
             return JsonResponse({'type': request_type, 'all_message': all_obj_msg, 'current_username':current_user.username})
-        elif (request_type == "get_friend_request"):
-            all_request = Friend_Request.objects.filter(to_user=current_user)
-            json_all_request = []
-            for request in all_request:
-                obj = {'from_user':request.from_user.username}
-                json_all_request.append(obj)
-            return JsonResponse({'type': request_type, 'all_request': json_all_request, 'current_username':current_user.username})
+            
         elif (request_type == "get_global_notif"):
+            print("[GET GLOBAL NOTIF]", file=sys.stderr)
             all_discussion = Discussion.objects.filter(Q(user1=current_user) | Q(user2=current_user))
             for discussion in all_discussion:
                 last_message = discussion.get_last_message()
@@ -195,8 +218,9 @@ def invite(request):
             {
                 "type": "invite",
                 "game": request.POST.get('game'),
-                "player": request.user.username
-            }
+                "player": request.user.username,
+                "id": obj.id
+            }   
         )
     if (request.method == "POST" and request.POST.get('type') == 'accept'):
         print("[ACCEPT]", file=sys.stderr)

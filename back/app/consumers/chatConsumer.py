@@ -67,6 +67,17 @@ class ChatConsumer(AsyncWebsocketConsumer):
         text_data_json = json.loads(text_data)
         print("[RECEIVE WS]", text_data_json, file=sys.stderr)
 
+        if (text_data_json['type'] == "decline"):
+            sender = await self.decline_invatation(text_data_json['id'])
+            await self.channel_layer.group_send(
+                sender.username,
+                {
+                    'type': 'invite',
+                    'message': "decline",
+                }
+            )
+            return
+
         sender = self.scope["user"].username
         message = text_data_json['message']
         send_to = text_data_json['send_to']
@@ -149,6 +160,16 @@ class ChatConsumer(AsyncWebsocketConsumer):
         for discussion in all_discussion:
             all_username.append(discussion.get_other_username(current_user.username))
         return all_username
+
+    @database_sync_to_async
+    def decline_invatation(self, id):
+        from app.models import Invite
+
+        invitation = get_object_or_404(Invite, id=id)
+        stock_sender = invitation.from_user
+        invitation.delete()
+        return stock_sender
+
         
 
     async def connect_message(self, event):

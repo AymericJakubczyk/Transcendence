@@ -22,6 +22,11 @@ window.addEventListener('htmx:beforeSwap', function(evt) {
         pongSocket.close()
         pongSocket = null
     }
+    if (old_path == "/invite/" && pongSocket)
+    {
+        pongSocket.close()
+        pongSocket = null
+    }
 });
 
 function htmx_request(url, method, values)
