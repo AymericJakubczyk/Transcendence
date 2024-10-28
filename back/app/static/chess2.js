@@ -86,6 +86,7 @@ function cell_click(x, y)
         move_piece(piecePos, x, y);
         reset_possible_castling(board);
         player = player == "white" ? "black" : "white";
+        verif_end_game(board, player);
         return;
     }
     reset_possible_moves(board);

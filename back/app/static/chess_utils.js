@@ -73,7 +73,41 @@ function verif_check(cp_board, color)
         }
     }
     return false
+}
 
+function verif_end_game(board, color)
+{
+    let cp_board = Array.from(board, x => x.map(y => Object.assign({}, y)));
+    if (!can_move(cp_board, color))
+    {
+        if (verif_check(cp_board, color))
+            alert("Check " + color);
+        else
+            alert("Pat");
+    }
+}
+
+function can_move(cp_board, color)
+{
+    for (let y = 0; y < 8; y++)
+    {
+        for (let x = 0; x < 8; x++)
+        {
+            if (cp_board[y][x].piece && cp_board[y][x].piece.color == color)
+            {
+                cp_board[y][x].piece.setPossibleMoves(cp_board, x, y);
+                last_verif_move(cp_board, color, {'x': x, 'y': y});
+                for (let i = 0; i < 8; i++)
+                {
+                    for (let j = 0; j < 8; j++)
+                    {
+                        if (cp_board[i][j].possibleMove)
+                            return true;
+                    }
+                }
+            }
+        }
+    }
 }
 
 function getKingPos(board, color)
