@@ -1,78 +1,36 @@
 {% load static %}
 
+
 <div class="container">
-    <h1 class="header">ULTIMATE EXTRA COOL SUPER PONG TOURNAMENT EXTREME BATTLE</h1>
-    <h5 class="header">Welcome in the history</h5>
-    
-    <div class="row main-box">
-            <canvas id="pongCanvas" width="720" height="480"></canvas>
-        </div>
+	<h1 class="header">ULTIMATE EXTRA COOL SUPER PONG TOURNAMENT EXTREME BATTLE</h1>
+	<h5 class="header">Welcome in the history</h5>
+	
+	<!-- Affichage des scores -->
+	<div class="scoreboard">
+		<div id="playerScore" class="score">Player: 0</div>
+		<div id="opponentScore" class="score">Opponent: 0</div>
+	</div>
+	
+	<!-- Bouton pour démarrer le jeu -->
+	<div id="playButton" class="text-center mt-4">
+		<button onclick="startGame()" class="playButton">JOUER</button>
+		<button onclick="startIAGame()" class="playButton">vs IA</button>
+	</div>
 
-        <div class="justify-content-center align-items-center min-vw-25 col-lg-4 col-sm-12">
-            <ul class="list-group shadow-sm">
-            <li class="list-group-item text-center text-white border-0" style="background: #1E1E1E">
-                <h3 class="fw-normal">Leaderboard</h3>
-            </li>
-            <li class="list-group-item d-flex justify-content-between text-white border-0" style="background: #FF5E5E">
-                <span>1</span>
-                <span>NAME</span>
-                <span>RANK</span>
-            </li>
-            <li class="list-group-item d-flex justify-content-between text-white border-0" style="background: #FF5E5E">
-                <span>2</span>
-                <span>NAME</span>
-                <span>RANK</span>
-            </li>
-            <li class="list-group-item d-flex justify-content-between text-white border-0" style="background: #FF5E5E">
-                <span>3</span>
-                <span>NAME</span>
-                <span>RANK</span>
-            </li>
-            <li class="list-group-item d-flex justify-content-between text-white border-0" style="background: #FF5E5E">
-                <span>4</span>
-                <span>NAME</span>
-                <span>RANK</span>
-            </li>
-            <li class="list-group-item d-flex justify-content-between text-white border-0" style="background: #FF5E5E">
-                <span>5</span>
-                <span>NAME</span>
-                <span>RANK</span>
-            </li>
-        </div>
+	<!-- Canevas du jeu, masqué par défaut -->
+	<div class="main-box w-100 align-items-center" style="display: none" id="gameContainer">
+		<div style="z-index:1000">
+			<h1 class="key" id="keyw">w</h1>
+			<h1 class="key" id="keys">s</h1>
+		</div>
+		<canvas class="w-100" id="pongCanvas" width="780" height="480"></canvas>
+		<div id="opponentController">
+			<h1 class="key" id="keyup">🠕</h1>
+			<h1 class="key" id="keydown">🠗</h1>
+		</div>
+	</div>
 
-
-    </div>
-    <div class="stats-box pl-5 pr-5 d-flex">
-        <div class="stats-id w-50">
-            <img src="{{ user.profile_picture.url }}" alt="Profile pic">
-               <h2>{{ user.username }}</h2>
-        </div>
-        <div class="stats-content w-50">
-            <div class="stats-content-place">
-                <h3>PLACE</h3>
-                <h6>Unranked</h6>
-            </div>
-        </div>
-        <div class="row stats-content-others">
-            <div class="w-xs-100 w-50">
-                <h3>Rank</h3>
-                <h6>{{ user.pong_rank }}</h6>
-            </div>
-            <div class="w-xs-100 w-50">
-                <h3>Max exchange</h3>
-                <h6>{{ user.pong_max_exchange }}</h6>
-            </div>
-            <div class="w-xs-100 w-50">
-                <h3>Games played</h3>
-                <h6>{{ user.pong_games_played }}</h6>
-            </div>
-            <div class="w-xs-100 w-50">
-                <h3>Winrate</h3>
-                <h6>{{ user.pong_winrate }}</h6>
-            </div>
-        </div>
-    </div>
-
+	<script>
+		
+	</script>
 </div>
-
-<script src="{% static 'pong.js' %}"></script>

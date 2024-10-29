@@ -58,7 +58,7 @@ function create_ws()
 			add_msg("you", data.message, true, data.send_to)
 			const last_msg = document.getElementById("last_msg_" + data.send_to);
 			if (last_msg)
-				last_msg.innerHTML = "vous : " + data.message;
+				last_msg.innerText = "vous : " + data.message;
 			update_list_discu(data.send_to)
 		}
 		if (data.type == 'disconnect')
@@ -76,10 +76,9 @@ function create_ws()
 				statut_mini_elem.hidden = false;
 		}
 		if (data.type == 'error')
-		{
 			error_message(data.message, 2000)
-			return ;
-		}
+		if (data.type == 'invite')
+			add_invitation(data.game, data.player)
 	};
 	
 	chatSocket.onclose = (event) => {
@@ -107,7 +106,7 @@ function add_msg(sender, msg, you, send_to)
 			msg_div.setAttribute('class', 'my_msg  rounded-2 shadow')
 		else
 			msg_div.setAttribute('class', 'other_msg  rounded-2 shadow')
-		msg_div.innerHTML = msg;
+		msg_div.innerText = msg;
 		myDiv.append(msg_div)
 		globalDiv = document.getElementById("div_msg");
 		globalDiv.scrollTop = globalDiv.scrollHeight;
@@ -124,7 +123,7 @@ function add_msg(sender, msg, you, send_to)
 			msg_div.setAttribute('class', 'my_msg  rounded-2 shadow')
 		else
 			msg_div.setAttribute('class', 'other_msg  rounded-2 shadow')
-		msg_div.innerHTML = msg;
+		msg_div.innerText = msg;
 		myMiniDiv.append(msg_div)
 		myMiniDiv.scrollTop = myMiniDiv.scrollHeight;
 	}
@@ -162,7 +161,7 @@ function update_discu(sender, msg, discu_id, user)
 	last_msg = document.getElementById("last_msg_" + sender);
 	if (discu && last_msg) // if discu exist update last message and notif
 	{
-		last_msg.innerHTML = msg;
+		last_msg.innerText = msg;
 		const profile_pic = document.getElementById("profile_pic_" + sender);
 		if (profile_pic && !document.getElementById('notif_' + sender) && !discu.classList.contains("discu_selected"))
 		{
@@ -197,7 +196,7 @@ function update_discu(sender, msg, discu_id, user)
 	last_msg_mini = document.getElementById("last_msg_mini_" + sender);
 	if (last_msg_mini)
 	{
-		last_msg_mini.innerHTML = msg;
+		last_msg_mini.innerText = msg;
 		const profile_pic_mini = document.getElementById("profile_pic_mini_" + sender);
 		if (profile_pic_mini && !document.getElementById('notif_mini_' + sender))
 		{

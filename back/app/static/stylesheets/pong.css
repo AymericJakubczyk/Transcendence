@@ -1,0 +1,83 @@
+.header {
+    color: #FF5E5E;
+    font-size: 2em;
+    margin-bottom: 10px;
+}
+
+.scoreboard {
+    font-size: 2em;
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 100px;
+}
+
+.score {
+    background-color: #282828;
+    padding: 10px 20px;
+    border-radius: 10px;
+    color: #FFF;
+}
+
+.key
+{
+    border : 5px solid red;
+    border-radius: 10%;
+    color : red;
+    width:100px;
+    height:100px;
+    text-align: center;
+    align-content: center;
+}
+
+.pressed
+{
+    border : 5px solid white;
+    background-color: red;
+    border-radius: 10%;
+    color : white;
+    text-shadow:
+        0 0 7px #fff,
+        0 0 10px #fff,
+        0 0 21px #fff;
+    width:100px;
+    height:100px;
+    text-align: center;
+    align-content: center;
+    box-shadow: 0 0 .2rem #fff,
+                0 0 2rem red,
+                0 0 0.8rem red,
+                inset 0 0 1.3rem #fff;
+}
+
+.playButton {
+    margin-top: 20px;
+    font-size: 1.5em;
+    padding: 10px 20px;
+    background-color: #FF5E5E;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.playButton:hover {
+    background-color: #FF3030;
+}
+
+#pongCanvas {
+    margin-top: 20px;
+    /* border: 2px solid #FFF; */
+    background-color: #000;
+}
+
+.endgame {
+    justify-content: space-evenly;
+    box-shadow: 0 0 .2rem #fff,
+    0 0 .2rem #fff,
+    0 0 2rem blue,
+    0 0 0.8rem blue,
+    0 0 2.8rem blue,
+    inset 0 0 1.3rem blue;
+}

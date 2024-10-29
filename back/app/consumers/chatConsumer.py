@@ -4,7 +4,6 @@ from channels.generic.websocket import AsyncWebsocketConsumer, WebsocketConsumer
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync, sync_to_async
 from channels.db import database_sync_to_async
-from app.models import User, Discussion, Message
 from django.db.models import Q
 from channels.consumer import SyncConsumer
 
@@ -15,7 +14,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         print("[CONNECT]", self.scope["user"], file=sys.stderr)
         self.room_group_name = self.scope["user"].username
 
-        await self.set_state(self.scope["user"], User.State.ONLINE)
+        await self.set_state(self.scope["user"], "online")
 
         await self.channel_layer.group_add(
             self.room_group_name,
@@ -46,7 +45,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self, close_code):
         print("[DISCONNECT]", file=sys.stderr)
-        await self.set_state(self.scope["user"], User.State.OFFLINE)
+        await self.set_state(self.scope["user"], "offline")
         all_username =  await self.get_all()
 
         for username in all_username:
@@ -114,10 +113,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
             }
         )
 
-
-
     @database_sync_to_async
     def save_message(self, discu_id, sender, message, send_to):
+        from app.models import User, Discussion, Message
+
         current_discu =  get_object_or_404(Discussion, id=discu_id)
         interlocutor =  get_object_or_404(User, username=send_to)
         obj = Message()
@@ -129,11 +128,21 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def set_state(self, user, state):
-        user.state = state
+        from app.models import User
+
+        # update user if there is changement before
+        update_user = User.objects.get(id=user.id)
+        user = update_user
+        if (state == "online"):
+            user.state = User.State.ONLINE
+        elif (state == "offline"):
+            user.state = User.State.OFFLINE
         user.save()
 
     @database_sync_to_async
     def get_all(self):
+        from app.models import Discussion
+
         current_user = self.scope["user"]
         all_discussion = Discussion.objects.filter(Q(user1=current_user) | Q(user2=current_user))
         all_username = []
@@ -177,3 +186,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'type': 'error',
             'message': event['message'],
         }))
+
+    async def invite(self, event):
+        print("[SEND WS]", event, file=sys.stderr)
+        await self.send(text_data=json.dumps(event))

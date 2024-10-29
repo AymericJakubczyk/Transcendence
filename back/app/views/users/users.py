@@ -1,0 +1,70 @@
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import login, authenticate, logout, update_session_auth_hash
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import PasswordChangeForm
+from app.forms import SignupForm, LoginForm, UpdateForm
+from app.models import User, Tournament, Friend_Request, Discussion, Message, Game_Chess
+from django.urls import reverse as get_url
+from django.db.models import Q
+import json
+from django.http import JsonResponse, HttpResponse
+
+import sys
+import logging
+from django.contrib import messages
+
+logger = logging.getLogger(__name__)
+
+@login_required
+def logout_user(request):
+    print("LOGOUT", request.user, file=sys.stderr)
+    logout(request)
+    return (redirect('myprofile'))
+
+def registrationView(request):
+    if request.method == 'POST':
+        form = SignupForm(request.POST, request.FILES)
+        if form.is_valid():
+            user = form.save(commit=False)
+            if request.FILES:
+                logger.info(f"Files received: {request.FILES}")
+            else:
+                logger.warning("No files received")
+            user.save()
+            # auto-login user
+            login(request, user)
+            return redirect('myprofile')
+        else:
+            logger.warning(f"Form errors: {form.errors}")
+    else:
+        form = SignupForm()
+    if request.META.get("HTTP_HX_REQUEST") != 'true':
+        return render(request, 'page_full.html', {'page':'registration.html', 'form':form})
+    return render(request, 'registration.html', {'form': form})
+
+
+@login_required
+def send_friend_request(request, username):
+    from_user = request.user
+    to_user = get_object_or_404(User, username=username)
+    friend_request, created = Friend_Request.objects.get_or_create(from_user=from_user, to_user=to_user)
+    if created:
+        messages.success(request, 'Friend request sent')
+        return redirect('profile', username=to_user.username)
+    else :
+        messages.info(request, 'Friend request already sent')
+        return redirect('profile', username=to_user.username)
+
+@login_required
+def accept_friend_request(request, requestID):
+    friend_request = Friend_Request.objects.get(id=requestID)
+    if friend_request.to_user == request.user:
+        friend_request.to_user.friends.add(friend_request.from_user)
+        friend_request.from_user.friends.add(friend_request.to_user)
+        friend_request.delete()
+        messages.success(request, 'Friend request accepted')
+        return redirect('myprofile')
+    else :
+        messages.error(request, 'Friend request not accepted')
+        return redirect('myprofile')
+
