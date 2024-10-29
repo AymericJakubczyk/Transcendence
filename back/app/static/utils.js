@@ -33,4 +33,10 @@ window.addEventListener('htmx:beforeSwap', function(evt) {
         pongSocket.close()
         pongSocket = null
     }
+    if (old_path.startsWith("/game/pong/multiplayer/") && !new_path.startsWith("/game/pong/multiplayer/"))
+    {
+        console.log("[WS PONG MULTI] socket closed")
+        pongMultiSocket.close()
+        pongMultiSocket = null
+    }
 });

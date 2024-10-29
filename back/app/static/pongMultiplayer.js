@@ -37,6 +37,8 @@
 var ring;
 var nbPlayers;
 
+var myplayerID;
+
 let playersObjs = [
     { color: 0x00f3ff, paddle: null, zone: null, zoneStart: null, paddlePosition: null},
     { color: 0xff49ec, paddle: null, zone: null, zoneStart: null, paddlePosition: null},
@@ -50,31 +52,28 @@ let playersObjs = [
 
 const ringRadius = 50;
 
-function testMulti()
+function setup_game()
 {
+    // CANVAS SETUP 
     myCanvas = document.getElementById("pongCanvas")
-
-    console.log("[MULTI SIZE]", myCanvas.clientWidth, myCanvas.clientHeight)
-    console.log("[MULTI SIZE]", myCanvas.scrollWidth, myCanvas.scrollHeight)
     renderer = new THREE.WebGLRenderer({canvas: myCanvas,antialias: true});
     renderer.setSize( myCanvas.clientWidth, myCanvas.clientHeight);
     camera = new THREE.PerspectiveCamera( 75, (myCanvas.clientWidth * 10) / (myCanvas.clientHeight * 10), 0.1, 1000 );
 
-
     scene = new THREE.Scene()
     scene.background = new THREE.Color( 0x262626 );
 
-    nbPlayers = 8;
-
+    // BALL SETUP
     const ballGeometry = new THREE.SphereGeometry(ballRadius, 32, 16 );
-    const ballMaterial = new THREE.MeshBasicMaterial( { color: 0x00ffee } );
+    const ballMaterial = new THREE.MeshBasicMaterial( { color: 0x12e012 } );
 
-    ball = new THREE.PointLight( 0x00ff00, 1, 15 );
+    ball = new THREE.PointLight( 0x12e012, 1, 15 );
     ball.add( new THREE.Mesh( ballGeometry, ballMaterial) );
     ball.position.x = arenaLength / 2;
     ball.position.y = arenaWidth / 2;
+    scene.add( ball );
 
-
+    // RING SETUP 
     const ringGeometry = new THREE.RingGeometry( ringRadius, ringRadius-0.15, 100 );
     const ringMaterial = new THREE.MeshBasicMaterial( { color: 0xdbdbdb, side: THREE.DoubleSide } );
     
@@ -82,19 +81,63 @@ function testMulti()
     ring.position.x = arenaLength / 2;
     ring.position.y = arenaWidth / 2;
     ring.position.z = 0.5;
-
-
-    scene.add( ball );
     scene.add( ring );
-    
-    drawZones()
-    drawPaddles()
-    cam1()
-    
+
+    // KEY HANDLING
+    document.addEventListener("keydown", keyDownHandler);
+    document.addEventListener("keyup", keyUpHandler);
+    function keyDownHandler(e) {
+        if (e.key === "Up" || e.key === "ArrowUp")
+            upPressed = true;
+        else if (e.key === "Down" || e.key === "ArrowDown")
+            downPressed = true;
+    }
+
+    function keyUpHandler(e) {
+        if (e.key === "Up" || e.key === "ArrowUp")
+            upPressed = false;
+        else if (e.key === "Down" || e.key === "ArrowDown")
+            downPressed = false;
+    }
+
+    if (gameInterval)
+        clearInterval(gameInterval)
+    gameInterval = setInterval(function() { handle_input(myplayerID) }, 10);
+}
+
+function startMultiGame()
+{
+    setup_game();
+    console.log("Starting a pong multi game with", nbPlayers, "players");
+    setupZones();
+    setupPaddles();
+    cam1();
+
+
+
     renderer.render( scene, camera );
 }
 
-function drawZones()
+function handle_input(player)
+{
+    if (upPressed)
+        ws_call_move("up", player)
+    else if (downPressed)
+        ws_call_move("down", player)
+}
+
+function ws_call_move(move, player)
+{
+    // =================== via WebSocket ===================
+    const obj = {
+        'type': 'move_paddle',
+        'player': player,
+        'move': move
+    };
+    pongMultiSocket.send(JSON.stringify(obj))
+}
+
+function setupZones()
 {   
     playerZoneSize = (2 * Math.PI) / nbPlayers;
     for (let i = 0; i < nbPlayers; i++)
@@ -115,16 +158,16 @@ function drawZones()
     }
 }
 
-function drawPaddles()
+function setupPaddles()
 {
     playerZoneSize = (2 * Math.PI) / nbPlayers;
     playerPaddleSize = ((2 * Math.PI) / nbPlayers) / 4;
-    paddleRadius = ringRadius-2
+    paddleRadius = ringRadius-3
     for (let i = 0; i < nbPlayers; i++)
     {
         playerPaddleStart = playersObjs[i].zoneStart + playerPaddleSize * 1.5;
         playerPaddleColor = 0x000000;
-        if (i == 0)
+        if (i == myplayerID)
             playerPaddleColor = 0xffffff;
         playerPaddleThick = 1.5;
         playersObjs[i].paddlePosition = playerPaddleStart;
@@ -138,4 +181,14 @@ function drawPaddles()
         
         scene.add( playersObjs[i].paddle );
     }
+}
+
+function render_paddles(paddles)
+{
+    for (let i = 0; i < nbPlayers; i++) {
+        newGeo = new THREE.RingGeometry( paddleRadius, paddleRadius-playerPaddleThick, 100, 50, paddles[i], playerPaddleSize);
+        playersObjs[i].paddle.geometry.dispose();
+        playersObjs[i].paddle.geometry = newGeo;
+    }
+    renderer.render(scene, camera);
 }

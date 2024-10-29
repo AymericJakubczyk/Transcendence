@@ -13,7 +13,10 @@ function search_multiplayer_game()
         const data = JSON.parse(e.data);
         if (data.type === 'multi_match_found')
         {
-            console.log("Connected in game ", data.game_id);
+            console.log("Connected in game ", data.game_id, data.player_id);
+            myplayerID = data.player_id;
+            nbPlayers = data.player_nb;
+
         }
         if (data.type === 'game_update')
         {
@@ -21,7 +24,9 @@ function search_multiplayer_game()
             y = data.y;
             dx = data.dx;
             dy = data.dy;
+            
 
+            render_paddles(data.paddles);
             render_ball(x, y);
             return;
         }

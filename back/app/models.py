@@ -147,6 +147,9 @@ class PongMultiDataGame(models.Model):
 	ball_dx = models.FloatField(default=0)
 	ball_dy = models.FloatField(default=0)
 
+	zoneStart = ArrayField(models.IntegerField(), null=True, blank=True, default=list)
+	paddleStart = ArrayField(models.IntegerField(), null=True, blank=True, default=list)
+
 
 class Game_PongMulti(models.Model):
 	playerlist = models.ManyToManyField("User", blank=True)
