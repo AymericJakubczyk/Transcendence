@@ -30,16 +30,25 @@ def chatView(request):
     error = None
     current_user = request.user
     # get more message when you scroll to the top
-    if request.method == 'GET' and request.headers.get('type') and request.headers.get('type') == 'more_message':
-        print("[GET MORE MESSAGE]", request.headers.get('nbrMessage'), request.headers.get('id'), file=sys.stderr)
-        discu = get_object_or_404(Discussion, id=request.headers.get('id'))
-        nbr_message = int(request.headers.get('nbrMessage'))
+    if request.method == 'GET' and request.GET.get('type') == 'more_message':
+        print("[GET MORE MESSAGE]", request.GET.get('nbrMessage'), request.GET.get('id'), file=sys.stderr)
+        discu = get_object_or_404(Discussion, id=request.GET.get('id'))
+        nbr_message = int(request.GET.get('nbrMessage'))
         more_message = Message.objects.filter(Q(discussion=discu)).order_by('-id')[nbr_message:nbr_message+42]
         json_message = []
         for msg in more_message:
             json_message.append({'message':msg.message, 'sender':msg.sender.username})
 
         return JsonResponse({'more_message': json_message, 'current_username':request.user.username})
+
+    if (request.method == "GET" and request.GET.get('type') == 'get_global_notif'):
+        print("[GET GLOBAL NOTIF]", file=sys.stderr)
+        all_discussion = Discussion.objects.filter(Q(user1=current_user) | Q(user2=current_user))
+        for discussion in all_discussion:
+            last_message = discussion.get_last_message()
+            if last_message and not last_message.read and last_message.sender != current_user:
+                return JsonResponse({'notif': True})
+        return JsonResponse({'notif': False})
 
     if 'add_discussion' in request.POST:
         print("[ADD]", file=sys.stderr)
@@ -116,44 +125,17 @@ def mini_chat(request):
 
     if (current_user.is_authenticated == False):
         return JsonResponse({'type': 'error', 'message':'not authenticated'})
+
     if (Invite.objects.filter(to_user=current_user).count() > 0):
         notif_invite = True
     if (Friend_Request.objects.filter(to_user=current_user).count() > 0):
         notif_request = True
 
-    if request.method == "POST" and 'decline' in request.POST:
-        print("[DISPLAY PROFILE]", request.POST, file=sys.stderr)
-        invite = get_object_or_404(Invite, id=request.POST.get('decline'))
-        invite.delete()
-        return JsonResponse({'type': 'decline'})
-
     if request.method == "POST" and request.user.is_authenticated:
         jsonData = json.loads(request.body)
         request_type = jsonData.get('type')
         if (request_type == "get_all"):
-            all_discussion = Discussion.objects.filter(Q(user1=current_user) | Q(user2=current_user)).order_by('-last_activity')
-            for discussion in all_discussion:
-                other_username = discussion.get_other_username(current_user.username)
-                other_user = get_object_or_404(User, username=other_username)
-                last_message = discussion.get_last_message()
-                if last_message:
-                    sender = last_message.sender.username
-                    is_readed = last_message.read
-                    last_message = last_message.message
-                else:
-                    last_message = "No message"
-                    sender = "No sender"
-                    is_readed = True
-                obj = { 
-                    'id': discussion.id,
-                    'name_discu':other_username,
-                    'profile_picture':other_user.profile_picture.url,
-                    'last_message':last_message,
-                    'last_message_sender':sender,
-                    'last_message_is_readed':is_readed,
-                    'state':other_user.state
-                }
-                all_discussion_name.append(obj)
+            all_discussion_name = get_all_discu(current_user)
             return JsonResponse({'type': request_type, 'all_discu': all_discussion_name, 'current_username':current_user.username, 'notif_discu':notif_discu, 'notif_invite':notif_invite, 'notif_request':notif_request})
 
         elif (request_type == "get_invites"):
@@ -185,14 +167,6 @@ def mini_chat(request):
                 all_obj_msg.append(obj)
             return JsonResponse({'type': request_type, 'all_message': all_obj_msg, 'current_username':current_user.username})
             
-        elif (request_type == "get_global_notif"):
-            print("[GET GLOBAL NOTIF]", file=sys.stderr)
-            all_discussion = Discussion.objects.filter(Q(user1=current_user) | Q(user2=current_user))
-            for discussion in all_discussion:
-                last_message = discussion.get_last_message()
-                if last_message and not last_message.read and last_message.sender != current_user:
-                    return JsonResponse({'type': request_type, 'notif': True})
-            return JsonResponse({'type': request_type, 'notif': False})
         return JsonResponse({'type': request_type})
     else:
         return JsonResponse({'type': 'error', 'message':'not authenticated or not good request'})
@@ -216,7 +190,7 @@ def invite(request):
         async_to_sync(channel_layer.group_send)(
             request.POST.get('opponent'),
             {
-                "type": "send",
+                "type": "send_ws",
                 "type2": "invite",
                 "game": request.POST.get('game'),
                 "player": request.user.username,
@@ -256,3 +230,33 @@ def invite(request):
     if request.META.get("HTTP_HX_REQUEST") != 'true':
         return render(request, 'page_full.html', {'page':'waiting_game.html'})
     return render(request, 'waiting_game.html')
+
+
+# UTILS
+
+def get_all_discu(current_user):
+    all_discussion_name = []
+    all_discussion = Discussion.objects.filter(Q(user1=current_user) | Q(user2=current_user)).order_by('-last_activity')
+    for discussion in all_discussion:
+        other_username = discussion.get_other_username(current_user.username)
+        other_user = get_object_or_404(User, username=other_username)
+        last_message = discussion.get_last_message()
+        if last_message:
+            sender = last_message.sender.username
+            is_readed = last_message.read
+            last_message = last_message.message
+        else:
+            last_message = "No message"
+            sender = "No sender"
+            is_readed = True
+        obj = { 
+            'id': discussion.id,
+            'name_discu':other_username,
+            'profile_picture':other_user.profile_picture.url,
+            'last_message':last_message,
+            'last_message_sender':sender,
+            'last_message_is_readed':is_readed,
+            'state':other_user.state
+        }
+        all_discussion_name.append(obj)
+    return all_discussion_name

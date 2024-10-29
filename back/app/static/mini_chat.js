@@ -36,8 +36,10 @@ function minimize_mini_chat()
 {
     document.getElementById("mini_chat").innerHTML = `
         <h2 class="m-0 p-2" style="cursor:pointer" onclick="display_mini_chat()">💬</h2>
+        <div id="global_mini_notif" class='notif bg-danger text-light rounded-circle' style="left: 2px;top: 2px" hidden>!</div>
     `
-    set_global_notif()
+    if (document.getElementById("global_notif").hidden == false)
+        document.getElementById("global_mini_notif").hidden = false
 }
 
 function display_all_discu()
@@ -265,11 +267,6 @@ function display_mini_discu(name, id)
     .then(data => {
         // set_global_notif()
         all_discu = document.getElementById("all_msg_mini_" + name)
-
-        //set tab notif
-        document.getElementById("notif_discu_tab").hidden = !data.notif_discu
-        document.getElementById("notif_invite_tab").hidden = !data.notif_invite
-        document.getElementById("notif_request_tab").hidden = !data.notif_request
 
         all_discu.innerHTML = ''
         for (i = 0; i < data.all_message.length; i++)

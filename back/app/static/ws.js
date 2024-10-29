@@ -137,12 +137,17 @@ function update_discu(sender, msg, discu_id, user)
 	{
 		console.log("create discu", user, discu_id);
 		const all_discussion = document.getElementById("all_discussion");
-		all_discussion.innerHTML += `<custom-discu sender="${sender}" discu_id="${discu_id}" msg="${msg}" img="${user.profile_picture}"></custom-discu>`
+		all_discussion.innerHTML += `
+			<custom-discu sender="${sender}" discu_id="${discu_id}" msg="${msg}" img="${user.profile_picture}">
+			</custom-discu>
+		`
 		htmx.process(document.getElementById("form_discu_" + sender));
+		// reset discu and last_msg value after create it
+		discu = document.getElementById("discu_" + sender);
+		last_msg = document.getElementById("last_msg_" + sender);
 	}
-	discu = document.getElementById("discu_" + sender);
-	last_msg = document.getElementById("last_msg_" + sender);
-	if (discu && last_msg) // if discu exist update last message and notif
+
+	if (discu && last_msg) // else if discu exist update last message and notif
 	{
 		last_msg.innerText = msg;
 		const profile_pic = document.getElementById("profile_pic_" + sender);
@@ -150,22 +155,28 @@ function update_discu(sender, msg, discu_id, user)
 		{
 			const notif = document.createElement("div");
 			notif.setAttribute('id', 'notif_' + sender);
-			notif.setAttribute('class', 'bg-danger text-light');
-			notif.setAttribute('style', 'clip-path: ellipse(50% 50%);background-color:red;width:20px;height:20px;position: absolute; left: 0;top: 0;');
+			notif.setAttribute('class', 'notif bg-danger text-light');
+			notif.setAttribute('style', 'left:0; top:0');
 			notif.innerHTML = "!";
 			profile_pic.append(notif);
 		}
 	}
+
 	var last_msg_mini = document.getElementById("last_msg_mini_" + sender);
 	if (!last_msg_mini && document.getElementById("all_discu_mini")) // if mini discu not exist create it and add it in list
 	{
 		if (document.getElementById("no_discu"))
 			document.getElementById("no_discu").remove()
 		const all_discu_mini = document.getElementById("all_discu_mini");
-		all_discu_mini.innerHTML += `<custom-mini-discu sender="${sender}" discu_id="${discu_id}" msg="${msg}" img="${user.profile_picture}"></custom-mini-discu>`
+		all_discu_mini.innerHTML += `
+			<custom-mini-discu sender="${sender}" discu_id="${discu_id}" msg="${msg}" img="${user.profile_picture}">
+			</custom-mini-discu>
+		`
+		// reset last_msg value after create it
+		last_msg_mini = document.getElementById("last_msg_mini_" + sender);
 	}
-	last_msg_mini = document.getElementById("last_msg_mini_" + sender);
-	if (last_msg_mini)
+	
+	if (last_msg_mini) // if mini discu exist update last message and notif
 	{
 		last_msg_mini.innerText = msg;
 		const profile_pic_mini = document.getElementById("profile_pic_mini_" + sender);
@@ -173,8 +184,8 @@ function update_discu(sender, msg, discu_id, user)
 		{
 			const notif = document.createElement("div");
 			notif.setAttribute('id', 'notif_mini_' + sender);
-			notif.setAttribute('class', 'bg-danger text-light');
-			notif.setAttribute('style', 'clip-path: ellipse(50% 50%);background-color:red;width:20px;height:20px;position: absolute; left: 0;top: 0;');
+			notif.setAttribute('class', 'notif bg-danger text-light');
+			notif.setAttribute('style', 'left:0; top:0;');
 			notif.innerHTML = "!";
 			profile_pic_mini.append(notif);
 		}
@@ -230,4 +241,7 @@ function request_for_read_message(discu_id)
 	.then(data => {
 		set_global_notif()
 	});
+
+	// send ws instead of fetch
+	// chatSocket.send(JSON.stringify({'type': 'read', 'discu_id': discu_id}));
 }

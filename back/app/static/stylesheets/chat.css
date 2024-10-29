@@ -125,3 +125,12 @@
   right: 0;
   top: 0;
 }
+
+.notif {
+  height: 20px;
+  aspect-ratio: 1;
+  text-align: center;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
