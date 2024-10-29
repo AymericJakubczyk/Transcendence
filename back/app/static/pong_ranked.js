@@ -124,6 +124,12 @@ function receive_pong_ws(data)
             gameInterval = setInterval(function() { catch_input(data.player) }, 10);
         }
     }
+    if (data.type === 'rejoin')
+    {
+        console.log("[GAME START]", data);
+        if (data.player != 0)
+            gameInterval = setInterval(function() { catch_input(data.player) }, 10);
+    }
 }
 
 

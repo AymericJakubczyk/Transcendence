@@ -85,6 +85,22 @@ class PongConsumer(AsyncWebsocketConsumer):
                 self.room_group_name,
                 self.channel_name
             )
+            # send ws to know what player you are (0 is spectator)
+            if (self.scope["user"] == await self.get_player(self.game, 1)):
+                await self.send(text_data=json.dumps({
+                    'type': 'rejoin',
+                    'player': 1
+                }))
+            elif (self.scope["user"] == await self.get_player(self.game, 2)):
+                await self.send(text_data=json.dumps({
+                    'type': 'rejoin',
+                    'player': 2
+                }))
+            else:
+                await self.send(text_data=json.dumps({
+                    'type': 'rejoin',
+                    'player': 0
+                }))
         if (text_data_json['type'] == 'move_paddle'):
             self.move_paddle(text_data_json['move'], text_data_json['player'])
             await self.send_updates()
@@ -359,6 +375,13 @@ class PongConsumer(AsyncWebsocketConsumer):
         game.save()
         all_data[game.id] = PongData()
         return game
+
+    @database_sync_to_async
+    def get_player(self, game, player):
+        if (player == 1):
+            return game.player1
+        elif (player == 2):
+            return game.player2
 
     @database_sync_to_async
     def save_winner(self):
