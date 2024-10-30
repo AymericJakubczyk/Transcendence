@@ -299,7 +299,7 @@ class PongConsumer(AsyncWebsocketConsumer):
         from app.models import Tournament
 
         # GET TOURNAMENT OBJ
-        bracket_id = self.player1.tournament_id
+        bracket_id = self.game.player1.tournament_id
         print("UPDATING TOURNAMENT", bracket_id, file=sys.stderr)
         tournament = get_object_or_404(Tournament, id=bracket_id)
         if (not tournament):
@@ -345,7 +345,7 @@ class PongConsumer(AsyncWebsocketConsumer):
         
         # UPDATE BARCKET (PAS SUR CA MARCHE LA)
         self.channel_layer.group_send(
-            "pong_tournament_" + str(tournament_id),
+            "pong_tournament_" + str(self.game.player1.tournament_id),
             {
                 "type": "update_room",
             }
@@ -394,6 +394,12 @@ class PongConsumer(AsyncWebsocketConsumer):
             'game_id': event['id']
         }))
         # start the game
+        asyncio.create_task(self.calcul_ball())
+
+    async def join_tournament_game(self, event):
+        print("[JOIN TOURNAMENT GAME]", event, self.scope["user"].username, file=sys.stderr)
+        self.game = await self.get_game(event['id'])
+        all_data[self.game.id] = PongData()
         asyncio.create_task(self.calcul_ball())
 
     async def countdown(self, event):

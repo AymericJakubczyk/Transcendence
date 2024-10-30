@@ -296,6 +296,21 @@ def pongFoundGameView(request):
 
 def pongGameView(request, gameID):
     game = get_object_or_404(Game_Pong, id=gameID)
+    if (game.tournament_pos != -1 ):
+        # need to add more secure to check which player is joining the game
+        if (game.opponent_ready):
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                "ranked_pong_" + str(gameID),
+                {
+                    "type": "join_tournament_game",
+                    "id": gameID
+                }
+            )
+        else :
+            game.opponent_ready = True
+            game.save()
+
     if request.META.get("HTTP_HX_REQUEST") != 'true':
         return render(request, 'page_full.html', {'page':'pong_ranked.html', 'user':request.user, 'game':game, 'gameID':gameID})
     return render(request, 'pong_ranked.html', {'user':request.user, 'game':game, 'gameID':gameID})
