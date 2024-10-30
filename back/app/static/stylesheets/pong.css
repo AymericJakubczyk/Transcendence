@@ -95,3 +95,29 @@
     0 0 2.8rem blue,
     inset 0 0 1.3rem blue;
 }
+
+#endgame_multi_win {
+    position: relative;
+    top: 50px;
+    display: flex;
+    justify-content: center;
+    box-shadow: 0 0 .2rem #fff,
+    0 0 .2rem #fff,
+    0 0 2rem rgb(0, 255, 76),
+    0 0 0.8rem rgb(0, 255, 76),
+    0 0 2.8rem rgb(0, 255, 76),
+    inset 0 0 1.3rem rgb(0, 255, 76);
+}
+
+#endgame_multi_loss {
+    position: relative;
+    bottom: 50px;
+    display: flex;
+    justify-content: center;
+    box-shadow: 0 0 .2rem #fff,
+    0 0 .2rem #fff,
+    0 0 2rem rgb(255, 0, 68),
+    0 0 0.8rem rgb(255, 0, 68),
+    0 0 2.8rem rgb(255, 0, 68),
+    inset 0 0 1.3rem rgb(255, 0, 68);
+}

@@ -36,24 +36,36 @@
 
 var ring;
 var nbPlayers;
-
+var activePlayers;
 var myplayerID;
 
 let playersObjs = [
-    { color: 0x00f3ff, paddle: null, zone: null, zoneStart: null, paddlePosition: null},
-    { color: 0xff49ec, paddle: null, zone: null, zoneStart: null, paddlePosition: null},
-    { color: 0x581845, paddle: null, zone: null, zoneStart: null, paddlePosition: null},
-    { color: 0x49ff7d, paddle: null, zone: null, zoneStart: null, paddlePosition: null},
-    { color: 0xFF5733, paddle: null, zone: null, zoneStart: null, paddlePosition: null},
-    { color: 0xC70039, paddle: null, zone: null, zoneStart: null, paddlePosition: null},
-    { color: 0xFFC300, paddle: null, zone: null, zoneStart: null, paddlePosition: null},
-    { color: 0xae00ff, paddle: null, zone: null, zoneStart: null, paddlePosition: null},
-  ]; 
+    { alive: 1, color: 0x00f3ff, paddle: null, zone: null, zoneStart: null, paddlePosition: null},
+    { alive: 1, color: 0xff49ec, paddle: null, zone: null, zoneStart: null, paddlePosition: null},
+    { alive: 1, color: 0xC70039, paddle: null, zone: null, zoneStart: null, paddlePosition: null},
+    { alive: 1, color: 0x49ff7d, paddle: null, zone: null, zoneStart: null, paddlePosition: null},
+    { alive: 1, color: 0xFF5733, paddle: null, zone: null, zoneStart: null, paddlePosition: null},
+    { alive: 1, color: 0x581845, paddle: null, zone: null, zoneStart: null, paddlePosition: null},
+    { alive: 1, color: 0xFFC300, paddle: null, zone: null, zoneStart: null, paddlePosition: null},
+    { alive: 1, color: 0xae00ff, paddle: null, zone: null, zoneStart: null, paddlePosition: null},
+  ];
 
 const ringRadius = 50;
 
 function setup_game()
 {
+    // PLAYER COLOR DISPLAY
+    div = document.getElementById("pongmulti_playerlist");
+    for (let i = 0; i < nbPlayers; i++) {
+        playerElem = document.createElement("h4");
+        if (i == myplayerID)
+            playerElem.textContent = "You";
+        else
+            playerElem.textContent = "Player " + (i + 1);
+        playerElem.style.color = "#" + playersObjs[i].color.toString(16).padStart(6, '0');
+        div.appendChild(playerElem);
+    }
+
     // CANVAS SETUP 
     myCanvas = document.getElementById("pongCanvas")
     renderer = new THREE.WebGLRenderer({canvas: myCanvas,antialias: true});
@@ -137,6 +149,39 @@ function ws_call_move(move, player)
     pongMultiSocket.send(JSON.stringify(obj))
 }
 
+function updateZones()
+{
+    for (let i = 0; i < nbPlayers; i++)
+        scene.remove( playersObjs[i].zone );
+
+    playerZoneSize = (2 * Math.PI) / activePlayers;
+
+    i = 0;
+    y = 0;
+    while (y < activePlayers)
+    {
+        if (playersObjs[i].alive == 1)
+        {
+            playerZoneStart = playerZoneSize * i;
+            playersObjs[i].zoneStart = playerZoneStart;
+            playerZoneColor = playersObjs[i].color;
+            playerZoneThick = 1;
+            geoZone = new THREE.RingGeometry( ringRadius, ringRadius-playerZoneThick, 100, 50, playerZoneStart, playerZoneSize);
+            materialZone = new THREE.MeshBasicMaterial( { color: playerZoneColor, side: THREE.DoubleSide } );
+            
+            playersObjs[i].zone = new THREE.Mesh( geoZone, materialZone);
+            playersObjs[i].zone.position.x = arenaLength / 2;
+            playersObjs[i].zone.position.y = arenaWidth / 2;
+            playersObjs[i].zone.position.z = 1;
+            
+            scene.add( playersObjs[i].zone );
+            y++;
+        }
+        i++;
+    }
+    console.log("Created", y, "zones.");
+}
+
 function setupZones()
 {   
     playerZoneSize = (2 * Math.PI) / nbPlayers;
@@ -158,6 +203,19 @@ function setupZones()
     }
 }
 
+function getPaddlesColor(hexColor, factor)
+{
+    let red = (hexColor >> 16) & 0xff;
+    let green = (hexColor >> 8) & 0xff;
+    let blue = hexColor & 0xff;
+
+    red = Math.floor(red * factor);
+    green = Math.floor(green * factor);
+    blue = Math.floor(blue * factor);
+
+    return (red << 16) | (green << 8) | blue;
+}
+
 function setupPaddles()
 {
     playerZoneSize = (2 * Math.PI) / nbPlayers;
@@ -166,7 +224,7 @@ function setupPaddles()
     for (let i = 0; i < nbPlayers; i++)
     {
         playerPaddleStart = playersObjs[i].zoneStart + playerPaddleSize * 1.5;
-        playerPaddleColor = 0x000000;
+        playerPaddleColor = getPaddlesColor(playersObjs[i].color, 0.5);
         if (i == myplayerID)
             playerPaddleColor = 0xffffff;
         playerPaddleThick = 1.5;

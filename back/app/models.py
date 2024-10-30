@@ -149,11 +149,11 @@ class PongMultiDataGame(models.Model):
 
 	zoneStart = ArrayField(models.IntegerField(), null=True, blank=True, default=list)
 	paddleStart = ArrayField(models.IntegerField(), null=True, blank=True, default=list)
+	lifes = ArrayField(models.IntegerField(), null=True, blank=True, default=list)
 
 
 class Game_PongMulti(models.Model):
 	playerlist = models.ManyToManyField("User", blank=True)
-	playerlifes = ArrayField(models.IntegerField(default=2), null=True, blank=True)
 	winner = models.ForeignKey(User, related_name='pongMultiwinner', on_delete=models.CASCADE, null=True, blank=True)
 	status = models.CharField(max_length=20, default='waiting')
 	created_at = models.DateTimeField(auto_now_add=True)
