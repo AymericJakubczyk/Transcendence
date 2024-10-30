@@ -377,8 +377,8 @@ function resetBall()
 function updateScore() {
     if (document.getElementById('playerScore') && document.getElementById('opponentScore'))
     {
-        document.getElementById('playerScore').innerText = 'Player: ' + playerScore;
-        document.getElementById('opponentScore').innerText = 'Opponent: ' + opponentScore;
+        document.getElementById('playerScore').innerText = 'Player1: ' + playerScore;
+        document.getElementById('opponentScore').innerText = opponentScore + ': Player2 ';
     }
     if (playerScore == winningScore || opponentScore == winningScore)
         stopGame()

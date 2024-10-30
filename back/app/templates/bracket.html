@@ -1,0 +1,207 @@
+<div id="tournament_bracket">
+    <div id="bracket_round1" class="bracket_round">
+        {% if mytournament.pong_matchs %}
+            {% for game in mytournament.pong_matchs.all %}
+                {% if game.tournament_round == 1 %}
+                    <div class="bracket_match">
+                        <span class="bracket_match_round">ROUND: {{ game.tournament_round }}</span>
+                        <div>
+                            {% if game.player1 %}
+                            {% if game.player1 == game.winner %}
+                            <span class="bracket_match_player text-warning">{{ game.player1.username }}</span>
+                            {% else %}
+                            <span class="bracket_match_player">{{ game.player1.username }}</span>
+                            {% endif %}
+                            {% else %}
+                            <span class="bracket_match_player text-secondary">None</span>
+                            {% endif %}
+                            <span class="bracket_match_VS"> VS </span>
+                            {% if game.player2 %}
+                            {% if game.player2 == game.winner %}
+                                <span class="bracket_match_player text-warning">{{ game.player2.username }}</span>
+                                {% else %}
+                                <span class="bracket_match_player">{{ game.player2.username }}</span>
+                                {% endif %}
+                                {% else %}
+                                <span class="bracket_match_player text-secondary">None</span>
+                            {% endif %}
+                        </div>
+                        {% if not game.winner %}
+                            {% if game.player1 == user or game.player2 == user %}
+                                <button class="bracket_match_state bracket-button-connect">CONNECT</button>
+                            {% else %}
+                                <span class="bracket_match_state bracket-tbp">TO BE PLAYED</span>
+                            {% endif %}
+                        {% else %}
+                            <span class="bracket_match_state bracket-finished">FINISHED</span>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    </div>
+    <div id="bracket_round2" class="bracket_round">
+        {% if mytournament.pong_matchs %}
+            {% for game in mytournament.pong_matchs.all %}
+                {% if game.tournament_round == 2 %}
+                <div class="bracket_match">
+                    <span class="bracket_match_round">ROUND: {{ game.tournament_round }}</span>
+                    <div>
+                        {% if game.player1 %}
+                        {% if game.player1 == game.winner %}
+                        <span class="bracket_match_player text-warning">{{ game.player1.username }}</span>
+                        {% else %}
+                        <span class="bracket_match_player">{{ game.player1.username }}</span>
+                        {% endif %}
+                        {% else %}
+                        <span class="bracket_match_player text-secondary">None</span>
+                        {% endif %}
+                        <span class="bracket_match_VS"> VS </span>
+                        {% if game.player2 %}
+                        {% if game.player2 == game.winner %}
+                            <span class="bracket_match_player text-warning">{{ game.player2.username }}</span>
+                            {% else %}
+                            <span class="bracket_match_player">{{ game.player2.username }}</span>
+                            {% endif %}
+                            {% else %}
+                            <span class="bracket_match_player text-secondary">None</span>
+                        {% endif %}
+                    </div>
+                    {% if not game.winner %}
+                        {% if game.player1 == user or game.player2 == user %}
+                            <button class="bracket_match_state bracket-button-connect">CONNECT</button>
+                        {% else %}
+                            <span class="bracket_match_state bracket-tbp">TO BE PLAYED</span>
+                        {% endif %}
+                    {% else %}
+                        <span class="bracket_match_state bracket-finished">FINISHED</span>
+                    {% endif %}
+                </div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    </div>
+    <div id="bracket_round3" class="bracket_round">
+        {% if mytournament.pong_matchs %}
+            {% for game in mytournament.pong_matchs.all %}
+                {% if game.tournament_round == 3 %}
+                <div class="bracket_match">
+                    <span class="bracket_match_round">ROUND: {{ game.tournament_round }}</span>
+                    <div>
+                        {% if game.player1 %}
+                        {% if game.player1 == game.winner %}
+                        <span class="bracket_match_player text-warning">{{ game.player1.username }}</span>
+                        {% else %}
+                        <span class="bracket_match_player">{{ game.player1.username }}</span>
+                        {% endif %}
+                        {% else %}
+                        <span class="bracket_match_player text-secondary">None</span>
+                        {% endif %}
+                        <span class="bracket_match_VS"> VS </span>
+                        {% if game.player2 %}
+                        {% if game.player2 == game.winner %}
+                            <span class="bracket_match_player text-warning">{{ game.player2.username }}</span>
+                            {% else %}
+                            <span class="bracket_match_player">{{ game.player2.username }}</span>
+                            {% endif %}
+                            {% else %}
+                            <span class="bracket_match_player text-secondary">None</span>
+                        {% endif %}
+                    </div>
+                    {% if not game.winner %}
+                        {% if game.player1 == user or game.player2 == user %}
+                            <button class="bracket_match_state bracket-button-connect">CONNECT</button>
+                        {% else %}
+                            <span class="bracket_match_state bracket-tbp">TO BE PLAYED</span>
+                        {% endif %}
+                    {% else %}
+                        <span class="bracket_match_state bracket-finished">FINISHED</span>
+                    {% endif %}
+                </div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    </div>
+    <div id="bracket_round4" class="bracket_round">
+        {% if mytournament.pong_matchs %}
+            {% for game in mytournament.pong_matchs.all %}
+                {% if game.tournament_round == 4 %}
+                <div class="bracket_match">
+                    <span class="bracket_match_round">ROUND: {{ game.tournament_round }}</span>
+                    <div>
+                        {% if game.player1 %}
+                        {% if game.player1 == game.winner %}
+                        <span class="bracket_match_player text-warning">{{ game.player1.username }}</span>
+                        {% else %}
+                        <span class="bracket_match_player">{{ game.player1.username }}</span>
+                        {% endif %}
+                        {% else %}
+                        <span class="bracket_match_player text-secondary">None</span>
+                        {% endif %}
+                        <span class="bracket_match_VS"> VS </span>
+                        {% if game.player2 %}
+                        {% if game.player2 == game.winner %}
+                            <span class="bracket_match_player text-warning">{{ game.player2.username }}</span>
+                            {% else %}
+                            <span class="bracket_match_player">{{ game.player2.username }}</span>
+                            {% endif %}
+                            {% else %}
+                            <span class="bracket_match_player text-secondary">None</span>
+                        {% endif %}
+                    </div>
+                    {% if not game.winner %}
+                        {% if game.player1 == user or game.player2 == user %}
+                            <button class="bracket_match_state bracket-button-connect">CONNECT</button>
+                        {% else %}
+                            <span class="bracket_match_state bracket-tbp">TO BE PLAYED</span>
+                        {% endif %}
+                    {% else %}
+                        <span class="bracket_match_state bracket-finished">FINISHED</span>
+                    {% endif %}
+                </div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    </div>
+    <div id="bracket_round5" class="bracket_round">
+        {% if mytournament.pong_matchs %}
+            {% for game in mytournament.pong_matchs.all %}
+                {% if game.tournament_round == 5 %}
+                <div class="bracket_match">
+                    <span class="bracket_match_round">ROUND: {{ game.tournament_round }}</span>
+                    <div>
+                        {% if game.player1 %}
+                        {% if game.player1 == game.winner %}
+                        <span class="bracket_match_player text-warning">{{ game.player1.username }}</span>
+                        {% else %}
+                        <span class="bracket_match_player">{{ game.player1.username }}</span>
+                        {% endif %}
+                        {% else %}
+                        <span class="bracket_match_player text-secondary">None</span>
+                        {% endif %}
+                        <span class="bracket_match_VS"> VS </span>
+                        {% if game.player2 %}
+                        {% if game.player2 == game.winner %}
+                            <span class="bracket_match_player text-warning">{{ game.player2.username }}</span>
+                            {% else %}
+                            <span class="bracket_match_player">{{ game.player2.username }}</span>
+                            {% endif %}
+                            {% else %}
+                            <span class="bracket_match_player text-secondary">None</span>
+                        {% endif %}
+                    </div>
+                    {% if not game.winner %}
+                        {% if game.player1 == user or game.player2 == user %}
+                            <button class="bracket_match_state bracket-button-connect">CONNECT</button>
+                        {% else %}
+                            <span class="bracket_match_state bracket-tbp">TO BE PLAYED</span>
+                        {% endif %}
+                    {% else %}
+                        <span class="bracket_match_state bracket-finished">FINISHED</span>
+                    {% endif %}
+                </div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>

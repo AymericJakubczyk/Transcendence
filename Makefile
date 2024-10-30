@@ -23,6 +23,7 @@ clean :
 	docker network prune --force
 	docker volume prune --force
 	docker volume rm $$(docker volume ls -q)
+	rm -rf ./back/app/migrations
 
 clean_db :
 	rm -rf ./back/app/migrations

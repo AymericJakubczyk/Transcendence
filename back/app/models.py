@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.contrib.postgres.fields import ArrayField
 from django.db.models import Q
+from django.db.models import JSONField
 
 # ---- USER HERITE DE TOUT CA ----
 # id
@@ -58,6 +59,16 @@ class Tournament(models.Model):
 		CHESS = 'CHESS'
 	game_played = models.CharField(max_length=5, choices=GameState.choices, default=GameState.PONG)
 
+	pong_matchs = models.ManyToManyField("Game_Pong", blank=True)
+	matchspertree = models.IntegerField(default=0)
+	started = models.BooleanField(default=False)
+	winner = models.ForeignKey(User, related_name='tournamentwinner', on_delete=models.CASCADE, null=True, blank=True)
+	results = JSONField(default=list)
+
+	def display_results(self):
+		players = User.objects.filter(id__in=self.results)
+		ordered = sorted(players, key=lambda player: self.results.index(player.id))
+		return ordered[::-1]
 
 class Discussion(models.Model):
 	user1 = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name='user1')
@@ -101,7 +112,7 @@ class Game_Chess(models.Model):
 	winner = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name='chesswinner')
 
 class Game_Pong(models.Model):
-	player1 = models.ForeignKey(User, related_name='player1', on_delete=models.CASCADE)
+	player1 = models.ForeignKey(User, related_name='player1', on_delete=models.CASCADE, null=True, blank=True)
 	player1_score = models.IntegerField(default=0)
 	player2 = models.ForeignKey(User, related_name='player2', on_delete=models.CASCADE, null=True, blank=True)
 	player2_score = models.IntegerField(default=0)
@@ -115,7 +126,11 @@ class Game_Pong(models.Model):
 	created_at = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
 
-	tournament = models.BooleanField(default=False)
+	tournament_pos = models.IntegerField(default=-1)
+	tournament_round = models.IntegerField(default=1)
+
+	class Meta:
+		ordering = ('tournament_pos', 'id', )
 
 	def get_other_username(self, name):
 		if self.player2.username == name:
@@ -126,3 +141,25 @@ class Game_Pong(models.Model):
 	def __str__(self):
 		player2_name = self.player2.username if self.player2 else "No Opponent"
 		return f"Game {self.id} - {self.player1.username} vs {player2_name}"
+
+class PongMultiDataGame(models.Model):
+	ball_x = models.FloatField(default=0)
+	ball_y = models.FloatField(default=0)
+	ball_dx = models.FloatField(default=0)
+	ball_dy = models.FloatField(default=0)
+
+	zoneStart = ArrayField(models.IntegerField(), null=True, blank=True, default=list)
+	paddleStart = ArrayField(models.IntegerField(), null=True, blank=True, default=list)
+
+
+class Game_PongMulti(models.Model):
+	playerlist = models.ManyToManyField("User", blank=True)
+	playerlifes = ArrayField(models.IntegerField(default=2), null=True, blank=True)
+	winner = models.ForeignKey(User, related_name='pongMultiwinner', on_delete=models.CASCADE, null=True, blank=True)
+	status = models.CharField(max_length=20, default='waiting')
+	created_at = models.DateTimeField(auto_now_add=True)
+	updated_at = models.DateTimeField(auto_now=True)
+	data = models.OneToOneField(PongMultiDataGame, on_delete=models.SET_NULL, null=True, blank=True)
+
+	class Meta:
+		ordering = ('id', )
