@@ -65,9 +65,9 @@ def moveWinners(tournament_matchs):
     for game in tournament_matchs:
         if (game.winner):
             if (game.tournament_pos % 2 == 1):
-                new_game_pos = 100 + game.tournament_pos
+                new_game_pos = game.tournament_pos // 100 * 100 + 100 + (game.tournament_pos % 100 + 1) // 2
             else :
-                new_game_pos = 100 + game.tournament_pos - 1
+                new_game_pos = game.tournament_pos // 100 * 100 + 100 + game.tournament_pos % 100 // 2
 
             for game_obj in tournament_matchs:
                 if (game_obj.tournament_pos == new_game_pos):

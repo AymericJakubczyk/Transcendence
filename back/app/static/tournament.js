@@ -49,7 +49,7 @@ function leave_pong_tournament(id_tournament)
 
 function receive_ws(data)
 {
-    console.log("[RECEIVE WS]");
+    console.log("[RECEIVE WS]", data);
     if (data.action =="join")
     {
         console.log("JOIN", data)

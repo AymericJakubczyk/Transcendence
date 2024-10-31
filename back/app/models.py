@@ -141,8 +141,9 @@ class Game_Pong(models.Model):
 			return self.player2.username
 
 	def __str__(self):
+		player1_name = self.player1.username if self.player1 else "No Opponent"
 		player2_name = self.player2.username if self.player2 else "No Opponent"
-		return f"Game {self.id} - {self.player1.username} vs {player2_name}"
+		return f"Game {self.id} - {player1_name} vs {player2_name}"
 
 class PongMultiDataGame(models.Model):
 	ball_x = models.FloatField(default=0)

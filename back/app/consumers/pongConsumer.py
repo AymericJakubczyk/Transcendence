@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404
 from channels.generic.websocket import AsyncWebsocketConsumer, WebsocketConsumer
 from channels.db import database_sync_to_async
 from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 import random
 import asyncio
 
@@ -21,7 +22,7 @@ paddleHeight = 17
 thickness = 1
 baseSpeed = 0.5
 nbrHit = 0
-winningScore = 5
+winningScore = 2
 
 class PongData():
     def __init__(self):
@@ -320,9 +321,9 @@ class PongConsumer(AsyncWebsocketConsumer):
         # GET GAME POSITION IN TOURNAMENT
         game_position = self.game.tournament_pos
         if (game_position % 2 == 1):
-            new_game_pos = 100 + game_position
+            new_game_pos = game_position // 100 * 100 + 100 + (game_position % 100 + 1) // 2
         else :
-            new_game_pos = 100 + game_position - 1
+            new_game_pos = game_position // 100 * 100 + 100 + game_position % 100 // 2
         # GET GAME WITH THIS POS
         next_game = None
         for game_obj in tournament.pong_matchs.all():
@@ -331,7 +332,7 @@ class PongConsumer(AsyncWebsocketConsumer):
         # IF NOT FOUND HE WON TOURNAMENT
         if next_game == None:
             self.tournament.winner = self.game.winner
-            self.tournament.results.add(self.game.winner)
+            self.tournament.results.append(self.game.winner.id)
             self.tournament.save()
             print("UPDATING TOURNAMENT:", self.game.winner, "WON THE TOURNAMENT", file=sys.stderr)
         else:
@@ -344,7 +345,8 @@ class PongConsumer(AsyncWebsocketConsumer):
             next_game.save()
         
         # UPDATE BARCKET (PAS SUR CA MARCHE LA)
-        self.channel_layer.group_send(
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
             "pong_tournament_" + str(self.game.player1.tournament_id),
             {
                 "type": "update_room",
