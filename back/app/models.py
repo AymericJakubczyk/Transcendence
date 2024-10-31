@@ -57,6 +57,10 @@ class Tournament(models.Model):
 		PONG = 'PONG'
 		CHESS = 'CHESS'
 	game_played = models.CharField(max_length=5, choices=GameState.choices, default=GameState.PONG)
+	
+	def saveTournament(self, *args):
+		self.save()
+		super().save(*args)
 
 
 class Discussion(models.Model):

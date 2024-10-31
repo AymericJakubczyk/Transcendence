@@ -7,11 +7,36 @@ from logging import getLogger
 
 #ABI
 const abi =
-	[
+[
 	{
 		"inputs": [],
 		"stateMutability": "nonpayable",
 		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "loser",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "winner",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "score",
+				"type": "string"
+			}
+		],
+		"name": "saveMatch",
+		"type": "event"
 	},
 	{
 		"anonymous": false,
@@ -43,6 +68,29 @@ const abi =
 		],
 		"name": "saveTournament",
 		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_loser",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_winner",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_score",
+				"type": "string"
+			}
+		],
+		"name": "sendMatch",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
 	},
 	{
 		"inputs": [
@@ -80,14 +128,19 @@ logger = getLogger(__name__)
 #Connect to the Ethereum node
 sepolia_key = os.getenv('INFURA_SEPOLIA_API_KEY')
 private_key = os.getenv('PRIVATE_KEY')
+#Get contract address
 const contractAddress = os.getenv('CONTRACT_ADDRESS')
+#Get and connect metamask account
 const web3 = new Web3(Web3.HTTPProvider(private_key))
 account = Account.from_key(private_key)
+
+#Add middleware (sign and send raw transaction)
 web3.middleware_onion.add(construct_sign_and_send_raw_middleware(private_key))
 
+#Connect account to the contract
 admin_acc = account.address
-
 contract = web3.eth.contract(address=contract_address, abi=contract_abi)
+
 
 #Record match on the blockchain
 def record_match(winner, loser, w_score, l_score, match_id):
