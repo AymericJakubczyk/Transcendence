@@ -20,12 +20,20 @@ function search_multiplayer_game()
         }
         if (data.type === 'update_after_death')
         {
-            console.log("Player", data.dead_id, "is dead");
+            console.log("Player", data.dead_id + 1, "is dead");
+            playersObjs[data.dead_id].alive = 0;
+            
+            div_id = "name-player-" + data.dead_id;
+            dead_elem = document.getElementById(div_id);
+            dead_elem.style.textDecoration = "line-through";
+            div_id = "life-player-" + data.dead_id;
+            lifeElem = document.getElementById(div_id);
+            lifeElem.textContent = "O_o";
+            lifeElem.style.textDecoration = "line-through";
 
             activePlayers = data.active_players;
 
             scene.remove( playersObjs[data.dead_id].paddle );
-            playersObjs[data.dead_id].alive = 0;
 
             if (activePlayers == 1 && playersObjs[myplayerID].alive == 1)
             {
@@ -49,7 +57,20 @@ function search_multiplayer_game()
                 updateZones();
                 renderer.render(scene, camera);
             }
-            
+            if (activePlayers == 1)
+            {
+                redirect = document.createElement("a")
+                redirect.setAttribute("hx-get", "/game/pong/multiplayer/");
+                redirect.setAttribute("hx-push-url", "true");
+                redirect.setAttribute("hx-target", "#page");
+                redirect.setAttribute("hx-swap", "innerHTML");
+                redirect.setAttribute("hx-indicator", "#content-loader");
+                redirect.textContent = "REMATCH";
+                redirect.setAttribute("class", "tournament-list-refresh")
+                htmx.process(redirect);
+                parent = document.getElementById("rematch-button");
+                parent.appendChild(redirect);
+            }
             return;
         }
         if (data.type === 'game_update')
@@ -59,7 +80,17 @@ function search_multiplayer_game()
             dx = data.dx;
             dy = data.dy;
             
-
+            lifes = data.lifes;
+            for (let i = 0; i < nbPlayers; i++) {
+                div_id = "life-player-" + i;
+                lifeElem = document.getElementById(div_id);
+                if (lifes[i] == 1)
+                    lifeElem.textContent = "X";
+                if (lifes[i] == 2)
+                    lifeElem.textContent = "X X";
+                    
+            }
+            updateZones();
             render_paddles(data.paddles);
             render_ball(x, y);
             return;

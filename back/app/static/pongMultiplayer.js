@@ -55,15 +55,28 @@ const ringRadius = 50;
 function setup_game()
 {
     // PLAYER COLOR DISPLAY
-    div = document.getElementById("pongmulti_playerlist");
+    htmlplayerlist = document.getElementById("pongmulti_playerlist");
     for (let i = 0; i < nbPlayers; i++) {
+        //DIV
+        playerDiv = document.createElement("div");
+        // NAME
         playerElem = document.createElement("h4");
+        playerElem.setAttribute('id', 'name-player-'+i);
         if (i == myplayerID)
             playerElem.textContent = "You";
         else
-            playerElem.textContent = "Player " + (i + 1);
+        playerElem.textContent = "Player " + (i + 1);
         playerElem.style.color = "#" + playersObjs[i].color.toString(16).padStart(6, '0');
-        div.appendChild(playerElem);
+        playerDiv.appendChild(playerElem);
+        // LIFE
+        playerLife = document.createElement("h4");
+        playerLife.setAttribute('id', 'life-player-'+i);
+        playerLife.textContent = "X X";
+        playerLife.style.color = "#" + playersObjs[i].color.toString(16).padStart(6, '0');
+        playerLife.style.textAlign = "center";
+        playerDiv.appendChild(playerLife);
+
+        htmlplayerlist.appendChild(playerDiv);
     }
 
     // CANVAS SETUP 
@@ -73,7 +86,7 @@ function setup_game()
     camera = new THREE.PerspectiveCamera( 75, (myCanvas.clientWidth * 10) / (myCanvas.clientHeight * 10), 0.1, 1000 );
 
     scene = new THREE.Scene()
-    scene.background = new THREE.Color( 0x262626 );
+    scene.background = new THREE.Color( 0x323232 );
 
     // BALL SETUP
     const ballGeometry = new THREE.SphereGeometry(ballRadius, 32, 16 );
@@ -155,31 +168,32 @@ function updateZones()
         scene.remove( playersObjs[i].zone );
 
     playerZoneSize = (2 * Math.PI) / activePlayers;
-
-    i = 0;
+    console.log("Creating", activePlayers, "zones. Zone size =", playerZoneSize);
+    console.log("Cant take color over", nbPlayers);
+    ite = 0;
     y = 0;
-    while (y < activePlayers)
+    while (y < activePlayers && ite < nbPlayers)
     {
-        if (playersObjs[i].alive == 1)
+        if (playersObjs[ite].alive == 1)
         {
-            playerZoneStart = playerZoneSize * i;
-            playersObjs[i].zoneStart = playerZoneStart;
-            playerZoneColor = playersObjs[i].color;
+            playerZoneStart = playerZoneSize * y;
+            playersObjs[ite].zoneStart = playerZoneStart;
+            playerZoneColor = playersObjs[ite].color;
             playerZoneThick = 1;
             geoZone = new THREE.RingGeometry( ringRadius, ringRadius-playerZoneThick, 100, 50, playerZoneStart, playerZoneSize);
             materialZone = new THREE.MeshBasicMaterial( { color: playerZoneColor, side: THREE.DoubleSide } );
             
-            playersObjs[i].zone = new THREE.Mesh( geoZone, materialZone);
-            playersObjs[i].zone.position.x = arenaLength / 2;
-            playersObjs[i].zone.position.y = arenaWidth / 2;
-            playersObjs[i].zone.position.z = 1;
+            playersObjs[ite].zone = new THREE.Mesh( geoZone, materialZone);
+            playersObjs[ite].zone.position.x = arenaLength / 2;
+            playersObjs[ite].zone.position.y = arenaWidth / 2;
+            playersObjs[ite].zone.position.z = 1;
             
-            scene.add( playersObjs[i].zone );
+            scene.add( playersObjs[ite].zone );
+            console.log("Player", ite+1, "zone created.");
             y++;
         }
-        i++;
+        ite++;
     }
-    console.log("Created", y, "zones.");
 }
 
 function setupZones()

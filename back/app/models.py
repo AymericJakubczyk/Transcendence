@@ -151,6 +151,8 @@ class PongMultiDataGame(models.Model):
 	paddleStart = ArrayField(models.IntegerField(), null=True, blank=True, default=list)
 	lifes = ArrayField(models.IntegerField(), null=True, blank=True, default=list)
 
+	playerid_table = ArrayField(models.IntegerField(), null=True, blank=True, default=list)
+
 
 class Game_PongMulti(models.Model):
 	playerlist = models.ManyToManyField("User", blank=True)

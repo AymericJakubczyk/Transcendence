@@ -25,6 +25,8 @@ thickness = 1
 baseSpeed = 0.5
 nbrHit = 0
 winningScore = 2
+playerZoneSize = 0
+
 
 class PongMultiplayerConsumer(AsyncWebsocketConsumer):
     data = None
@@ -143,6 +145,11 @@ class PongMultiplayerConsumer(AsyncWebsocketConsumer):
         self.data.zoneStart = [0] * self.data.nb_players
         self.data.paddleStart = [0] * self.data.nb_players
         self.data.lifes = [2] * self.data.nb_players
+        self.data.playerid_table = [0] * self.data.nb_players
+        i = 0
+        for ID in playerIDlist:
+            self.data.playerid_table[i] = ID
+            i += 1
 
         for i in range(self.data.nb_players):
             playerZoneSize = (2 * math.pi) / len(playerIDlist)
@@ -151,6 +158,7 @@ class PongMultiplayerConsumer(AsyncWebsocketConsumer):
             self.data.paddleStart[i] = i * playerZoneSize + playerPaddleSize * 1.5
 
         self.data.save()
+        print("zone size", playerZoneSize, file=sys.stderr)
 
         self.game = Game_PongMulti()
         self.game.save()
@@ -164,9 +172,19 @@ class PongMultiplayerConsumer(AsyncWebsocketConsumer):
         playerIDlist.clear()
         return self.game
 
-    async def stop_game(self):
+    @database_sync_to_async
+    def stop_game(self):
+        from app.models import User, Game_PongMulti, PongMultiDataGame
+        print("asking for the end of the game", file=sys.stderr)
         self.should_calcul_ball = False
-        print("[END GAME]", file=sys.stderr)
+        if (self.data.active_players == 1):
+            for i in range(self.data.nb_players):
+                if (self.data.lifes[i] > 0):
+                    user = get_object_or_404(User, id=self.data.playerid_table[i])
+                    if user:
+                        self.game.winner = user
+                        self.game.save()
+        print("[END GAME] -", self.game.winner, "WON", file=sys.stderr)
 
     async def send_updates(self):
         # print("[SEND UPDATES 2]", file=sys.stderr)
@@ -179,6 +197,7 @@ class PongMultiplayerConsumer(AsyncWebsocketConsumer):
                 'dx': all_data[self.game.id].ball_dx,
                 'dy': all_data[self.game.id].ball_dy,
                 'paddles': all_data[self.game.id].paddleStart,
+                'lifes' : all_data[self.game.id].lifes,
             }
         )
 
@@ -197,19 +216,18 @@ class PongMultiplayerConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps(event))
 
     async def calcul_ball(self):
-        global arenaWidth, arenaLength, thickness, ringRadius, ballRadius, paddleRadius, paddleWidth, paddleHeight, baseSpeed, nbrHit, all_data
+        global arenaWidth, arenaLength, thickness, ringRadius, ballRadius, paddleRadius, paddleWidth, paddleHeight, baseSpeed, nbrHit, all_data, playerZoneSize
 
         await asyncio.sleep(4)
+
+        playerZoneSize = (2 * math.pi) / self.data.active_players
+        playerPaddleSize = (2 * math.pi) / self.data.active_players / 4
 
         while self.should_calcul_ball:
             await asyncio.sleep(0.01)  # Wait for 0.01 second
             all_data[self.game.id].ball_x += all_data[self.game.id].ball_dx
             all_data[self.game.id].ball_y += all_data[self.game.id].ball_dy
             await self.send_updates()
-            
-            # CALCUL TAILLE DES ZONES ET PADDLES
-            playerPaddleSize = (2 * math.pi) / self.data.active_players / 4
-            playerZoneSize = (2 * math.pi) / self.data.active_players
 
             # COLLISION AVEC LES PADDLES
             calc_dx = (arenaLength / 2) - all_data[self.game.id].ball_x
@@ -247,37 +265,32 @@ class PongMultiplayerConsumer(AsyncWebsocketConsumer):
                 ballAngle = math.atan2(all_data[self.game.id].ball_y - arenaWidth/2, all_data[self.game.id].ball_x - arenaLength/2)
 
                 for i in range(self.data.nb_players):
-                    startAngle = self.data.zoneStart[i] % (2 * math.pi)
-                    endAngle = (self.data.zoneStart[i] + playerZoneSize) % (2 * math.pi)
-                    ballAngle = ballAngle % (2 * math.pi)
+                    if ( self.data.lifes[i] > 0):
+                        startAngle = self.data.zoneStart[i] % (2 * math.pi)
+                        endAngle = (self.data.zoneStart[i] + playerZoneSize) % (2 * math.pi)
+                        ballAngle = ballAngle % (2 * math.pi)
 
-                    if (startAngle <= endAngle):
-                        if (ballAngle >= startAngle and ballAngle <= endAngle):
-                            if (self.data.lifes[i] > 0):
-                                self.data.lifes[i] -= 1
-                                print("[BUUUUUUUUUUT !!!]", "player:", i+1, "lifes:", self.data.lifes[i], file=sys.stderr)
-                                if (self.data.lifes[i] == 0 and self.data.active_players > 1):
-                                    print("player:", i+1, "is DEAD", file=sys.stderr)
-                                    self.data.active_players -= 1
-                                    await self.send_death_signal(i)
-                                    if (self.data.active_players == 1):
-                                        self.tempo_elimination()
-                            break
-                    else:
-                        if (ballAngle >= startAngle or ballAngle <= endAngle):
-                            if (self.data.lifes[i] > 0):
-                                self.data.lifes[i] -= 1
-                                print("[BUUUUUUUUUUT !!!]", "player:", i+1, "lifes:", self.data.lifes[i], file=sys.stderr)
-                                if (self.data.lifes[i] == 0 and self.data.active_players > 1):
-                                    print("player:", i+1, "is DEAD", file=sys.stderr)
-                                    self.data.active_players -= 1
-                                    await self.send_death_signal(i)
-                                    if (self.data.active_players == 1):
-                                        self.tempo_elimination()
-                            break
-                # print("[DEBUG]", ballAngle, startAngle, endAngle, file=sys.stderr)
-                all_data[self.game.id].ball_dx = -all_data[self.game.id].ball_dx
-                all_data[self.game.id].ball_dy = -all_data[self.game.id].ball_dy
+                        # print("[DEBUG]", ballAngle, startAngle, endAngle, file=sys.stderr)
+                        if (startAngle <= endAngle):
+                            if (ballAngle >= startAngle and ballAngle <= endAngle):
+                                if (self.data.lifes[i] > 0):
+                                    self.data.lifes[i] -= 1
+                                    # print("[BUUUUUUUUUUT !!!]", "player:", i+1, "lifes:", self.data.lifes[i], file=sys.stderr)
+                                    if (self.data.lifes[i] == 0 and self.data.active_players > 1):
+                                        await self.player_is_dead(i)
+                                all_data[self.game.id].ball_dx = -all_data[self.game.id].ball_dx
+                                all_data[self.game.id].ball_dy = -all_data[self.game.id].ball_dy
+                                break
+                        else:
+                            if (ballAngle >= startAngle or ballAngle <= endAngle):
+                                if (self.data.lifes[i] > 0):
+                                    self.data.lifes[i] -= 1
+                                    # print("[BUUUUUUUUUUT !!!]", "player:", i+1, "lifes:", self.data.lifes[i], file=sys.stderr)
+                                    if (self.data.lifes[i] == 0 and self.data.active_players > 1):
+                                        await self.player_is_dead(i)
+                                all_data[self.game.id].ball_dx = -all_data[self.game.id].ball_dx
+                                all_data[self.game.id].ball_dy = -all_data[self.game.id].ball_dy
+                                break
 
     def tempo_elimination(self):
         self.should_calcul_ball = False
@@ -285,6 +298,29 @@ class PongMultiplayerConsumer(AsyncWebsocketConsumer):
         all_data[self.game.id].ball_y = arenaWidth / 2
         self.send_updates()
     
+    async def player_is_dead(self, dead):
+        global playerZoneSize
+
+        print("player:", dead+1, "is DEAD", file=sys.stderr)
+        self.data.active_players -= 1
+
+        # CALCUL TAILLE ET START DES ZONES
+        if (self.data.active_players >= 2):
+            playerZoneSize = (2 * math.pi) / self.data.active_players
+        # print("zone size", playerZoneSize, file=sys.stderr)
+
+        it = 0
+        index = 0
+        while (it < self.data.active_players):
+            if (self.data.lifes[index] > 0):
+                self.data.zoneStart[index] =  it * playerZoneSize
+                # print("zone start of", index+1, "is", self.data.zoneStart[index], file=sys.stderr)
+                it += 1
+            index += 1
+        await self.send_death_signal(dead)
+        if (self.data.active_players == 1):
+            self.tempo_elimination()
+            await self.stop_game()
 
     def move_paddle(self, move, player):
         global all_data
