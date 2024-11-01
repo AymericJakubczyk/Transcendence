@@ -79,6 +79,8 @@ function create_ws()
 			error_message(data.message, 2000)
 		if (data.type == 'invite')
 			add_invitation(data.game, data.player, data.id)
+		if (data.type == 'match_found')
+			htmx_request("/game/pong/ranked/" + data.game_id + "/", "GET", {})
 	};
 	
 	chatSocket.onclose = (event) => {

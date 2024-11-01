@@ -20,6 +20,7 @@ from django.contrib import messages
 logger = logging.getLogger(__name__)
 
 
+list_waiter = []
 
 def pongView(request):
     if request.META.get("HTTP_HX_REQUEST") != 'true':
@@ -290,6 +291,34 @@ def pongTournament(request):
 
 
 def pongFoundGameView(request):
+    import app.consumers.utils.pong_utils as pong_utils
+
+    # if list_waiter length is zero, add user to list_waiter
+    if len(list_waiter) == 0:
+        list_waiter.append(request.user)
+    
+    # else remove user from list_waiter, create game redirect to game, and send match_found to wainting user
+    else:
+        opponent = list_waiter[0]
+        list_waiter.pop(0)
+        game = Game_Pong()
+        game.player1 = opponent
+        game.player2 = request.user
+        game.save()
+        print("Game created:", game.id, file=sys.stderr)
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            opponent.username,
+            {
+                'type': 'send_ws',
+                'type2': 'match_found',
+                'game_id': game.id
+            }
+        )
+        pong_utils.launch_game(game.id)
+        print("Game launched:", game.id, file=sys.stderr)
+        return redirect('pong_game', gameID=game.id)
+
     if request.META.get("HTTP_HX_REQUEST") != 'true':
         return render(request, 'page_full.html', {'page':'pongFoundGame.html', 'user':request.user})
     return render(request, 'pongFoundGame.html', {'user':request.user})

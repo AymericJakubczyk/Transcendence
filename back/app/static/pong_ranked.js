@@ -1,41 +1,12 @@
 pongSocket = null;
 
-
-function search_pong_game()
-{
-    pongSocket = new WebSocket('ws://' + window.location.host + '/ws/pong/');
-
-    pongSocket.onopen = function() {
-		console.log('[WS PONG] WebSocket PONG connection established.');
-        const obj = {
-            'type': 'search',
-        };
-        pongSocket.send(JSON.stringify(obj))
-	};
-
-    pongSocket.onmessage = function(e) {
-        const data = JSON.parse(e.data);
-        receive_pong_ws(data)
-    }
-
-    pongSocket.onclose = (event) => {
-		console.log("[WS PONG] The connection has been closed successfully.");
-        pongSocket = null;
-	}
-}
-
-function join_pong_game()
+function join_pong_game(id)
 {
     console.log("[JOIN PONG GAME]")
-    pongSocket = new WebSocket('ws://' + window.location.host + '/ws/pong/');
+    pongSocket = new WebSocket('ws://' + window.location.host + `/ws/pong/${id}/`);
 
     pongSocket.onopen = function() {
 		console.log('[WS PONG] WebSocket PONG connection established.');
-        const obj = {
-            'type': 'join',
-            'game_id': window.location.pathname.split("/")[4]
-        };
-        pongSocket.send(JSON.stringify(obj))
 	};
 
     pongSocket.onmessage = function(e) {
@@ -47,14 +18,14 @@ function join_pong_game()
 		console.log("[WS PONG] The connection has been closed successfully.");
         pongSocket = null;
 	}
+
+    if (gameInterval)
+        clearInterval(gameInterval)
+    gameInterval = setInterval(function() { catch_input(1) }, 10);
 }
 
 function receive_pong_ws(data)
 {
-    if (data.type === 'match_found' || data.type === 'join_game')
-    {
-        htmx_request("/game/pong/ranked/" + data.game_id + "/", "GET", {})
-    }
     if (data.type === 'game_update')
     {
         x = data.x;
@@ -121,14 +92,7 @@ function receive_pong_ws(data)
                     clearInterval(fadeEffect);
                 }
             }, 50);
-            gameInterval = setInterval(function() { catch_input(data.player) }, 10);
         }
-    }
-    if (data.type === 'rejoin')
-    {
-        console.log("[GAME START]", data);
-        if (data.player != 0)
-            gameInterval = setInterval(function() { catch_input(data.player) }, 10);
     }
 }
 
@@ -165,38 +129,11 @@ function display_endgame(player1, player2, player1Score, player2Score, win_elo_p
 
 function start_ranked_pong(game, you)
 {   
-    console.log("[LOG START]", you)
-    if (gameInterval)
-        clearInterval(gameInterval)
     console.log("start ranked pong", game.game_id)
-    if (!pongSocket)
-        join_pong_game()
-    // do API request for get all info about the game
-    // const response = fetch("/initialize-game/", {
-    //     method: "POST",
-    //     headers: {
-    //         "Content-Type": "application/json",
-    //         "X-CSRFToken": csrftoken,
-    //     },
-    //     body: JSON.stringify({
-    //         game_id : game.game_id,
-    //     })
-    // })
-    // .then(response => response.json())
-    // .then(data => {
-    //     console.log("[API]", data);
-    //     dx = data.dx
-    //     dy = data.dy
-    //  });
-    data = null
+    join_pong_game(game.game_id)
 
-    playerScore = 0;
-    opponentScore = 0;
-    ballDirection = (Math.random() > 0.5 ? 1 : -1);
-    nbrHit = 0;
     upPressed = false
     downPressed = false
-    updateScore()
     resetBall()
 
     let cmd1 = document.getElementById("cmd1")
@@ -205,22 +142,12 @@ function start_ranked_pong(game, you)
     document.addEventListener("keydown", keyDownHandler);
     document.addEventListener("keyup", keyUpHandler);
     function keyDownHandler(e) {
-        if (e.key === "Up" || e.key === "ArrowUp")
+        if (e.key === "ArrowUp" || e.key === "ArrowLeft")
         {
             cmd1.classList.add("pressed")
             upPressed = true;
         }
-        else if (e.key === "Down" || e.key === "ArrowDown")
-        {
-            cmd2.classList.add("pressed")
-            downPressed = true;
-        }
-        else if (e.key === "Left" || e.key === "ArrowLeft")
-        {
-            cmd1.classList.add("pressed")
-            upPressed = true;
-        }
-        else if (e.key === "Right" || e.key === "ArrowRight")
+        else if (e.key === "ArrowDown" || e.key === "ArrowRight")
         {
             cmd2.classList.add("pressed")
             downPressed = true;
@@ -228,22 +155,12 @@ function start_ranked_pong(game, you)
     }
 
     function keyUpHandler(e) {
-        if (e.key === "Up" || e.key === "ArrowUp")
+        if (e.key === "ArrowUp" || e.key === "ArrowLeft")
         {
             cmd1.classList.remove("pressed")
             upPressed = false;
         }
-        else if (e.key === "Down" || e.key === "ArrowDown")
-        {
-            cmd2.classList.remove("pressed")
-            downPressed = false;
-        }
-        else if (e.key === "Left" || e.key === "ArrowLeft")
-        {
-            cmd1.classList.remove("pressed")
-            upPressed = false;
-        }
-        else if (e.key === "Right" || e.key === "ArrowRight")
+        else if (e.key === "ArrowDown" || e.key === "ArrowRight")
         {
             cmd2.classList.remove("pressed")
             downPressed = false;
@@ -271,42 +188,6 @@ function display_ranked(game, you)
 
 function move_paddle(move, player)
 {
-    // =================== via API ===================
-    // game_id = window.location.pathname.split("/")[4]
-    // console.log("move paddle", move, game_id)
-    // if (game.player1 == you)
-    // {
-    //     const response = fetch("/move-paddle/", {
-    //         method: "POST",
-    //         headers: {
-    //             "Content-Type": "application/json",
-    //             "X-CSRFToken": csrftoken,
-    //         },
-    //         body: JSON.stringify({
-    //             'game_id' : game_id,
-    //             'player' : 1,
-    //             'move' : move
-    //         })
-    //     })
-    // }
-    // else
-    // {
-    //     const response = fetch("/move-paddle/", {
-    //         method: "POST",
-    //         headers: {
-    //             "Content-Type": "application/json",
-    //             "X-CSRFToken": csrftoken,
-    //         },
-    //         body: JSON.stringify({
-    //             'game_id' : game_id,
-    //             'player' : 2,
-    //             'move' : move
-    //         })
-    //     })
-    // }
-
-
-    // =================== via WebSocket ===================
     const obj = {
         'type': 'move_paddle',
         'player': player,
