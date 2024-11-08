@@ -8,7 +8,6 @@ from .views.views import custom_404
 from django.contrib.auth.views import PasswordChangeView
 from .views.api import initialize_game, move_paddle
 
-
 handler404 = custom_404
 
 urlpatterns = [
@@ -50,4 +49,10 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls')),
     path('initialize-game/', initialize_game, name='initialize-game'),
     path('move-paddle/', move_paddle, name='move-paddle'),
+
+
+    path('update-score/', views.update_score, name='update-score'),
+    path('get-paddle-position/<int:game_id>/<str:player>/', views.get_paddle_position, name='get-paddle-position'),
+    path('end-game/<int:game_id>/', views.end_game, name='end-game'),
+
 ]
