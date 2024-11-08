@@ -125,7 +125,7 @@ function quitGame() {
     console.log("Le jeu a été quitté.");
 }
 
-function startGame() {
+// function startGame() {
     if (gamePaused) {
         resumeGame();  // Si le jeu était en pause, on le reprend
         return;
@@ -487,7 +487,3 @@ function checkCollisionWithPaddle(ballX, ballY, ballRadius, paddleX, paddleY, dx
     
     return { dx, dy };  // Si pas de collision, retourner les valeurs de direction inchangées
 }
-
-
-
-

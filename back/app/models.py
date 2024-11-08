@@ -144,6 +144,19 @@ class Game_Pong(models.Model):
 		player2_name = self.player2.username if self.player2 else "No Opponent"
 		return f"Game {self.id} - {self.player1.username} vs {player2_name}"
 
+class PongDataGame(models.Model):
+	ball_x = models.FloatField(default=360)
+	ball_y = models.FloatField(default=240)
+	ball_dx = models.FloatField(default=2)
+	ball_dy = models.FloatField(default=2)
+	paddle1_y = models.FloatField(default=240)
+	paddle2_y = models.FloatField(default=240)
+	ballDirection = models.FloatField(default=0)
+	nbrHit = models.IntegerField(default=0)
+	# ballRadius = models.IntegerField(default=1)
+	# paddeWidth = models.IntegerField(default=1)
+	# paddleHeight = models.IntegerField(default=17)
+
 class PongMultiDataGame(models.Model):
 	ball_x = models.FloatField(default=0)
 	ball_y = models.FloatField(default=0)
