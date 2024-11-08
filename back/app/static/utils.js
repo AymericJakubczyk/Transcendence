@@ -33,6 +33,11 @@ window.addEventListener('htmx:beforeSwap', function(evt) {
         pongSocket.close()
         pongSocket = null
     }
+    if (old_path == "/game/pong/tournament/" && pongTournamentSocket)
+    {
+        pongTournamentSocket.close()
+        pongTournamentSocket = null
+    }
 });
 
 function htmx_request(url, method, values)

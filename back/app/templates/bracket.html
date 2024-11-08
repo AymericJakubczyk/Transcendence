@@ -68,7 +68,7 @@
                         {% endif %}
                     </div>
                     {% if not game.winner %}
-                        {% if game.player1 == user or game.player2 == user %}
+                        {% if game.player1 == user and game.player2 or game.player2 == user and game.player1 %}
                             <button class="bracket_match_state bracket-button-connect" hx-get="{% url 'pong_game' gameID=game.id %}" hx-target="#page" hx-push-url="true">CONNECT</button>
                         {% else %}
                             <span class="bracket_match_state bracket-tbp">TO BE PLAYED</span>
@@ -109,7 +109,7 @@
                         {% endif %}
                     </div>
                     {% if not game.winner %}
-                        {% if game.player1 == user or game.player2 == user %}
+                        {% if game.player1 == user and game.player2 or game.player2 == user and game.player1 %}
                             <button class="bracket_match_state bracket-button-connect" hx-get="{% url 'pong_game' gameID=game.id %}" hx-target="#page" hx-push-url="true">CONNECT</button>
                         {% else %}
                             <span class="bracket_match_state bracket-tbp">TO BE PLAYED</span>

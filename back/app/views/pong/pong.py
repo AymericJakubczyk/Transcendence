@@ -316,12 +316,14 @@ def pongFoundGameView(request):
             }
         )
         pong_utils.launch_game(game.id)
+        game.status = "started"
+        game.save()
         print("Game launched:", game.id, file=sys.stderr)
         return redirect('pong_game', gameID=game.id)
 
     if request.META.get("HTTP_HX_REQUEST") != 'true':
-        return render(request, 'page_full.html', {'page':'pongFoundGame.html', 'user':request.user})
-    return render(request, 'pongFoundGame.html', {'user':request.user})
+        return render(request, 'page_full.html', {'page':'waiting_game.html', 'user':request.user})
+    return render(request, 'waiting_game.html', {'user':request.user})
 
 def pongGameView(request, gameID):
     import app.consumers.utils.pong_utils as pong_utils
@@ -330,18 +332,10 @@ def pongGameView(request, gameID):
     if (game.tournament_pos != -1 ):
         # need to add more secure to check which player is joining the game (because if you refresh page while you wait for opponent, you launch the game alone)
         if (game.opponent_ready and game.status == "waiting"):
+            pong_utils.launch_game(game.id)
             game.status = "started"
             game.save()
-            pong_utils.launch_game(game.id)
             print("Game launched:", game.id, file=sys.stderr)
-            # channel_layer = get_channel_layer()
-            # async_to_sync(channel_layer.group_send)(
-            #     "ranked_pong_" + str(gameID),
-            #     {
-            #         "type": "join_tournament_game",
-            #         "id": gameID
-            #     }
-            # )
         else :
             game.opponent_ready = True
             game.save()
@@ -349,4 +343,3 @@ def pongGameView(request, gameID):
     if request.META.get("HTTP_HX_REQUEST") != 'true':
         return render(request, 'page_full.html', {'page':'pong_ranked.html', 'user':request.user, 'game':game, 'gameID':gameID})
     return render(request, 'pong_ranked.html', {'user':request.user, 'game':game, 'gameID':gameID})
-

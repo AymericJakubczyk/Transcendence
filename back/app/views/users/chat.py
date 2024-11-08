@@ -172,6 +172,8 @@ def mini_chat(request):
         return JsonResponse({'type': 'error', 'message':'not authenticated or not good request'})
 
 def invite(request):
+    import app.consumers.utils.pong_utils as pong_utils
+
     current_user = request.user
     print("[INVITE]", request.POST, file=sys.stderr)
     if (request.method == "POST" and request.POST.get('type') == 'invite'):
@@ -212,13 +214,20 @@ def invite(request):
             # send to waiting player that request is accepted
             channel_layer = get_channel_layer()
             async_to_sync(channel_layer.group_send)(
-                invite.from_user.username + "_pong",
+                invite.from_user.username,
                 {
-                    "type": "is_accepted",
-                    "id": pong.id
+                    "type": "send_ws",
+                    "type2": "invite_accepted",
+                    "game_id": pong.id
                 }
             )
             invite.delete()
+            
+            # launch pong game
+            pong_utils.launch_game(pong.id)
+            pong.status = "started"
+            pong.save()
+
             # redirect to game
             return redirect('pong_game', gameID=pong.id)
         # elif invite.game_type == Invite.GameType.CHESS:
