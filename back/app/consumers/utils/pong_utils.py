@@ -14,7 +14,7 @@ paddleHeight = 17
 thickness = 1
 baseSpeed = 0.5
 nbrHit = 0
-winningScore = 50
+winningScore = 2
 
 all_data = {}
 
@@ -134,12 +134,14 @@ async def send_updates(id):
         }
     )
 
+
 async def stop_game(id):
     global all_data
 
+    game = await get_game(id)
+    
     await send_updates(id) # Send final update for the score
-    # win_elo = save_winner()
-    win_elo = {'win_elo_p1': 0, 'win_elo_p2': 0}
+    win_elo = await save_winner(id)
     player = await get_username_of_game(id)
     channel_layer = get_channel_layer()
     await channel_layer.group_send(
@@ -154,10 +156,15 @@ async def stop_game(id):
             'win_elo_p2': win_elo['win_elo_p2']
         }
     )
-    # if (self.game.tournament_pos != -1):
-    #     update_tournament()
+    if (game.tournament_pos != -1):
+        await update_tournament(id) 
 
 
+@database_sync_to_async
+def get_game(id):
+    from app.models import Game_Pong
+
+    return get_object_or_404(Game_Pong, id=id)
 
 
 
@@ -206,34 +213,38 @@ async def goal(player, id):
     all_data[id].ball_y = arenaWidth / 2
 
 
+@database_sync_to_async
 def save_winner(id):
+    from app.models import Game_Pong
     global winningScore, all_data
 
+    game = get_object_or_404(Game_Pong, id=id)
+
     # calcul elo
-    proba_win_p1 = 1 / (1 + 10 ** ((self.game.player2.pong_rank - self.game.player1.pong_rank) / 400))
-    proba_win_p2 = 1 / (1 + 10 ** ((self.game.player1.pong_rank - self.game.player2.pong_rank) / 400))
+    proba_win_p1 = 1 / (1 + 10 ** ((game.player2.pong_rank - game.player1.pong_rank) / 400))
+    proba_win_p2 = 1 / (1 + 10 ** ((game.player1.pong_rank - game.player2.pong_rank) / 400))
     if (all_data[id].score_player1 == winningScore):
         win_elo_p1 = round(20 * (1 - proba_win_p1))
         win_elo_p2 = round(20 * (0 - proba_win_p2))
     elif (all_data[id].score_player2 == winningScore):
         win_elo_p1 = round(20 * (0 - proba_win_p1))
         win_elo_p2 = round(20 * (1 - proba_win_p2))
-    self.game.player1_rank = self.game.player1.pong_rank
-    self.game.player2_rank = self.game.player2.pong_rank
-    self.game.player1_rank_win += win_elo_p1
-    self.game.player2_rank_win += win_elo_p2
-    self.game.player1.pong_rank += win_elo_p1
-    self.game.player2.pong_rank += win_elo_p2
-    self.game.player1.save()
-    self.game.player2.save()
+    game.player1_rank = game.player1.pong_rank
+    game.player2_rank = game.player2.pong_rank
+    game.player1_rank_win += win_elo_p1
+    game.player2_rank_win += win_elo_p2
+    game.player1.pong_rank += win_elo_p1
+    game.player2.pong_rank += win_elo_p2
+    game.player1.save()
+    game.player2.save()
     
-    self.game.player1_score = all_data[id].score_player1
-    self.game.player2_score = all_data[id].score_player2
+    game.player1_score = all_data[id].score_player1
+    game.player2_score = all_data[id].score_player2
     if (all_data[id].score_player1 == winningScore):
-        self.game.winner = self.game.player1
+        game.winner = game.player1
     elif (all_data[id].score_player2 == winningScore):
-        self.game.winner = self.game.player2        
-    self.game.save()
+        game.winner = game.player2        
+    game.save()
     return ({'win_elo_p1': win_elo_p1, 'win_elo_p2': win_elo_p2})
 
 
@@ -242,31 +253,28 @@ def save_winner(id):
 
 
 
-
-def update_tournament(self):
-    from app.models import Tournament
+@database_sync_to_async
+def update_tournament(id):
+    from app.models import Tournament, Game_Pong
 
     # GET TOURNAMENT OBJ
-    bracket_id = self.game.player1.tournament_id
+    game = get_object_or_404(Game_Pong, id=id)
+    bracket_id = game.player1.tournament_id
     print("UPDATING TOURNAMENT", bracket_id, file=sys.stderr)
     tournament = get_object_or_404(Tournament, id=bracket_id)
-    if (not tournament):
-        return
-    elif (not self.tournament):
-        self.tournament = tournament
 
     # ADD LOSER TO RESULTS
-    if self.game.winner == self.game.player1:
-        if self.game.player2.id not in self.tournament.results:
-            self.tournament.results.append(self.game.player2.id)
-            self.tournament.save()
-    elif self.game.winner == self.game.player2:
-        if self.game.player1.id not in self.tournament.results:
-            self.tournament.results.append(self.game.player1.id)
-            self.tournament.save()
+    if game.winner == game.player1:
+        if game.player2.id not in tournament.results:
+            tournament.results.append(game.player2.id)
+            tournament.save()
+    elif game.winner == game.player2:
+        if game.player1.id not in tournament.results:
+            tournament.results.append(game.player1.id)
+            tournament.save()
 
     # GET GAME POSITION IN TOURNAMENT
-    game_position = self.game.tournament_pos
+    game_position = game.tournament_pos
     if (game_position % 2 == 1):
         new_game_pos = game_position // 100 * 100 + 100 + (game_position % 100 + 1) // 2
     else :
@@ -278,23 +286,23 @@ def update_tournament(self):
             next_game = game_obj
     # IF NOT FOUND HE WON TOURNAMENT
     if next_game == None:
-        self.tournament.winner = self.game.winner
-        self.tournament.results.append(self.game.winner.id)
-        self.tournament.save()
-        print("UPDATING TOURNAMENT:", self.game.winner, "WON THE TOURNAMENT", file=sys.stderr)
+        tournament.winner = game.winner
+        tournament.results.append(game.winner.id)
+        tournament.save()
+        print("UPDATING TOURNAMENT:", game.winner, "WON THE TOURNAMENT", file=sys.stderr)
     else:
         # PUT WINNER IN THE GAME
         if (not next_game.player1):
-            next_game.player1 = self.game.winner
+            next_game.player1 = game.winner
         elif (not next_game.player2):
-            next_game.player2 = self.game.winner
-        print("UPDATING TOURNAMENT:", self.game.winner, "will play in game_pos ", new_game_pos, file=sys.stderr)
+            next_game.player2 = game.winner
+        print("UPDATING TOURNAMENT:", game.winner, "will play in game_pos ", new_game_pos, file=sys.stderr)
         next_game.save()
     
     # UPDATE BARCKET (PAS SUR CA MARCHE LA)
     channel_layer = get_channel_layer()
     async_to_sync(channel_layer.group_send)(
-        "pong_tournament_" + str(self.game.player1.tournament_id),
+        "pong_tournament_" + str(game.player1.tournament_id),
         {
             "type": "update_room",
         }

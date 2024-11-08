@@ -1,9 +1,9 @@
 pongSocket = null;
 
-function join_pong_game(id)
+function join_pong_game(game_data, player)
 {
-    console.log("[JOIN PONG GAME]")
-    pongSocket = new WebSocket('ws://' + window.location.host + `/ws/pong/${id}/`);
+    console.log("[JOIN PONG GAME]", game_data, player);
+    pongSocket = new WebSocket('ws://' + window.location.host + `/ws/pong/${game_data.id}/`);
 
     pongSocket.onopen = function() {
 		console.log('[WS PONG] WebSocket PONG connection established.');
@@ -21,7 +21,7 @@ function join_pong_game(id)
 
     if (gameInterval)
         clearInterval(gameInterval)
-    gameInterval = setInterval(function() { catch_input(1) }, 10);
+    gameInterval = setInterval(function() { catch_input(player) }, 10);
 }
 
 function receive_pong_ws(data)
@@ -127,10 +127,11 @@ function display_endgame(player1, player2, player1Score, player2Score, win_elo_p
 }
 
 
-function start_ranked_pong(game, you)
+function join_ranked_pong(game, you)
 {   
-    console.log("start ranked pong", game.game_id)
-    join_pong_game(game.game_id)
+    console.log("start ranked pong", game.id)
+    current_player = (you == game.player1) ? 1 : 2
+    join_pong_game(game, current_player)
 
     upPressed = false
     downPressed = false
@@ -144,11 +145,13 @@ function start_ranked_pong(game, you)
     function keyDownHandler(e) {
         if (e.key === "ArrowUp" || e.key === "ArrowLeft")
         {
+            e.preventDefault()  // prevent scrolling with arrow keys when you played
             cmd1.classList.add("pressed")
             upPressed = true;
         }
         else if (e.key === "ArrowDown" || e.key === "ArrowRight")
         {
+            e.preventDefault()  // prevent scrolling with arrow keys when you played
             cmd2.classList.add("pressed")
             downPressed = true;
         }

@@ -8,7 +8,7 @@ class PongConsumer(AsyncWebsocketConsumer):
     id = None
 
     async def connect(self):
-        print("[CONNECT]", self.scope["user"], file=sys.stderr)
+        print("[CONNECT PONG RANKED]", self.scope["user"], file=sys.stderr)
         self.room_group_name = self.scope["user"].username + "_pong"
 
         if "id" in self.scope["url_route"]["kwargs"]:
@@ -27,7 +27,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 
 
     async def disconnect(self, close_code):
-        print("[DISCONNECT]", file=sys.stderr)
+        print("[DISCONNECT PONG RANKED]", self.scope["user"], self.room_group_name, file=sys.stderr)
 
         await self.channel_layer.group_discard(
             self.room_group_name,

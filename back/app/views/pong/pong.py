@@ -324,18 +324,24 @@ def pongFoundGameView(request):
     return render(request, 'pongFoundGame.html', {'user':request.user})
 
 def pongGameView(request, gameID):
+    import app.consumers.utils.pong_utils as pong_utils
+
     game = get_object_or_404(Game_Pong, id=gameID)
     if (game.tournament_pos != -1 ):
-        # need to add more secure to check which player is joining the game
-        if (game.opponent_ready):
-            channel_layer = get_channel_layer()
-            async_to_sync(channel_layer.group_send)(
-                "ranked_pong_" + str(gameID),
-                {
-                    "type": "join_tournament_game",
-                    "id": gameID
-                }
-            )
+        # need to add more secure to check which player is joining the game (because if you refresh page while you wait for opponent, you launch the game alone)
+        if (game.opponent_ready and game.status == "waiting"):
+            game.status = "started"
+            game.save()
+            pong_utils.launch_game(game.id)
+            print("Game launched:", game.id, file=sys.stderr)
+            # channel_layer = get_channel_layer()
+            # async_to_sync(channel_layer.group_send)(
+            #     "ranked_pong_" + str(gameID),
+            #     {
+            #         "type": "join_tournament_game",
+            #         "id": gameID
+            #     }
+            # )
         else :
             game.opponent_ready = True
             game.save()
