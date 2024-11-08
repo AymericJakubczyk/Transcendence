@@ -1,26 +1,26 @@
-let gameId= null;  // Variable globale pour stocker l'ID de la partie
+// let gameId= null;  // Variable globale pour stocker l'ID de la partie
 
-let gameInterval;
-let gamePaused = false;
-let gameStarted = false;
-let playerScore = 2;
-let playerName = "Player";
-let opponentName = "Opponent";
-let opponentScore = 0;
-const winningScore = 5;
-let ballDirection = 1; // 1 = vers le joueur, -1 = vers l'adversaire
+// let gameInterval;
+// let gamePaused = false;
+// let gameStarted = false;
+// let playerScore = 2;
+// let playerName = "Player";
+// let opponentName = "Opponent";
+// let opponentScore = 0;
+// const winningScore = 5;
+// let ballDirection = 1; // 1 = vers le joueur, -1 = vers l'adversaire
 
-const paddleWidth = 6;
-const paddleHeight = 75;
-const ballRadius = 8;
+// const paddleWidth = 6;
+// const paddleHeight = 75;
+// const ballRadius = 8;
 
-let dx = 2;
-let dy = 2;
+// let dx = 2;
+// let dy = 2;
 
-let upPressed = false;
-let downPressed = false;
-let wPressed = false;
-let sPressed = false;
+// let upPressed = false;
+// let downPressed = false;
+// let wPressed = false;
+// let sPressed = false;
 
 document.addEventListener("DOMContentLoaded", function() {
     document.getElementById("playButton").addEventListener("click", function() {
@@ -61,6 +61,44 @@ document.addEventListener("DOMContentLoaded", function() {
 
 });
 
+async function initializeGame() {
+    const csrftoken = getCookie('csrftoken');
+
+    const response = await fetch("/initialize-game/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrftoken
+        },
+        body: JSON.stringify({
+            player1_id: null // ou un autre joueur si disponible
+        })
+    });
+
+    if (!response.ok) {
+        throw new Error("Erreur API : " + response.statusText);
+    }
+
+    const data = await response.json();
+    console.log("Partie initialisée :", data);
+
+    // Utilise les données retournées par l'API (ex : initialiser les scores)
+
+    playerName = data.player1;
+    // console.log(playerName);
+    playerScore = data.player1_score;
+    opponentScore = data.player2_score;
+    arena_width = canvas.width;
+    arena_height = canvas.height;
+
+    if (data.player2_id) {
+        opponentName = data.player2;
+    }
+
+    // Stocker l'ID de la partie
+    gameId = data.id;
+}
+
 // Fonction pour mettre le jeu en pause
 function pauseGame() {
     clearInterval(gameInterval);  // Stoppe l'intervalle pour mettre en pause le rendu
@@ -87,43 +125,6 @@ function quitGame() {
     console.log("Le jeu a été quitté.");
 }
 
-
-async function initializeGame() {
-    const csrftoken = getCookie('csrftoken');
-
-    const response = await fetch("/initialize-game/", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": csrftoken
-        },
-        body: JSON.stringify({
-            player1_id: null // ou un autre joueur si disponible
-        })
-    });
-
-    if (!response.ok) {
-        throw new Error("Erreur API : " + response.statusText);
-    }
-
-    const data = await response.json();
-    console.log("Partie initialisée :", data);
-
-    // Utilise les données retournées par l'API (ex : initialiser les scores)
-
-    playerName = data.player1;
-    console.log(playerName);
-    playerScore = data.player1_score;
-    opponentScore = data.player2_score;
-
-    if (data.player2_id) {
-        opponentName = data.player2;
-    }
-
-    // Stocker l'ID de la partie
-    gameId = data.id;
-}
-
 function startGame() {
     if (gamePaused) {
         resumeGame();  // Si le jeu était en pause, on le reprend
@@ -141,13 +142,13 @@ function startGame() {
     gameStarted = true;
     gamePaused = false;  // Assure-toi que le jeu n'est pas en pause au démarrage
 
-    let x = canvas.width / 2;
-    let y = canvas.height / 2;
+    // let x = canvas.width / 2;
+    // let y = canvas.height / 2;
 
 
-    let playerPaddleY = (canvas.height - paddleHeight) / 2;
-    let opponentPaddleY = (canvas.height - paddleHeight) / 2;
-    const playerPaddleX = 10;
+    // let playerPaddleY = (canvas.height - paddleHeight) / 2;
+    // let opponentPaddleY = (canvas.height - paddleHeight) / 2;
+    // const playerPaddleX = 10;
 
     movePaddle('player1', playerPaddleY);  // Mettre à jour la position de la raquette de player1
     movePaddle('player2', opponentPaddleY);  // Mettre à jour la position de la raquette de player1
@@ -304,12 +305,12 @@ function startGame() {
         }
 
         // Contrôler player2 avec les flèches haut/bas
-        if (upPressed && opponentPaddleY > 0) {
-            opponentPaddleY -= 7;
-            movePaddle('player2', opponentPaddleY);  // Met à jour la position de player2 dans l'API
-        } else if (downPressed && opponentPaddleY < canvas.height - paddleHeight) {
-            opponentPaddleY += 7;
-            movePaddle('player2', opponentPaddleY);  // Met à jour la position de player2 dans l'API
+        if (upPressed) { // && opponentPaddleY > 0
+            // opponentPaddleY -= 7; 
+            movePaddle('up');  // Met à jour la position de player2 dans l'API
+        } else if (downPressed) { // && opponentPaddleY < canvas.height - paddleHeight
+            // opponentPaddleY += 7;
+            movePaddle('down');  // Met à jour la position de player2 dans l'API
         }
 
         x += dx;
@@ -422,7 +423,7 @@ function getCookie(name) {
     return cookieValue;
 }
 
-async function movePaddle(player, newPosition) {
+async function movePaddle(player, direction) {
     const csrftoken = getCookie('csrftoken');
     
     const response = await fetch("/move-paddle/", {
@@ -434,7 +435,7 @@ async function movePaddle(player, newPosition) {
         body: JSON.stringify({
             game_id: gameId,  // Utilisation de l'ID de la partie en cours
             player: player,   // 'player2' ou 'player1'
-            new_position: newPosition
+            direction: direction
         })
     });
 

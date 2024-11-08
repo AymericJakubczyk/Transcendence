@@ -49,21 +49,22 @@ class Message(models.Model):
     message = models.CharField(max_length = 200)
 
 class Pong(models.Model):
-	ball_x = models.IntegerField(default=0)
-	ball_y = models.IntegerField(default=0)
-	ball_dx = models.IntegerField(default=0)
-	ball_dy = models.IntegerField(default=0)
-	player1_x = models.IntegerField(default=0)
-	player2_x = models.IntegerField(default=0)
-
+	ball_x = models.FloatField(default=75)
+	ball_y = models.FloatField(default=50)
+	ball_dx = models.FloatField(default=0.5)
+	ball_dy = models.FloatField(default=0.5)
+	paddle1_y = models.FloatField(default=50)
+	paddle2_y = models.FloatField(default=50)
 
 class Game(models.Model):
 	player1 = models.ForeignKey(User, related_name='player1', on_delete=models.CASCADE)
 	player2 = models.ForeignKey(User, related_name='player2', on_delete=models.CASCADE, null=True, blank=True)
 	player1_score = models.IntegerField(default=0)
 	player2_score = models.IntegerField(default=0)
+	arena_width = models.FloatField(default=720)
+	arena_height = models.FloatField(default=480)
 	status = models.CharField(max_length=20, default='waiting')
-	gametype = models.CharField(max_length=5)
+	gametype = models.CharField(max_length=5, default='PONG')
 	winner = models.ForeignKey(User, related_name='winner', on_delete=models.CASCADE, null=True, blank=True)
 	pong = models.ForeignKey('Pong', on_delete=models.CASCADE, null=True, blank=True)
 	created_at = models.DateTimeField(auto_now_add=True)

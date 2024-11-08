@@ -257,6 +257,8 @@ def initialize_game(request):
     # On récupère les joueurs depuis la requête (ou les valeurs par défaut pour tester)
     player1 = request.user
     player2_id = request.data.get('player2_id', None)
+    arena_height = request.data.get('arena_height')
+    arena_width = request.data.get('arena_width')
     
     if player2_id:
         player2 = User.objects.get(id=player2_id)
@@ -265,8 +267,8 @@ def initialize_game(request):
 
     # Création d'une nouvelle instance de Pong (pour stocker les mouvements du jeu)
     pong_instance = Pong.objects.create(
-        ball_x=0, ball_y=0, ball_dx=2, ball_dy=2,
-        player1_x=0, player2_x=0
+        ball_x=arena_width / 2, ball_y=arena_height / 2, ball_dx=2, ball_dy=2,
+        paddle1_y=arena_height / 2, paddle2_y=arena_height / 2
     )
     
     # Création d'une nouvelle partie
@@ -275,6 +277,8 @@ def initialize_game(request):
         player2=player2,
         player1_score=0,
         player2_score=0,
+        arena_height=arena_height
+        arena_width=arena_width
         status='playing',  # Le jeu n'a pas encore commencé
         gametype='PONG',
         pong=pong_instance  # Lien vers l'instance de Pong
@@ -315,16 +319,22 @@ def move_paddle(request):
     """
     game_id = request.data.get('game_id')
     player = request.data.get('player')  # 'player1' ou 'player2'
-    new_position = request.data.get('new_position')
+    direction = request.data.get('direction')
 
     try:
         game = Game.objects.get(id=game_id)
         pong = game.pong
 
         if player == 'player1':
-            pong.player1_x = new_position
+            if direction == "up" and pong.paddle1_y > 0:
+                pong.paddle1_y -= 7
+            elif direction == "down" and pong.paddle1_y < 
+                pong.paddle1_y -= 7
         elif player == 'player2':
-            pong.player2_x = new_position
+            if direction == "up":
+                pong.player2_x -= 7
+            elif direction == "down"
+                pong.player2_x -= 7
         else:
             return Response({'error': 'Invalid player'}, status=400)
 
@@ -343,9 +353,9 @@ def get_paddle_position(request, game_id, player):
         pong = game.pong
 
         if player == 'player1':
-            return Response({'position': pong.player1_x})
+            return Response({'position': pong.paddle1_y})
         elif player == 'player2':
-            return Response({'position': pong.player2_x})
+            return Response({'position': pong.paddle2_y})
         else:
             return Response({'error': 'Invalid player'}, status=400)
     except Game.DoesNotExist:
