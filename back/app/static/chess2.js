@@ -30,6 +30,37 @@ function init_game()
     board[7][3].piece = new Queen("white");
     board[7][4].piece = new King("white");
 
+    console.log("[GAME BOARD]", board)
+    first_display(board)
+}
+
+function init_ranked_game(game_board)
+{
+    board = new Array(8);
+    for (let i = 0; i < 8; i++)
+    {
+        board[i] = new Array(8);
+        for (let j = 0; j < 8; j++)
+        {
+            board[i][j] = new Cell();
+            if (game_board[i][j].piece)
+            {
+                if (game_board[i][j].piece.type == "Pawn")
+                    board[i][j].piece = new Pawn(game_board[i][j].piece.color);
+                else if (game_board[i][j].piece.type == "Rook")
+                    board[i][j].piece = new Rook(game_board[i][j].piece.color);
+                else if (game_board[i][j].piece.type == "Knight")
+                    board[i][j].piece = new Knight(game_board[i][j].piece.color);
+                else if (game_board[i][j].piece.type == "Bishop")
+                    board[i][j].piece = new Bishop(game_board[i][j].piece.color);
+                else if (game_board[i][j].piece.type == "Queen")
+                    board[i][j].piece = new Queen(game_board[i][j].piece.color);
+                else if (game_board[i][j].piece.type == "King")
+                    board[i][j].piece = new King(game_board[i][j].piece.color);
+            }
+        }
+    }
+
     first_display(board)
 }
 
@@ -76,14 +107,23 @@ function display_possible_moves(board)
     }
 }
 
-function cell_click(x, y)
+function cell_click(x, y, isRanked)
 {
     if (board[y][x].possibleMove && piecePos)
     {
         console.log("move", piecePos.x, piecePos.y, x, y);
         document.getElementById("cell"+piecePos.x+piecePos.y).style.backgroundColor = (piecePos.x+piecePos.y) % 2 == 0 ? "antiquewhite" : "burlywood";
         reset_possible_moves(board);
-        move_piece(piecePos, x, y);
+        if (isRanked)
+        {
+            chessSocket.send(JSON.stringify({
+                'type': 'move',
+                'from': {'x': piecePos.x, 'y': piecePos.y},
+                'to': {'x': x, 'y': y}
+            }));
+        }
+        else
+            move_piece(piecePos, x, y);
         reset_possible_castling(board);
         player = player == "white" ? "black" : "white";
         verif_end_game(board, player);

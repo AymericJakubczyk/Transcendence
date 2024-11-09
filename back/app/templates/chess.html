@@ -1,4 +1,5 @@
 {% load static %}
+
 <div class="container">
 <link rel="stylesheet" href="{% static 'stylesheets/chess.css' %}">
     <h1 class="header">ATOMIC CHESS</h1>
@@ -26,12 +27,14 @@
 						cell_div.className = 'cell';
 						cell_div.id = 'cell' + x + y;
 						cell_div.style.backgroundColor = (x + y) % 2 == 0 ? "antiquewhite" : "burlywood";
-						cell_div.style.width = '10vh';
-						cell_div.style.height = '10vh';
+						cell_div.style.width = 'calc(min(8vh, 10vw))';
+						cell_div.style.height = 'calc(min(8vh, 10vw))';
 						cell_div.style.position = 'relative';
-						cell_div.onclick = function() {cell_click(x, y)};
-						{% if game and game.black_player.username == request.user.username %}
-						cell_div.onclick = function() {cell_click(7 - x, 7 - y)};
+						cell_div.onclick = function() {cell_click(x, y, 0)};
+						{% if game and game.white_player.username == request.user.username %}
+						cell_div.onclick = function() {cell_click(x, y, 1)};
+						{% elif game and game.black_player.username == request.user.username %}
+						cell_div.onclick = function() {cell_click(7 - x, 7 - y, 1)};
 						cell_div.id = 'cell' + (7-x) + (7-y);
 						{% endif %}
 						row_div.appendChild(cell_div);
@@ -53,4 +56,12 @@
 		{% endif %}
 	</div>
 </div>
-<script>init_game()</script>
+<script>
+	{% if game %}
+		create_chess_ws({{ game.id }});
+		var boardArray = {{ game.board|safe }};
+		init_ranked_game(boardArray);
+	{% else %}
+		init_game()
+	{% endif %}
+</script>

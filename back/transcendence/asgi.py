@@ -25,6 +25,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'transcendence.settings')
 websocket_urlpatterns = [
 	re_path(r'ws/chat/$', ChatConsumer.as_asgi()),
 	re_path(r'ws/chess/$', ChessConsumer.as_asgi()),
+	re_path(r'ws/chess/(?P<id>\d+)/$', ChessConsumer.as_asgi()),
 	re_path(r'ws/pong/$', PongConsumer.as_asgi()),
 	re_path(r'ws/pong/(?P<id>\d+)/$', PongConsumer.as_asgi()),
 	re_path(r'ws/pongTournament/$', pongTournamentConsumer.as_asgi()),

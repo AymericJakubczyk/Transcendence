@@ -82,7 +82,12 @@ function create_ws()
 		if (data.type == 'invite_accepted')
 			htmx_request("/game/pong/ranked/" + data.game_id + "/", "GET", {})
 		if (data.type == 'match_found')
-			htmx_request("/game/pong/ranked/" + data.game_id + "/", "GET", {})
+		{
+			if (data.game_type == 'pong')
+				htmx_request("/game/pong/ranked/" + data.game_id + "/", "GET", {})
+			else if (data.game_type == 'chess')
+				htmx_request("/game/chess/ranked/" + data.game_id + "/", "GET", {})
+		}
 	};
 	
 	chatSocket.onclose = (event) => {

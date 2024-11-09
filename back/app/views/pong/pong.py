@@ -312,6 +312,7 @@ def pongFoundGameView(request):
             {
                 'type': 'send_ws',
                 'type2': 'match_found',
+                'game_type': 'pong',
                 'game_id': game.id
             }
         )

@@ -5,86 +5,67 @@ from channels.db import database_sync_to_async
 
 import sys #for print
 
-nbr_waiter = 0
-list_waiter = []
-
 class ChessConsumer(AsyncWebsocketConsumer):
+    id = None
+
     async def connect(self):
-        global nbr_waiter
-        global list_waiter
         print("[CONNECT]", self.scope["user"], file=sys.stderr)
         self.room_group_name = self.scope["user"].username + "_chess"
 
+        if "id" in self.scope["url_route"]["kwargs"]:
+            self.id = self.scope["url_route"]["kwargs"]["id"]
+            print("[GAME ID]", self.id, file=sys.stderr)
+            self.room_group_name = "ranked_chess_" + str(self.id)
+        else:
+            print("[ERROR] no id", file=sys.stderr)
+            return
+        
         await self.channel_layer.group_add(
             self.room_group_name,
             self.channel_name
         )
 
-        if (nbr_waiter >= 1):
-            game = await self.create_game(list_waiter[0], self.room_group_name)
-            await self.channel_layer.group_send(
-                self.room_group_name,
-                {
-                    'type': 'match_found',
-                    'adversaire': list_waiter[0],
-                    'game_id': game.id
-                }
-            )
-            await self.channel_layer.group_send(
-                list_waiter[0],
-                {
-                    'type': 'match_found',
-                    'adversaire': self.room_group_name,
-                    'game_id': game.id
-                }
-            )
-            nbr_waiter -= 1
-            list_waiter.remove(list_waiter[0])
-        
         await self.accept()
-        nbr_waiter += 1
-        list_waiter.append(self.room_group_name)
 
     async def disconnect(self, close_code):
-        global nbr_waiter
-        global list_waiter
         print("[DISCONNECT]", file=sys.stderr)
 
-        if list_waiter.count(self.room_group_name) > 0:
-            nbr_waiter -= 1
-            list_waiter.remove(self.room_group_name)
 
     async def receive(self, text_data):
-        text_data_json = json.loads(text_data)
-        print("[RECEIVE WS]", text_data_json, file=sys.stderr)
+        data = json.loads(text_data)
+        print("[RECEIVE WS]", data, file=sys.stderr)
+
+        if (data['type'] == 'move'):
+            await self.move_piece(data['from'], data['to'], int(self.id))
+        
     
-    async def match_found(self, event):
-        print("[MATCH FOUND]", event, file=sys.stderr)
-        await self.send(text_data=json.dumps({
-            'type': 'match_found',
-            'adversaire': event['adversaire'],
-            'game_id': event['game_id']
-        }))
+    async def move_piece(self, posPiece, posReach, game_id):
+        print("[MOVE PIECE]", posPiece, posReach, file=sys.stderr)
+        # if verif is good (WIP)
+        
+        await self.modif_board(posPiece, posReach, game_id)
+        await self.channel_layer.group_send(
+            self.room_group_name,
+            {
+                'type': 'move',
+                'from': posPiece,
+                'to': posReach
+            }
+        )
+
 
     @database_sync_to_async
-    def create_game(self, player1_username, player2_username):
-        from app.models import User, Game_Chess
-        # do random for white player now i don't care
+    def modif_board(self, posPiece, posReach, game_id):
+        from app.models import Game_Chess
 
-        # remove _chess from username
-        player1_username = player1_username[:-6]
-        player2_username = player2_username[:-6]
-        print("[CREATE CHESS GAME]", player1_username, player2_username, file=sys.stderr)
+        game = get_object_or_404(Game_Chess, id=game_id)
+        print("[MODIF BOARD]", posPiece, posReach, file=sys.stderr)
 
-        player1 = get_object_or_404(User, username=player1_username)
-        player2 = get_object_or_404(User, username=player2_username)
-        game = Game_Chess()
-        game.white_player = player1
-        game.black_player = player2
-        game.board = []
-        for i in range(8):
-            game.board.append([])
-            for j in range(8):
-                game.board[i].append({'piece': None, 'color': None})
+        game.board[posReach['y']][posReach['x']]['piece'] = game.board[posPiece['y']][posPiece['x']]['piece']
+        game.board[posPiece['y']][posPiece['x']]['piece'] = 0
+
         game.save()
-        return game
+
+
+    async def move(self, event):
+        await self.send(text_data=json.dumps(event))

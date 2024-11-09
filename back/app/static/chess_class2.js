@@ -97,7 +97,6 @@ class Rook {
     
     setPossibleMoves(board, x, y)
     {
-        let piecePos = {'x': x, 'y': y};
         for (let i = x + 1; i < 8; i++)
         {
             if (verif_loop_moove(board, this.color, i, y))
