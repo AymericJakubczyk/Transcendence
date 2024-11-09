@@ -16,9 +16,30 @@
 		{% else %}
 			<div class="PlayerName" id="BlackPlayer">Player 1</div>
 		{% endif %}
-		<canvas class="chessBox my-3" height="800" width="800" id="chess">
-		</canvas>
-		<canvas class = "promotePawn" height="100" width="100" id="promote" style="position :absolute;"></canvas>
+		<div id="board">
+			<script>
+				for (let y = 0; y < 8; y++) {
+					let row_div = document.createElement('div');
+					row_div.style.display = 'flex';
+					for (let x = 0; x < 8; x++) {
+						let cell_div = document.createElement('div');
+						cell_div.className = 'cell';
+						cell_div.id = 'cell' + x + y;
+						cell_div.style.backgroundColor = (x + y) % 2 == 0 ? "antiquewhite" : "burlywood";
+						cell_div.style.width = '10vh';
+						cell_div.style.height = '10vh';
+						cell_div.style.position = 'relative';
+						cell_div.onclick = function() {cell_click(x, y)};
+						{% if game and game.black_player.username == request.user.username %}
+						cell_div.onclick = function() {cell_click(7 - x, 7 - y)};
+						cell_div.id = 'cell' + (7-x) + (7-y);
+						{% endif %}
+						row_div.appendChild(cell_div);
+					}
+					document.getElementById('board').appendChild(row_div);
+				}
+			</script>
+		</div>
 		{% if game %}
 			<div class="d-flex w-100" id="WhitePlayer">
 				<img src="{{ game.white_player.profile_picture.url }}" class="pp_game">
