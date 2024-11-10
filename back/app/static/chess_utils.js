@@ -155,3 +155,19 @@ function smallCastling(board, x, y)
         return false
     return true
 }
+
+function whosPlaying(color)
+{
+	var blackPlayer = document.getElementById("BlackPlayer");
+	var whitePlayer = document.getElementById("WhitePlayer");
+	if (color == "white" && blackPlayer && whitePlayer)
+	{
+		blackPlayer.setAttribute("style", "opacity: 0.2;");	
+		whitePlayer.setAttribute("style", "opacity: 1;");	
+	}
+	else if (blackPlayer && whitePlayer)
+	{
+		blackPlayer.setAttribute("style", "opacity: 1;");	
+		whitePlayer.setAttribute("style", "opacity: 0.2;");	
+	}	
+}
