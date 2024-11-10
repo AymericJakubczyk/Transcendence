@@ -13,6 +13,7 @@ from django.http import JsonResponse, HttpResponse
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 import app.consumers.utils.chess_class as chess_class
+import app.consumers.utils.chess_utils as chess_utils
 
 import sys
 import logging
@@ -52,30 +53,32 @@ def chessFoundGameView(request):
             game.white_player = opponent
             game.black_player = request.user
 
-        game.board = []
-        for i in range(8):
-            game.board.append([])
-            for j in range(8):
-                game.board[i].append(chess_class.Cell().toJSON())
+        # game.board = []
+        # for i in range(8):
+        #     game.board.append([])
+        #     for j in range(8):
+        #         game.board[i].append(chess_class.Cell().toJSON())
 
-        for i in range(8):
-            game.board[1][i]['piece'] = chess_class.Pawn('black').toJSON()
-            game.board[6][i]['piece'] = chess_class.Pawn('white').toJSON()
+        # for i in range(8):
+        #     game.board[1][i]['piece'] = chess_class.Pawn('black').toJSON()
+        #     game.board[6][i]['piece'] = chess_class.Pawn('white').toJSON()
         
-            game.board[0][0]['piece'] = game.board[0][7]['piece'] = chess_class.Rook("black").toJSON()
-            game.board[0][1]['piece'] = game.board[0][6]['piece'] = chess_class.Knight("black").toJSON()
-            game.board[0][2]['piece'] = game.board[0][5]['piece'] = chess_class.Bishop("black").toJSON()
-            game.board[0][3]['piece'] = chess_class.Queen("black").toJSON()
-            game.board[0][4]['piece'] = chess_class.King("black").toJSON()
+        #     game.board[0][0]['piece'] = game.board[0][7]['piece'] = chess_class.Rook("black").toJSON()
+        #     game.board[0][1]['piece'] = game.board[0][6]['piece'] = chess_class.Knight("black").toJSON()
+        #     game.board[0][2]['piece'] = game.board[0][5]['piece'] = chess_class.Bishop("black").toJSON()
+        #     game.board[0][3]['piece'] = chess_class.Queen("black").toJSON()
+        #     game.board[0][4]['piece'] = chess_class.King("black").toJSON()
 
-            game.board[7][0]['piece'] = game.board[7][7]['piece'] = chess_class.Rook("white").toJSON()
-            game.board[7][1]['piece'] = game.board[7][6]['piece'] = chess_class.Knight("white").toJSON()
-            game.board[7][2]['piece'] = game.board[7][5]['piece'] = chess_class.Bishop("white").toJSON()
-            game.board[7][3]['piece'] = chess_class.Queen("white").toJSON()
-            game.board[7][4]['piece'] = chess_class.King("white").toJSON()
+        #     game.board[7][0]['piece'] = game.board[7][7]['piece'] = chess_class.Rook("white").toJSON()
+        #     game.board[7][1]['piece'] = game.board[7][6]['piece'] = chess_class.Knight("white").toJSON()
+        #     game.board[7][2]['piece'] = game.board[7][5]['piece'] = chess_class.Bishop("white").toJSON()
+        #     game.board[7][3]['piece'] = chess_class.Queen("white").toJSON()
+        #     game.board[7][4]['piece'] = chess_class.King("white").toJSON()
         
         game.save()
 
+
+        chess_utils.launch_game(game.id)
 
         print("Chess game created:", game.id, file=sys.stderr)
         channel_layer = get_channel_layer()
@@ -100,8 +103,10 @@ def chessFoundGameView(request):
 
 def chessGameView(request, gameID):
     game = get_object_or_404(Game_Chess, id=gameID)
-    print("\n\n\n[CHESS] board:", game.board, "\n\n\n", file=sys.stderr)
+    board = chess_utils.get_board(gameID)
+    if not board:
+        return redirect('chess')
 
     if request.META.get("HTTP_HX_REQUEST") != 'true':
-        return render(request, 'page_full.html', {'page':'chess.html', 'user':request.user, 'game':game})
-    return render(request, 'chess.html', {'user':request.user, 'game':game})
+        return render(request, 'page_full.html', {'page':'chess.html', 'user':request.user, 'game':game, 'board':board})
+    return render(request, 'chess.html', {'user':request.user, 'game':game, 'board':board})

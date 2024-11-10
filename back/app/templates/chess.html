@@ -6,19 +6,19 @@
     <h5 class="header">Worst chess game you ever saw</h5>		
 	<div><p>Ca arrive lourd tu veux que jte l'dise en quelle langue ? On est l'feu et les pompiers en meme temps</p></div>
 	<div class="test">
-		{% if game and game.white_player.username == request.user.username %}
-			<div class="d-flex w-100" id="BlackPlayer">
-				<img src="{{ game.black_player.profile_picture.url }}" class="pp_game">
-				<div>
-					<h2 class="mb-0">{{ game.black_player.username }}</h2>
-					<h5>rank</h5>
-				</div>
-			</div>
-		{% elif game %}
+		{% if game and game.black_player.username == request.user.username %}
 			<div class="d-flex w-100" id="WhitePlayer">
 				<img src="{{ game.white_player.profile_picture.url }}" class="pp_game">
 				<div>
 					<h2 class="mb-0">{{ game.white_player.username }}</h2>
+					<h5>rank</h5>
+				</div>
+			</div>
+		{% elif game %}
+			<div class="d-flex w-100" id="BlackPlayer">
+				<img src="{{ game.black_player.profile_picture.url }}" class="pp_game">
+				<div>
+					<h2 class="mb-0">{{ game.black_player.username }}</h2>
 					<h5>rank</h5>
 				</div>
 			</div>
@@ -44,6 +44,8 @@
 						{% elif game and game.black_player.username == request.user.username %}
 						cell_div.onclick = function() {cell_click(7 - x, 7 - y, 1, "black")};
 						cell_div.id = 'cell' + (7-x) + (7-y);
+						{% elif game %} /* if spectator */
+						cell_div.onclick = null;
 						{% endif %}
 						row_div.appendChild(cell_div);
 					}
@@ -51,19 +53,19 @@
 				}
 			</script>
 		</div>
-		{% if game and game.white_player.username == request.user.username %}
-			<div class="d-flex w-100" id="WhitePlayer">
-				<img src="{{ game.white_player.profile_picture.url }}" class="pp_game">
-				<div>
-					<h2 class="mb-0">{{ game.white_player.username }}</h2>
-					<h5>rank</h5>
-				</div>
-			</div>
-		{% elif game %}
+		{% if game and game.black_player.username == request.user.username %}
 			<div class="d-flex w-100" id="BlackPlayer">
 				<img src="{{ game.black_player.profile_picture.url }}" class="pp_game">
 				<div>
 					<h2 class="mb-0">{{ game.black_player.username }}</h2>
+					<h5>rank</h5>
+				</div>
+			</div>
+		{% elif game %}
+			<div class="d-flex w-100" id="WhitePlayer">
+				<img src="{{ game.white_player.profile_picture.url }}" class="pp_game">
+				<div>
+					<h2 class="mb-0">{{ game.white_player.username }}</h2>
 					<h5>rank</h5>
 				</div>
 			</div>
@@ -75,7 +77,7 @@
 <script>
 	{% if game %}
 		create_chess_ws({{ game.id }});
-		var boardArray = {{ game.board|safe }};
+		var boardArray = {{ board|safe }};
 		init_ranked_game(boardArray, {{ game.turn_white|yesno:"true,false" }});
 	{% else %}
 		init_game()

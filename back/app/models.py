@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.fields import HStoreField
 from django.db.models import Q
 from django.db.models import JSONField
 
@@ -98,16 +99,16 @@ class Game_Chess(models.Model):
 	black_player = models.ForeignKey(User, null=True, on_delete=models.CASCADE, related_name='black_player')
 	turn_white = models.BooleanField(default=True)
 
-	def board_default():
-		return {'piece': None, 'color': None}
+	# def board_default():
+	# 	return {'piece': None, 'color': None}
 
-	board = ArrayField(
-        ArrayField(
-            models.JSONField(null=True, blank=True, default=board_default),
-            size=8
-        ),
-        size=8
-    )
+	# board = ArrayField(
+    #     ArrayField(
+    #         models.JSONField(null=True, blank=True, default=board_default),
+    #         size=8
+    #     ),
+    #     size=8
+    # )
 	over = models.BooleanField(default=False)
 	winner = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name='chesswinner')
 

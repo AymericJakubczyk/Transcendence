@@ -65,50 +65,44 @@ class ChessConsumer(AsyncWebsocketConsumer):
     def modif_board(self, posPiece, posReach, game_id):
         from app.models import Game_Chess
         import app.consumers.utils.chess_class as chess_class
+        import app.consumers.utils.chess_utils as chess_utils
 
         if (posPiece['x'] > 7 or posPiece['x'] < 0 or posPiece['y'] > 7 or posPiece['y'] < 0 or posReach['x'] > 7 or posReach['x'] < 0 or posReach['y'] > 7 or posReach['y'] < 0):
-            return "WTF"
+            return "STOP HACKING"
+
 
         game = get_object_or_404(Game_Chess, id=game_id)
-        piece = game.board[posPiece['y']][posPiece['x']]['piece']
-        print("[MODIF BOARD]", posPiece, posReach, file=sys.stderr)
+        board = chess_utils.get_board(game_id)
+        piece = board[posPiece['y']][posPiece['x']].piece
+
+        if piece == 0:
+            return "Bro there is no piece here STOP HACKING"
 
         # check if it is the turn of the player
         if game.turn_white and game.white_player != self.scope["user"]:
-            return "Not your turn"
+            return "Not your turn (STOP HACKING)"
         if not game.turn_white and game.black_player != self.scope["user"]:
-            return "Not your turn"
+            return "Not your turn (STOP HACKING)"
 
         # check if the piece is a piece of the player
-        if piece['color'] != 'white' and game.turn_white:
-            return "Not your piece"
-        if piece['color'] != 'black' and not game.turn_white:
-            return "Not your piece"
+        if game.turn_white and piece.color != 'white':
+            return "Not your piece (STOP HACKING)"
+        if not game.turn_white and piece.color == 'white':
+            return "Not your piece (STOP HACKING)"
 
-        # TO DO : check if move is valid
-        if piece['type'] == 'Pawn':
-            chess_class.Pawn(piece['color']).setPossibleMoves(game.board, posPiece['x'], posPiece['y'])
-        elif piece['type'] == 'Rook':
-            chess_class.Rook(piece['color']).setPossibleMoves(game.board, posPiece['x'], posPiece['y'])
-        elif piece['type'] == 'Knight':
-            chess_class.Knight(piece['color']).setPossibleMoves(game.board, posPiece['x'], posPiece['y'])
-        elif piece['type'] == 'Bishop':
-            chess_class.Bishop(piece['color']).setPossibleMoves(game.board, posPiece['x'], posPiece['y'])
-        elif piece['type'] == 'Queen':
-            chess_class.Queen(piece['color']).setPossibleMoves(game.board, posPiece['x'], posPiece['y'])
-        elif piece['type'] == 'King':
-            chess_class.King(piece['color']).setPossibleMoves(game.board, posPiece['x'], posPiece['y'])
-        
-        if game.board[posReach['y']][posReach['x']]['possibleMove'] == 0:
+
+        # TO FINISH : check if move is valid
+        piece.setPossibleMoves(board, posPiece['x'], posPiece['y'])
+        if board[posReach['y']][posReach['x']].possibleMove == 0:
             return "Invalid move"
 
 
 
 
-        game.board[posReach['y']][posReach['x']]['piece'] = piece
-        game.board[posPiece['y']][posPiece['x']]['piece'] = 0
+        board[posReach['y']][posReach['x']].piece = board[posPiece['y']][posPiece['x']].piece
+        board[posPiece['y']][posPiece['x']].piece = 0
 
-        reset_possible_moves(game.board)
+        reset_possible_moves(board)
 
         game.turn_white = not game.turn_white
         game.save()
@@ -118,7 +112,9 @@ class ChessConsumer(AsyncWebsocketConsumer):
     async def move(self, event):
         await self.send(text_data=json.dumps(event))
 
+
+
 def reset_possible_moves(board):
     for i in range(8):
         for j in range(8):
-            board[i][j]['possibleMove'] = 0
+            board[i][j].possibleMove = 0
