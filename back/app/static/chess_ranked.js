@@ -2,7 +2,10 @@ chessSocket = null;
 
 function create_chess_ws(game_id)
 {
-    chessSocket = new WebSocket('ws://' + window.location.host + `/ws/chess/${game_id}/`);
+  	if (window.location.protocol == "https:")
+    	chessSocket = new WebSocket('wss://' + window.location.host + `/ws/chess/${game_id}/`);
+	else
+		chessSocket = new WebSocket('ws://' + window.location.host + `/ws/chess/${game_id}/`);
 
     chessSocket.onopen = function() {
 		console.log('[WS CHESS] WebSocket CHESS connection established.');
@@ -17,6 +20,10 @@ function create_chess_ws(game_id)
 			player = player == "white" ? "black" : "white";
 			whosPlaying(player);
         }
+		if (data.type == "end_game")
+		{
+			alert("Game over");
+		}
 		if (data.type == "error")
 			error_message(data.message, 2000);
     }

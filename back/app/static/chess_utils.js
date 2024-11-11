@@ -13,14 +13,6 @@ function reset_possible_moves(board)
     }
 }
 
-function reset_possible_castling(board)
-{
-    board[0][2].castling = false;
-    board[0][6].castling = false;
-    board[7][2].castling = false;
-    board[7][6].castling = false;
-}
-
 function last_verif_move(board, color, piecePos)
 {
     for (let y = 0; y < 8; y++)
@@ -35,18 +27,12 @@ function last_verif_move(board, color, piecePos)
                 reset_possible_moves(cp_board);
                 if (verif_check(cp_board, color))
                     board[y][x].possibleMove = false;
-                if (board[y][x].castling)
+                if (board[piecePos.y][piecePos.x].piece.constructor.name == "King" && Math.abs(x - piecePos.x) == 2)
                 {
                     if (x == 2 && !bigCastling(board, x, y))
-                    {
                         board[y][x].possibleMove = false;
-                        board[y][x].castling = false;
-                    }
                     if (x == 6 && !smallCastling(board, x, y))
-                    {
                         board[y][x].possibleMove = false;
-                        board[y][x].castling = false;
-                    }
                 }
             }
 
@@ -143,7 +129,17 @@ function remove_en_passant(board, color)
 function bigCastling(board, x, y)
 {
     let cp_board = Array.from(board, x => x.map(y => Object.assign({}, y)));
-    if (verif_check(cp_board, board[y][4].piece.color) || !board[y][3].possibleMove)
+    reset_possible_moves(cp_board)
+
+    if (verif_check(cp_board, board[y][4].piece.color))
+        return false
+    cp_board[y][3].piece = cp_board[y][4].piece
+    cp_board[y][4].piece = null
+    if (verif_check(cp_board, board[y][4].piece.color))
+        return false
+    cp_board[y][2].piece = cp_board[y][3].piece
+    cp_board[y][3].piece = null
+    if (verif_check(cp_board, board[y][4].piece.color))
         return false
     return true
 }
@@ -151,7 +147,17 @@ function bigCastling(board, x, y)
 function smallCastling(board, x, y)
 {
     let cp_board = Array.from(board, x => x.map(y => Object.assign({}, y)));
-    if (verif_check(cp_board, board[y][4].piece.color) || !board[y][5].possibleMove)
+    reset_possible_moves(cp_board)
+
+    if (verif_check(cp_board, board[y][4].piece.color))
+        return false
+    cp_board[y][5].piece = cp_board[y][4].piece
+    cp_board[y][4].piece = null
+    if (verif_check(cp_board, board[y][4].piece.color))
+        return false
+    cp_board[y][6].piece = cp_board[y][5].piece
+    cp_board[y][5].piece = null
+    if (verif_check(cp_board, board[y][4].piece.color))
         return false
     return true
 }

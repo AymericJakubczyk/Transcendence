@@ -3,7 +3,10 @@ pongSocket = null;
 function join_pong_game(game_data, player)
 {
     console.log("[JOIN PONG GAME]", game_data, player);
-    pongSocket = new WebSocket('ws://' + window.location.host + `/ws/pong/${game_data.id}/`);
+    if (window.location.protocol == "https:")
+        pongSocket = new WebSocket('wss://' + window.location.host + `/ws/pong/${game_data.id}/`);
+    else
+        pongSocket = new WebSocket('ws://' + window.location.host + `/ws/pong/${game_data.id}/`);
 
     pongSocket.onopen = function() {
 		console.log('[WS PONG] WebSocket PONG connection established.');

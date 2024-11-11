@@ -7,15 +7,14 @@ class Cell:
 		self.possibleMove = 0
 		self.move = 0
 		self.enPassant = 0
-		self.castling = 0 # roque
 
 
 	def toJSON(self):
-		mydict = {"piece": self.piece, "possibleMove": self.possibleMove, "move": self.move, "enPassant": self.enPassant, "castling": self.castling}
+		mydict = {"piece": self.piece, "possibleMove": self.possibleMove, "move": self.move, "enPassant": self.enPassant}
 		return mydict
 
 	def __repr__(self):
-		return "{piece: " + str(self.piece) + ", possibleMove: " + str(self.possibleMove) + ", move: " + str(self.move) + ", enPassant: " + str(self.enPassant) + ", castling: " + str(self.castling) + "}"
+		return "{piece: " + str(self.piece) + ", possibleMove: " + str(self.possibleMove) + ", move: " + str(self.move) + ", enPassant: " + str(self.enPassant) + "}"
 
 
 class Pawn:
@@ -26,7 +25,6 @@ class Pawn:
 		if (self.color == 'white'):
 			if (y == 6 and board[y-1][x].piece == 0 and board[y-2][x].piece == 0):
 				board[y-2][x].possibleMove = 1
-				board[y-1][x].enPassant = 1
 
 			if (board[y-1][x].piece == 0):
 				board[y-1][x].possibleMove = 1
@@ -41,7 +39,6 @@ class Pawn:
 		elif (self.color == 'black'):
 			if (y == 1 and board[y+1][x].piece == 0 and board[y+2][x].piece == 0):
 				board[y+2][x].possibleMove = 1
-				board[y+1][x].enPassant = 1
 
 			if (board[y+1][x].piece == 0):
 				board[y+1][x].possibleMove = 1
@@ -188,10 +185,8 @@ class King:
 		# Castling (roque)
 		if (not board[y][x].move and not board[y][0].move and board[y][1].piece == 0 and board[y][2].piece == 0 and board[y][3].piece == 0):
 			board[y][2].possibleMove = 1
-			board[y][2].castling = 1
 		if (not board[y][x].move and not board[y][7].move and board[y][5].piece == 0 and board[y][6].piece == 0):
 			board[y][6].possibleMove = 1
-			board[y][6].castling = 1
 
 	def toJSON(self):
 		mydict = {"type": "King", "color": self.color}

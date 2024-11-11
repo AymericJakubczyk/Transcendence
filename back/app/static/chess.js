@@ -137,13 +137,11 @@ function cell_click(x, y, isRanked, userColor)
             move_piece(piecePos, x, y);
             player = player == "white" ? "black" : "white";
             whosPlaying(player);
+            verif_end_game(board, player);
         }
-        reset_possible_castling(board);
-        verif_end_game(board, player);
         return;
     }
     reset_possible_moves(board);
-    reset_possible_castling(board);
     if (piecePos)
         document.getElementById("cell"+piecePos.x+piecePos.y).style.backgroundColor = (piecePos.x+piecePos.y) % 2 == 0 ? "antiquewhite" : "burlywood";
     if (board[y][x].piece != null && board[y][x].piece.color == player)
@@ -190,7 +188,7 @@ function move_piece(piecePos, x, y)
     }
 
     // handle castling (roque)
-    if (board[y][x].castling && board[y][x].piece.constructor.name == "King")
+    if (board[y][x].piece.constructor.name == "King" && Math.abs(x - piecePos.x) == 2)
         do_castling(board, x, y);
 
     //handle pawn promotion

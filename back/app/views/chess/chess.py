@@ -53,31 +53,8 @@ def chessFoundGameView(request):
             game.white_player = opponent
             game.black_player = request.user
 
-        # game.board = []
-        # for i in range(8):
-        #     game.board.append([])
-        #     for j in range(8):
-        #         game.board[i].append(chess_class.Cell().toJSON())
-
-        # for i in range(8):
-        #     game.board[1][i]['piece'] = chess_class.Pawn('black').toJSON()
-        #     game.board[6][i]['piece'] = chess_class.Pawn('white').toJSON()
-        
-        #     game.board[0][0]['piece'] = game.board[0][7]['piece'] = chess_class.Rook("black").toJSON()
-        #     game.board[0][1]['piece'] = game.board[0][6]['piece'] = chess_class.Knight("black").toJSON()
-        #     game.board[0][2]['piece'] = game.board[0][5]['piece'] = chess_class.Bishop("black").toJSON()
-        #     game.board[0][3]['piece'] = chess_class.Queen("black").toJSON()
-        #     game.board[0][4]['piece'] = chess_class.King("black").toJSON()
-
-        #     game.board[7][0]['piece'] = game.board[7][7]['piece'] = chess_class.Rook("white").toJSON()
-        #     game.board[7][1]['piece'] = game.board[7][6]['piece'] = chess_class.Knight("white").toJSON()
-        #     game.board[7][2]['piece'] = game.board[7][5]['piece'] = chess_class.Bishop("white").toJSON()
-        #     game.board[7][3]['piece'] = chess_class.Queen("white").toJSON()
-        #     game.board[7][4]['piece'] = chess_class.King("white").toJSON()
-        
         game.save()
-
-
+        game.status = "started"
         chess_utils.launch_game(game.id)
 
         print("Chess game created:", game.id, file=sys.stderr)
@@ -91,9 +68,6 @@ def chessFoundGameView(request):
                 'game_id': game.id
             }
         )
-        # chess_utils.launch_game(game.id)
-        # game.status = "started"
-        # game.save()
         print("Chess game launched:", game.id, file=sys.stderr)
         return redirect('chess_game', gameID=game.id)
 

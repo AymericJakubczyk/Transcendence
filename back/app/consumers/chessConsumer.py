@@ -64,7 +64,6 @@ class ChessConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def modif_board(self, posPiece, posReach, game_id):
         from app.models import Game_Chess
-        import app.consumers.utils.chess_class as chess_class
         import app.consumers.utils.chess_utils as chess_utils
 
         if (posPiece['x'] > 7 or posPiece['x'] < 0 or posPiece['y'] > 7 or posPiece['y'] < 0 or posReach['x'] > 7 or posReach['x'] < 0 or posReach['y'] > 7 or posReach['y'] < 0):
@@ -97,11 +96,7 @@ class ChessConsumer(AsyncWebsocketConsumer):
             return "Invalid move"
 
 
-
-
-        board[posReach['y']][posReach['x']].piece = board[posPiece['y']][posPiece['x']].piece
-        board[posPiece['y']][posPiece['x']].piece = 0
-
+        move_piece(board, posPiece, posReach)
         reset_possible_moves(board)
 
         game.turn_white = not game.turn_white
@@ -114,7 +109,67 @@ class ChessConsumer(AsyncWebsocketConsumer):
 
 
 
+def move_piece(board, posPiece, posReach):
+    import app.consumers.utils.chess_class as chess_class
+
+    board[posReach['y']][posReach['x']].move = 1
+    board[posPiece['y']][posPiece['x']].move = 1
+
+    board[posReach['y']][posReach['x']].piece = board[posPiece['y']][posPiece['x']].piece
+    board[posPiece['y']][posPiece['x']].piece = 0
+
+    x = posReach['x']
+    y = posReach['y']
+
+    # handle en passant
+    # if pawn move 2 squares
+    if (isinstance(board[y][x].piece, chess_class.Pawn) and abs(y - posPiece['y']) == 2):
+        if (board[y][x].piece.color == "white"):
+            board[y+1][x].enPassant = 1
+        else:
+            board[y-1][x].enPassant = 1
+    # if do an en passant
+    if (board[y][x].enPassant and isinstance(board[y][x].piece, chess_class.Pawn)):
+        posY = 0
+        if (board[y][x].piece.color == "white"):
+            posY = y + 1
+        else:
+            posY = y - 1
+        board[posY][x].piece = 0
+
+    # handle castling (roque)
+    if (isinstance(board[y][x].piece, chess_class.King) and abs(x - posPiece['x']) == 2):
+        do_castling(board, x, y)
+
+    #handle pawn promotion
+    if (isinstance(board[y][x].piece, chess_class.Pawn) and (y == 0 or y == 7)):
+        board[y][x].piece = chess_class.Queen(board[y][x].piece.color)
+
+    remove_en_passant(board, board[y][x].piece.color)
+
+
 def reset_possible_moves(board):
     for i in range(8):
         for j in range(8):
             board[i][j].possibleMove = 0
+
+def do_castling(board, x, y):
+    import app.consumers.utils.chess_class as chess_class
+
+    if (x == 2):
+        color = board[y][0].piece.color
+        board[y][0].piece = 0
+        board[y][3].piece = chess_class.Rook(color)
+    elif (x == 6):
+        color = board[y][7].piece.color
+        board[y][7].piece = 0
+        board[y][5].piece = chess_class.Rook(color)
+
+def remove_en_passant(board, color):
+    if (color == "white"):
+        y = 3
+    else:
+        y = 5
+    for i in range(8):
+        if (board[y][i].enPassant):
+            board[y][i].enPassant = 0

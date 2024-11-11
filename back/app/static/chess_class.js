@@ -6,7 +6,6 @@ class Cell
         this.possibleMove = false;
         this.move = false;
         this.enPassant = false;
-        this.castling = false; // roque
     }
 }
 
@@ -174,15 +173,9 @@ class King {
         
         // Castling (roque)
         if (!board[y][x].move && !board[y][0].move && board[y][1].piece == null && board[y][2].piece == null && board[y][3].piece == null)
-        {
             board[y][2].possibleMove = true;
-            board[y][2].castling = true;
-        }
         if (!board[y][x].move && !board[y][7].move && board[y][5].piece == null && board[y][6].piece == null)
-        {
             board[y][6].possibleMove = true;
-            board[y][6].castling = true;
-        }
     }
 }
 

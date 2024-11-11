@@ -98,17 +98,7 @@ class Game_Chess(models.Model):
 	white_player = models.ForeignKey(User, null=True, on_delete=models.CASCADE, related_name='white_player')
 	black_player = models.ForeignKey(User, null=True, on_delete=models.CASCADE, related_name='black_player')
 	turn_white = models.BooleanField(default=True)
-
-	# def board_default():
-	# 	return {'piece': None, 'color': None}
-
-	# board = ArrayField(
-    #     ArrayField(
-    #         models.JSONField(null=True, blank=True, default=board_default),
-    #         size=8
-    #     ),
-    #     size=8
-    # )
+	status = models.CharField(max_length=20, default='waiting')
 	over = models.BooleanField(default=False)
 	winner = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name='chesswinner')
 
