@@ -22,7 +22,7 @@ function create_chess_ws(game_id)
         }
 		if (data.type == "end_game")
 		{
-			alert("Game over");
+			alert("End game", e.data);
 		}
 		if (data.type == "error")
 			error_message(data.message, 2000);

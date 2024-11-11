@@ -90,14 +90,20 @@ class ChessConsumer(AsyncWebsocketConsumer):
             return "Not your piece (STOP HACKING)"
 
 
-        # TO FINISH : check if move is valid
+        # check if move is valid
         piece.setPossibleMoves(board, posPiece['x'], posPiece['y'])
+        chess_utils.last_verif_move(board, board[posPiece['y']][posPiece['x']].piece.color, {'x': posPiece['x'], 'y': posPiece['y']})
         if board[posReach['y']][posReach['x']].possibleMove == 0:
             return "Invalid move"
 
 
         move_piece(board, posPiece, posReach)
-        reset_possible_moves(board)
+        # verif for opponent
+        if (game.turn_white):
+            chess_utils.verif_end_game(board, "black", game_id)
+        else:
+            chess_utils.verif_end_game(board, "white", game_id)
+        chess_utils.reset_possible_moves(board)
 
         game.turn_white = not game.turn_white
         game.save()
@@ -105,6 +111,9 @@ class ChessConsumer(AsyncWebsocketConsumer):
         return "good"
 
     async def move(self, event):
+        await self.send(text_data=json.dumps(event))
+
+    async def end_game(self, event):
         await self.send(text_data=json.dumps(event))
 
 
@@ -147,11 +156,6 @@ def move_piece(board, posPiece, posReach):
 
     remove_en_passant(board, board[y][x].piece.color)
 
-
-def reset_possible_moves(board):
-    for i in range(8):
-        for j in range(8):
-            board[i][j].possibleMove = 0
 
 def do_castling(board, x, y):
     import app.consumers.utils.chess_class as chess_class

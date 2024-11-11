@@ -64,6 +64,7 @@ function verif_check(cp_board, color)
 function verif_end_game(board, color)
 {
     let cp_board = Array.from(board, x => x.map(y => Object.assign({}, y)));
+    reset_possible_moves(cp_board)
     if (!can_move(cp_board, color))
     {
         if (verif_check(cp_board, color))
@@ -94,6 +95,7 @@ function can_move(cp_board, color)
             }
         }
     }
+    return false;
 }
 
 function getKingPos(board, color)
