@@ -22,10 +22,7 @@ class Pawn {
         if (this.color == 'white')
         {
             if (y == 6 && board[y-1][x].piece == null && board[y-2][x].piece == null)
-            {
                 board[y-2][x].possibleMove = true;
-                board[y-1][x].enPassant = true;
-            }
 
             if (board[y-1][x].piece == null)
                 board[y-1][x].possibleMove = true;
@@ -41,10 +38,7 @@ class Pawn {
         else if (this.color == 'black')
         {
             if (y == 1 && board[y+1][x].piece == null && board[y+2][x].piece == null)
-            {
                 board[y+2][x].possibleMove = true;
-                board[y+1][x].enPassant = true;
-            }
 
             if (board[y+1][x].piece == null)
                 board[y+1][x].possibleMove = true;

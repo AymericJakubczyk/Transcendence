@@ -167,9 +167,17 @@ function move_piece(piecePos, x, y)
     let stock = document.getElementById("cell"+piecePos.x+piecePos.y).innerHTML;
     document.getElementById("cell"+piecePos.x+piecePos.y).innerHTML = "";
     document.getElementById("cell"+x+y).innerHTML = stock;
-    piecePos = null;
 
     // handle en passant
+    // if pawn move 2 squares
+    if (board[y][x].piece.constructor.name == "Pawn" && Math.abs(y - piecePos.y) == 2)
+    {
+        if (board[y][x].piece.color == "white")
+            board[y+1][x].enPassant = true
+        else
+            board[y-1][x].enPassant = true
+    }
+    // if do an en passant
     if (board[y][x].enPassant && board[y][x].piece.constructor.name == "Pawn")
     {
         let posY = 0;
