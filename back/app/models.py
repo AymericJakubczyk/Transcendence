@@ -31,6 +31,9 @@ class User(AbstractUser):
 	pong_winrate = models.IntegerField(default=0)
 	pong_max_exchange = models.IntegerField(default=0)
 
+	# CHESS ATTRIBUTS
+	chess_rank = models.IntegerField(default=700)
+
 	class State(models.TextChoices):
 		ONLINE = 'ON'
 		OFFLINE = 'OFF'
@@ -99,8 +102,13 @@ class Game_Chess(models.Model):
 	black_player = models.ForeignKey(User, null=True, on_delete=models.CASCADE, related_name='black_player')
 	turn_white = models.BooleanField(default=True)
 	status = models.CharField(max_length=20, default='waiting')
-	over = models.BooleanField(default=False)
-	winner = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name='chesswinner')
+	winner = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='chesswinner')
+	reason_endgame = models.CharField(max_length=100, default='test', blank=True, null=True)
+
+	white_player_rank = models.IntegerField(default=0)
+	black_player_rank = models.IntegerField(default=0)
+	white_player_rank_win = models.IntegerField(default=0)
+	black_player_rank_win = models.IntegerField(default=0)
 
 class Game_Pong(models.Model):
 	player1 = models.ForeignKey(User, related_name='player1', on_delete=models.CASCADE, null=True, blank=True)
