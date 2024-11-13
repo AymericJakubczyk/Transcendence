@@ -110,6 +110,13 @@ class Game_Chess(models.Model):
 	white_player_rank_win = models.IntegerField(default=0)
 	black_player_rank_win = models.IntegerField(default=0)
 
+	def __repr__(self):
+		return f"Game {self.id} - {self.white_player.username} vs {self.black_player.username} - {self.status} - {self.winner} - {self.reason_endgame} - {self.white_player_rank} - {self.black_player_rank} - {self.white_player_rank_win} - {self.black_player_rank_win}"
+
+	def __str__(self):
+		return f"Game {self.id} - {self.white_player.username} vs {self.black_player.username} - {self.status} - {self.winner} - {self.reason_endgame} - {self.white_player_rank} - {self.black_player_rank} - {self.white_player_rank_win} - {self.black_player_rank_win}"
+
+
 class Game_Pong(models.Model):
 	player1 = models.ForeignKey(User, related_name='player1', on_delete=models.CASCADE, null=True, blank=True)
 	player1_score = models.IntegerField(default=0)

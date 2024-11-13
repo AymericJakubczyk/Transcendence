@@ -71,15 +71,17 @@ def verif_end_game(board, color, id):
             save_result_game(id, 0, 'pat')
 
 
-def save_result_game(id, winner, by):
-
-    game = get_object_or_404(Game_Chess, id=int(id))
+def save_result_game(game_id, winner, by):
+    game = get_object_or_404(Game_Chess, id=game_id)
     white_player = get_object_or_404(User, id=game.white_player.id)
     black_player = get_object_or_404(User, id=game.black_player.id)
 
-    print("[SAVE RESULT]", id, winner, by, file=sys.stderr)
+    print("[SAVE RESULT]", game_id, winner, by, file=sys.stderr)
     print("[SAVE RESULT]", game.id, game.white_player.username, game.black_player.username, file=sys.stderr)
 
+    # save player rank before game
+    game.white_player_rank = white_player.chess_rank
+    game.black_player_rank = black_player.chess_rank
 
     # calcul elo
     proba_win_pw = 1 / (1 + 10 ** ((black_player.chess_rank - white_player.chess_rank) / 400))
@@ -103,16 +105,15 @@ def save_result_game(id, winner, by):
     white_player.save()
     black_player.save()
 
-    game = get_object_or_404(Game_Chess, id=int(id))
     game.status = "finish"
     if winner == 'white':
         game.winner = game.white_player
     elif winner == 'black':
         game.winner = game.black_player
     game.reason_endgame = str(by)
-    print("[DEBUG] Saving game object", file=sys.stderr)
+    print("[DEBUG] Saving game object", game, file=sys.stderr)
     game.save()
-    print("[DEBUG] Game object saved", file=sys.stderr)
+    print("[DEBUG] Game object saved", game, file=sys.stderr)
     
     # channel_layer = get_channel_layer()
     # async_to_sync(channel_layer.group_send)(
