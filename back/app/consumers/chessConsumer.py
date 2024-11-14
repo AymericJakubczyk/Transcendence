@@ -114,8 +114,19 @@ class ChessConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps(event))
 
     async def end_game(self, event):
-        await self.save_result(event['result'], event['by'])
-        await self.send(text_data=json.dumps(event))
+        game = await self.save_result(event['result'], event['by'])
+        await self.send(text_data=json.dumps(
+            {
+                'type': 'end_game',
+                'result': event['result'],
+                'by': event['by'],
+                'white_elo': game.white_player_rank,
+                'black_elo': game.black_player_rank,
+                'white_elo_win': game.white_player_rank_win,
+                'black_elo_win': game.black_player_rank_win
+            }
+        ))
+
 
     @database_sync_to_async
     def save_result(self, winner, by):
@@ -159,6 +170,8 @@ class ChessConsumer(AsyncWebsocketConsumer):
             game.winner = game.black_player
         game.reason_endgame = str(by)
         game.save()
+
+        return game
 
 
 def move_piece(board, posPiece, posReach):

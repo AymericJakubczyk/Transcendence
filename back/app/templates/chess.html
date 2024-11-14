@@ -25,7 +25,7 @@
 		{% else %}
 			<div class="PlayerName" id="BlackPlayer">Player 1</div>
 		{% endif %}
-		<div id="board">
+		<div id="board" style="position:relative" class="d-flex flex-column align-items-center justify-content-center">
 			<script>
 				for (let y = 0; y < 8; y++) {
 					let row_div = document.createElement('div');
@@ -52,18 +52,18 @@
 					document.getElementById('board').appendChild(row_div);
 				}
 			</script>
-			<div id="chess_endgame" style="position:absolute; background:rgba(50, 50, 50, 0.7); display:none" class="endgame flex-column border border-secondary rounded w-25 h-75">
+			<div id="chess_endgame" style="position:absolute; background:rgba(50, 50, 50, 0.7); display:none" class="z-3 endgame flex-column border border-secondary rounded w-50 h-75">
 				<h1 class="text-center">Game Over</h1>
+				<div id="result" class="text-center">
+					{% if game.winner == game.white_player %}
+						<h2>WHITE WIN</h2>
+					{% elif game.winner == game.black_player %}
+						<h2>BLACK WIN</h2>
+					{% else %}
+						<h2>DRAW</h2>
+					{% endif %}
+				</div>
 				<div>
-					<div id="result">
-						{% if game.winner == game.white_player %}
-							<h2>WHITE WIN</h2>
-						{% elif game.winner == game.black_player %}
-							<h2>BLACK WIN</h2>
-						{% else %}
-							<h2>DRAW</h2>
-						{% endif %}
-					</div>
 					<div class="d-flex justify-content-around">
 						<div id="winner" class="d-flex flex-column align-items-center justify-content-center w-50">
 							<img id="winnerpp" src="{{ game.white_player.profile_picture.url }}" class="pp_game" style="height:8vw; max-height:100px">
@@ -108,8 +108,14 @@
 </div>
 <script>
 	{% if game.status == 'finish' %}
-		console.log("dispaly_chess_endgame");
-		display_chess_endgame();
+		var winner = "draw";
+		{% if game.winner == game.white_player %};
+			winner = "white";
+		{% elif game.winner == game.black_player %}
+			winner = "black";
+		{% endif %}
+		console.log("dispaly_chess_endgame", winner);
+		display_chess_endgame(winner, "{{ game.reason_endgame }}", {{ game.white_player_rank }}, {{ game.black_player_rank }}, {{ game.white_player_rank_win }}, {{ game.black_player_rank_win }});
 	{% elif game %}
 		create_chess_ws({{ game.id }});
 		var boardArray = {{ board|safe }};

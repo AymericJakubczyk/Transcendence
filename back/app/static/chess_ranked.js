@@ -24,7 +24,7 @@ function create_chess_ws(game_id)
         }
 		if (data.type == "end_game")
 		{
-			display_chess_endgame();
+			display_chess_endgame(data.winner, data.reason, data.white_elo, data.black_elo, data.white_elo_win, data.black_elo_win);
 		}
 		if (data.type == "error")
 			error_message(data.message, 2000);
@@ -36,8 +36,37 @@ function create_chess_ws(game_id)
 }
 
 
-function display_chess_endgame()
+function display_chess_endgame(winner, reason, white_elo, black_elo, white_elo_win, black_elo_win)
 {
+
+	console.log("Display endgame", winner, reason, white_elo, black_elo, white_elo_win, black_elo_win);
+
+	if (winner == "black")
+	{
+		if (winner == "white")
+			document.getElementById("result").innerHTML = "WHITE WIN";
+		else if (winner == "black")
+			document.getElementById("result").innerHTML = "BLACK WIN";
+		else
+			document.getElementById("result").innerHTML = "DRAW";
+		stock_name = document.getElementById("winnerName").innerHTML;
+		document.getElementById("winnerName").innerHTML = document.getElementById("loserName").innerHTML;
+		document.getElementById("loserName").innerHTML = stock_name;
+		stock_src = document.getElementById("winnerpp").src;
+		document.getElementById("winnerpp").src = document.getElementById("loserpp").src;
+		document.getElementById("loserpp").src = stock_src;
+		stock_rank = document.getElementById("winnerRank").innerHTML;
+		document.getElementById("winnerRank").innerHTML = document.getElementById("loserRank").innerHTML;
+		document.getElementById("loserRank").innerHTML = stock_rank;
+		document.getElementById("winnerRank").innerHTML += "<span style='color:green'> +"+black_elo_win+"</span>";
+		document.getElementById("loserRank").innerHTML += "<span style='color:red'> "+white_elo_win+"</span>";
+	}
+	else
+	{
+		document.getElementById("winnerRank").innerHTML += "<span style='color:green'> +"+white_elo_win+"</span>";
+		document.getElementById("loserRank").innerHTML += "<span style='color:red'> "+black_elo_win+"</span>";
+	}
+
 	document.getElementById("chess_endgame").style.display = "flex";
 }
 
