@@ -5,6 +5,7 @@ from .views.pong import pong
 from .views.chess import chess
 from .views.users import users, chat, profils
 from .views.views import custom_404
+from .views.web3 import sepoliaTournament
 from django.contrib.auth.views import PasswordChangeView
 from .views.api import initialize_game, move_paddle
 
@@ -46,4 +47,12 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls')),
     path('initialize-game/', initialize_game, name='initialize-game'),
     path('move-paddle/', move_paddle, name='move-paddle'),
+    
+    
+    
+    # WEB3 URLS
+    path('test/', sepoliaTournament.test, name='test'),
+    # path('register-tournament/', pong.registerTournament, name='register-tournament'),
+    
+    # path('test/', pong.test, name='test'),
 ]

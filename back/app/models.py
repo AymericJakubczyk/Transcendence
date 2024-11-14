@@ -53,6 +53,7 @@ class Tournament(models.Model):
 	host_user = models.ForeignKey(User, related_name='host_user', on_delete=models.CASCADE)
 	participants = models.ManyToManyField("User", blank=True)
 	max_users = models.IntegerField(default=8)
+	winner : 'User' = models.ForeignKey(User, related_name='winner', on_delete=models.SET_NULL, null=True, blank=True)
 	class GameState(models.TextChoices):
 		PONG = 'PONG'
 		CHESS = 'CHESS'
@@ -130,3 +131,48 @@ class Game_Pong(models.Model):
 	def __str__(self):
 		player2_name = self.player2.username if self.player2 else "No Opponent"
 		return f"Game {self.id} - {self.player1.username} vs {player2_name}"
+
+#WEB3 models
+
+class TournamentMatch(models.Model):
+	roundNumber = models.ForeignKey('TournamentRound', related_name='roundNb', on_delete=models.CASCADE)
+	tour = models.ForeignKey('Tournament', related_name='round', on_delete=models.CASCADE)
+	state = models.CharField(max_length=20, choices=[('pending', 'Pending'), ('playing', 'Playing'), ('finished', 'Finished')], default='pending')
+	identifier = models.IntegerField()
+	winner : 'User' = models.ForeignKey(User, related_name='matchWinner', on_delete=models.SET_NULL, null=True, blank=True)
+	
+	def __str__(self):
+		return f"{self.tour.name} + {self.state} + {self.date}"
+
+class TournamentRound(models.Model):
+	tournament = models.ForeignKey('Tournament', related_name='tournamentId', on_delete=models.CASCADE)
+	roundNumber = models.IntegerField()
+	matches = models.ManyToManyField('TournamentMatch', blank=True)
+	date = models.DateTimeField(null=True, blank=True)
+	
+	class Meta:
+		unique_together = ('tournament', 'roundNumber')
+
+	def __str__(self):
+		return f"{self.tour.name} + {self.roundNumber}"
+	
+class TournamentPlayer(models.Model):
+	user: 'User' = models.ForeignKey(User, related_name='TournamentRegistered' , on_delete=models.CASCADE)
+	match = models.ForeignKey('TournamentMatch', on_delete=models.CASCADE, null=True)
+	state = models.CharField(max_length=20, choices=[('eliminated', 'Eliminated'), ('playing', 'Playing')], default='eliminated')
+	
+	class Meta:
+		unique_together = ('user', 'match')
+	
+	def __str__(self):
+		return f"{self.user.username}"
+	
+class Match_Player(models.Model):
+	player : 'User' = models.ForeignKey(User, related_name='player', on_delete=models.CASCADE)
+	match = models.ForeignKey('TournamentMatch', related_name='match', on_delete=models.CASCADE, null=True, blank=True)
+	
+	class Meta:
+		unique_together = ('player', 'match')
+	
+	def __str__(self):
+		return f"{self.player.username} + {self.match.id}"

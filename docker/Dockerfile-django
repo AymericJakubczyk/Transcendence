@@ -14,4 +14,6 @@ RUN pip install daphne
 RUN pip install djangorestframework
 COPY django-setup.sh /
 RUN chmod +x django-setup.sh
+RUN pip install web3==5.31.3
+RUN pip install --upgrade parsimonious
 CMD ./django-setup.sh
