@@ -1,5 +1,6 @@
 let board = null;
 let piecePos = null;
+let last_move = null;
 let player = "white";
 
 function init_game()
@@ -135,6 +136,7 @@ function cell_click(x, y, isRanked, userColor)
         else
         {
             move_piece(piecePos, x, y);
+            piecePos = null;
             player = player == "white" ? "black" : "white";
             whosPlaying(player);
             verif_end_game(board, player);
@@ -206,6 +208,8 @@ function move_piece(piecePos, x, y)
     }
 
     remove_en_passant(board, board[y][x].piece.color);
+    update_last_move(piecePos, {'x': x, 'y': y});
+    piecePos = null;
 }
 
 function do_castling(board, x, y)
@@ -230,4 +234,21 @@ function do_castling(board, x, y)
         document.getElementById("cell7"+y).innerHTML = "";
         document.getElementById("cell5"+y).innerHTML = stock;
     }
+}
+
+function update_last_move(from, to)
+{
+    // remove last move
+    if (last_move)
+    {
+        document.getElementById("cell"+last_move.from.x+last_move.from.y).style.backgroundColor = (last_move.from.x+last_move.from.y) % 2 == 0 ? "antiquewhite" : "burlywood";
+        document.getElementById("cell"+last_move.to.x+last_move.to.y).style.backgroundColor = (last_move.to.x+last_move.to.y) % 2 == 0 ? "antiquewhite" : "burlywood";
+    } 
+    // add new last move
+    document.getElementById("cell"+from.x+from.y).style.backgroundColor = (from.x+from.y) % 2 == 0 ? "#ffff33" : "#eeee33";
+    document.getElementById("cell"+to.x+to.y).style.backgroundColor = (to.x+to.y) % 2 == 0 ? "#ffff33" : "#eeee33";
+    // #dddd33
+    // #ffff33
+
+    last_move = {'from': from, 'to': to};
 }
