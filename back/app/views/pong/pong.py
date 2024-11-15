@@ -4,11 +4,11 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from app.forms import SignupForm, LoginForm, UpdateForm
 from app.models import User, Tournament, Friend_Request, Discussion, Message, Game_Chess, Game_Pong
+from app.views.web3.sepoliaTournament import createTournament
 from django.urls import reverse as get_url
 from django.db.models import Q
 import json
 from django.http import JsonResponse, HttpResponse
-
 from app.consumers.pongTournamentConsumer import pongTournamentConsumer
 
 import sys
@@ -24,14 +24,10 @@ def pongView(request):
         return render(request, 'page_full.html', {'page':'pong.html', 'user':request.user})
     return render(request, 'pong.html', {'user':request.user})
 
-
-
 def pongModeView(request):
     if request.META.get("HTTP_HX_REQUEST") != 'true':
         return render(request, 'page_full.html', {'page':'pongMode.html', 'user':request.user})
     return render(request, 'pongMode.html', {'user':request.user})
-
-
 
 def pongTournament(request):
     print("[PONG]", request.POST, file=sys.stderr)
@@ -50,7 +46,6 @@ def pongTournament(request):
             tournament.save()
             request.user.tournament_id = tournament.id
             request.user.save()
-
 
     if 'bracket_tournament' in request.POST:
         print("making brackets", file=sys.stderr)

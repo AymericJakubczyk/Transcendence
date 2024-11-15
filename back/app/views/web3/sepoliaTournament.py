@@ -165,13 +165,6 @@ contractAddress = os.getenv('CONTRACT_ADDRESS')
 web3 = Web3(Web3.HTTPProvider(sepolia_key))
 account = Account.from_key(private_key)
 
-if (web3.isConnected()):
-	logger.info("Connected to the Ethereum node")
-else:
-	logger.error("Error connecting to the Ethereum node")
-
-print("testa", file=sys.stderr)
-
 #Add middleware (sign and send raw transaction)
 
 web3.middleware_onion.add(construct_sign_and_send_raw_middleware(account))
@@ -184,24 +177,18 @@ admin_acc = account.address
 contract = web3.eth.contract(address=contractAddress, abi=abi)
 	
 
-if (contract):
-	logger.info("Connected to the contract")
-else:
-	logger.error("Error connecting to the contract")
-
 #Record match on the blockchain
 
 def test(request):
-	print("testbb", file=sys.stderr)
 	# players = ["player1", "player2"]
 	if (web3.isConnected()):
-		logger.error("Connected to the Ethereum node")
+		print("Connected to the Ethereum node")
 	else:
-		logger.error("Error connecting to the Ethereum node")
+		print("Error connecting to the Ethereum node")
 	if (contract):
-		logger.error("Connected to the contract")
+		print("Connected to the contract")
 	else:
-		logger.error("Error connecting to the contract")
+		print("Error connecting to the contract")
 	return JsonResponse({"message": "test"})
 		
 
@@ -230,5 +217,34 @@ def get_tournament_id():
 		logger.info(f"Tournament id retrieved successfully \nID : {tournament_id}")
 	except Exception as e:
 		error = "Error getting tournament id, type of error :\n" + f"{type(e).__name__}\n" + f"Error message :\n {str(e)}\n" + "\n Traceback : \n" + traceback.format.exc()
+		logger.error(error)
+		return None
+
+def get_participants_string_array(tournament):
+	players_array = []
+
+	for participant in tournament.participants.all():
+		players_array.append(participant.username)
+	if (tournament.participants.all() % 2 == 1):
+		players_array.append("None")
+
+	return players_array
+
+
+def createTournament(players_arr):
+	print("Creating tournament", file=sys.stderr)
+	print(players_arr, file=sys.stderr)
+	tournament_id = contract.functions.createTournament(players_arr).transact(admin_acc)
+	print(tournament_id, file=sys.stderr)
+	try:
+		tournament_id = contract.functions.createTournament(players_arr).transact(admin_acc)
+		receipt = web3.eth.waitForTransactionReceipt(tournament_id)
+		if (receipt.status == 1):
+			logger.info("Tournament created successfully")
+			print_etherscan_link(tournament_id)
+		else:
+			logger.error("Error creating tournament")
+	except Exception as e:
+		error = "Error creating tournament, type of error :\n" + f"{type(e).__name__}\n" + f"Error message :\n {str(e)}\n" 
 		logger.error(error)
 		return None
