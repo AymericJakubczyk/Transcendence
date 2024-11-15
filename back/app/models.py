@@ -104,6 +104,10 @@ class Game_Chess(models.Model):
 	status = models.CharField(max_length=20, default='waiting')
 	winner = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='chesswinner')
 	reason_endgame = models.CharField(max_length=100, default='test', blank=True, null=True)
+	class Color(models.TextChoices):
+		WHITE = 'white'
+		BLACK = 'black'
+	propose_draw = models.CharField(max_length=5, choices=Color.choices, null=True, blank=True, default=None)
 
 	white_player_rank = models.IntegerField(default=0)
 	black_player_rank = models.IntegerField(default=0)

@@ -72,12 +72,30 @@ async def verif_end_game(board, id):
             print("Pat", file=sys.stderr)
             await save_result_game(id, 0, 'pat')
 
-async def resign_game(id, color):
-    if color == 'white':
-        await save_result_game(id, 'black', 'resign')
-    elif color == 'black':
-        await save_result_game(id, 'white', 'resign')
 
+@database_sync_to_async
+def propose_draw(id, color):
+    game = get_object_or_404(Game_Chess, id=id)
+    if color == 'white':
+        game.propose_draw = 'white'
+    elif color == 'black':
+        game.propose_draw = 'black'
+    game.save()
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        "ranked_chess_" + str(id),
+        {
+            'type': 'propose_draw',
+            'color': color
+        }
+    )
+
+@database_sync_to_async
+def decline_draw(id, color):
+    game = get_object_or_404(Game_Chess, id=id)
+    game.propose_draw = None
+    game.save()
+    
 
 @database_sync_to_async
 def get_color_turn(id):

@@ -36,20 +36,42 @@ class ChessConsumer(AsyncWebsocketConsumer):
         data = json.loads(text_data)
         print("[RECEIVE WS]", data, file=sys.stderr)
 
+        # check if user is in game
+        if (await self.get_white_player(self.id) == self.scope["user"]):
+            color_player = "white"
+        elif (await self.get_black_player(self.id) == self.scope["user"]):
+            color_player = "black"
+        else:
+            print("[ERROR] not in game", file=sys.stderr)
+            return
+
+        if (await self.is_finished(self.id)):
+            print("[ERROR] game is finished", file=sys.stderr)
+            return
+
         if (data['type'] == 'move'):
             await self.move_piece(data['from'], data['to'], int(self.id))
         
         elif (data['type'] == 'resign'):
             print("[RESIGN]", file=sys.stderr)
-            if (self.id):
-                if (await self.get_white_player(self.id) == self.scope["user"]):
-                    color_player = "white"
-                elif (await self.get_black_player(self.id) == self.scope["user"]):
-                    color_player = "black"
-                else:
-                    print("[ERROR] not in game", file=sys.stderr)
-                    return
-                await chess_utils.resign_game(int(self.id), color_player)
+            if (color_player == "white"):
+                winner = "black"
+            else:
+                winner = "white"
+            await chess_utils.save_result_game(int(self.id), winner, 'resign')
+        
+        elif (data['type'] == 'propose_draw'):
+            print("[PROPOSE DRAW] by ",self.scope["user"], "for", self.id, file=sys.stderr)
+            await chess_utils.propose_draw(int(self.id), color_player)
+            
+        elif (data['type'] == 'accept_draw'):
+            print("[ACCEPT DRAW] by ",self.scope["user"], "for", self.id, file=sys.stderr)
+            # verif also if draw is proposed by the opponent
+            await chess_utils.save_result_game(self.id, 0, 'agreement')
+        
+        elif (data['type'] == 'decline_draw'):
+            print("[DECLINE DRAW] by ",self.scope["user"], "for", self.id, file=sys.stderr)
+            await chess_utils.decline_draw(int(self.id), color_player)
         
     
     async def move_piece(self, posPiece, posReach, game_id):
@@ -76,6 +98,11 @@ class ChessConsumer(AsyncWebsocketConsumer):
         board = chess_utils.get_board(game_id)
         await chess_utils.verif_end_game(board, game_id)
 
+    @database_sync_to_async
+    def is_finished(self, game_id):
+        from app.models import Game_Chess
+        game = get_object_or_404(Game_Chess, id=game_id)
+        return game.status == "finish"
 
     @database_sync_to_async
     def modif_board(self, posPiece, posReach, game_id):
@@ -133,6 +160,12 @@ class ChessConsumer(AsyncWebsocketConsumer):
         from app.models import Game_Chess
         game = get_object_or_404(Game_Chess, id=game_id)
         return game.black_player
+
+    async def propose_draw(self, event):
+        if (event['color'] == "black" and await self.get_white_player(self.id) == self.scope["user"]):
+            await self.send(text_data=json.dumps(event))
+        if (event['color'] == "white" and await self.get_black_player(self.id) == self.scope["user"]):
+            await self.send(text_data=json.dumps(event))
 
     async def move(self, event):
         await self.send(text_data=json.dumps(event))

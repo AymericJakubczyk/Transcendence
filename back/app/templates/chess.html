@@ -87,24 +87,24 @@
 			</div>
 		</div>
 		{% if game and game.black_player.username == request.user.username %}
-			<div class="d-flex w-100 align-items-center" id="BlackPlayer">
+			<div id="myInfo" class="d-flex w-100 align-items-center" id="BlackPlayer">
 				<img src="{{ game.black_player.profile_picture.url }}" class="pp_game">
 				<div>
 					<h2 class="mb-0">{{ game.black_player.username }}</h2>
 					<h5>{{ game.black_player.chess_rank }}</h5>
 				</div>
 				<div class="rounded-pill m-1 p-1" style="height:fit-content; background-color:burlywood; cursor:pointer" onclick="resign()" >Resign</div>
-				<div class="rounded-pill m-1 p-1" style="height:fit-content; background-color:burlywood; cursor:pointer">Propose draw</div>
+				<div class="rounded-pill m-1 p-1" id="draw"  style="height:fit-content; background-color:burlywood; cursor:pointer" onclick="propose_draw()">Propose draw</div>
 			</div>
 		{% elif game %}
-			<div class="d-flex w-100 align-items-center" id="WhitePlayer">
+			<div id="myInfo" class="d-flex w-100 align-items-center" id="WhitePlayer">
 				<img src="{{ game.white_player.profile_picture.url }}" class="pp_game">
 				<div>
 					<h2 class="mb-0">{{ game.white_player.username }}</h2>
 					<h5>{{ game.white_player.chess_rank }}</h5>
 				</div>
 				<div class="rounded-pill m-1 p-1" style="height:fit-content; background-color:burlywood; cursor:pointer" onclick="resign()" >Resign</div>
-				<div class="rounded-pill m-1 p-1" style="height:fit-content; background-color:burlywood; cursor:pointer">Propose draw</div>
+				<div class="rounded-pill m-1 p-1" id="draw" style="height:fit-content; background-color:burlywood; cursor:pointer" onclick="propose_draw()">Propose draw</div>
 			</div>
 		{% else %}
 			<div class="PlayerName" id="WhitePlayer">Player 2</div>

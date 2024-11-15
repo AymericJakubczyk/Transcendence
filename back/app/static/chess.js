@@ -43,7 +43,6 @@ function init_ranked_game(game_board, white_turn)
         player = "white"
     else
         player = "black"
-    whosPlaying(player);
 
     board = new Array(8);
     for (let i = 0; i < 8; i++)

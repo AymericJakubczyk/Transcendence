@@ -18,7 +18,6 @@ function create_chess_ws(game_id)
         {
 			move_piece(data.from, data.to.x, data.to.y);
 			player = player == "white" ? "black" : "white";
-			whosPlaying(player);
 			if (document.getElementById("random").checked && board[data.to.y][data.to.x].piece.color != player)
 				random_move(player);
         }
@@ -26,6 +25,8 @@ function create_chess_ws(game_id)
 		{
 			display_chess_endgame(data.winner, data.reason, data.white_elo, data.black_elo, data.white_elo_win, data.black_elo_win);
 		}
+		if (data.type == "propose_draw")
+			offer_draw();
 		if (data.type == "error")
 			error_message(data.message, 2000);
     }
@@ -75,7 +76,6 @@ function display_chess_endgame(winner, reason, white_elo, black_elo, white_elo_w
 }
 
 
-
 function resign()
 {
 	chessSocket.send(JSON.stringify({
@@ -83,6 +83,38 @@ function resign()
 	}));
 }
 
+
+function propose_draw()
+{
+	chessSocket.send(JSON.stringify({
+		'type': 'propose_draw'
+	}));
+}
+
+function accept_draw()
+{
+	chessSocket.send(JSON.stringify({
+		'type': 'accept_draw'
+	}));
+}
+
+function decline_draw()
+{
+	chessSocket.send(JSON.stringify({
+		'type': 'decline_draw'
+	}));
+	document.getElementById("draw").remove();
+	document.getElementById("myInfo").innerHTML += '<div class="rounded-pill m-1 p-1" id="draw" style="height:fit-content; background-color:burlywood; cursor:pointer" onclick="propose_draw()">Propose draw</div>'
+}
+
+function offer_draw()
+{
+	document.getElementById("draw").style.background = "transparent";
+	// delete event listener
+	document.getElementById("draw").onclick = null;
+	document.getElementById("draw").removeEventListener("click", propose_draw);
+	document.getElementById("draw").innerHTML = "opponent propose draw : <button class='btn btn-success' onclick='accept_draw()'>Accept</button><button class='btn btn-danger' onclick='decline_draw()'>Decline</button>";
+}
 
 // just for testing TO DELETE
 async function random_move(player)
