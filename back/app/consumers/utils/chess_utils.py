@@ -1,8 +1,9 @@
 import app.consumers.utils.chess_class as chess_class
 from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
+from asgiref.sync import async_to_sync, sync_to_async
 from django.shortcuts import get_object_or_404
 from app.models import Game_Chess, User
+from channels.db import database_sync_to_async
 
 import sys
 import copy
@@ -54,31 +55,89 @@ def reset_possible_moves(board):
 
 
 
-def verif_end_game(board, color, id):
+async def verif_end_game(board, id):
     print("[VERIF]_end_game", file=sys.stderr)
+    color = await get_color_turn(id)
     cp_board = copy.deepcopy(board)
     reset_possible_moves(cp_board)
     if not can_move(cp_board, color):
         if verif_check(cp_board, color):
             print("Checkmate", file=sys.stderr)
             if color == 'white':
-                save_result_game(id, 'black', 'checkmate')
+                await save_result_game(id, 'black', 'checkmate')
             elif color == 'black':
-                save_result_game(id, 'white', 'checkmate')
+                await save_result_game(id, 'white', 'checkmate')
             
         else:
             print("Pat", file=sys.stderr)
-            save_result_game(id, 0, 'pat')
+            await save_result_game(id, 0, 'pat')
 
 
+@database_sync_to_async
+def get_color_turn(id):
+    game = get_object_or_404(Game_Chess, id=id)
+    if game.turn_white: 
+        return 'white' 
+    else :
+        return 'black'
+
+
+@database_sync_to_async
 def save_result_game(game_id, winner, by):
+    game = get_object_or_404(Game_Chess, id=game_id)
+    white_player = get_object_or_404(User, id=game.white_player.id)
+    black_player = get_object_or_404(User, id=game.black_player.id)
+
+    print("[SAVE RESULT]", game_id, winner, by, file=sys.stderr)
+    print("[SAVE RESULT]", game.id, game.white_player.username, game.black_player.username, file=sys.stderr)
+
+    # save player rank before game
+    game.white_player_rank = white_player.chess_rank
+    game.black_player_rank = black_player.chess_rank
+
+    # calcul elo
+    proba_win_pw = 1 / (1 + 10 ** ((black_player.chess_rank - white_player.chess_rank) / 400))
+    proba_win_pb = 1 / (1 + 10 ** ((white_player.chess_rank - black_player.chess_rank) / 400))
+    if (winner == 'white'):
+        win_elo_pw = round(20 * (1 - proba_win_pw))
+        win_elo_pb = round(20 * (0 - proba_win_pb))
+    elif (winner == 'black'):
+        win_elo_pw = round(20 * (0 - proba_win_pw))
+        win_elo_pb = round(20 * (1 - proba_win_pb))
+    else:
+        win_elo_pw = round(20 * (0.5 - proba_win_pw))
+        win_elo_pb = round(20 * (0.5 - proba_win_pb))
+    print("[ELO ADD]", win_elo_pw, win_elo_pb, file=sys.stderr)
+    game.white_player_rank_win += win_elo_pw
+    game.black_player_rank_win += win_elo_pb
+    white_player.chess_rank += win_elo_pw
+    black_player.chess_rank += win_elo_pb
+
+
+    white_player.save()
+    black_player.save()
+
+    game.status = "finish"
+    if winner == 'white':
+        game.winner = game.white_player
+    elif winner == 'black':
+        game.winner = game.black_player
+    game.reason_endgame = str(by)
+    print("[DEBUG] Saving game object", game, file=sys.stderr)
+    game.save()
+    print("[DEBUG] Game object saved", game, file=sys.stderr)
+    
     channel_layer = get_channel_layer()
     async_to_sync(channel_layer.group_send)(
         "ranked_chess_" + str(game_id),
         {
             'type': 'end_game',
-            'result': winner,
-            'by':by,            
+            'winner': winner,
+            'reason':by,     
+            'white_elo': game.white_player_rank,
+            'black_elo': game.black_player_rank,
+            'white_elo_win': game.white_player_rank_win,
+            'black_elo_win': game.black_player_rank_win       
         }
     )
 

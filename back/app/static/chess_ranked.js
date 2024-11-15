@@ -38,31 +38,35 @@ function create_chess_ws(game_id)
 
 function display_chess_endgame(winner, reason, white_elo, black_elo, white_elo_win, black_elo_win)
 {
-
 	console.log("Display endgame", winner, reason, white_elo, black_elo, white_elo_win, black_elo_win);
+
+	document.getElementById("reason_endgame").innerHTML = reason;
+
+	if (winner == "draw" || winner == 0)
+		console.log("DRAW");
+		document.getElementById("result").innerHTML = "DRAW";
+		document.getElementById("winnerRank").innerHTML += "<span style='color:green'> +"+white_elo_win+"</span>";
+		document.getElementById("loserRank").innerHTML += "<span style='color:red'> "+black_elo_win+"</span>";
 
 	if (winner == "black")
 	{
-		if (winner == "white")
-			document.getElementById("result").innerHTML = "WHITE WIN";
-		else if (winner == "black")
-			document.getElementById("result").innerHTML = "BLACK WIN";
-		else
-			document.getElementById("result").innerHTML = "DRAW";
+		document.getElementById("result").innerHTML = "BLACK WIN";
 		stock_name = document.getElementById("winnerName").innerHTML;
 		document.getElementById("winnerName").innerHTML = document.getElementById("loserName").innerHTML;
 		document.getElementById("loserName").innerHTML = stock_name;
 		stock_src = document.getElementById("winnerpp").src;
 		document.getElementById("winnerpp").src = document.getElementById("loserpp").src;
 		document.getElementById("loserpp").src = stock_src;
-		stock_rank = document.getElementById("winnerRank").innerHTML;
-		document.getElementById("winnerRank").innerHTML = document.getElementById("loserRank").innerHTML;
-		document.getElementById("loserRank").innerHTML = stock_rank;
+		document.getElementById("winnerRank").innerHTML = black_elo;
+		document.getElementById("loserRank").innerHTML = white_elo;
 		document.getElementById("winnerRank").innerHTML += "<span style='color:green'> +"+black_elo_win+"</span>";
 		document.getElementById("loserRank").innerHTML += "<span style='color:red'> "+white_elo_win+"</span>";
 	}
-	else
+	else if (winner == "white")
 	{
+		document.getElementById("result").innerHTML = "WHITE WIN";
+		document.getElementById("winnerRank").innerHTML = white_elo;
+		document.getElementById("loserRank").innerHTML = black_elo;
 		document.getElementById("winnerRank").innerHTML += "<span style='color:green'> +"+white_elo_win+"</span>";
 		document.getElementById("loserRank").innerHTML += "<span style='color:red'> "+black_elo_win+"</span>";
 	}

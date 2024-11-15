@@ -2,6 +2,7 @@ import json
 from django.shortcuts import get_object_or_404
 from channels.generic.websocket import AsyncWebsocketConsumer, WebsocketConsumer
 from channels.db import database_sync_to_async
+import app.consumers.utils.chess_utils as chess_utils
 
 import sys #for print
 
@@ -60,6 +61,9 @@ class ChessConsumer(AsyncWebsocketConsumer):
             }
         )
 
+        board = chess_utils.get_board(game_id)
+        await chess_utils.verif_end_game(board, game_id)
+
 
     @database_sync_to_async
     def modif_board(self, posPiece, posReach, game_id):
@@ -99,10 +103,6 @@ class ChessConsumer(AsyncWebsocketConsumer):
 
         move_piece(board, posPiece, posReach)
         # verif for opponent
-        if (game.turn_white):
-            chess_utils.verif_end_game(board, "black", game_id)
-        else:
-            chess_utils.verif_end_game(board, "white", game_id)
         chess_utils.reset_possible_moves(board)
 
         game.turn_white = not game.turn_white
@@ -114,64 +114,7 @@ class ChessConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps(event))
 
     async def end_game(self, event):
-        game = await self.save_result(event['result'], event['by'])
-        await self.send(text_data=json.dumps(
-            {
-                'type': 'end_game',
-                'result': event['result'],
-                'by': event['by'],
-                'white_elo': game.white_player_rank,
-                'black_elo': game.black_player_rank,
-                'white_elo_win': game.white_player_rank_win,
-                'black_elo_win': game.black_player_rank_win
-            }
-        ))
-
-
-    @database_sync_to_async
-    def save_result(self, winner, by):
-        from app.models import Game_Chess, User
-        
-        game_id = self.id
-        game = get_object_or_404(Game_Chess, id=game_id)
-        white_player = get_object_or_404(User, id=game.white_player.id)
-        black_player = get_object_or_404(User, id=game.black_player.id)
-
-        # save player rank before game
-        game.white_player_rank = white_player.chess_rank
-        game.black_player_rank = black_player.chess_rank
-
-        # calcul elo
-        proba_win_pw = 1 / (1 + 10 ** ((black_player.chess_rank - white_player.chess_rank) / 400))
-        proba_win_pb = 1 / (1 + 10 ** ((white_player.chess_rank - black_player.chess_rank) / 400))
-        if (winner == 'white'):
-            win_elo_pw = round(20 * (1 - proba_win_pw))
-            win_elo_pb = round(20 * (0 - proba_win_pb))
-        elif (winner == 'black'):
-            win_elo_pw = round(20 * (0 - proba_win_pw))
-            win_elo_pb = round(20 * (1 - proba_win_pb))
-        else:
-            win_elo_pw = round(20 * (0.5 - proba_win_pw))
-            win_elo_pb = round(20 * (0.5 - proba_win_pb))
-        print("[ELO ADD]", win_elo_pw, win_elo_pb, file=sys.stderr)
-        game.white_player_rank_win += win_elo_pw
-        game.black_player_rank_win += win_elo_pb
-        white_player.chess_rank += win_elo_pw
-        black_player.chess_rank += win_elo_pb
-
-
-        white_player.save()
-        black_player.save()
-
-        game.status = "finish"
-        if winner == 'white':
-            game.winner = game.white_player
-        elif winner == 'black':
-            game.winner = game.black_player
-        game.reason_endgame = str(by)
-        game.save()
-
-        return game
+        await self.send(text_data=json.dumps(event))
 
 
 def move_piece(board, posPiece, posReach):
