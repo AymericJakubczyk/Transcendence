@@ -76,6 +76,12 @@ function display_chess_endgame(winner, reason, white_elo, black_elo, white_elo_w
 
 
 
+function resign()
+{
+	chessSocket.send(JSON.stringify({
+		'type': 'resign'
+	}));
+}
 
 
 // just for testing TO DELETE

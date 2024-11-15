@@ -39,6 +39,18 @@ class ChessConsumer(AsyncWebsocketConsumer):
         if (data['type'] == 'move'):
             await self.move_piece(data['from'], data['to'], int(self.id))
         
+        elif (data['type'] == 'resign'):
+            print("[RESIGN]", file=sys.stderr)
+            if (self.id):
+                if (await self.get_white_player(self.id) == self.scope["user"]):
+                    color_player = "white"
+                elif (await self.get_black_player(self.id) == self.scope["user"]):
+                    color_player = "black"
+                else:
+                    print("[ERROR] not in game", file=sys.stderr)
+                    return
+                await chess_utils.resign_game(int(self.id), color_player)
+        
     
     async def move_piece(self, posPiece, posReach, game_id):
         print("[MOVE PIECE]", posPiece, posReach, file=sys.stderr)
@@ -109,6 +121,18 @@ class ChessConsumer(AsyncWebsocketConsumer):
         game.save()
 
         return "good"
+
+    @database_sync_to_async
+    def get_white_player(self, game_id):
+        from app.models import Game_Chess
+        game = get_object_or_404(Game_Chess, id=game_id)
+        return game.white_player
+
+    @database_sync_to_async
+    def get_black_player(self, game_id):
+        from app.models import Game_Chess
+        game = get_object_or_404(Game_Chess, id=game_id)
+        return game.black_player
 
     async def move(self, event):
         await self.send(text_data=json.dumps(event))
