@@ -206,6 +206,7 @@ def pongTournament(request):
                     newGame = Game_Pong()
                     newGame.tournament_round = roundcount
                     newGame.tournament_pos = roundcount * 100 + i
+                    newGame.tournament_id = tournament.id
                     newGame.save()
                     print("Game created:", newGame.tournament_round, "round,", newGame.tournament_pos, "pos.", file=sys.stderr)
                     tournament_matchs.append(newGame)
@@ -336,6 +337,8 @@ def pongGameView(request, gameID):
             pong_utils.launch_game(game.id)
             game.status = "started"
             game.save()
+            # update for put spectate btn in real time but don't work
+            # updateTournamentRoom(game.tournament_id)
             print("Game launched:", game.id, file=sys.stderr)
         else :
             game.opponent_ready = True

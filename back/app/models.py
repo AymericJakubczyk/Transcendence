@@ -141,6 +141,7 @@ class Game_Pong(models.Model):
 
 	tournament_pos = models.IntegerField(default=-1)
 	tournament_round = models.IntegerField(default=1)
+	tournament_id = models.IntegerField(default=-1)
 
 	class Meta:
 		ordering = ('tournament_pos', 'id', )

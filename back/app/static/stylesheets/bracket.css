@@ -73,6 +73,15 @@
     cursor: pointer;
 }
 
+.spectate-btn{
+    background-color: rgb(63, 154, 250);
+}
+
+.spectate-btn:hover{
+    background-color: rgb(63, 154, 250, 0.644);
+}
+
+
 .bracket-tbp{
     color: gray;
 }
