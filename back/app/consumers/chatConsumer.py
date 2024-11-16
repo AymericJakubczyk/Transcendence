@@ -82,8 +82,16 @@ class ChatConsumer(AsyncWebsocketConsumer):
         # save message in db
         await self.save_message(discu_id, sender, message, send_to)
 
-        # send websocket message to the both user of the discussion
         user_obj = {'username': sender.username, 'profile_picture': sender.profile_picture.url}
+        # if you are blocked by the user don't send the message to him (but send to you)
+        if (await self.is_blocked(sender, send_to)):
+            print("[ERROR] blocked", file=sys.stderr)
+            await self.channel_layer.group_send(
+               sender.username, {'type':'send_ws', 'type2':'message_valid', 'sender':sender.username, 'send_to': send_to,'message': message,'discu_id': discu_id,'user': user_obj}
+            )
+            return
+
+        # send websocket message to the both user of the discussion
         await self.channel_layer.group_send(
             send_to, {'type':'send_ws', 'type2':'chat_message', 'sender':sender.username, 'message':message, 'discu_id':discu_id, 'user': user_obj}
         )
@@ -104,6 +112,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
         obj.message = message
         current_discu.save() # update last_activity
         obj.save()
+
+    @database_sync_to_async
+    def is_blocked(self, sender, send_to):
+        from app.models import User
+
+        other_user =  get_object_or_404(User, username=send_to)
+        return sender in other_user.blocked_users.all()
 
     @database_sync_to_async
     def set_state(self, user, state):

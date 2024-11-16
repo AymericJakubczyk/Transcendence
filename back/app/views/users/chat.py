@@ -45,6 +45,9 @@ def chatView(request):
         print("[GET GLOBAL NOTIF]", file=sys.stderr)
         all_discussion = Discussion.objects.filter(Q(user1=current_user) | Q(user2=current_user))
         for discussion in all_discussion:
+            # if other user in discu is blocked, skip him (for see if you have notif)
+            if (discussion.get_other_user(current_user) in current_user.blocked_users.all()):
+                continue
             last_message = discussion.get_last_message()
             if last_message and not last_message.read and last_message.sender != current_user:
                 return JsonResponse({'notif': True})
@@ -93,6 +96,9 @@ def chatView(request):
     all_discussion_name = []
     all_username = []
     for discussion in all_discussion:
+        # if other user in discu is blocked, skip him (for big chat)
+        if (discussion.get_other_user(current_user) in current_user.blocked_users.all()):
+            continue
         other_username = discussion.get_other_username(current_user.username)
         other_user = get_object_or_404(User, username=other_username)
         obj = {'id': discussion.id, 'name_discu':other_username, 'last_message':discussion.get_last_message(), 'profile_picture':other_user.profile_picture, 'other_user':other_user}
@@ -247,6 +253,9 @@ def get_all_discu(current_user):
     all_discussion_name = []
     all_discussion = Discussion.objects.filter(Q(user1=current_user) | Q(user2=current_user)).order_by('-last_activity')
     for discussion in all_discussion:
+        # if other user in discu is blocked, skip him (for mini chat)
+        if (discussion.get_other_user(current_user) in current_user.blocked_users.all()):
+            continue
         other_username = discussion.get_other_username(current_user.username)
         other_user = get_object_or_404(User, username=other_username)
         last_message = discussion.get_last_message()

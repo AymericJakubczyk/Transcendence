@@ -22,7 +22,8 @@ from django.db.models import JSONField
 
 class User(AbstractUser):
 	profile_picture = models.ImageField(default='imgs/profils/creepy-cat.webp', blank=True, upload_to = 'imgs/profils/')
-	friends = models.ManyToManyField("User", blank=True)
+	friends = models.ManyToManyField('self', blank=True)
+	blocked_users = models.ManyToManyField('self', symmetrical=False, blank=True)
 	tournament_id = models.IntegerField(default=-1)
 
 	# PONG ATTRIBUTS
@@ -84,6 +85,12 @@ class Discussion(models.Model):
 			return self.user2.username
 		else :
 			return self.user1.username
+
+	def get_other_user(self, you):
+		if self.user1 == you:
+			return self.user2
+		else :
+			return self.user1
 
 	def get_last_message(self):
 		last_message = Message.objects.filter(Q(discussion=self)).last()
