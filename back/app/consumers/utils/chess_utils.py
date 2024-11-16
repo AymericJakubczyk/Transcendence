@@ -72,6 +72,21 @@ async def verif_end_game(board, id):
             print("Pat", file=sys.stderr)
             await save_result_game(id, 0, 'pat')
 
+    # check repetition
+    if await check_repetition(id):
+        await save_result_game(id, 0, 'repetition')
+
+
+@database_sync_to_async
+def check_repetition(id):
+    game = get_object_or_404(Game_Chess, id=id)
+    # get last position
+    if len(game.all_position) < 3:
+        return False
+    last_pos = game.all_position[-1]
+    print("[DEBUG] repitition", game.all_position.count(last_pos), file=sys.stderr)
+    if game.all_position.count(last_pos) >= 3:
+        return True
 
 @database_sync_to_async
 def propose_draw(id, color):

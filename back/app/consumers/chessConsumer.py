@@ -95,14 +95,10 @@ class ChessConsumer(AsyncWebsocketConsumer):
             }
         )
 
+        await self.save_move(game_id)
+
         board = chess_utils.get_board(game_id)
         await chess_utils.verif_end_game(board, game_id)
-
-    @database_sync_to_async
-    def is_finished(self, game_id):
-        from app.models import Game_Chess
-        game = get_object_or_404(Game_Chess, id=game_id)
-        return game.status == "finish"
 
     @database_sync_to_async
     def modif_board(self, posPiece, posReach, game_id):
@@ -150,6 +146,24 @@ class ChessConsumer(AsyncWebsocketConsumer):
         return "good"
 
     @database_sync_to_async
+    def save_move(self, game_id):
+        from app.models import Game_Chess
+        game = get_object_or_404(Game_Chess, id=game_id)
+        board = chess_utils.get_board(game_id)
+        # transform board in JSON
+        board_json = []
+        for i in range(8):
+            board_json.append([])
+            for j in range(8):
+                if board[i][j].piece == 0:
+                    board_json[i].append(0)
+                else:
+                    board_json[i].append(board[i][j].piece.toJSON())
+
+        game.all_position.append(board_json) 
+        game.save()
+
+    @database_sync_to_async
     def get_white_player(self, game_id):
         from app.models import Game_Chess
         game = get_object_or_404(Game_Chess, id=game_id)
@@ -160,6 +174,12 @@ class ChessConsumer(AsyncWebsocketConsumer):
         from app.models import Game_Chess
         game = get_object_or_404(Game_Chess, id=game_id)
         return game.black_player
+
+    @database_sync_to_async
+    def is_finished(self, game_id):
+        from app.models import Game_Chess
+        game = get_object_or_404(Game_Chess, id=game_id)
+        return game.status == "finish"
 
     async def propose_draw(self, event):
         if (event['color'] == "black" and await self.get_white_player(self.id) == self.scope["user"]):

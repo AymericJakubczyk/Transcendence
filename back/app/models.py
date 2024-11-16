@@ -104,6 +104,7 @@ class Game_Chess(models.Model):
 	status = models.CharField(max_length=20, default='waiting')
 	winner = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='chesswinner')
 	reason_endgame = models.CharField(max_length=100, default='test', blank=True, null=True)
+	all_position = ArrayField(models.JSONField(), null=True, blank=True, default=list)
 	class Color(models.TextChoices):
 		WHITE = 'white'
 		BLACK = 'black'
