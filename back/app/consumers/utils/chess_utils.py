@@ -10,6 +10,7 @@ import copy
 
 
 all_chess_data = {}
+all_position = {}
 
 
 def launch_game(id):
@@ -73,19 +74,36 @@ async def verif_end_game(board, id):
             await save_result_game(id, 0, 'pat')
 
     # check repetition
-    if await check_repetition(id):
+    if check_repetition(id):
         await save_result_game(id, 0, 'repetition')
 
 
-@database_sync_to_async
+def board_to_json(board):
+    board_json = []
+    for i in range(8):
+        board_json.append([])
+        for j in range(8):
+            if board[i][j].piece:
+                board_json[i].append(board[i][j].piece.toJSON())
+            else:
+                board_json[i].append(0)
+    return board_json
+
+
+def save_position(id):
+    global all_position, all_chess_data
+    if id not in all_position:
+        all_position[id] = []
+    all_position[id].append(board_to_json(all_chess_data[id]))
+
+
 def check_repetition(id):
-    game = get_object_or_404(Game_Chess, id=id)
-    # get last position
-    if len(game.all_position) < 3:
+    global all_position
+    if len(all_position[id]) < 3:
         return False
-    last_pos = game.all_position[-1]
-    print("[DEBUG] repitition", game.all_position.count(last_pos), file=sys.stderr)
-    if game.all_position.count(last_pos) >= 3:
+    last_pos = all_position[id][-1]
+    print("[DEBUG] repitition", all_position[id].count(last_pos), len(all_position[id]), file=sys.stderr)
+    if all_position[id].count(last_pos) >= 3:
         return True
 
 @database_sync_to_async
@@ -163,6 +181,7 @@ def save_result_game(game_id, winner, by):
         game.winner = game.black_player
     game.reason_endgame = str(by)
     print("[DEBUG] Saving game object", game, file=sys.stderr)
+    game.all_position = all_position[game_id]
     game.save()
     print("[DEBUG] Game object saved", game, file=sys.stderr)
     

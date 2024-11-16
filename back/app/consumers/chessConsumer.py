@@ -95,7 +95,7 @@ class ChessConsumer(AsyncWebsocketConsumer):
             }
         )
 
-        await self.save_move(game_id)
+        chess_utils.save_position(game_id)
 
         board = chess_utils.get_board(game_id)
         await chess_utils.verif_end_game(board, game_id)
@@ -145,23 +145,6 @@ class ChessConsumer(AsyncWebsocketConsumer):
 
         return "good"
 
-    @database_sync_to_async
-    def save_move(self, game_id):
-        from app.models import Game_Chess
-        game = get_object_or_404(Game_Chess, id=game_id)
-        board = chess_utils.get_board(game_id)
-        # transform board in JSON
-        board_json = []
-        for i in range(8):
-            board_json.append([])
-            for j in range(8):
-                if board[i][j].piece == 0:
-                    board_json[i].append(0)
-                else:
-                    board_json[i].append(board[i][j].piece.toJSON())
-
-        game.all_position.append(board_json) 
-        game.save()
 
     @database_sync_to_async
     def get_white_player(self, game_id):
