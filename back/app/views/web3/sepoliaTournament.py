@@ -8,6 +8,8 @@ from web3 import Web3
 from web3.middleware import SignAndSendRawMiddlewareBuilder
 from web3 import middleware
 from logging import getLogger
+import asyncio
+import time
 
 
 #ABI
@@ -166,9 +168,6 @@ account = Account.from_key(private_key)
 #Add middleware (sign and send raw transaction)
 
 web3.middleware_onion.inject(SignAndSendRawMiddlewareBuilder.build(account), layer=0)
-
-# web3.middleware_onion.add(construct_sign_and_send_raw_middleware(private_key))
-
 #Connect account to the contract
 
 admin_acc = account.address
@@ -196,18 +195,18 @@ def record_match(player1, score_1, player2, score_2):
 		token_hash = contract.functions.sendMatch(match_id).transact(admin_acc)
 		receipt = web3.eth.waitForTransactionReceipt(token_hash)
 		if (receipt.status == 1):
-			logger.info("Match recorded successfully")
+			logger.info("Match enregistre avec succes")
 			print_etherscan_link(token_hash)
 		else:
-			logger.error("Error recording match")
+			logger.error("Error lors de l'enregistrement du match")
 	except Exception as e:
-		error = "Error recording match, type of error :\n" + f"{type(e).__name__}\n" + f"Error message :\n {str(e)}\n" + "\n Traceback : \n" + traceback.format.exc()
+		error = "Error lors de l'enregistrement du match, type d'erreur :\n" + f"{type(e).__name__}\n" + f"Message d'erreur :\n {str(e)}\n" + "\n Traceback : \n" + traceback.format.exc()
 		logger.error(error)
 
 
 def print_etherscan_link(token_hash):
-	printer = "https://sepolia.etherscan.io/tx/" + token_hash.hex()
-	logger.info("Voici le lien vers la transaction : " + printer)
+	printer = "https://sepolia.etherscan.io/tx/0x" + token_hash.hex()
+	print("Voici le lien vers la transaction : " + printer, file=sys.stderr)
 
 
 def get_tournament_id():
@@ -229,11 +228,11 @@ def get_participants_arr(tournament):
 	return players_array
 
 
-
-
 def createTournament(players_arr):
+	# print("|||||||||||||||||||||||||||||||Creating tournament|||||||||||||||||||||||||||||||", file=sys.stderr)
+	# time.sleep(5)
+	# print("END CREATING", file=sys.stderr)
 	test(players_arr)
-	print("|||||||||||||||||||||||||||||||Creating tournament|||||||||||||||||||||||||||||||", file=sys.stderr)
 	print(players_arr, type(players_arr), file=sys.stderr)
 	for player in players_arr:
 		print("ALED", player, type(player), file=sys.stderr)

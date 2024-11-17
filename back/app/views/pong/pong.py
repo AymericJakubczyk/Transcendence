@@ -10,7 +10,9 @@ from django.db.models import Q
 import json, math
 from django.http import JsonResponse, HttpResponse
 from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
+from asgiref.sync import async_to_sync, sync_to_async
+import asyncio
+import threading
 
 from app.consumers.pongTournamentConsumer import pongTournamentConsumer
 
@@ -166,14 +168,12 @@ def pongTournament(request):
             tournament.save()
             request.user.tournament_id = tournament.id
             request.user.save()
-    
+
+
     # TO REMOVE
     if 'win_tournament' in request.POST:
         tournament_id = request.POST.get('win_tournament')
         tournament = Tournament.objects.get(id=tournament_id)
-        playerlist = get_participants_arr(tournament)
-        createTournament(playerlist)
-
         tournament.winner = request.user
         print("STARTING RESULTS", file=sys.stderr)
         place = 1
@@ -183,7 +183,10 @@ def pongTournament(request):
             place+= 1
         tournament.started = True
         tournament.save()
-    # ------
+
+        playerlist = get_participants_arr(tournament)
+        thread = threading.Thread(target=createTournament, args=(playerlist,))
+        thread.start()
 
     if 'bracket_tournament' in request.POST:
         print("making brackets", file=sys.stderr)
