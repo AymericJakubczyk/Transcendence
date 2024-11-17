@@ -1,7 +1,22 @@
+html, body {
+    height:100%;
+    width:100%
+}
+
 body {
     padding-left: 5vw;
     padding-right: 5vw;
     overflow-y: scroll;
+    display: flex;
+    flex-direction: column;
+}
+
+
+#page {
+    flex: 1;  /* This will make it take remaining space */
+
+    display: flex;
+    flex-direction: column;
 }
 
 .gameChoose-header{

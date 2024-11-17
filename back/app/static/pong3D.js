@@ -8,6 +8,7 @@ gameInterval = null
 var scene = undefined;
 var camera = undefined;
 var renderer = undefined;
+var group = undefined;
 
 const arenaWidth = 100
 const arenaLength = 150
@@ -90,6 +91,7 @@ function display3D()
     reverse = false
     console.log("TEST3D")
     myCanvas = document.getElementById("pongCanvas")
+    group = new THREE.Group();
 
     console.log("[SIZE]", myCanvas.clientWidth, myCanvas.clientHeight)
     console.log("[SIZE]", myCanvas.scrollWidth, myCanvas.scrollHeight)
@@ -135,7 +137,7 @@ function display3D()
         const fragmentGeometry = new THREE.SphereGeometry(ballRadius / 3, 8, 8);
         const fragmentMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff00 ,emissive:0x00ff00, emissiveIntensity: 1, transparent: true, opacity: 1});
         const fragment = new THREE.Mesh(fragmentGeometry, fragmentMaterial);
-        scene.add(fragment);
+        group.add(fragment);
         fragments.push(fragment);
     }
 
@@ -192,14 +194,15 @@ function display3D()
     light_bump_effect_wall = new THREE.RectAreaLight( 0x0000ff, 0, paddleHeight, thickness);
     
     //add objects to the scene and render
-    scene.add( ball );
-    scene.add( paddle_1, paddle_2 );
-    scene.add( paddle_1Light, paddle_2Light, light_bump_effect_wall);
-    scene.add( eastBorder, westBorder, northBorder, southBorder, plane);
-    scene.add( northWallLight, southWallLight, eastWallLight, westWallLight );
+    group.add( ball );
+    group.add( paddle_1, paddle_2 );
+    group.add( paddle_1Light, paddle_2Light, light_bump_effect_wall);
+    group.add( eastBorder, westBorder, northBorder, southBorder, plane);
+    group.add( northWallLight, southWallLight, eastWallLight, westWallLight );
 
 
     cam1()
+    scene.add( group );
 
     renderer.render( scene, camera );
 }

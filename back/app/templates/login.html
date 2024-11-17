@@ -1,0 +1,35 @@
+{% load static %}
+
+<div class="d-flex align-items-center justify-content-center" style="background-color:red; height:100%">
+    <canvas class="w-100 h-100 m-0" id="pongCanvas" height="100"></canvas>
+    <div id="test" style="position:absolute; background:rgba(50, 50, 50, 0.9); display:flex; height:40%" class="px-5 z-3 chess_endgame flex-column border border-secondary rounded">
+        <h1>LOGIN</h1>
+        <form id="myForm" hx-post="{{request.path}}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML">
+            {{ form }}
+        </form>
+        <div>
+        <input type="submit" value="LOG IN" form="myForm">
+        or <a href="{% url 'register' %}">Register here</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    display3D()
+
+    pivotPoint = new THREE.Object3D();
+    pivotPoint.position.set(arenaLength/2, arenaWidth/2, 0);
+    pivotPoint.add(group);
+    group.position.sub(new THREE.Vector3(arenaLength/2, arenaWidth/2, 0));
+    scene.add(pivotPoint);
+    /*launch calculball*/
+
+    if (gameInterval) 
+        clearInterval(gameInterval);
+    if (paddleInterval) 
+        clearInterval(paddleInterval);
+
+    gameInterval = setInterval(calculBall_animation, 10);
+    paddleInterval = setInterval(movePaddle, 10);
+    cam_animation()
+</script>
