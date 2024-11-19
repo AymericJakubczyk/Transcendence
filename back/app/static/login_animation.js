@@ -74,9 +74,7 @@ function calculBall_animation() {
 
 
     // rotate the scene around the center point of the plane
-    // group.rotation.z += 0.005
-    pivotPoint.rotation.z += 0.005
-    // group.rotateOnWorldAxis(new THREE.Vector3(10, 10, 0), 0.005)
+    pivotPoint.rotation.z += 0.003
 
 
 
@@ -94,18 +92,12 @@ function calculBall_animation() {
 
 function movePaddle()
 {
-    // random = 0
     if (dx > 0)
     {
         if (Math.abs(paddle_2.position.y - y) < 5)
             step = 0.1
         else
             step = 1
-
-        // if (step == 1)
-        //     console.log("step = 1")
-        // else
-        //     console.log("step = 0.1")
 
         if (paddle_2.position.y + random < y && paddle_2.position.y + 0.5 < arenaWidth - thickness / 2 - paddleHeight / 2)
                 paddle_2.position.y += step;

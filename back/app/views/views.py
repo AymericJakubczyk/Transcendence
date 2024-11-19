@@ -23,6 +23,7 @@ def homeView(request):
         return redirect('myprofile')
 
     form = LoginForm()
+    error = None
 
     if request.method == 'POST':
         form = LoginForm(request.POST)
@@ -35,9 +36,16 @@ def homeView(request):
                 print("login", request.user, file=sys.stderr)
                 login(request, user)
                 return redirect('myprofile')
+            else:
+                if User.objects.filter(username=form.cleaned_data['username']).exists():
+                    error = "password"
+                else:
+                    error = "username"
+                    form = LoginForm()
+
     if request.META.get("HTTP_HX_REQUEST") != 'true':
-        return render(request, 'page_full.html', {'page':'login.html', 'form':form})
-    return render(request, 'login.html', {'form':form})
+        return render(request, 'page_full.html', {'page':'login.html', 'form':form, 'error':error})
+    return render(request, 'login.html', {'form':form, 'error':error})
 
 
 def gameView(request):
