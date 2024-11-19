@@ -18,14 +18,17 @@ contract SepoliaTournament {
     }
 
     struct Match {
-        string player1;
-        uint256 player1_score;
-        string player2;
-        uint256 player2_score;
+        string Winner;
+        string Loser;
+        uint256 WinningScore;
+        uint256 LosingScore;
     }
 
     uint256 nbrTournament;
     mapping(uint256 => Tournament) private tournaments;
+
+    event publishMatch(uint256 indexed _tournamentId, string _player1, string _player2, uint256 _score1, uint256 _score2);
+
 
     constructor() {
         owner = msg.sender;
@@ -49,45 +52,57 @@ contract SepoliaTournament {
     }
 
     function isInTournament(uint256 _tournamentId, string memory player) public view returns (bool) {
-        if (_tournamentId >= nbrTournament)
+        uint256 tId = _tournamentId - 1;
+        if (tId >= nbrTournament)
             revert TournamentDoesntExist();
-        Tournament storage tournament = tournaments[_tournamentId];
+        Tournament storage tournament = tournaments[tId];
         for (uint256 i = 0; i < tournament.players.length; i++)
             if (keccak256(abi.encodePacked(player)) == keccak256(abi.encodePacked(tournament.players[i])))
                 return true;
         return false;
     }
 
-    function addMatchToTournaments(string memory _player1, string memory _player2, uint256 _score1, uint256 _score2, uint256 _tournamentId) private {
-        Tournament storage tournament = tournaments[_tournamentId];
+    function addMatchToTournaments(string memory _player1, string memory _player2, uint256 _score1, uint256 _score2, uint256 _tournamentId) public onlyOwner {
+        uint256 tId = _tournamentId - 1;
+        Tournament storage tournament = tournaments[tId];
         if (tournament.status == false)
             revert TournamentClosed();
-        if (!isInTournament(_tournamentId, _player1))
+        if (!isInTournament(tId, _player1))
             revert TournamentDoesntExist();
-        if (!isInTournament(_tournamentId, _player2))
+        if (!isInTournament(tId, _player2))
             revert TournamentDoesntExist();
-        Match memory newMatch = Match(_player1, _score1, _player2, _score2);
+        Match memory newMatch = Match({
+            Winner: _player1,
+            Loser: _player2,
+            WinningScore: _score1,
+            LosingScore: _score2
+        });
+
         tournament.matches.push(newMatch);
+        emit publishMatch(_tournamentId, _player1, _player2, _score1, _score2);
     }
 
     function getPlayers(uint256 _tournamentId) public view returns (string[] memory players) {
-        if (_tournamentId >= nbrTournament)
+        uint256 tId = _tournamentId - 1;
+        if (tId >= nbrTournament)
             revert TournamentDoesntExist();
-        Tournament storage tournament = tournaments[_tournamentId];
+        Tournament storage tournament = tournaments[tId];
         return (tournament.players);
     }
 
     function getMatches(uint256 _tournamentId) public view returns (Match[] memory matches){
-        if (_tournamentId >= nbrTournament)
+        uint256 tId = _tournamentId - 1;
+        if (tId >= nbrTournament)
             revert TournamentDoesntExist();
-        Tournament storage tournament = tournaments[_tournamentId];
+        Tournament storage tournament = tournaments[tId];
         return (tournament.matches);
     }
 
-    function closeTournament(uint256 _tournamentId) internal {
+    function closeTournament(uint256 _tournamentId) public onlyOwner {
+        uint256 tId = _tournamentId - 1;
         if (_tournamentId >= nbrTournament)
             revert TournamentDoesntExist();
-        Tournament storage tournament = tournaments[_tournamentId];
+        Tournament storage tournament = tournaments[tId];
         tournament.status = false;
     }
 }

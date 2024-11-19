@@ -1,17 +1,14 @@
 import json
 from django.shortcuts import get_object_or_404
-from channels.generic.websocket import AsyncWebsocketConsumer, WebsocketConsumer
-from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync, sync_to_async
+from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from django.db.models import Q
-from channels.consumer import SyncConsumer
 
 import sys #for print
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        print("[CONNECT]", self.scope["user"], file=sys.stderr)
+        print("[CONNECT]", self.scope["user"].username, file=sys.stderr)
         self.room_group_name = self.scope["user"].username
 
         await self.set_state(self.scope["user"], "online")
@@ -21,41 +18,25 @@ class ChatConsumer(AsyncWebsocketConsumer):
             self.channel_name
         )
 
-        await self.channel_layer.group_send(
-            self.room_group_name,
-            {
-                'type': 'connect_message',
-                'statut': 'connect',
-                'sender': self.scope["user"].username,
-            }
-        )
-
-        all_username =  await self.get_all()
-
-        for username in all_username:
-            await self.channel_layer.group_send(
-                username,
-                {
-                    'type': 'connect_message',
-                    'statut': 'connect',
-                    'sender': self.scope["user"].username,
-                }
-        )
         await self.accept()
 
-    async def disconnect(self, close_code):
-        print("[DISCONNECT]", file=sys.stderr)
-        await self.set_state(self.scope["user"], "offline")
+        # send to all friend user that the user is connected for update the state in real time
         all_username =  await self.get_all()
-
         for username in all_username:
             await self.channel_layer.group_send(
-                username,
-                {
-                    'type': 'connect_message',
-                    'statut': 'disconnect',
-                    'sender': self.scope["user"].username,
-                }
+                username, {'type':'send_ws', 'type2':'connect', 'sender':self.scope["user"].username}
+            )
+
+
+    async def disconnect(self, close_code):
+        print("[DISCONNECT]", self.scope["user"].username, file=sys.stderr)
+        await self.set_state(self.scope["user"], "offline")
+
+        # send to all friend user that the user is disconnected for update the state in real time
+        all_username =  await self.get_all()
+        for username in all_username:
+            await self.channel_layer.group_send(
+                username, {'type':'send_ws', 'type2':'disconnect', 'sender': self.scope["user"].username}
         )
 
         await self.channel_layer.group_discard(
@@ -63,14 +44,31 @@ class ChatConsumer(AsyncWebsocketConsumer):
             self.channel_name
         )
 
-    async def receive(self, text_data):
-        text_data_json = json.loads(text_data)
-        print("[RECEIVE WS]", text_data_json, file=sys.stderr)
 
-        sender = self.scope["user"].username
-        message = text_data_json['message']
-        send_to = text_data_json['send_to']
-        discu_id = text_data_json['discu_id']
+    async def receive(self, text_data):
+        data = json.loads(text_data)
+        print("[RECEIVE WS]", data , text_data, file=sys.stderr)
+
+        if (not data.get('type')):
+            print("[ERROR] type not found", file=sys.stderr)
+            return
+            
+        if (data['type'] == 'message'):
+            await self.verif_and_send_msg(data)
+
+        if (data['type'] == "decline"):
+            sender = await self.decline_invatation(data['id'])
+            await self.channel_layer.group_send(
+                sender.username,{'type':'send_ws' ,'type2':'decline', 'id':data['id']}
+            )
+
+
+    async def verif_and_send_msg(self, data):
+        print("[VERIF AND SEND MSG]", data, file=sys.stderr)
+        sender = self.scope["user"]
+        message = data['message']
+        send_to = data['send_to']
+        discu_id = data['discu_id']
         if (message == "" or len(message) > 420):
             if (message == ""):
                 error_message = "Empty message"
@@ -78,40 +76,29 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 error_message = "Message too long (max 420 characters)"
             print("[ERROR MESSAGE]", error_message, file=sys.stderr)
             await self.channel_layer.group_send(
-                self.scope["user"].username,
-                {
-                    'type': 'error_message',
-                    'message': error_message,
-                }
+                sender.username, {'type':'send_ws', 'type2':'error_message', 'message':error_message,}
             )
             return
         # save message in db
         await self.save_message(discu_id, sender, message, send_to)
 
-        user = self.scope["user"]
-        user_obj = {'username': user.username, 'profile_picture': user.profile_picture.url}
-        # send websocket message
+        user_obj = {'username': sender.username, 'profile_picture': sender.profile_picture.url}
+        # if you are blocked by the user don't send the message to him (but send to you)
+        if (await self.is_blocked(sender, send_to)):
+            print("[ERROR] blocked", file=sys.stderr)
+            await self.channel_layer.group_send(
+               sender.username, {'type':'send_ws', 'type2':'message_valid', 'sender':sender.username, 'send_to': send_to,'message': message,'discu_id': discu_id,'user': user_obj}
+            )
+            return
+
+        # send websocket message to the both user of the discussion
         await self.channel_layer.group_send(
-            send_to,
-            {
-                'type': 'chat_message',
-                'sender': sender,
-                'message': message,
-                'discu_id': discu_id,
-                'user': user_obj
-            }
+            send_to, {'type':'send_ws', 'type2':'chat_message', 'sender':sender.username, 'message':message, 'discu_id':discu_id, 'user': user_obj}
         )
         await self.channel_layer.group_send(
-            sender,
-            {
-                'type': 'message_valid',
-                'sender': sender,
-                'send_to': send_to,
-                'message': message,
-                'discu_id': discu_id,
-                'user': user_obj
-            }
+            sender.username, {'type':'send_ws', 'type2':'message_valid', 'sender':sender.username, 'send_to': send_to,'message': message,'discu_id': discu_id,'user': user_obj}
         )
+
 
     @database_sync_to_async
     def save_message(self, discu_id, sender, message, send_to):
@@ -121,10 +108,17 @@ class ChatConsumer(AsyncWebsocketConsumer):
         interlocutor =  get_object_or_404(User, username=send_to)
         obj = Message()
         obj.discussion = current_discu
-        obj.sender =  get_object_or_404(User, username=sender)
+        obj.sender =  get_object_or_404(User, username=sender.username)
         obj.message = message
         current_discu.save() # update last_activity
         obj.save()
+
+    @database_sync_to_async
+    def is_blocked(self, sender, send_to):
+        from app.models import User
+
+        other_user =  get_object_or_404(User, username=send_to)
+        return sender in other_user.blocked_users.all()
 
     @database_sync_to_async
     def set_state(self, user, state):
@@ -149,44 +143,18 @@ class ChatConsumer(AsyncWebsocketConsumer):
         for discussion in all_discussion:
             all_username.append(discussion.get_other_username(current_user.username))
         return all_username
-        
 
-    async def connect_message(self, event):
-        print("[SEND WS]", event, file=sys.stderr)
+    @database_sync_to_async
+    def decline_invatation(self, id):
+        from app.models import Invite
 
-        await self.send(text_data=json.dumps({
-            'type': event['statut'],
-            'sender': event['sender']
-        }))
+        invitation = get_object_or_404(Invite, id=id)
+        stock_sender = invitation.from_user
+        invitation.delete()
+        return stock_sender
 
-    async def chat_message(self, event):
-        print("[SEND WS]", event, file=sys.stderr)
-        await self.send(text_data=json.dumps({
-            'type': 'chat',
-            'message': event['message'],
-            'sender': event['sender'],
-            'discu_id': event['discu_id'],
-            'user': event['user']
-        }))
 
-    async def message_valid(self, event):
-        print("[SEND WS]", event, file=sys.stderr)
-        await self.send(text_data=json.dumps({
-            'type': 'message_valid',
-            'message': event['message'],
-            'sender': event['sender'],
-            'send_to': event['send_to'],
-            'discu_id': event['discu_id'],
-            'user': event['user']
-        }))
-
-    async def error_message(self, event):
-        print("[SEND WS]", event, file=sys.stderr)
-        await self.send(text_data=json.dumps({
-            'type': 'error',
-            'message': event['message'],
-        }))
-
-    async def invite(self, event):
-        print("[SEND WS]", event, file=sys.stderr)
+    async def send_ws(self, event):
+        print("[SEND CHAT WS]", event, file=sys.stderr)
+        event['type'] = event['type2']
         await self.send(text_data=json.dumps(event))

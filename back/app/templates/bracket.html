@@ -27,8 +27,10 @@
                             {% endif %}
                         </div>
                         {% if not game.winner %}
-                            {% if game.player1 == user or game.player2 == user %}
-                                <button class="bracket_match_state bracket-button-connect">CONNECT</button>
+                            {% if game.player1 == user and game.player2 or game.player2 == user and game.player1 %}
+                                <button class="bracket_match_state bracket-button-connect" hx-get="{% url 'pong_game' gameID=game.id %}" hx-target="#page" hx-push-url="true">CONNECT</button>
+                            {% elif game.status == 'started' %}
+                                <button class="bracket_match_state bracket-button-connect spectate-btn" hx-get="{% url 'pong_game' gameID=game.id %}" hx-target="#page" hx-push-url="true">SPECTATE</button>
                             {% else %}
                                 <span class="bracket_match_state bracket-tbp">TO BE PLAYED</span>
                             {% endif %}
@@ -68,8 +70,10 @@
                         {% endif %}
                     </div>
                     {% if not game.winner %}
-                        {% if game.player1 == user or game.player2 == user %}
-                            <button class="bracket_match_state bracket-button-connect">CONNECT</button>
+                        {% if game.player1 == user and game.player2 or game.player2 == user and game.player1 %}
+                            <button class="bracket_match_state bracket-button-connect" hx-get="{% url 'pong_game' gameID=game.id %}" hx-target="#page" hx-push-url="true">CONNECT</button>
+                        {% elif game.status == 'started' %}
+                            <button class="bracket_match_state bracket-button-connect spectate-btn" hx-get="{% url 'pong_game' gameID=game.id %}" hx-target="#page" hx-push-url="true">SPECTATE</button>
                         {% else %}
                             <span class="bracket_match_state bracket-tbp">TO BE PLAYED</span>
                         {% endif %}
@@ -109,8 +113,10 @@
                         {% endif %}
                     </div>
                     {% if not game.winner %}
-                        {% if game.player1 == user or game.player2 == user %}
-                            <button class="bracket_match_state bracket-button-connect">CONNECT</button>
+                        {% if game.player1 == user and game.player2 or game.player2 == user and game.player1 %}
+                            <button class="bracket_match_state bracket-button-connect" hx-get="{% url 'pong_game' gameID=game.id %}" hx-target="#page" hx-push-url="true">CONNECT</button>
+                        {% elif game.status == 'started' %}
+                            <button class="bracket_match_state bracket-button-connect spectate-btn" hx-get="{% url 'pong_game' gameID=game.id %}" hx-target="#page" hx-push-url="true">SPECTATE</button>
                         {% else %}
                             <span class="bracket_match_state bracket-tbp">TO BE PLAYED</span>
                         {% endif %}
@@ -150,8 +156,10 @@
                         {% endif %}
                     </div>
                     {% if not game.winner %}
-                        {% if game.player1 == user or game.player2 == user %}
-                            <button class="bracket_match_state bracket-button-connect">CONNECT</button>
+                        {% if game.player1 == user and game.player2 or game.player2 == user and game.player1 %}
+                            <button class="bracket_match_state bracket-button-connect" hx-get="{% url 'pong_game' gameID=game.id %}" hx-target="#page" hx-push-url="true">CONNECT</button>
+                        {% elif game.status == 'started' %}
+                            <button class="bracket_match_state bracket-button-connect spectate-btn" hx-get="{% url 'pong_game' gameID=game.id %}" hx-target="#page" hx-push-url="true">SPECTATE</button>
                         {% else %}
                             <span class="bracket_match_state bracket-tbp">TO BE PLAYED</span>
                         {% endif %}
@@ -191,8 +199,10 @@
                         {% endif %}
                     </div>
                     {% if not game.winner %}
-                        {% if game.player1 == user or game.player2 == user %}
-                            <button class="bracket_match_state bracket-button-connect">CONNECT</button>
+                        {% if game.player1 == user and game.player2 or game.player2 == user and game.player1 %}
+                            <button class="bracket_match_state bracket-button-connect" hx-get="{% url 'pong_game' gameID=game.id %}" hx-target="#page" hx-push-url="true">CONNECT</button>
+                        {% elif game.status == 'started' %}
+                            <button class="bracket_match_state bracket-button-connect spectate-btn" hx-get="{% url 'pong_game' gameID=game.id %}" hx-target="#page" hx-push-url="true">SPECTATE</button>
                         {% else %}
                             <span class="bracket_match_state bracket-tbp">TO BE PLAYED</span>
                         {% endif %}

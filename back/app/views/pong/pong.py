@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from app.forms import SignupForm, LoginForm, UpdateForm
 from app.models import User, Tournament, Friend_Request, Discussion, Message, Game_Chess, Game_Pong
-from app.views.web3.sepoliaTournament import createTournament, get_participants_arr
+from app.views.web3.sepoliaTournament import createTournament, get_participants_arr, record_match
 from django.urls import reverse as get_url
 from django.db.models import Q
 import json, math
@@ -23,6 +23,7 @@ from django.contrib import messages
 logger = logging.getLogger(__name__)
 
 
+list_waiter = []
 
 def pongView(request):
     if request.META.get("HTTP_HX_REQUEST") != 'true':
@@ -68,9 +69,9 @@ def moveWinners(tournament_matchs):
     for game in tournament_matchs:
         if (game.winner):
             if (game.tournament_pos % 2 == 1):
-                new_game_pos = 100 + game.tournament_pos
+                new_game_pos = game.tournament_pos // 100 * 100 + 100 + (game.tournament_pos % 100 + 1) // 2
             else :
-                new_game_pos = 100 + game.tournament_pos - 1
+                new_game_pos = game.tournament_pos // 100 * 100 + 100 + game.tournament_pos % 100 // 2
 
             for game_obj in tournament_matchs:
                 if (game_obj.tournament_pos == new_game_pos):
@@ -184,10 +185,6 @@ def pongTournament(request):
         tournament.started = True
         tournament.save()
 
-        playerlist = get_participants_arr(tournament)
-        thread = threading.Thread(target=createTournament, args=(playerlist,))
-        thread.start()
-
     if 'bracket_tournament' in request.POST:
         print("making brackets", file=sys.stderr)
         tournament_id = request.POST.get('bracket_tournament')
@@ -198,6 +195,10 @@ def pongTournament(request):
             print("\tPlayer:", player.username, file=sys.stderr)
 
         playercount = tournament.participants.count()
+        #CREATE TOURNAMENT ON BLOCKCHAIN
+        playerlist = get_participants_arr(tournament)
+        thread = threading.Thread(target=createTournament, args=(playerlist,))
+        thread.start()
         # TO CHANGE TO 2
         if playercount > 1:
             playerlist = seedPlayers(tournament.participants.all())
@@ -210,6 +211,7 @@ def pongTournament(request):
                     newGame = Game_Pong()
                     newGame.tournament_round = roundcount
                     newGame.tournament_pos = roundcount * 100 + i
+                    newGame.tournament_id = tournament.id
                     newGame.save()
                     print("Game created:", newGame.tournament_round, "round,", newGame.tournament_pos, "pos.", file=sys.stderr)
                     tournament_matchs.append(newGame)
@@ -295,23 +297,54 @@ def pongTournament(request):
 
 
 def pongFoundGameView(request):
+    import app.consumers.utils.pong_utils as pong_utils
+
+    # if list_waiter length is zero, add user to list_waiter
+    if len(list_waiter) == 0:
+        list_waiter.append(request.user)
+    
+    # else remove user from list_waiter, create game redirect to game, and send match_found to wainting user
+    else:
+        opponent = list_waiter[0]
+        list_waiter.pop(0)
+        game = Game_Pong()
+        game.player1 = opponent
+        game.player2 = request.user
+        game.save()
+        print("Game created:", game.id, file=sys.stderr)
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            opponent.username,
+            {
+                'type': 'send_ws',
+                'type2': 'match_found',
+                'game_type': 'pong',
+                'game_id': game.id
+            }
+        )
+        pong_utils.launch_game(game.id)
+        game.status = "started"
+        game.save()
+        print("Game launched:", game.id, file=sys.stderr)
+        return redirect('pong_game', gameID=game.id)
+
     if request.META.get("HTTP_HX_REQUEST") != 'true':
-        return render(request, 'page_full.html', {'page':'pongFoundGame.html', 'user':request.user})
-    return render(request, 'pongFoundGame.html', {'user':request.user})
+        return render(request, 'page_full.html', {'page':'waiting_game.html', 'user':request.user})
+    return render(request, 'waiting_game.html', {'user':request.user})
 
 def pongGameView(request, gameID):
+    import app.consumers.utils.pong_utils as pong_utils
+
     game = get_object_or_404(Game_Pong, id=gameID)
     if (game.tournament_pos != -1 ):
-        # need to add more secure to check which player is joining the game
-        if (game.opponent_ready):
-            channel_layer = get_channel_layer()
-            async_to_sync(channel_layer.group_send)(
-                "ranked_pong_" + str(gameID),
-                {
-                    "type": "join_tournament_game",
-                    "id": gameID
-                }
-            )
+        # need to add more secure to check which player is joining the game (because if you refresh page while you wait for opponent, you launch the game alone)
+        if (game.opponent_ready and game.status == "waiting"):
+            pong_utils.launch_game(game.id)
+            game.status = "started"
+            game.save()
+            # update for put spectate btn in real time but don't work
+            # updateTournamentRoom(game.tournament_id)
+            print("Game launched:", game.id, file=sys.stderr)
         else :
             game.opponent_ready = True
             game.save()
@@ -319,4 +352,3 @@ def pongGameView(request, gameID):
     if request.META.get("HTTP_HX_REQUEST") != 'true':
         return render(request, 'page_full.html', {'page':'pong_ranked.html', 'user':request.user, 'game':game, 'gameID':gameID})
     return render(request, 'pong_ranked.html', {'user':request.user, 'game':game, 'gameID':gameID})
-

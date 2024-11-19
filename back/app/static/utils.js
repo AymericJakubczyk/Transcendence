@@ -22,6 +22,22 @@ window.addEventListener('htmx:beforeSwap', function(evt) {
         pongSocket.close()
         pongSocket = null
     }
+    if (old_path.startsWith("/game/pong/multiplayer/") && !new_path.startsWith("/game/pong/multiplayer/"))
+    {
+        console.log("[WS PONG MULTI] socket closed")
+        pongMultiSocket.close()
+        pongMultiSocket = null
+    }
+    if (old_path == "/invite/" && pongSocket)
+    {
+        pongSocket.close()
+        pongSocket = null
+    }
+    if (old_path == "/game/pong/tournament/" && pongTournamentSocket)
+    {
+        pongTournamentSocket.close()
+        pongTournamentSocket = null
+    }
 });
 
 function htmx_request(url, method, values)

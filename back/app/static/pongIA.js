@@ -32,6 +32,9 @@ function startIAGame()
 
     
     display3D()
+    if (gameInterval)
+        clearInterval(gameInterval)
+    gameInterval = setInterval(calculBall, 10);
     
     // =================do IA things====================================
     // acces to the position of the IA paddle with paddle_2.position.y

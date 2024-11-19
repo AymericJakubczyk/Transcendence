@@ -18,39 +18,27 @@ function display_addable_discussion()
 
 function set_global_notif()
 {
-    const notif = document.createElement("div");
-    notif.setAttribute('id', 'mini_global_notif');
-    notif.setAttribute('class', 'bg-danger text-light rounded-circle');
-    notif.setAttribute('style', 'clip-path: ellipse(50% 50%);width:20px;height:20px;position: absolute; left: 5px;top: 5px;text-align: center;');
-    notif.innerHTML = "!";
-
-    url = "/mini_chat/"
+    url = "/chat/?" + new URLSearchParams({type: "get_global_notif"}).toString()
     fetch(url, {
-        method:'POST',
-        headers:{
-         'Content-Type':'application/json',
-         'X-CSRFToken':csrftoken,
-        }, 
-        body:JSON.stringify({'type':'get_global_notif'})
+        method:'GET',
+        headers:{'Content-Type':'application/json'}
     })
     .then(response => response.json())
     .then(data => {
+        console.log("[GLOBAL NOTIF]", data)
         if (data.notif == true) //add global notif
         {
-            if (document.getElementById("mini_chat") && !document.getElementById("mini_global_notif") && !document.getElementById("mini_headbar"))
-                document.getElementById("mini_chat").append(notif);
-            cpy_notif = notif.cloneNode(true)
-            cpy_notif.setAttribute('id', 'global_notif');
-            cpy_notif.setAttribute('style', 'clip-path: ellipse(50% 50%);width:20px;height:20px;position: absolute; left: -10px;top: -10px;text-align: center;');
-            if (document.getElementById("chat_headbar") && !document.getElementById("global_notif"))
-                document.getElementById("chat_headbar").append(cpy_notif);
+            if (document.getElementById("global_notif"))
+                document.getElementById("global_notif").hidden = false
+            if (document.getElementById("global_mini_notif"))
+                document.getElementById("global_mini_notif").hidden = false
         }
         else if (data.notif == false) //remove global notif
         {
             if (document.getElementById("global_notif"))
-                document.getElementById("global_notif").remove()
-            if (document.getElementById("mini_global_notif"))
-                document.getElementById("mini_global_notif").remove()
+                document.getElementById("global_notif").hidden = true
+            if (document.getElementById("global_mini_notif"))
+                document.getElementById("global_mini_notif").hidden = true
         }
     });
 }
@@ -131,16 +119,10 @@ function detect_scroll(id)
             div_all_msg.prepend(loader);
             await new Promise(r => setTimeout(r, 500)); // wait 0.5s for loader to be displayed same if request is fast
 
-            url = "/chat/"
+            url = "/chat/?" + new URLSearchParams({type: "more_message", nbrMessage: nbr_message, id: id}).toString()
             fetch(url, {
                 method:'GET',
-                headers:{
-                'Content-Type':'application/json',
-                'X-CSRFToken':csrftoken,
-                'type':'more_message',
-                'nbrMessage':nbr_message,
-                'id':id
-                }
+                headers:{'Content-Type':'application/json'}
             })
             .then(response => response.json())
             .then(data => {
@@ -216,6 +198,7 @@ function make_discu(send_to, id)
     for (i = 0; i < 100; i++)
     {
         const obj = {
+            'type': 'message',
             'message': i.toString(),
             'send_to': send_to,
             'discu_id': id

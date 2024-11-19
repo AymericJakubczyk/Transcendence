@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User, Friend_Request, Discussion, Message, Game_Chess, Tournament, Game_Pong, Invite
+from .models import User, Friend_Request, Discussion, Message, Game_Chess, Tournament, Game_Pong, Invite, PongMultiDataGame
 
 # Register your models here.
 
@@ -17,3 +17,4 @@ admin.site.register(Game_Chess)
 admin.site.register(Tournament)
 admin.site.register(Game_Pong)
 admin.site.register(Invite, InviteAdmin)
+admin.site.register(PongMultiDataGame)
