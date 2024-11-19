@@ -21,10 +21,6 @@ function join_pong_game(game_data, player)
 		console.log("[WS PONG] The connection has been closed successfully.");
         pongSocket = null;
 	}
-
-    if (gameInterval)
-        clearInterval(gameInterval)
-    gameInterval = setInterval(function() { catch_input(player) }, 10);
 }
 
 function receive_pong_ws(data)
@@ -150,12 +146,16 @@ function join_ranked_pong(game, you)
         {
             e.preventDefault()  // prevent scrolling with arrow keys when you played
             cmd1.classList.add("pressed")
+            if (upPressed == false)
+                send_input_move("up", true)
             upPressed = true;
         }
         else if (e.key === "ArrowDown" || e.key === "ArrowRight")
         {
             e.preventDefault()  // prevent scrolling with arrow keys when you played
             cmd2.classList.add("pressed")
+            if (downPressed == false)
+                send_input_move("down", true)
             downPressed = true;
         }
     }
@@ -165,11 +165,13 @@ function join_ranked_pong(game, you)
         {
             cmd1.classList.remove("pressed")
             upPressed = false;
+            send_input_move("up", false)
         }
         else if (e.key === "ArrowDown" || e.key === "ArrowRight")
         {
             cmd2.classList.remove("pressed")
             downPressed = false;
+            send_input_move("down", false)
         }
     }
 
@@ -177,13 +179,6 @@ function join_ranked_pong(game, you)
     display_ranked(game, you)
 }
 
-function catch_input(player)
-{
-    if (upPressed)
-        move_paddle("up", player)
-    else if (downPressed)
-        move_paddle("down", player)  
-}
 
 function display_ranked(game, you)
 {
@@ -192,13 +187,14 @@ function display_ranked(game, you)
         reverse_cam()
 }
 
-function move_paddle(move, player)
+function send_input_move(move, pressed)
 {
     const obj = {
         'type': 'move_paddle',
-        'player': player,
-        'move': move
+        'move': move,
+        'pressed': pressed
     };
-    pongSocket.send(JSON.stringify(obj))
+    if (pongSocket)
+        pongSocket.send(JSON.stringify(obj))
 }
 

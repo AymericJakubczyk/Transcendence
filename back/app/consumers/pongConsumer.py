@@ -1,11 +1,15 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
+from channels.db import database_sync_to_async
+from django.shortcuts import get_object_or_404
 from .utils import pong_utils
 
 import sys #for print
 
 class PongConsumer(AsyncWebsocketConsumer):
     id = None
+    player1 = None
+    player2 = None
 
     async def connect(self):
         print("[CONNECT PONG RANKED]", self.scope["user"], file=sys.stderr)
@@ -13,6 +17,8 @@ class PongConsumer(AsyncWebsocketConsumer):
 
         if "id" in self.scope["url_route"]["kwargs"]:
             self.id = self.scope["url_route"]["kwargs"]["id"]
+            self.player1 = await self.get_player1()
+            self.player2 = await self.get_player2()
             print("[GAME ID]", self.id, file=sys.stderr)
             self.room_group_name = "ranked_pong_" + str(self.id)
         else:
@@ -36,9 +42,35 @@ class PongConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
-        if (text_data_json['type'] == 'move_paddle'):
-            await pong_utils.move_paddle(text_data_json['move'], text_data_json['player'], int(self.id))
+        # print("[RECEIVE PONG RANKED]", text_data_json, file=sys.stderr)
 
+        player = 0
+        if self.scope["user"] == self.player1:
+            player = 1
+        elif self.scope["user"] == self.player2:
+            player = 2
+        
+        if player == 0:
+            print("[ERROR] player not in game", file=sys.stderr)
+            return
+
+        if (text_data_json['type'] == 'move_paddle'):
+            await pong_utils.move_paddle(text_data_json['move'], text_data_json['pressed'], player, int(self.id))
+
+
+    @database_sync_to_async
+    def get_player1(self):
+        from app.models import Game_Pong
+
+        game = get_object_or_404(Game_Pong, id=self.id)
+        return game.player1
+
+    @database_sync_to_async
+    def get_player2(self):
+        from app.models import Game_Pong
+
+        game = get_object_or_404(Game_Pong, id=self.id)
+        return game.player2
 
 
     # ======================== SENDER ======================== #

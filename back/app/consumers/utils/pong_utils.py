@@ -28,6 +28,10 @@ class PongData():
         self.paddle2_y = arenaWidth / 2
         self.score_player1 = 0
         self.score_player2 = 0
+        self.player1_up = False
+        self.player1_down = False
+        self.player2_up = False
+        self.player2_down = False
 
 
 @async_to_sync
@@ -54,8 +58,20 @@ async def calcul_ball(id):
 
     while True:
         await asyncio.sleep(0.01)  # Wait for 0.01 second
+
         all_data[id].ball_x += all_data[id].ball_dx
         all_data[id].ball_y += all_data[id].ball_dy
+
+        # Gestion des mouvements des paddles
+        if (all_data[id].player1_up  and all_data[id].paddle1_y + 0.6 < arenaWidth - thickness / 2 - paddleHeight / 2):
+            all_data[id].paddle1_y += 0.6
+        if (all_data[id].player1_down and all_data[id].paddle1_y - 0.6 > thickness / 2 + paddleHeight / 2):
+            all_data[id].paddle1_y -= 0.6
+        if (all_data[id].player2_up and all_data[id].paddle2_y - 0.6 > thickness / 2 + paddleHeight / 2):
+            all_data[id].paddle2_y -= 0.6
+        if (all_data[id].player2_down and all_data[id].paddle2_y + 0.6 < arenaWidth - thickness / 2 - paddleHeight / 2):
+            all_data[id].paddle2_y += 0.6
+
         await send_updates(id)
 
         # Gestion des collisions avec les murs
@@ -180,20 +196,27 @@ def get_username_of_game(game_id):
     return game.player1.username, game.player2.username
 
 
-async def move_paddle(move, player, id):
+async def move_paddle(move, pressed, player, id):
     global all_data, arenaWidth, paddleHeight
+
     if (player == 1):
-        if (move == 'up' and all_data[id].paddle1_y + 0.6 < arenaWidth - thickness / 2 - paddleHeight / 2):
-            all_data[id].paddle1_y += 0.6
-        if (move == 'down' and all_data[id].paddle1_y - 0.6 > thickness / 2 + paddleHeight / 2):
-            all_data[id].paddle1_y -= 0.6
+        if (move == 'up' and pressed):
+            all_data[id].player1_up = True
+        if (move == 'down' and pressed):
+            all_data[id].player1_down = True
+        if (move == 'up' and not pressed):
+            all_data[id].player1_up = False
+        if (move == 'down' and not pressed):
+            all_data[id].player1_down = False
     if (player == 2):
-        if (move == 'up' and all_data[id].paddle2_y - 0.6 > thickness / 2 + paddleHeight / 2):
-            all_data[id].paddle2_y -= 0.6
-        if (move == 'down' and all_data[id].paddle2_y + 0.6 < arenaWidth - thickness / 2 - paddleHeight / 2):
-            all_data[id].paddle2_y += 0.6
-    
-    await send_updates(id)
+        if (move == 'up' and pressed):
+            all_data[id].player2_up = True
+        if (move == 'down' and pressed):
+            all_data[id].player2_down = True
+        if (move == 'up' and not pressed):
+            all_data[id].player2_up = False
+        if (move == 'down' and not pressed):
+            all_data[id].player2_down = False
 
 
 async def goal(player, id):
