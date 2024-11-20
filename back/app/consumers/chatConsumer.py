@@ -24,7 +24,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         all_username =  await self.get_all()
         for username in all_username:
             await self.channel_layer.group_send(
-                username, {'type':'send_ws', 'type2':'connect', 'sender':self.scope["user"].username}
+                username, {'type':'send_ws', 'type2':'online', 'sender':self.scope["user"].username}
             )
 
 
@@ -36,7 +36,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         all_username =  await self.get_all()
         for username in all_username:
             await self.channel_layer.group_send(
-                username, {'type':'send_ws', 'type2':'disconnect', 'sender': self.scope["user"].username}
+                username, {'type':'send_ws', 'type2':'offline', 'sender': self.scope["user"].username}
         )
 
         await self.channel_layer.group_discard(

@@ -238,7 +238,9 @@ async def goal(player, id):
 
 @database_sync_to_async
 def save_winner(id):
-    from app.models import Game_Pong
+    from app.models import Game_Pong, User
+    import app.consumers.utils.user_utils as user_utils
+    
     global winningScore, all_data
 
     game = get_object_or_404(Game_Pong, id=id)
@@ -258,6 +260,15 @@ def save_winner(id):
     game.player2_rank_win += win_elo_p2
     game.player1.pong_rank += win_elo_p1
     game.player2.pong_rank += win_elo_p2
+
+    # change state of player
+    if (game.player1.state == User.State.INGAME):
+        game.player1.state = User.State.ONLINE
+    if (game.player2.state == User.State.INGAME):
+        game.player2.state = User.State.ONLINE
+    user_utils.send_change_state(game.player1)
+    user_utils.send_change_state(game.player2)
+
     game.player1.save()
     game.player2.save()
     

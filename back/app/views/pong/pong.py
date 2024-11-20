@@ -293,6 +293,7 @@ def pongTournament(request):
 
 def pongFoundGameView(request):
     import app.consumers.utils.pong_utils as pong_utils
+    import app.consumers.utils.user_utils as user_utils
 
     # if list_waiter length is zero, add user to list_waiter
     if len(list_waiter) == 0:
@@ -320,6 +321,15 @@ def pongFoundGameView(request):
         pong_utils.launch_game(game.id)
         game.status = "started"
         game.save()
+
+        # PASS USER IN GAME STATUT
+        opponent.state = User.State.INGAME
+        opponent.save()
+        request.user.state = User.State.INGAME
+        request.user.save()
+        user_utils.send_change_state(opponent)
+        user_utils.send_change_state(request.user)
+
         print("Game launched:", game.id, file=sys.stderr)
         return redirect('pong_game', gameID=game.id)
 

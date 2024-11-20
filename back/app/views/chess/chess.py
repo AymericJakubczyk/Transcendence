@@ -14,6 +14,7 @@ from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 import app.consumers.utils.chess_class as chess_class
 import app.consumers.utils.chess_utils as chess_utils
+import app.consumers.utils.user_utils as user_utils
 
 import sys
 import logging
@@ -68,6 +69,16 @@ def chessFoundGameView(request):
                 'game_id': game.id
             }
         )
+
+        # PASS USER IN GAME STATUT 
+        opponent.state = User.State.INGAME
+        opponent.save()
+        request.user.state = User.State.INGAME
+        request.user.save()
+
+        user_utils.send_change_state(opponent)
+        user_utils.send_change_state(request.user)
+
         print("Chess game launched:", game.id, file=sys.stderr)
         return redirect('chess_game', gameID=game.id)
 

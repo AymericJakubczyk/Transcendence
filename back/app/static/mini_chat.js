@@ -73,12 +73,14 @@ function display_all_discu()
             `
                 <div id="profile_pic_mini_`+ data.all_discu[i].name_discu +`" style="position: relative;">
                     <img src="` + data.all_discu[i].profile_picture + `" class="pp" alt="Profile Picture">
-                    <div id="statut_mini_`+ data.all_discu[i].name_discu +`" class="rounded-circle bg-success" style="border: 4px rgb(80,80,80) solid;position: absolute; right: -5px; bottom: -5px;width:40%;height:40%" hidden></div>
                 </div>
                 <div class="d-flex flex-column mx-2" style="overflow: hidden;">
-                    <span style="font-size: 24px; font-weight: 400;color:#ffffff; text-align: start;text-overflow: ellipsis;">
-                        `+ data.all_discu[i].name_discu +`
-                    </span>
+                    <div class="d-flex align-items-center">
+                        <span class="pe-1" style="font-size: 24px; font-weight: 400;color:#ffffff; text-align: start;text-overflow: ellipsis;">
+                            `+ data.all_discu[i].name_discu +`
+                        </span>
+                        <div id="statut_mini_`+ data.all_discu[i].name_discu +`" class="rounded-circle" style="width:13px;height:13px; background-color:green" hidden></div>
+                    </div>
                     <span id="last_msg_mini_`+ data.all_discu[i].name_discu +`" style="font-size: 14px; font-weight: 100; color:#c0c0c0 ;padding-left: 5px;text-align: start;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;width:100%">
                     </span>
                 </div>

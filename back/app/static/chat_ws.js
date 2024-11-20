@@ -48,8 +48,7 @@ function create_ws()
 	chatSocket.onmessage = function(event) {
 		const data = JSON.parse(event.data);
 		console.log('Received ws:', data);
-		var statut_elem = document.getElementById("statut_" + data.sender);
-		var statut_mini_elem = document.getElementById("statut_mini_" + data.sender);
+
 		if (data.type == 'chat_message')
 		{
 			add_msg(data.sender, data.message, false, "you")
@@ -65,20 +64,9 @@ function create_ws()
 				last_msg.innerText = "vous : " + data.message;
 			update_list_discu(data.send_to)
 		}
-		if (data.type == 'disconnect')
-		{
-			if (statut_elem)
-				statut_elem.hidden = true;
-			if (statut_mini_elem)
-				statut_mini_elem.hidden = true;
-		}
-		if (data.type == 'connect')
-		{
-			if (statut_elem)
-				statut_elem.hidden = false;
-			if (statut_mini_elem)
-				statut_mini_elem.hidden = false;
-		}
+		if (data.type == 'offline' || data.type == 'online' || data.type == 'ingame')
+			change_statut(data.type, data.sender)
+
 		if (data.type == 'error')
 			error_message(data.message, 2000)
 		if (data.type == 'invite')
@@ -104,6 +92,46 @@ function close_ws()
 {
 	if (chatSocket)
 		chatSocket = chatSocket.close();
+}
+
+function change_statut(type, sender)
+{
+	var statut_elem = document.getElementById("statut_" + sender);
+	var statut_mini_elem = document.getElementById("statut_mini_" + sender);
+
+	if (type == 'offline')
+	{
+		if (statut_elem)
+			statut_elem.hidden = true;
+		if (statut_mini_elem)
+			statut_mini_elem.hidden = true;
+	}
+	if (type == 'online')
+	{
+		if (statut_elem)
+		{
+			statut_elem.hidden = false;
+			statut_elem.style.backgroundColor = "green";
+		}
+		if (statut_mini_elem)
+		{
+			statut_mini_elem.hidden = false;
+			statut_mini_elem.style.backgroundColor = "green";
+		}
+	}
+	if (type == 'ingame')
+	{
+		if (statut_elem)
+		{
+			statut_elem.hidden = false;
+			statut_elem.style.backgroundColor = "blue";
+		}
+		if (statut_mini_elem)
+		{
+			statut_mini_elem.hidden = false;
+			statut_mini_elem.style.backgroundColor = "blue";
+		}
+	}
 }
 
 function add_msg(sender, msg, you, send_to)
