@@ -27,8 +27,11 @@ contract SepoliaTournament {
     uint256 nbrTournament;
     mapping(uint256 => Tournament) private tournaments;
 
-    event publishMatch(uint256 indexed _tournamentId, string _player1, string _player2, uint256 _score1, uint256 _score2);
+    event previewTournament(uint256 indexed tournamentId, string[] players);
 
+    event publishMatch(uint256 indexed tournamentId, string Winner, string Loser, uint256 WinnerScore, uint256 LoserScore);
+
+    event publishTournament(uint256 indexed tournamentId, string[] players, string Winner);
 
     constructor() {
         owner = msg.sender;
@@ -48,6 +51,7 @@ contract SepoliaTournament {
         newOne.id = nbrTournament;
         newOne.status = true;
         nbrTournament++;
+        emit previewTournament(nbrTournament, _players);
         return nbrTournament - 1;
     }
 
@@ -82,27 +86,13 @@ contract SepoliaTournament {
         emit publishMatch(_tournamentId, _player1, _player2, _score1, _score2);
     }
 
-    function getPlayers(uint256 _tournamentId) public view returns (string[] memory players) {
-        uint256 tId = _tournamentId - 1;
-        if (tId >= nbrTournament)
-            revert TournamentDoesntExist();
-        Tournament storage tournament = tournaments[tId];
-        return (tournament.players);
-    }
 
-    function getMatches(uint256 _tournamentId) public view returns (Match[] memory matches){
+    function closeTournament(uint256 _tournamentId, string memory _winner) public onlyOwner {
         uint256 tId = _tournamentId - 1;
-        if (tId >= nbrTournament)
+        if (tId > nbrTournament)
             revert TournamentDoesntExist();
-        Tournament storage tournament = tournaments[tId];
-        return (tournament.matches);
-    }
-
-    function closeTournament(uint256 _tournamentId) public onlyOwner {
-        uint256 tId = _tournamentId - 1;
-        if (_tournamentId >= nbrTournament)
-            revert TournamentDoesntExist();
-        Tournament storage tournament = tournaments[tId];
+        Tournament memory tournament = tournaments[tId];
         tournament.status = false;
+        emit publishTournament(tId, tournament.players, _winner);
     }
 }

@@ -13,7 +13,221 @@ import time
 
 
 #ABI
-abi = [{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[],"name":"ErrorOwnerOnlyFunction","type":"error"},{"inputs":[],"name":"NoPlayers","type":"error"},{"inputs":[],"name":"TournamentClosed","type":"error"},{"inputs":[],"name":"TournamentDoesntExist","type":"error"},{"anonymous":"false","inputs":[{"indexed":"true","internalType":"uint256","name":"_tournamentId","type":"uint256"},{"indexed":"false","internalType":"string","name":"_player1","type":"string"},{"indexed":"false","internalType":"string","name":"_player2","type":"string"},{"indexed":"false","internalType":"uint256","name":"_score1","type":"uint256"},{"indexed":"false","internalType":"uint256","name":"_score2","type":"uint256"}],"name":"publishMatch","type":"event"},{"inputs":[{"internalType":"string","name":"_player1","type":"string"},{"internalType":"string","name":"_player2","type":"string"},{"internalType":"uint256","name":"_score1","type":"uint256"},{"internalType":"uint256","name":"_score2","type":"uint256"},{"internalType":"uint256","name":"_tournamentId","type":"uint256"}],"name":"addMatchToTournaments","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_tournamentId","type":"uint256"}],"name":"closeTournament","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string[]","name":"_players","type":"string[]"}],"name":"createTournament","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_tournamentId","type":"uint256"}],"name":"getMatches","outputs":[{"components":[{"internalType":"string","name":"Winner","type":"string"},{"internalType":"string","name":"Loser","type":"string"},{"internalType":"uint256","name":"WinningScore","type":"uint256"},{"internalType":"uint256","name":"LosingScore","type":"uint256"}],"internalType":"struct SepoliaTournament.Match[]","name":"matches","type":"tuple[]"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"_tournamentId","type":"uint256"}],"name":"getPlayers","outputs":[{"internalType":"string[]","name":"players","type":"string[]"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"_tournamentId","type":"uint256"},{"internalType":"string","name":"player","type":"string"}],"name":"isInTournament","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"}];
+abi = [
+	{
+		"inputs": [],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"inputs": [],
+		"name": "ErrorOwnerOnlyFunction",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "NoPlayers",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "TournamentClosed",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "TournamentDoesntExist",
+		"type": "error"
+	},
+	{
+		"anonymous": "false",
+		"inputs": [
+			{
+				"indexed": "true",
+				"internalType": "uint256",
+				"name": "tournamentId",
+				"type": "uint256"
+			},
+			{
+				"indexed": "false",
+				"internalType": "string[]",
+				"name": "players",
+				"type": "string[]"
+			}
+		],
+		"name": "previewTournament",
+		"type": "event"
+	},
+	{
+		"anonymous": "false",
+		"inputs": [
+			{
+				"indexed": "true",
+				"internalType": "uint256",
+				"name": "tournamentId",
+				"type": "uint256"
+			},
+			{
+				"indexed": "false",
+				"internalType": "string",
+				"name": "Winner",
+				"type": "string"
+			},
+			{
+				"indexed": "false",
+				"internalType": "string",
+				"name": "Loser",
+				"type": "string"
+			},
+			{
+				"indexed": "false",
+				"internalType": "uint256",
+				"name": "WinnerScore",
+				"type": "uint256"
+			},
+			{
+				"indexed": "false",
+				"internalType": "uint256",
+				"name": "LoserScore",
+				"type": "uint256"
+			}
+		],
+		"name": "publishMatch",
+		"type": "event"
+	},
+	{
+		"anonymous": "false",
+		"inputs": [
+			{
+				"indexed": "true",
+				"internalType": "uint256",
+				"name": "tournamentId",
+				"type": "uint256"
+			},
+			{
+				"indexed": "false",
+				"internalType": "string[]",
+				"name": "players",
+				"type": "string[]"
+			},
+			{
+				"indexed": "false",
+				"internalType": "string",
+				"name": "Winner",
+				"type": "string"
+			}
+		],
+		"name": "publishTournament",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_player1",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_player2",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_score1",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_score2",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_tournamentId",
+				"type": "uint256"
+			}
+		],
+		"name": "addMatchToTournaments",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_tournamentId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "_winner",
+				"type": "string"
+			}
+		],
+		"name": "closeTournament",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string[]",
+				"name": "_players",
+				"type": "string[]"
+			}
+		],
+		"name": "createTournament",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_tournamentId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "player",
+				"type": "string"
+			}
+		],
+		"name": "isInTournament",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+];
 
 #Logs
 logger = getLogger(__name__)
@@ -134,10 +348,11 @@ def createTournament(players_arr):
 		print(error, file=sys.stderr)
 		return None
 
-def closeTournament(tournament_id):
+def closeTournament(tournament_id, winner):
 	print(tournament_id, type(tournament_id), file=sys.stderr)
+	print("WINNER", winner, type(winner), file=sys.stderr)
 	try:
-		token_hash = contract.functions.closeTournament(tournament_id).transact({'from' : admin_acc})
+		token_hash = contract.functions.closeTournament(tournament_id, winner).transact({'from' : admin_acc})
 		receipt = web3.eth.wait_for_transaction_receipt(token_hash)
 		if (receipt.status == 1):
 			print("Tournament closed successfully", file=sys.stderr)
