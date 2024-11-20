@@ -1,35 +1,133 @@
 {% load static %}
+
 <div class="container">
 <link rel="stylesheet" href="{% static 'stylesheets/chess.css' %}">
     <h1 class="header">ATOMIC CHESS</h1>
     <h5 class="header">Worst chess game you ever saw</h5>		
 	<div><p>Ca arrive lourd tu veux que jte l'dise en quelle langue ? On est l'feu et les pompiers en meme temps</p></div>
 	<div class="test">
-		{% if game %}
+		{% if game and game.black_player.username == request.user.username %}
+			<div class="d-flex w-100" id="WhitePlayer">
+				<img src="{{ game.white_player.profile_picture.url }}" class="pp_game">
+				<div>
+					<h2 class="mb-0">{{ game.white_player.username }}</h2>
+					<h5>{{ game.white_player.chess_rank }}</h5>
+				</div>
+			</div>
+		{% elif game %}
 			<div class="d-flex w-100" id="BlackPlayer">
 				<img src="{{ game.black_player.profile_picture.url }}" class="pp_game">
 				<div>
 					<h2 class="mb-0">{{ game.black_player.username }}</h2>
-					<h5>rank</h5>
+					<h5>{{ game.black_player.chess_rank }}</h5>
 				</div>
 			</div>
 		{% else %}
 			<div class="PlayerName" id="BlackPlayer">Player 1</div>
 		{% endif %}
-		<canvas class="chessBox my-3" height="800" width="800" id="chess">
-		</canvas>
-		<canvas class = "promotePawn" height="100" width="100" id="promote" style="position :absolute;"></canvas>
-		{% if game %}
-			<div class="d-flex w-100" id="WhitePlayer">
+		<div id="board" style="position:relative" class="d-flex flex-column align-items-center justify-content-center">
+			<script>
+				for (let y = 0; y < 8; y++) {
+					let row_div = document.createElement('div');
+					row_div.style.display = 'flex';
+					for (let x = 0; x < 8; x++) {
+						let cell_div = document.createElement('div');
+						cell_div.className = 'cell';
+						cell_div.id = 'cell' + x + y;
+						cell_div.style.backgroundColor = (x + y) % 2 == 0 ? "antiquewhite" : "burlywood";
+						cell_div.style.width = 'calc(min(8vh, 10vw))';
+						cell_div.style.height = 'calc(min(8vh, 10vw))';
+						cell_div.style.position = 'relative';
+						cell_div.onclick = function() {cell_click(x, y, 0, 0)};
+						{% if game and game.white_player.username == request.user.username %}
+						cell_div.onclick = function() {cell_click(x, y, 1, "white")};
+						{% elif game and game.black_player.username == request.user.username %}
+						cell_div.onclick = function() {cell_click(7 - x, 7 - y, 1, "black")};
+						cell_div.id = 'cell' + (7-x) + (7-y);
+						{% elif game %} /* if spectator */
+						cell_div.onclick = null;
+						{% endif %}
+						row_div.appendChild(cell_div);
+					}
+					document.getElementById('board').appendChild(row_div);
+				}
+			</script>
+			{% if game.status == 'finish' %}
+			<div id="chess_endgame" style="position:absolute; background:rgba(50, 50, 50, 0.9); display:flex" class="z-3 chess_endgame flex-column border border-secondary rounded w-50 h-75">
+			{% else %}
+			<div id="chess_endgame" style="position:absolute; background:rgba(50, 50, 50, 0.9); display:none" class="z-3 chess_endgame flex-column border border-secondary rounded w-50 h-75">
+			{% endif %}
+				<h1 class="text-center">Game Over</h1>
+				<div class="text-center">
+					{% if game.winner == game.white_player %}
+						<h2 id="result">WHITE WIN</h2>
+					{% elif game.winner == game.black_player %}
+						<h2 id="result">BLACK WIN</h2>
+					{% else %}
+						<h2 id="result">DRAW</h2>
+					{% endif %}
+					<h5>by <span id="reason_endgame">{{ game.reason_endgame }}</span></h5>
+				</div>
+				<div>
+					<div class="d-flex justify-content-around">
+						<div id="winner" class="d-flex flex-column align-items-center justify-content-center w-50">
+							<img id="winnerpp" src="{{ game.white_player.profile_picture.url }}" class="pp_game" style="height:8vw; max-height:100px">
+							<h2 id="winnerName" class="mb-0">{{ game.white_player.username }}</h2>
+							<h5 id="winnerRank">{{ game.white_player_rank}}</h5>
+						</div>
+						<div id="loser" class="d-flex flex-column align-items-center justify-content-center w-50">
+							<div style="background:rgba(50, 50, 50);" class="pp_game">
+								<img id="loserpp" src="{{ game.black_player.profile_picture.url }}" class="pp_game" style="opacity:0.5">
+							</div>
+							<h3 id="loserName" class="mb-0" style="opacity:0.5">{{ game.black_player.username }}</h3>
+							<h5 id="loserRank" style="opacity:0.5">{{ game.black_player_rank}}</h5>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		{% if game and game.black_player.username == request.user.username %}
+			<div id="myInfo" class="d-flex w-100 align-items-center" id="BlackPlayer">
+				<img src="{{ game.black_player.profile_picture.url }}" class="pp_game">
+				<div>
+					<h2 class="mb-0">{{ game.black_player.username }}</h2>
+					<h5>{{ game.black_player.chess_rank }}</h5>
+				</div>
+				<div class="rounded-pill m-1 p-1" style="height:fit-content; background-color:burlywood; cursor:pointer" onclick="resign()" >Resign</div>
+				<div class="rounded-pill m-1 p-1" id="draw"  style="height:fit-content; background-color:burlywood; cursor:pointer" onclick="propose_draw()">Propose draw</div>
+			</div>
+		{% elif game %}
+			<div id="myInfo" class="d-flex w-100 align-items-center" id="WhitePlayer">
 				<img src="{{ game.white_player.profile_picture.url }}" class="pp_game">
 				<div>
 					<h2 class="mb-0">{{ game.white_player.username }}</h2>
-					<h5>rank</h5>
+					<h5>{{ game.white_player.chess_rank }}</h5>
 				</div>
+				<div class="rounded-pill m-1 p-1" style="height:fit-content; background-color:burlywood; cursor:pointer" onclick="resign()" >Resign</div>
+				<div class="rounded-pill m-1 p-1" id="draw" style="height:fit-content; background-color:burlywood; cursor:pointer" onclick="propose_draw()">Propose draw</div>
 			</div>
 		{% else %}
 			<div class="PlayerName" id="WhitePlayer">Player 2</div>
 		{% endif %}
+		<input type="checkbox" id="random" name="random" {% if game.black_player == request.user %}checked{% endif %}/>
+		<label for="random">random</label>
 	</div>
 </div>
-<script>init_game()</script>
+<script>
+	{% if game.status == 'finish' %}
+		var winner = "draw";
+		{% if game.winner == game.white_player %};
+			winner = "white";
+		{% elif game.winner == game.black_player %}
+			winner = "black";
+		{% endif %}
+		console.log("dispaly_chess_endgame", winner);
+		display_chess_endgame(winner, "{{ game.reason_endgame }}", {{ game.white_player_rank }}, {{ game.black_player_rank }}, {{ game.white_player_rank_win }}, {{ game.black_player_rank_win }});
+	{% elif game %}
+		create_chess_ws({{ game.id }});
+		var boardArray = {{ board|safe }};
+		init_ranked_game(boardArray, {{ game.turn_white|yesno:"true,false" }});
+	{% else %}
+		init_game()
+	{% endif %}
+</script>

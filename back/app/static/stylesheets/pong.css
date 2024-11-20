@@ -139,3 +139,13 @@
       0 0 100px rgb(255, 0, 106),
       0 0 150px rgb(255, 0, 106);
 }
+
+.chess_endgame {
+    justify-content: space-evenly;
+    box-shadow: 0 0 .2rem #fff,
+    0 0 .2rem #fff,
+    0 0 2rem #282828,
+    0 0 0.8rem #282828,
+    0 0 2.8rem #282828,
+    inset 0 0 1.3rem #282828;
+}

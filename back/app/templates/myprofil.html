@@ -6,6 +6,13 @@
 		if (document.getElementById("mini_chat"))
 			document.getElementById("mini_chat").hidden = false;
         set_global_notif()
+
+		// stop login animation
+		if (gameInterval) 
+			clearInterval(gameInterval);
+		if (paddleInterval)
+			clearInterval(paddleInterval);
+
 	</script>
 {% endif %}
 

@@ -1,4 +1,5 @@
 .profile_pp {
+	margin: auto;
 	max-width: 250px;
 	max-height: 250px;
 	clip-path: ellipse(50% 50%);
@@ -12,6 +13,19 @@
 	object-fit: contain;
 }
 
-#page h6 {
-	color: grey;
+.profile_statistics{
+	background-color: rgb(153, 46, 252);
+	border-radius: 50px;
+	padding: 15px 0 50px 0;
+}
+
+.game_history_header{
+	padding: 10px 0 0 0;
+	color: black;
+	border-top: 2px solid black;
+}
+
+.div_game_history{
+	margin: 2px auto 2px auto;
+	background-color: blueviolet;
 }

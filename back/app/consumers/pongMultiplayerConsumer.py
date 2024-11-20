@@ -52,7 +52,7 @@ class PongMultiplayerConsumer(AsyncWebsocketConsumer):
         print(nbr_waiter, "waiting...", file=sys.stderr)
         playerIDlist.append(self.scope["user"].id)
 
-        if (nbr_waiter >= 3):
+        if (nbr_waiter >= 2):
             print("Creating game...", file=sys.stderr)
             self.game = await self.create_game()
             nb = nbr_waiter
@@ -218,7 +218,7 @@ class PongMultiplayerConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps(event))
 
     async def calc_paddle_collision(self, playerPaddleSize, startAngle, endAngle, ballAngle):
-        global baseSpeed
+        global baseSpeed, all_data
 
         print("[COLLISION PADDLE !!!]", file=sys.stderr)
 
@@ -303,7 +303,7 @@ class PongMultiplayerConsumer(AsyncWebsocketConsumer):
                                 break
     
     async def player_is_dead(self, dead):
-        global playerZoneSize, baseSpeed
+        global playerZoneSize, baseSpeed, all_data
 
         print("player:", dead+1, "is DEAD", file=sys.stderr)
         self.data.active_players -= 1

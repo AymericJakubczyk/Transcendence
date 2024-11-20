@@ -3,7 +3,7 @@ from django.contrib.auth import login, authenticate, logout, update_session_auth
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from app.forms import SignupForm, LoginForm, UpdateForm
-from app.models import User, Tournament, Friend_Request, Discussion, Message, Game_Chess
+from app.models import User, Tournament, Friend_Request, Discussion, Message, Game_Chess, Game_Pong, Game_PongMulti
 from django.urls import reverse as get_url
 from django.db.models import Q
 import json
@@ -17,9 +17,20 @@ logger = logging.getLogger(__name__)
 
 def profilView(request, username):
     user = get_object_or_404(User, username=username)
+
+    all_pong_games_to_order = Game_Pong.objects.filter(Q(player1=user) | Q(player2=user))
+    all_pong_games = all_pong_games_to_order.order_by('-updated_at')
+    
+    all_chess_games_to_order = Game_Chess.objects.filter(Q(white_player=user) | Q(black_player=user))
+    all_chess_games = all_chess_games_to_order.order_by('-updated_at')
+
+    all_multi_games_to_order = Game_PongMulti.objects.filter(playerlist=user)
+    all_multi_games = all_multi_games_to_order.order_by('-updated_at')
+
+
     if request.META.get("HTTP_HX_REQUEST") != 'true':
-        return render(request, 'page_full.html', {'page':'profil.html', 'user':user})
-    return render(request, 'profil.html', {'user':user})
+        return render(request, 'page_full.html', {'page':'profil.html', 'user':user, 'all_chess_games':all_chess_games, 'all_pong_games':all_pong_games, 'all_multi_games':all_multi_games})
+    return render(request, 'profil.html', {'user':user, 'all_chess_games':all_chess_games, 'all_pong_games':all_pong_games, 'all_multi_games':all_multi_games})
 
 def myProfilView(request):
     if request.user.is_authenticated:
