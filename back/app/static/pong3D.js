@@ -55,29 +55,11 @@ function startGame()
     document.getElementById("playButton").style.display = "none"; // Réafficher le bouton "JOUER"
     document.getElementById("gameContainer").style.display = "flex"; // Masquer le canevas du jeu
     
+    document.removeEventListener("keydown", keyDownHandler_ranked);
+    document.removeEventListener("keyup", keyUpHandler_ranked);
+
     document.addEventListener("keydown", keyDownHandler);
     document.addEventListener("keyup", keyUpHandler);
-    function keyDownHandler(e) {
-        if (e.key === "Up" || e.key === "ArrowUp")
-            upPressed = true;
-        else if (e.key === "Down" || e.key === "ArrowDown")
-            downPressed = true;
-        else if (e.key === "w" || e.key === "W")
-            wPressed = true;
-        else if (e.key === "s" || e.key === "S")
-            sPressed = true;
-    }
-
-    function keyUpHandler(e) {
-        if (e.key === "Up" || e.key === "ArrowUp")
-            upPressed = false;
-        else if (e.key === "Down" || e.key === "ArrowDown")
-            downPressed = false;
-        else if (e.key === "w" || e.key === "W")
-            wPressed = false;
-        else if (e.key === "s" || e.key === "S")
-            sPressed = false;
-    }
 
     display3D()
     if (gameInterval)

@@ -139,41 +139,11 @@ function join_ranked_pong(game, you)
     let cmd1 = document.getElementById("cmd1")
     let cmd2 = document.getElementById("cmd2")
 
-    document.addEventListener("keydown", keyDownHandler);
-    document.addEventListener("keyup", keyUpHandler);
-    function keyDownHandler(e) {
-        if (e.key === "ArrowUp" || e.key === "ArrowLeft")
-        {
-            e.preventDefault()  // prevent scrolling with arrow keys when you played
-            cmd1.classList.add("pressed")
-            if (upPressed == false)
-                send_input_move("up", true)
-            upPressed = true;
-        }
-        else if (e.key === "ArrowDown" || e.key === "ArrowRight")
-        {
-            e.preventDefault()  // prevent scrolling with arrow keys when you played
-            cmd2.classList.add("pressed")
-            if (downPressed == false)
-                send_input_move("down", true)
-            downPressed = true;
-        }
-    }
+    document.removeEventListener("keydown", keyDownHandler);
+    document.removeEventListener("keyup", keyUpHandler);
 
-    function keyUpHandler(e) {
-        if (e.key === "ArrowUp" || e.key === "ArrowLeft")
-        {
-            cmd1.classList.remove("pressed")
-            upPressed = false;
-            send_input_move("up", false)
-        }
-        else if (e.key === "ArrowDown" || e.key === "ArrowRight")
-        {
-            cmd2.classList.remove("pressed")
-            downPressed = false;
-            send_input_move("down", false)
-        }
-    }
+    document.addEventListener("keydown", keyDownHandler_ranked);
+    document.addEventListener("keyup", keyUpHandler_ranked);
 
     display3D()
     display_ranked(game, you)
