@@ -167,8 +167,10 @@ class PongMultiplayerConsumer(AsyncWebsocketConsumer):
             if user:
                 self.game.playerlist.add(user)
         self.game.data = self.data
+        self.id = self.game.id
         self.game.save()
         all_data[self.game.id] = self.data
+        all_data[self.id] = self.data
         playerIDlist.clear()
         return self.game
 
@@ -215,6 +217,18 @@ class PongMultiplayerConsumer(AsyncWebsocketConsumer):
         # Send message to WebSocket
         await self.send(text_data=json.dumps(event))
 
+    async def calc_paddle_collision(self, playerPaddleSize, startAngle, endAngle, ballAngle):
+        global baseSpeed
+
+        print("[COLLISION PADDLE !!!]", file=sys.stderr)
+
+        relativeAngle = (((startAngle +(playerPaddleSize/2)) - ballAngle)/(playerPaddleSize/2))
+        bounceAngle = relativeAngle * (5*math.pi)
+
+        all_data[self.id].ball_dx = -(baseSpeed * math.cos(bounceAngle))
+        all_data[self.id].ball_dy = -(baseSpeed * -math.sin(bounceAngle))
+        baseSpeed += baseSpeed * (5/100)
+
     async def calcul_ball(self):
         global arenaWidth, arenaLength, thickness, ringRadius, ballRadius, paddleRadius, paddleWidth, paddleHeight, baseSpeed, nbrHit, all_data, playerZoneSize
 
@@ -225,17 +239,17 @@ class PongMultiplayerConsumer(AsyncWebsocketConsumer):
 
         while self.should_calcul_ball:
             await asyncio.sleep(0.01)  # Wait for 0.01 second
-            all_data[self.game.id].ball_x += all_data[self.game.id].ball_dx
-            all_data[self.game.id].ball_y += all_data[self.game.id].ball_dy
+            all_data[self.id].ball_x += all_data[self.id].ball_dx
+            all_data[self.id].ball_y += all_data[self.id].ball_dy
             await self.send_updates()
 
             # COLLISION AVEC LES PADDLES
-            calc_dx = (arenaLength / 2) - all_data[self.game.id].ball_x
-            calc_dy = (arenaWidth / 2) - all_data[self.game.id].ball_y
+            calc_dx = (arenaLength / 2) - all_data[self.id].ball_x
+            calc_dy = (arenaWidth / 2) - all_data[self.id].ball_y
             distance = math.sqrt(calc_dx * calc_dx + calc_dy * calc_dy)
 
             if (distance > paddleRadius - ballRadius):
-                ballAngle = math.atan2(all_data[self.game.id].ball_y - arenaWidth/2, all_data[self.game.id].ball_x - arenaLength/2)
+                ballAngle = math.atan2(all_data[self.id].ball_y - arenaWidth/2, all_data[self.id].ball_x - arenaLength/2)
                 
                 for i in range(self.data.nb_players):
                     if ( self.data.lifes[i] > 0):
@@ -245,24 +259,20 @@ class PongMultiplayerConsumer(AsyncWebsocketConsumer):
 
                         if (startAngle <= endAngle):
                             if (ballAngle >= startAngle and ballAngle <= endAngle):
-                                print("[COLLISION PADDLE !!!]", file=sys.stderr)
-                                all_data[self.game.id].ball_dx = -all_data[self.game.id].ball_dx
-                                all_data[self.game.id].ball_dy = -all_data[self.game.id].ball_dy
+                                await self.calc_paddle_collision(playerPaddleSize, startAngle, endAngle, ballAngle)
                                 break
                         else:
                             if (ballAngle >= startAngle or ballAngle <= endAngle):
-                                print("[COLLISION PADDLE !!!]", file=sys.stderr)
-                                all_data[self.game.id].ball_dx = -all_data[self.game.id].ball_dx
-                                all_data[self.game.id].ball_dy = -all_data[self.game.id].ball_dy
+                                await self.calc_paddle_collision(playerPaddleSize, startAngle, endAngle, ballAngle)
                                 break
 
             # COLLISION AVEC LE CERCLE ET MARQUAGE
-            calc_dx = (arenaLength / 2) - all_data[self.game.id].ball_x
-            calc_dy = (arenaWidth / 2) - all_data[self.game.id].ball_y
+            calc_dx = (arenaLength / 2) - all_data[self.id].ball_x
+            calc_dy = (arenaWidth / 2) - all_data[self.id].ball_y
             distance = math.sqrt(calc_dx * calc_dx + calc_dy * calc_dy)
 
             if (distance > ringRadius):
-                ballAngle = math.atan2(all_data[self.game.id].ball_y - arenaWidth/2, all_data[self.game.id].ball_x - arenaLength/2)
+                ballAngle = math.atan2(all_data[self.id].ball_y - arenaWidth/2, all_data[self.id].ball_x - arenaLength/2)
 
                 for i in range(self.data.nb_players):
                     if ( self.data.lifes[i] > 0):
@@ -278,8 +288,8 @@ class PongMultiplayerConsumer(AsyncWebsocketConsumer):
                                     # print("[BUUUUUUUUUUT !!!]", "player:", i+1, "lifes:", self.data.lifes[i], file=sys.stderr)
                                     if (self.data.lifes[i] == 0 and self.data.active_players > 1):
                                         await self.player_is_dead(i)
-                                all_data[self.game.id].ball_dx = -all_data[self.game.id].ball_dx
-                                all_data[self.game.id].ball_dy = -all_data[self.game.id].ball_dy
+                                all_data[self.id].ball_dx = -all_data[self.id].ball_dx
+                                all_data[self.id].ball_dy = -all_data[self.id].ball_dy
                                 break
                         else:
                             if (ballAngle >= startAngle or ballAngle <= endAngle):
@@ -288,21 +298,16 @@ class PongMultiplayerConsumer(AsyncWebsocketConsumer):
                                     # print("[BUUUUUUUUUUT !!!]", "player:", i+1, "lifes:", self.data.lifes[i], file=sys.stderr)
                                     if (self.data.lifes[i] == 0 and self.data.active_players > 1):
                                         await self.player_is_dead(i)
-                                all_data[self.game.id].ball_dx = -all_data[self.game.id].ball_dx
-                                all_data[self.game.id].ball_dy = -all_data[self.game.id].ball_dy
+                                all_data[self.id].ball_dx = -all_data[self.id].ball_dx
+                                all_data[self.id].ball_dy = -all_data[self.id].ball_dy
                                 break
-
-    def tempo_elimination(self):
-        self.should_calcul_ball = False
-        all_data[self.game.id].ball_x = arenaLength / 2
-        all_data[self.game.id].ball_y = arenaWidth / 2
-        self.send_updates()
     
     async def player_is_dead(self, dead):
-        global playerZoneSize
+        global playerZoneSize, baseSpeed
 
         print("player:", dead+1, "is DEAD", file=sys.stderr)
         self.data.active_players -= 1
+        baseSpeed = 0.5
 
         # CALCUL TAILLE ET START DES ZONES
         if (self.data.active_players >= 2):
@@ -317,15 +322,23 @@ class PongMultiplayerConsumer(AsyncWebsocketConsumer):
                 # print("zone start of", index+1, "is", self.data.zoneStart[index], file=sys.stderr)
                 it += 1
             index += 1
+
+        self.should_calcul_ball = False
+        all_data[self.game.id].ball_x = arenaLength / 2
+        all_data[self.game.id].ball_y = arenaWidth / 2
+        self.send_updates()
         await self.send_death_signal(dead)
+        await asyncio.sleep(2)
+
         if (self.data.active_players == 1):
-            self.tempo_elimination()
             await self.stop_game()
+        else:
+            self.should_calcul_ball = True
 
     def move_paddle(self, move, player):
         global all_data
         if (move == 'up'):
-                 all_data[self.game.id].paddleStart[player] += 0.05
+                all_data[self.game.id].paddleStart[player] += 0.05
         if (move == 'down'):
                 all_data[self.game.id].paddleStart[player] -= 0.05
         

@@ -34,7 +34,13 @@ function search_multiplayer_game()
             activePlayers = data.active_players;
 
             scene.remove( playersObjs[data.dead_id].paddle );
-
+            
+            if (activePlayers >= 1)
+            {
+                console.log("UPDATING ZONES");
+                updateZones();
+                renderer.render(scene, camera);
+            }
             if (activePlayers == 1 && playersObjs[myplayerID].alive == 1)
             {
                 element = document.createElement("h3");
@@ -50,12 +56,6 @@ function search_multiplayer_game()
                 parent.appendChild(element);
                 if (gameInterval)
                     clearInterval(gameInterval)
-            }
-            if (activePlayers > 1)
-            {
-                console.log("UPDATING ZONES");
-                updateZones();
-                renderer.render(scene, camera);
             }
             if (activePlayers == 1)
             {
@@ -79,20 +79,19 @@ function search_multiplayer_game()
             y = data.y;
             dx = data.dx;
             dy = data.dy;
+            render_ball(x, y);
             
             lifes = data.lifes;
-            for (let i = 0; i < nbPlayers; i++) {
-                div_id = "life-player-" + i;
-                lifeElem = document.getElementById(div_id);
+            for (let i = 0; i < nbPlayers; i++) 
+            {
+                    div_id = "life-player-" + i;
+                    lifeElem = document.getElementById(div_id);
                 if (lifes[i] == 1)
                     lifeElem.textContent = "X";
                 if (lifes[i] == 2)
                     lifeElem.textContent = "X X";
-                    
             }
-            updateZones();
             render_paddles(data.paddles);
-            render_ball(x, y);
             return;
         }
         console.log("[RECEIVE MATCH FOUND]", data);

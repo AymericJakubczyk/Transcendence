@@ -40,14 +40,14 @@ var activePlayers;
 var myplayerID;
 
 let playersObjs = [
-    { alive: 1, color: 0x00f3ff, paddle: null, zone: null, zoneStart: null, paddlePosition: null},
-    { alive: 1, color: 0xff49ec, paddle: null, zone: null, zoneStart: null, paddlePosition: null},
-    { alive: 1, color: 0xC70039, paddle: null, zone: null, zoneStart: null, paddlePosition: null},
-    { alive: 1, color: 0x49ff7d, paddle: null, zone: null, zoneStart: null, paddlePosition: null},
-    { alive: 1, color: 0xFF5733, paddle: null, zone: null, zoneStart: null, paddlePosition: null},
-    { alive: 1, color: 0x581845, paddle: null, zone: null, zoneStart: null, paddlePosition: null},
-    { alive: 1, color: 0xFFC300, paddle: null, zone: null, zoneStart: null, paddlePosition: null},
-    { alive: 1, color: 0xae00ff, paddle: null, zone: null, zoneStart: null, paddlePosition: null},
+    { alive: 0, color: 0x00f3ff, paddle: null, zone: null, zoneStart: null, paddlePosition: null},
+    { alive: 0, color: 0xff49ec, paddle: null, zone: null, zoneStart: null, paddlePosition: null},
+    { alive: 0, color: 0xC70039, paddle: null, zone: null, zoneStart: null, paddlePosition: null},
+    { alive: 0, color: 0x49ff7d, paddle: null, zone: null, zoneStart: null, paddlePosition: null},
+    { alive: 0, color: 0xFF5733, paddle: null, zone: null, zoneStart: null, paddlePosition: null},
+    { alive: 0, color: 0x581845, paddle: null, zone: null, zoneStart: null, paddlePosition: null},
+    { alive: 0, color: 0xFFC300, paddle: null, zone: null, zoneStart: null, paddlePosition: null},
+    { alive: 0, color: 0xae00ff, paddle: null, zone: null, zoneStart: null, paddlePosition: null},
   ];
 
 const ringRadius = 50;
@@ -77,6 +77,10 @@ function setup_game()
         playerDiv.appendChild(playerLife);
 
         htmlplayerlist.appendChild(playerDiv);
+    }
+
+    for (let i = 0; i < nbPlayers; i++) {
+        playersObjs[i].alive = 1;
     }
 
     // CANVAS SETUP 
@@ -170,30 +174,31 @@ function updateZones()
     playerZoneSize = (2 * Math.PI) / activePlayers;
     console.log("Creating", activePlayers, "zones. Zone size =", playerZoneSize);
     console.log("Cant take color over", nbPlayers);
-    ite = 0;
     y = 0;
-    while (y < activePlayers && ite < nbPlayers)
+    nbZones = 0;
+    while (y < nbPlayers)
     {
-        if (playersObjs[ite].alive == 1)
+        if (playersObjs[y].alive == 1)
         {
-            playerZoneStart = playerZoneSize * y;
-            playersObjs[ite].zoneStart = playerZoneStart;
-            playerZoneColor = playersObjs[ite].color;
+            playerZoneStart = playerZoneSize * nbZones;
+            playersObjs[y].zoneStart = playerZoneStart;
+            playerZoneColor = playersObjs[y].color;
             playerZoneThick = 1;
             geoZone = new THREE.RingGeometry( ringRadius, ringRadius-playerZoneThick, 100, 50, playerZoneStart, playerZoneSize);
             materialZone = new THREE.MeshBasicMaterial( { color: playerZoneColor, side: THREE.DoubleSide } );
             
-            playersObjs[ite].zone = new THREE.Mesh( geoZone, materialZone);
-            playersObjs[ite].zone.position.x = arenaLength / 2;
-            playersObjs[ite].zone.position.y = arenaWidth / 2;
-            playersObjs[ite].zone.position.z = 1;
+            playersObjs[y].zone = new THREE.Mesh( geoZone, materialZone);
+            playersObjs[y].zone.position.x = arenaLength / 2;
+            playersObjs[y].zone.position.y = arenaWidth / 2;
+            playersObjs[y].zone.position.z = 1;
             
-            scene.add( playersObjs[ite].zone );
-            console.log("Player", ite+1, "zone created.");
-            y++;
+            scene.add( playersObjs[y].zone );
+            nbZones++;
+            console.log("Player", y+1, playerZoneColor, "zone created.");
         }
-        ite++;
+        y++;
     }
+    renderer.render(scene, camera);
 }
 
 function setupZones()
