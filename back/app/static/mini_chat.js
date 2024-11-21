@@ -205,14 +205,14 @@ function display_friend_request()
         {
             request_div = document.createElement("div")
             request_div.setAttribute("class", "rounded-2 my-1 p-1 text-white")
+            request_div.setAttribute("id", "request_" + all_request[i].id)
             
             request_div.innerHTML = `
                 <div>`+ all_request[i].from_user +` send you a friend request</div>
                 <div>
-                    <button class="btn btn-success">Accept</button>
-                    <button class="btn btn-danger">Decline</button>
+                    <button class="btn btn-success" onclick="friend_request('accept', `+ all_request[i].id +`)">Accept</button>
+                    <button class="btn btn-danger" onclick="friend_request('decline', `+ all_request[i].id +`)">Decline</button>
                 </div>
-
             `
             all_discu_div.append(request_div)
         }
@@ -317,6 +317,27 @@ function decline_invite(id)
 
     let obj = {"type":"decline", "id":id}
     chatSocket.send(JSON.stringify(obj));
+}
+
+function friend_request(action, id)
+{
+    console.log("[FRIEND REQUEST]", action, id)
+    // delete friend request from list
+    if (document.getElementById("request_" + id))
+        document.getElementById("request_" + id).remove()
+
+    //if no element in the list after decline or accept friend request, display no friend request and remove notif
+    if (document.getElementById("all_discu_mini").children.length == 0)
+    {
+        let div = document.createElement("div")
+        div.id = "no_request"
+        div.setAttribute("class", "m-1 p-1 text-white text-center")
+        div.innerHTML = '<h3>No friend request</h3>'
+        document.getElementById("all_discu_mini").append(div)
+        document.getElementById("notif_request_tab").hidden = true
+    }
+
+    chatSocket.send(JSON.stringify({"type":"friend_request", "action":action , "id":id}));
 }
 
 function add_invitation(game, player, id)

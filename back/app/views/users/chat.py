@@ -156,7 +156,7 @@ def mini_chat(request):
             all_request = Friend_Request.objects.filter(to_user=current_user)
             json_all_request = []
             for request in all_request:
-                obj = {'from_user':request.from_user.username}
+                obj = {'from_user':request.from_user.username, 'id':request.id}
                 json_all_request.append(obj)
             return JsonResponse({'type': request_type, 'all_request': json_all_request, 'current_username':current_user.username , 'notif_discu':notif_discu, 'notif_invite':notif_invite, 'notif_request':notif_request})
 
