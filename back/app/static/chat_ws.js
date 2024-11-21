@@ -80,6 +80,8 @@ function create_ws()
 			else if (data.game_type == 'chess')
 				htmx_request("/game/chess/ranked/" + data.game_id + "/", "GET", {})
 		}
+		if (data.type == 'friend_request')
+			add_friend_request(data.from_user, data.id)
 	};
 	
 	chatSocket.onclose = (event) => {
@@ -204,7 +206,8 @@ function update_discu(sender, msg, discu_id, user)
 	}
 
 	var last_msg_mini = document.getElementById("last_msg_mini_" + sender);
-	if (!last_msg_mini && document.getElementById("all_discu_mini")) // if mini discu not exist create it and add it in list
+	discu_tab = document.getElementById("discu_tab");
+	if (!last_msg_mini && discu_tab && discu_tab.classList.contains("selected_tab")) // if mini discu not exist create it and add it in list
 	{
 		if (document.getElementById("no_discu"))
 			document.getElementById("no_discu").remove()
@@ -265,7 +268,16 @@ function msg_is_read(sender)
 		request_for_read_message(discu_mini.dataset.id)
 
 	if (!(discu && discu.classList.contains("discu_selected")) && !(discu_mini))
-		set_global_notif()
+	{
+		// add notif for discu
+		// set_global_notif()
+		if (document.getElementById("global_notif"))
+			document.getElementById("global_notif").hidden = false
+		if (document.getElementById("global_mini_notif"))
+			document.getElementById("global_mini_notif").hidden = false
+		if (document.getElementById("notif_discu_tab"))
+			document.getElementById("notif_discu_tab").hidden = false			
+		}
 }
 
 function request_for_read_message(discu_id)

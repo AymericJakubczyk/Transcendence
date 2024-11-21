@@ -267,7 +267,7 @@ function display_mini_discu(name, id)
     })
     .then(response => response.json())
     .then(data => {
-        // set_global_notif()
+        set_global_notif()
         all_discu = document.getElementById("all_msg_mini_" + name)
 
         all_discu.innerHTML = ''
@@ -350,7 +350,10 @@ function add_invitation(game, player, id)
         document.getElementById("no_invite").remove()
     if (invite_tab)
         document.getElementById("notif_invite_tab").hidden = false
+
     //else if no invite tab but mini chat is minimized, display global notif
+    if (document.getElementById("global_mini_notif"))
+        document.getElementById("global_mini_notif").hidden = false
 
         
     if (invite_tab && invite_tab.classList.contains("selected_tab"))
@@ -368,5 +371,36 @@ function add_invitation(game, player, id)
         `
         htmx.process(invite_div);
         all_discu_div.append(invite_div)
+    }
+}
+
+function add_friend_request(from, id)
+{
+    console.log("[ADD FRIEND REQUEST]", from, id)
+    all_discu_div = document.getElementById("all_discu_mini")
+    friend_req_tab = document.getElementById("friend_req_tab")
+
+    if (document.getElementById("no_request"))
+        document.getElementById("no_request").remove()
+    if (friend_req_tab)
+        document.getElementById("notif_request_tab").hidden = false
+    //else if no request tab but mini chat is minimized, display global notif
+    if (document.getElementById("global_mini_notif"))
+        document.getElementById("global_mini_notif").hidden = false
+
+    if (friend_req_tab && friend_req_tab.classList.contains("selected_tab"))
+    {
+        request_div = document.createElement("div")
+        request_div.setAttribute("class", "rounded-2 my-1 p-1 text-white")
+        request_div.setAttribute("id", "request_" + id)
+        
+        request_div.innerHTML = `
+            <div>${from} send you a friend request</div>
+            <div>
+                <button class="btn btn-success" onclick="friend_request('accept', ${id})">Accept</button>
+                <button class="btn btn-danger" onclick="friend_request('decline', ${id})">Decline</button>
+            </div>
+        `
+        all_discu_div.append(request_div)
     }
 }

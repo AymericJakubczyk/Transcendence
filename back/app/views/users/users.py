@@ -6,6 +6,9 @@ from app.forms import SignupForm, LoginForm, UpdateForm
 from app.models import User, Tournament, Friend_Request, Discussion, Message, Game_Chess
 from django.urls import reverse as get_url
 from django.db.models import Q
+
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 import json
 from django.http import JsonResponse, HttpResponse
 
@@ -50,6 +53,15 @@ def send_friend_request(request, username):
     friend_request, created = Friend_Request.objects.get_or_create(from_user=from_user, to_user=to_user)
     if created:
         messages.success(request, 'Friend request sent')
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            to_user.username, {
+                'type': 'send_ws',
+                'type2': 'friend_request',
+                'from_user': from_user.username,
+                'id': friend_request.id
+            }
+        )
         return redirect('profile', username=to_user.username)
     else :
         messages.info(request, 'Friend request already sent')

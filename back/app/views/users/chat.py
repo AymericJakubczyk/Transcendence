@@ -132,6 +132,16 @@ def mini_chat(request):
     if (current_user.is_authenticated == False):
         return JsonResponse({'type': 'error', 'message':'not authenticated'})
 
+    # verif if you have a notif in a discussion
+    all_discu = Discussion.objects.filter(Q(user1=current_user) | Q(user2=current_user))
+    for discussion in all_discu:
+        # if other user in discu is blocked, skip him (for mini chat)
+        if (discussion.get_other_user(current_user) in current_user.blocked_users.all()):
+            continue
+        last_message = discussion.get_last_message()
+        if last_message and not last_message.read and last_message.sender != current_user:
+            notif_discu = True
+            break
     if (Invite.objects.filter(to_user=current_user).count() > 0):
         notif_invite = True
     if (Friend_Request.objects.filter(to_user=current_user).count() > 0):
@@ -171,7 +181,7 @@ def mini_chat(request):
             for msg in all_message:
                 obj = {'message': msg.message, 'sender':msg.sender.username}
                 all_obj_msg.append(obj)
-            return JsonResponse({'type': request_type, 'all_message': all_obj_msg, 'current_username':current_user.username})
+            return JsonResponse({'type': request_type, 'all_message': all_obj_msg, 'current_username':current_user.username, 'notif_discu':notif_discu})
             
         return JsonResponse({'type': request_type})
     else:
