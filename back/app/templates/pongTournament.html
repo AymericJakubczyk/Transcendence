@@ -4,10 +4,9 @@
 {% if user.tournament_id != -1 and not mytournament.winner %}
 <script> create_pong_tournament_ws() </script>
 <div>
-    <h4>TOURNAMENT :</h4>
-    <h5>{{ mytournament.name }}</h5>
-    <h6>TOURNAMENT ID : {{ mytournament.id }}</h6>
-    <div id="tournament_players">
+    <div id="TournamentBox" class="w-100 h-100 m-0">
+        <h4>Bienvenue dans le tournoi n°: {{ mytournament.id }}</h4>
+        <h5>{{ mytournament.name }} created by {{ mytournament.host_user }}</h5>
         <h6>PARTICIPANTS: <span id="tournament_count" class="text-white">{{mytournament.participants.count}}</span> / {{mytournament.max_users}}</h6>
         {% for user in mytournament.participants.all %}
             <span id="{{ user.username }}">{{ user.username }} - ({{ user.pong_rank }}) /</span>
