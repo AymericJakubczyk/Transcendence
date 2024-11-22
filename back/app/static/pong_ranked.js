@@ -3,6 +3,8 @@ pongSocket = null;
 function join_pong_game(game_data, player)
 {
     console.log("[JOIN PONG GAME]", game_data, player);
+    if (pongSocket)
+        pongSocket.close()
     if (window.location.protocol == "https:")
         pongSocket = new WebSocket('wss://' + window.location.host + `/ws/pong/${game_data.id}/`);
     else
@@ -73,6 +75,7 @@ function receive_pong_ws(data)
             renderer.render(scene, camera);
         }
         display_endgame(data.player1, data.player2, data.score_player1, data.score_player2, data.win_elo_p1, data.win_elo_p2);
+        change_game_headbar("Game", "/game/");
     }
     if (data.type === 'countdown')
     {

@@ -3,3 +3,14 @@
 <div style="height: 50vh;width: 100%;border-radius: 10px;text-align: center;align-content: center;">
 	<h1 id="text">Waiting for player...</h1>
 </div>
+
+<script>
+	/* change game in headbar */
+	if ("{{ game }}" == 'chess')
+		change_game_headbar('🕒Waiting...', '/game/chess/ranked/');
+	else if ("{{ game }}" == 'pong')
+		change_game_headbar('🕒Waiting...', '/game/pong/ranked/');
+	else if ("{{ game }}" == 'invite')
+		change_game_headbar('🕒Waiting...', '/invite/');
+
+</script>

@@ -266,6 +266,11 @@ def save_winner(id):
         game.player1.state = User.State.ONLINE
     if (game.player2.state == User.State.INGAME):
         game.player2.state = User.State.ONLINE
+    game.player1.game_status_url = 'none'
+    game.player1.game_status_txt = 'none'
+    game.player2.game_status_url = 'none'
+    game.player2.game_status_txt = 'none'
+
     user_utils.send_change_state(game.player1)
     user_utils.send_change_state(game.player2)
 

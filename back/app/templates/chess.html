@@ -130,4 +130,16 @@
 	{% else %}
 		init_game()
 	{% endif %}
+
+	console.log("[LOG CHESS RANKED]", "{{ game.white_player.username }}", "{{ game.black_player.username }}")
+	{% if user == game.white_player or user == game.black_player  %}
+		console.log("[LOG CHESS RANKED] You are in the game")
+		url = '/game/chess/ranked/' + {{ game.id }} + '/';
+		{% if game.status == 'finish' %}
+			change_game_headbar('Game', "/game/");
+		{% else %}
+			change_game_headbar('♟️in game...', url);
+		{% endif %}
+
+	{% endif %}
 </script>

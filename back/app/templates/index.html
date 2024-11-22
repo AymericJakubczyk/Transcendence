@@ -67,7 +67,7 @@
     <div style="z-index:42">
         <nav>
             <a hx-get="{% url 'home' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route col-sm" id="nav1">Home</a>
-            <a hx-get="{% url 'game' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route col-sm" id="nav2">Game</a>
+            <a hx-get="{% url 'game' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route col-sm" id="game_headbar">Game</a>
             <a hx-get="{% url 'chat' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route col-sm" id="nav2">
                 <div id="chat_headbar" style="position:relative">
                     Chat
@@ -95,3 +95,10 @@
     <script src="{% static 'app.js' %}"></script>
 </body>
 </html>
+
+<script>
+    console.log("{{ request.user.game_status_url }}, {{ user.game_status_txt }}");
+	{% if user.is_authenticated and user.game_status_url != 'none' %}
+		change_game_headbar('{{ user.game_status_txt }}', '{{ request.user.game_status_url }}');
+    {% endif %}                
+</script>

@@ -36,10 +36,14 @@ def chessModeView(request):
     return render(request, 'chessMode.html', {'user':request.user})
 
 def chessFoundGameView(request):
+    if request.user in list_waiter:
+        print("User already in list_waiter", file=sys.stderr)
     # if list_waiter length is zero, add user to list_waiter
-    if len(list_waiter) == 0:
+    elif len(list_waiter) == 0:
         list_waiter.append(request.user)
-    
+        request.user.game_status_txt = "🕒Waiting..."
+        request.user.game_status_url = "/game/chess/ranked/"
+        request.user.save()
     # else remove user from list_waiter, create game redirect to game, and send match_found to wainting user
     else:
         opponent = list_waiter[0]
@@ -72,8 +76,12 @@ def chessFoundGameView(request):
 
         # PASS USER IN GAME STATUT 
         opponent.state = User.State.INGAME
+        opponent.game_status_txt = "♟️in game..."
+        opponent.game_status_url = "/game/chess/ranked/" + str(game.id) + "/"
         opponent.save()
         request.user.state = User.State.INGAME
+        request.user.game_status_txt = "♟️in game..."
+        request.user.game_status_url = "/game/chess/ranked/" + str(game.id) + "/"
         request.user.save()
 
         user_utils.send_change_state(opponent)
@@ -83,8 +91,8 @@ def chessFoundGameView(request):
         return redirect('chess_game', gameID=game.id)
 
     if request.META.get("HTTP_HX_REQUEST") != 'true':
-        return render(request, 'page_full.html', {'page':'waiting_game.html', 'user':request.user})
-    return render(request, 'waiting_game.html', {'user':request.user})
+        return render(request, 'page_full.html', {'page':'waiting_game.html', 'user':request.user, 'game':'chess'})
+    return render(request, 'waiting_game.html', {'user':request.user, 'game':'chess'})
 
 def chessGameView(request, gameID):
     game = get_object_or_404(Game_Chess, id=gameID)

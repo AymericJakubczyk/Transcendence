@@ -202,6 +202,9 @@ def invite(request):
         elif request.POST.get('game') == 'chess':
             obj.game_type = Invite.GameType.CHESS
         obj.save()
+        current_user.game_status_txt = "🕒Waiting..."
+        current_user.game_status_url = "/invite/"
+        current_user.save()
 
         # send invite to opponent
         channel_layer = get_channel_layer()
@@ -211,7 +214,7 @@ def invite(request):
                 "type": "send_ws",
                 "type2": "invite",
                 "game": request.POST.get('game'),
-                "player": request.user.username,
+                "player": current_user.username,
                 "id": obj.id
             }   
         )
@@ -253,8 +256,8 @@ def invite(request):
         invite.delete()
 
     if request.META.get("HTTP_HX_REQUEST") != 'true':
-        return render(request, 'page_full.html', {'page':'waiting_game.html'})
-    return render(request, 'waiting_game.html')
+        return render(request, 'page_full.html', {'page':'waiting_game.html', 'game':'invite'})
+    return render(request, 'waiting_game.html', {'game':'invite'})
 
 
 # UTILS

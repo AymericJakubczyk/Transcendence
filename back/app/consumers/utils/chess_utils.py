@@ -177,6 +177,10 @@ def save_result_game(game_id, winner, by):
         white_player.state = User.State.ONLINE
     if (black_player.state == User.State.INGAME):
         black_player.state = User.State.ONLINE
+    white_player.game_status_txt = 'none'
+    white_player.game_status_url = 'none'
+    black_player.game_status_txt = 'none'
+    black_player.game_status_url = 'none'
 
     user_utils.send_change_state(white_player)
     user_utils.send_change_state(black_player)

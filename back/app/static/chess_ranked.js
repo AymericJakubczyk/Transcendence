@@ -2,6 +2,8 @@ chessSocket = null;
 
 function create_chess_ws(game_id)
 {
+	if (chessSocket)
+		chessSocket.close();
   	if (window.location.protocol == "https:")
     	chessSocket = new WebSocket('wss://' + window.location.host + `/ws/chess/${game_id}/`);
 	else
@@ -24,6 +26,7 @@ function create_chess_ws(game_id)
 		if (data.type == "end_game")
 		{
 			display_chess_endgame(data.winner, data.reason, data.white_elo, data.black_elo, data.white_elo_win, data.black_elo_win);
+			change_game_headbar("Game", "/game/");
 		}
 		if (data.type == "propose_draw")
 			offer_draw();

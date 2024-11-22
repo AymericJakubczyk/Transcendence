@@ -41,6 +41,9 @@ class User(AbstractUser):
 		INGAME = 'ING'
     # online checker to do
 	state = models.CharField(max_length=3, choices=State.choices, default=State.OFFLINE)
+	game_status_txt = models.CharField(max_length=50, default='none')
+	game_status_url = models.CharField(max_length=50, default='none')
+
 
 class Invite(models.Model):
 	from_user = models.ForeignKey(User, related_name='from_user_invite', on_delete=models.CASCADE)
