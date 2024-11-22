@@ -160,11 +160,13 @@ async def stop_game(id):
     )
     if (game.tournament_pos != -1):
         await update_tournament(id)
+        # print("ALL DATA", all_data, file=sys.stderr);
+        # print(all_data[id], file=sys.stderr)
+        # print(game.tournament_round, file=sys.stderr)
         if (all_data[id].score_player1 > all_data[id].score_player2):
-            thread = threading.Thread(target=record_match, args=(player[0], all_data[id].score_player1, player[1], all_data[id].score_player2, game.tournament_id,))
+            thread = threading.Thread(target=record_match, args=(player[0], all_data[id].score_player1, player[1], all_data[id].score_player2, game.tournament_id, game.tournament_round,))
         elif (all_data[id].score_player1 < all_data[id].score_player2):
-            thread = threading.Thread(target=record_match, args=(player[1], all_data[id].score_player2, player[0], all_data[id].score_player1, game.tournament_id,))
-        print("TOURNAMENT ID", game.tournament_id, file=sys.stderr)
+            thread = threading.Thread(target=record_match, args=(player[1], all_data[id].score_player2, player[0], all_data[id].score_player1, game.tournament_id, game.tournament_round,))
         thread.start()
 
 
@@ -291,7 +293,7 @@ def update_tournament(id):
         tournament.winner = game.winner
         tournament.results.append(game.winner.id)
         tournament.save()
-        closeTournament(game.tournament_id, game.winner.username)
+        # closeTournament(game.tournament_id, game.winner.username)
         # thread = threading.Thread(target=closeTournament, args=(game.tournament_id,))
         # thread.start()
         print("UPDATING TOURNAMENT:", game.winner, "WON THE TOURNAMENT", file=sys.stderr)

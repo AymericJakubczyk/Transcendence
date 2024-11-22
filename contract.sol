@@ -29,7 +29,7 @@ contract SepoliaTournament {
 
     event previewTournament(uint256 indexed tournamentId, string[] players);
 
-    event publishMatch(uint256 indexed tournamentId, string Winner, string Loser, uint256 WinnerScore, uint256 LoserScore);
+    event publishMatch(uint256 indexed tournamentId, uint256 indexed bracketId, string Winner, string Loser, uint256 WinnerScore, uint256 LoserScore);
 
     event publishTournament(uint256 indexed tournamentId, string[] players, string Winner);
 
@@ -56,8 +56,8 @@ contract SepoliaTournament {
     }
 
     function isInTournament(uint256 _tournamentId, string memory player) public view returns (bool) {
-        uint256 tId = _tournamentId - 1;
-        if (tId >= nbrTournament)
+        uint256 tId = _tournamentId;
+        if (tId > nbrTournament)
             revert TournamentDoesntExist();
         Tournament storage tournament = tournaments[tId];
         for (uint256 i = 0; i < tournament.players.length; i++)
@@ -66,7 +66,7 @@ contract SepoliaTournament {
         return false;
     }
 
-    function addMatchToTournaments(string memory _player1, string memory _player2, uint256 _score1, uint256 _score2, uint256 _tournamentId) public onlyOwner {
+    function addMatchToTournaments(string memory _player1, string memory _player2, uint256 _score1, uint256 _score2, uint256 _tournamentId, uint256 _bracketId) public onlyOwner {
         uint256 tId = _tournamentId - 1;
         Tournament storage tournament = tournaments[tId];
         if (tournament.status == false)
@@ -83,7 +83,7 @@ contract SepoliaTournament {
         });
 
         tournament.matches.push(newMatch);
-        emit publishMatch(_tournamentId, _player1, _player2, _score1, _score2);
+        emit publishMatch(_tournamentId, _bracketId, _player1, _player2, _score1, _score2);
     }
 
 
