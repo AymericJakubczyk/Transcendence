@@ -46,12 +46,12 @@ class User(AbstractUser):
 	def pong_winrate(self):
 		if self.pong_games_played > 0:
 			return round((self.pong_nb_win / self.pong_games_played) * 100)
-		return 404
+		return "?"
 
 	def chess_winrate(self):
 		if self.chess_games_played > 0:
 			return round((self.chess_nb_win / self.chess_games_played) * 100)
-		return 404
+		return "?"
 
 class Invite(models.Model):
 	from_user = models.ForeignKey(User, related_name='from_user_invite', on_delete=models.CASCADE)

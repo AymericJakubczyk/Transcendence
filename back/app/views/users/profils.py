@@ -24,13 +24,9 @@ def profilView(request, username):
     all_chess_games_to_order = Game_Chess.objects.filter(Q(white_player=user) | Q(black_player=user))
     all_chess_games = all_chess_games_to_order.order_by('-updated_at')
 
-    all_multi_games_to_order = Game_PongMulti.objects.filter(playerlist=user)
-    all_multi_games = all_multi_games_to_order.order_by('-updated_at')
-
-
     if request.META.get("HTTP_HX_REQUEST") != 'true':
-        return render(request, 'page_full.html', {'page':'profil.html', 'user':user, 'all_chess_games':all_chess_games, 'all_pong_games':all_pong_games, 'all_multi_games':all_multi_games})
-    return render(request, 'profil.html', {'user':user, 'all_chess_games':all_chess_games, 'all_pong_games':all_pong_games, 'all_multi_games':all_multi_games})
+        return render(request, 'page_full.html', {'page':'profil.html', 'user':user, 'all_chess_games':all_chess_games, 'all_pong_games':all_pong_games})
+    return render(request, 'profil.html', {'user':user, 'all_chess_games':all_chess_games, 'all_pong_games':all_pong_games})
 
 def myProfilView(request):
     if request.user.is_authenticated:

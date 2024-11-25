@@ -170,7 +170,6 @@ def save_result_game(game_id, winner, by):
     white_player.chess_rank += win_elo_pw
     black_player.chess_rank += win_elo_pb
 
-
     white_player.save()
     black_player.save()
 
@@ -179,12 +178,22 @@ def save_result_game(game_id, winner, by):
         game.winner = game.white_player
     elif winner == 'black':
         game.winner = game.black_player
+
     game.reason_endgame = str(by)
     print("[DEBUG] Saving game object", game, file=sys.stderr)
     game.all_position = all_position[game_id]
     game.save()
     print("[DEBUG] Game object saved", game, file=sys.stderr)
     
+	# UPDATE STATS
+
+    white_player.chess_games_played += 1
+    black_player.chess_games_played += 1
+    if game.winner :
+        game.winner.chess_nb_win += 1
+    white_player.save()
+    black_player.save()
+
     channel_layer = get_channel_layer()
     async_to_sync(channel_layer.group_send)(
         "ranked_chess_" + str(game_id),
