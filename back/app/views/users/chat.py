@@ -259,6 +259,19 @@ def invite(request):
         return render(request, 'page_full.html', {'page':'waiting_game.html', 'game':'invite'})
     return render(request, 'waiting_game.html', {'game':'invite'})
 
+def inviteCancel(request):
+    print("[CANCEL] invite", file=sys.stderr)
+
+    invite = Invite.objects.filter(from_user=request.user)
+    if invite:
+        invite.delete()
+    else :
+        print("[ERROR] no invite to delete", file=sys.stderr)
+
+    request.user.game_status_txt = "Game"
+    request.user.game_status_url = "/game/"
+    request.user.save()
+    return redirect('game')
 
 # UTILS
 

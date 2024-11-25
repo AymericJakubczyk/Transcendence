@@ -94,6 +94,15 @@ def chessFoundGameView(request):
         return render(request, 'page_full.html', {'page':'waiting_game.html', 'user':request.user, 'game':'chess'})
     return render(request, 'waiting_game.html', {'user':request.user, 'game':'chess'})
 
+def chessCancelQueue(request):
+    print("[LOG] User cancel chess queue", file=sys.stderr)
+    if request.user in list_waiter:
+        list_waiter.remove(request.user)
+        request.user.game_status_txt = "Game"
+        request.user.game_status_url = "/game/"
+        request.user.save()
+    return redirect('game')
+
 def chessGameView(request, gameID):
     game = get_object_or_404(Game_Chess, id=gameID)
     board = chess_utils.get_board(gameID)

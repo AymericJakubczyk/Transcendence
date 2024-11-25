@@ -342,8 +342,8 @@ def pongFoundGameView(request):
         return redirect('pong_game', gameID=game.id)
 
     if request.META.get("HTTP_HX_REQUEST") != 'true':
-        return render(request, 'page_full.html', {'page':'waiting_game.html', 'user':request.user, 'game':'chess'})
-    return render(request, 'waiting_game.html', {'user':request.user, 'game':'chess'})
+        return render(request, 'page_full.html', {'page':'waiting_game.html', 'user':request.user, 'game':'pong'})
+    return render(request, 'waiting_game.html', {'user':request.user, 'game':'pong'})
 
 def pongGameView(request, gameID):
     import app.consumers.utils.pong_utils as pong_utils
@@ -365,3 +365,12 @@ def pongGameView(request, gameID):
     if request.META.get("HTTP_HX_REQUEST") != 'true':
         return render(request, 'page_full.html', {'page':'pong_ranked.html', 'user':request.user, 'game':game, 'gameID':gameID})
     return render(request, 'pong_ranked.html', {'user':request.user, 'game':game, 'gameID':gameID})
+
+def pongCancelQueue(request):
+    print("[LOG] User cancel pong queue", file=sys.stderr)
+    if request.user in list_waiter:
+        list_waiter.remove(request.user)
+        request.user.game_status_txt = "Game"
+        request.user.game_status_url = "/game/"
+        request.user.save()
+    return redirect('game')

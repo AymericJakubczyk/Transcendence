@@ -53,6 +53,7 @@ function htmx_request(url, method, values)
     form_htmx.setAttribute("hx-target", "#page");
     form_htmx.setAttribute("hx-swap", "innerHTML");
     form_htmx.setAttribute("hx-indicator", "#content-loader");
+    form_htmx.style.display = "none";
     for (const [key, value] of Object.entries(values))
     {
         console.log(key, value)
@@ -85,4 +86,20 @@ function change_game_headbar(text, url)
     
     game_headbar.replaceWith(copy_elem);
 	htmx.process(copy_elem);
+}
+
+function cancel_game(game) {
+    console.log('canceling game', game);
+    if (game == 'chess')
+        htmx_request("/game/chess/ranked/cancel/", "GET", {})
+    else if (game == 'pong')
+        htmx_request("/game/pong/ranked/cancel/", "GET", {})
+    else if (game == 'invite')
+        htmx_request("/invite/cancel/", "GET", {})
+    else
+    {
+        console.error('wrong type of game to cancel');
+        return ;
+    }
+    change_game_headbar('Game', '/game/');
 }

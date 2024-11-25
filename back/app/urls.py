@@ -19,6 +19,7 @@ urlpatterns = [
     path('game/pong/tournament/', pong.pongTournament, name='pong_tournament'),
 	path('game/pong/local/', pong.pongView, name='pong_local'),
     path('game/pong/ranked/', pong.pongFoundGameView, name='pong_found_game'),
+    path('game/pong/ranked/cancel/', pong.pongCancelQueue, name='pong_cancel_queue'),
     path('game/pong/ranked/<int:gameID>/', pong.pongGameView, name='pong_game'),
 
     path('game/pong/multiplayer/', pongMultiplayer.pongMultiWait, name='pong_multi_found'),
@@ -28,6 +29,7 @@ urlpatterns = [
 	path('game/chess/', chess.chessModeView, name='chess'),
     path('game/chess/local/', chess.chessView, name='chess_local'),
     path('game/chess/ranked/', chess.chessFoundGameView, name='chess_found_game'),
+    path('game/chess/ranked/cancel/', chess.chessCancelQueue, name='chess_cancel_queue'),
     path('game/chess/ranked/<int:gameID>/', chess.chessGameView, name='chess_game'),
     
     path('profile/', profils.myProfilView, name='myprofile'),
@@ -47,6 +49,7 @@ urlpatterns = [
     path('block_user/<str:username>/', users.block_user, name='block_user'),
 
     path('invite/', chat.invite, name='invite'),
+    path('invite/cancel/', chat.inviteCancel, name='invite_cancel'),
 
     # API URLS
     path('api-auth/', include('rest_framework.urls')),
