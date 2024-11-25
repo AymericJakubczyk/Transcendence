@@ -142,6 +142,7 @@ def get_color_turn(id):
 @database_sync_to_async
 def save_result_game(game_id, winner, by):
     import app.consumers.utils.user_utils as user_utils
+    global all_position
 
     game = get_object_or_404(Game_Chess, id=game_id)
     white_player = get_object_or_404(User, id=game.white_player.id)

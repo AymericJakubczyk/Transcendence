@@ -67,7 +67,7 @@ class ChessConsumer(AsyncWebsocketConsumer):
         elif (data['type'] == 'accept_draw'):
             print("[ACCEPT DRAW] by ",self.scope["user"], "for", self.id, file=sys.stderr)
             # verif also if draw is proposed by the opponent
-            await chess_utils.save_result_game(self.id, 0, 'agreement')
+            await chess_utils.save_result_game(int(self.id), 0, 'agreement')
         
         elif (data['type'] == 'decline_draw'):
             print("[DECLINE DRAW] by ",self.scope["user"], "for", self.id, file=sys.stderr)
