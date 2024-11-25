@@ -46,12 +46,14 @@ class User(AbstractUser):
 
 
 class Invite(models.Model):
-	from_user = models.ForeignKey(User, related_name='from_user_invite', on_delete=models.CASCADE)
+	from_user = models.ForeignKey(User, related_name='from_user_invite', on_delete=models.CASCADE, null=True)
 	to_user = models.ForeignKey(User, related_name='to_user_invite', on_delete=models.CASCADE)
 	class GameType(models.TextChoices):
 		PONG = 'PONG'
 		CHESS = 'CHESS'
 	game_type = models.CharField(max_length=5, choices=GameType.choices)
+	for_tournament = models.BooleanField(default=False)
+	game_id = models.IntegerField(default=-1)
 
 class Friend_Request(models.Model):
 	from_user = models.ForeignKey(User, related_name='from_user', on_delete=models.CASCADE)

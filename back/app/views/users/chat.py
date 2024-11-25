@@ -158,7 +158,10 @@ def mini_chat(request):
             json_all_invite = []
             all_invite = Invite.objects.filter(to_user=current_user)
             for invite in all_invite:
-                obj = {'from_user':invite.from_user.username, 'game_type':invite.game_type, 'id':invite.id}
+                if invite.for_tournament:
+                    obj = {'from_user':'Tournament', 'game_type':invite.game_type, 'id':invite.id, 'for_tournament':True, 'game_id':invite.game_id}
+                else:
+                    obj = {'from_user':invite.from_user.username, 'game_type':invite.game_type, 'id':invite.id}
                 json_all_invite.append(obj)
             return JsonResponse({'type': request_type, 'all_invite': json_all_invite, 'current_username':current_user.username, 'notif_discu':notif_discu, 'notif_invite':notif_invite, 'notif_request':notif_request})
 

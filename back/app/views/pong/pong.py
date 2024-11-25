@@ -10,6 +10,7 @@ import json, math
 from django.http import JsonResponse, HttpResponse
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
+import app.consumers.utils.pong_utils as pong_utils
 
 from app.consumers.pongTournamentConsumer import pongTournamentConsumer
 
@@ -76,6 +77,8 @@ def moveWinners(tournament_matchs):
                         game_obj.player1 = game.winner
                     elif (not game_obj.player2):
                         game_obj.player2 = game.winner
+                        # send ws tournament game ready
+                        pong_utils.game_pong_tournament_ready(game_obj)
                     game_obj.save()
                     print("\tMOVED", game.winner, "TO", game_obj.tournament_pos, file=sys.stderr)
     return tournament_matchs

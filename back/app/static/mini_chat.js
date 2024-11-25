@@ -153,14 +153,26 @@ function display_all_invite()
             invite_div.setAttribute("class", "rounded-2 m-1 p-1 text-white")
             invite_div.setAttribute("id", "invite_" + all_invite[i].id)
             
-            invite_div.innerHTML = `
-                <div>`+ all_invite[i].game_type +` against `+ all_invite[i].from_user +`</div>
+            if (all_invite[i].for_tournament)
+            {
+                invite_div.innerHTML = `
+                <div> 🏆 Your tournament game is ready </div>
                 <div>
-                    <button class="btn btn-success" onclick="accept_invite(`+ all_invite[i].id +`)">Accept</button>
-                    <button class="btn btn-danger" onclick="decline_invite(`+ all_invite[i].id +`)">Decline</button>
+                    <button class="btn btn-success" onclick="">GO</button>
+                    <button class="btn btn-danger" onclick="">GIVE UP</button>
                 </div>
-
-            `
+                `
+            }
+            else
+            {
+                invite_div.innerHTML = `
+                    <div>`+ all_invite[i].game_type +` against `+ all_invite[i].from_user +`</div>
+                    <div>
+                        <button class="btn btn-success" onclick="accept_invite(`+ all_invite[i].id +`)">Accept</button>
+                        <button class="btn btn-danger" onclick="decline_invite(`+ all_invite[i].id +`)">Decline</button>
+                    </div>
+                `
+            }
             htmx.process(invite_div);
             all_discu_div.append(invite_div)
         }

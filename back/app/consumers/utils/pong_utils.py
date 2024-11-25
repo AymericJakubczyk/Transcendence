@@ -14,7 +14,7 @@ paddleHeight = 17
 thickness = 1
 baseSpeed = 0.5
 nbrHit = 0
-winningScore = 2
+winningScore = 1
 
 all_data = {}
 
@@ -335,6 +335,8 @@ def update_tournament(id):
             next_game.player1 = game.winner
         elif (not next_game.player2):
             next_game.player2 = game.winner
+            # send ws tournament game ready
+            pong_tournament_game_ready(next_game)
         print("UPDATING TOURNAMENT:", game.winner, "will play in game_pos ", new_game_pos, file=sys.stderr)
         next_game.save()
     
@@ -346,3 +348,51 @@ def update_tournament(id):
             "type": "update_room",
         }
     )
+
+def pong_tournament_game_ready(game):
+    from django.db.models import Q
+    from app.models import Invite
+
+    print("[TOURNAMENT] GAME READY", file=sys.stderr)
+    channel_layer = get_channel_layer()
+    print("[TOURNAMENT] SENDING WS TO", game.player1.username, "AND", game.player2.username, file=sys.stderr)
+
+    # CREATE INVITATION
+    new_invite = Invite()
+    new_invite.to_user = game.player1
+    new_invite.game_type = Invite.GameType.PONG
+    new_invite.for_tournament = True
+    new_invite.game_id = game.id
+    new_invite.save()
+
+    new_invite = Invite()
+    new_invite.to_user = game.player2
+    new_invite.game_type = Invite.GameType.PONG
+    new_invite.for_tournament = True
+    new_invite.game_id = game.id
+    new_invite.save()
+
+    async_to_sync(channel_layer.group_send)(
+        game.player1.username,
+        {
+            'type': 'send_ws',
+            'type2': 'invite',
+            'game': 'pong',
+            'player': game.player2.username,
+            'id': new_invite.id,
+            'game_id': game.id
+        }
+    )
+
+    async_to_sync(channel_layer.group_send)(
+        game.player2.username,
+        {
+            'type': 'send_ws',
+            'type2': 'invite',
+            'game': 'pong',
+            'player': game.player1.username,
+            'id': new_invite.id,
+            'game_id': game.id
+        }
+    )
+    
