@@ -4,38 +4,63 @@
 {% if user.tournament_id != -1 and not mytournament.winner %}
 <script> create_pong_tournament_ws() </script>
 <div>
-    <div id="TournamentBox" class="w-100 h-100 m-0">
-        <h4>Bienvenue dans le tournoi n°: {{ mytournament.id }}</h4>
-        <h5>{{ mytournament.name }} created by {{ mytournament.host_user }}</h5>
-        <h6>PARTICIPANTS: <span id="tournament_count" class="text-white">{{mytournament.participants.count}}</span> / {{mytournament.max_users}}</h6>
-        {% for user in mytournament.participants.all %}
-            <span id="{{ user.username }}">{{ user.username }} - ({{ user.pong_rank }}) /</span>
-        {% endfor %}
+    <div id="TournamentBox" >
+        <div class="d-flex">
+            <div class="previewTournament">
+                <h4>Bienvenue dans le tournoi n°: {{ mytournament.id }}</h4>
+                <h5>PARTICIPANTS: <span id="tournament_count" class="text-white">{{mytournament.participants.count}}</span> / {{mytournament.max_users}}</h6>
+            </div>
+            <div class="tournamentName">
+                <h3>{{ mytournament.name }} created by {{ mytournament.host_user }}</h3>
+            </div>
+        </div>
+        <div class="playersList">
+            {% for user in mytournament.participants.all %}
+            <div class="player">
+                <div class="imageFrame">
+                    <img src="{{ user.profile_picture.url }}" alt="Profile Picture" class="pp" style="margin : 2px;">
+                </div>
+                <div style="display: grid; margin-left: 5px; background: center;" class="infosPlayer">
+                    <div class="playerInfo">
+                        <h6 class="infoP">Player : {{ user.username }}</h6>
+                        <h6 class="infoP">Elo : {{ user.pong_rank }}</h6>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% if mytournament.host_user == user and mytournament.started == False %}
     </div>
-    <br>
-    <br>
-    {% if mytournament.host_user == user and mytournament.started == False %}
+</div>
+<br>
+{% include 'bracket.html' %}
+<br>
     <form method="POST" hx-post="{{ request.path }}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
         {% csrf_token %}
         <input type="hidden" name="bracket_tournament" value="{{ mytournament.id }}"/>
         <button type="submit" onclick="launch_tournament_error({{ mytournament.participants.count }})">LAUNCH TOURNAMENT</button>
     </form>
     {% endif %}
-    <br>
-    {% include 'bracket.html' %}
-    <br>
-    <form method="POST" hx-post="{{ request.path }}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
-        {% csrf_token %}
-        <input type="hidden" name="win_tournament" value="{{ mytournament.id }}"/>
-        <button type="submit">WIN TOURNAMENT</button>
-    </form>
     <h6>finish this tournament before join or create others</h6>
     <form method="POST" hx-post="{{ request.path }}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
         {% csrf_token %}
         <input type="hidden" name="leave_tournament" value="{{ mytournament.id }}"/>
         <button type="submit" onclick="leave_pong_tournament({{ mytournament.id }})">LEAVE</button>
     </form>
-</div>
+    <br>
+    <br>
+
+
+    <!-- <form method="POST" hx-post="{{ request.path }}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
+        {% csrf_token %}
+        <input type="hidden" name="win_tournament" value="{{ mytournament.id }}"/>
+        <button type="submit">WIN TOURNAMENT</button>
+    </form>
+    <form method="POST" hx-post="{{ request.path }}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
+        {% csrf_token %}
+        <input type="hidden" name="leave_tournament" value="{{ mytournament.id }}"/>
+        <button type="submit" onclick="leave_pong_tournament({{ mytournament.id }})">LEAVE</button>
+    </form> -->
 {% elif mytournament.winner %}
 
 <div>

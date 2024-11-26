@@ -9,6 +9,104 @@
     padding: 10px;
 }
 
+.previewTournament
+{
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    justify-content: space-between;
+    margin-vertical: 10px;
+    padding: 10px;
+    border: solid 3px black;
+    width: fit-content;
+}
+
+.tournamentName
+{
+    display: flex;
+    flex: 4;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin-vertical: 10px;
+    margin-left: -2px;
+    padding: 10px;
+    border: solid 3px black;
+}
+
+.imageFrame
+{
+    flex-shrink: 1;
+    /* flex-start: 1; */
+    height: 5.2rem;
+    width: 5.2rem;
+    aspect-ratio: 1;
+    overflow: hidden;
+    background-color: lavenderblush;
+    border-radius: 50%;
+}
+
+.imageFrame img
+{
+    width: 95%; 
+    height: 95%;
+    object-fit: cover;
+    border-radius: 50%; 
+}
+
+.playersList {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: -2px;
+    border: solid 1px black;
+    padding: 10px;
+}
+
+.player {
+    display: flex;
+    /* align-items: center; Vertically centers content */
+    /* justify-content: center; Horizontally centers content */
+    margin-vertical: 1px;
+    background-color: darkslategray;
+    border: solid 1px black;
+    padding: 10px; /* Added for better spacing */
+}
+
+.infosPlayer {
+    /* display: flex; Changed from grid to flex */
+    /* align-items: center; */
+    justify-content: flex-start;
+    flex: 1; /* Takes remaining space */
+    margin-left: 5px;
+}
+
+.playerInfo {
+    /* display: flex; */
+    gap: 10px;
+    margin: 3px;
+    border: solid 1px;
+    background-color: lavenderblush;
+    border-radius: 10px;
+    text-align: center;
+}
+
+/* .imageFrame > .infosPlayer {
+    margin-left: 100px;
+} */
+
+/* 
+.infosPlayer
+{
+    align-self: center;
+} */
+
+.infoP
+{
+    margin: 3px;
+    font-size: 25px;
+}
+
 .tournament-list-line
 {
     display: flex;
