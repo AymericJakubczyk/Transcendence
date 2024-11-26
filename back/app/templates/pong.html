@@ -14,7 +14,10 @@
 	<!-- Bouton pour démarrer le jeu -->
 	<div id="playButton" class="buttongroup text-center mt-4">
 		<button onclick="startGame()" class="playButton">JOUER</button>
-		<button onclick="startIAGame()" class="playButton">vs IA</button>
+
+		<!-- redirect to pong_ai_game urlpattern name button -->
+		<a href="{% url 'pong_ai_game' %}" class="playButton">VS IA</a>
+
 	</div>
 
 	<!-- Canevas du jeu, masqué par défaut -->

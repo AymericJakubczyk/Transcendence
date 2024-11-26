@@ -290,19 +290,14 @@ def pongTournament(request):
     return render(request, 'pongTournament.html', {'user':request.user, 'all_tournaments': all_tournaments, 'mytournament': mytournament})
 
 def pongLocalView(request):
-    import app.consumers.utils.pong_utils as pong_utils
-    import app.consumers.utils.user_utils as user_utils
+    if request.META.get("HTTP_HX_REQUEST") != 'true':
+        return render(request, 'page_full.html', {'page':'pong.html', 'user':request.user})
+    return render(request, 'pong.html', {'user':request.user})
 
-    game = Game_Pong()
-    game.player1 = request.user
-    # put no player bc it's local game
-    game.player2 = None
-    game.save()
-    print("Game created:", game.id, file=sys.stderr)
-
-    # if request.META.get("HTTP_HX_REQUEST") != 'true':
-    #     return render(request, 'page_full.html', {'page':'pong.html', 'user':request.user})
-    # return render(request, 'pong.html', {'user':request.user})
+def pongAIGame(request):
+    if request.META.get("HTTP_HX_REQUEST") != 'true':
+        return render(request, 'page_full.html', {'page':'pong_ai.html', 'user':request.user})
+    return render(request, 'pong_ai.html', {'user':request.user})
 
 def pongFoundGameView(request):
     import app.consumers.utils.pong_utils as pong_utils
