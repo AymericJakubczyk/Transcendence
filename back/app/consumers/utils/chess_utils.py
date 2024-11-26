@@ -39,6 +39,7 @@ def launch_game(id):
         board[7][4].piece = chess_class.King("white")
 
     all_chess_data[id] = board
+    save_position(id)
 
 
 def get_board(id):
