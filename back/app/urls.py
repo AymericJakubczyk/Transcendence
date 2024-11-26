@@ -17,7 +17,7 @@ urlpatterns = [
 
 	path('game/pong/', pong.pongModeView, name='pong'),
     path('game/pong/tournament/', pong.pongTournament, name='pong_tournament'),
-	path('game/pong/local/', pong.pongView, name='pong_local'),
+	path('game/pong/local/', pong.pongLocalView, name='pong_local'),
     path('game/pong/ranked/', pong.pongFoundGameView, name='pong_found_game'),
     path('game/pong/ranked/cancel/', pong.pongCancelQueue, name='pong_cancel_queue'),
     path('game/pong/ranked/<int:gameID>/', pong.pongGameView, name='pong_game'),
