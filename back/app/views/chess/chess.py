@@ -119,31 +119,35 @@ def game_found(user, opponent):
 
 def fond_opponent(user):
     global list_waiter
-    
-    for opponent in list(list_waiter):
+
+    cp_list_waiter = dict(list_waiter)
+    for opponent in cp_list_waiter:
         if opponent == user:
             continue
         print("Check opponent", user.username, user.chess_rank, opponent.username, opponent.chess_rank, file=sys.stderr)
-        if opponent.chess_rank >= user.chess_rank - list_waiter[user] and opponent.chess_rank <= user.chess_rank + list_waiter[user]:
+        if user in cp_list_waiter and opponent.chess_rank >= user.chess_rank - cp_list_waiter[user] and opponent.chess_rank <= user.chess_rank + cp_list_waiter[user]:
             print("IS OK FOR", opponent.username, file=sys.stderr)
-            if user.chess_rank >= opponent.chess_rank - list_waiter[opponent]  and user.chess_rank <= opponent.chess_rank + list_waiter[opponent]:
+            if user.chess_rank >= opponent.chess_rank - cp_list_waiter[opponent]  and user.chess_rank <= opponent.chess_rank + cp_list_waiter[opponent]:
                 print("Match found", user.username, opponent.username, file=sys.stderr)
-                del list_waiter[user]
-                del list_waiter[opponent]
-                game_found(user, opponent)
-                break
+                if user in list_waiter and opponent in list_waiter:
+                    del list_waiter[user]
+                    del list_waiter[opponent]
+                    game_found(user, opponent)
+                    break
 
 def thread_function():
     global list_waiter
-    print("Thread started", file=sys.stderr)
+    
+    print("[THREAD] started", file=sys.stderr)
     while True:
-        print("Thread running", list_waiter, file=sys.stderr)
+        print("[THREAD] running", list_waiter, file=sys.stderr)
         if len(list_waiter) == 0:
+            print("[THREAD] stopped", file=sys.stderr)
             break
         print("[LOG]", list_waiter, file=sys.stderr)
-        for user in list(list_waiter):
+        for user in dict(list_waiter):
             fond_opponent(user)
         time.sleep(1)
-        for user in list(list_waiter):
+        for user in dict(list_waiter):
             if list_waiter[user] < 250:
                 list_waiter[user] += 5
