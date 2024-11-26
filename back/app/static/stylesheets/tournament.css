@@ -53,7 +53,7 @@ span.tournament-list-state
 
 #max_player_value
 {
-    color: rgb(255, 53, 53);
+    color: rgb(153, 46, 252);
 }
 
 #create_name_input{
@@ -71,7 +71,7 @@ span.tournament-list-state
 .creation-form input
 {
     margin: 10px;
-    accent-color: rgb(255, 53, 53);
+    accent-color: rgb(153, 46, 252);
 }
 
 .creation-form button

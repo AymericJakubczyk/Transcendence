@@ -40,7 +40,7 @@ async def launch_game(id):
     global all_data, maxnbHit
 
     print("[LAUNCH GAME]", id, file=sys.stderr)
-	maxnbHit = 0
+    maxnbHit = 0
     all_data[id] = PongData()
     asyncio.create_task(calcul_ball(id))
 
@@ -185,11 +185,6 @@ def get_game(id):
     return get_object_or_404(Game_Pong, id=id)
 
 
-
-
-
-
-
 @database_sync_to_async
 def get_username_of_game(game_id):
     from app.models import Game_Pong
@@ -228,8 +223,8 @@ async def goal(player, id):
         all_data[id].score_player1 += 1
     else:
         all_data[id].score_player2 += 1
-	if (nbrHit > maxnbHit)
-		maxnbHit = nbrHit
+    if (nbrHit > maxnbHit):
+        maxnbHit = nbrHit
     nbrHit = 0
     await send_updates(id)
     await send_bump('ball', 0, id)
@@ -278,11 +273,11 @@ def save_winner(id):
     game.player2.pong_games_played += 1
     game.winner.pong_nb_win += 1
     
-	if (game.player1.pong_max_exchange < maxnbHit)
-		game.player1.pong_max_exchange = maxnbHit
-	
-	if (game.player2.pong_max_exchange < maxnbHit)
-		game.player2.pong_max_exchange = maxnbHit
+    if (game.player1.pong_max_exchange < maxnbHit):
+        game.player1.pong_max_exchange = maxnbHit
+
+    if (game.player2.pong_max_exchange < maxnbHit):
+        game.player2.pong_max_exchange = maxnbHit
 
     game.player1.save()
     game.player2.save()

@@ -29,11 +29,19 @@
 	<div class="row mt-3">
 		<div class="text-center col-6">
 			<h6>Joined :</h6>
-			<p>{{ user.date_joined }}</p>
+			<p>{{ user.date_joined|date:"d M Y" }}</p>
 		</div>
 		<div class="text-center col-6">
 			<h6>Last Connexion :</h6>
-			<p>{{ user.last_login }}</p>
+			{% if context_last_login.total_seconds < 60 %}
+				<p>{{ context_last_login.total_seconds|floatformat:0}} seconds ago</p>
+			{% elif context_last_login.total_seconds < 3600 %}
+				<p>{{ context_last_login.minutes|floatformat:0 }} minutes ago</p>
+			{% elif context_last_login.total_seconds < 86400 %}
+				<p>{{ context_last_login.hours|floatformat:0 }} hours ago</p>
+			{% else %}
+				<p>more than {{ context_last_login.days }} days ago</p>
+			{% endif %}
 		</div>
 		<div class="text-center col-12">
 			<h6>STATUS</h6>
@@ -92,13 +100,13 @@
 							<span class="col-3 text-danger">LOSS</span>
 							{% endif %}
 							{% if pong_game.player1 == user %}
-							<span class="col-3">{{ pong_game.player2 }}({{ pong_game.player2.pong_rank }})</span>
+							<span class="col-3">{{ pong_game.player2 }}({{ pong_game.player2_rank }})</span>
 							<span class="col-3">{{ pong_game.player1_score }} - {{ pong_game.player2_score }}</span>
 							{% else %}
-							<span class="col-3">{{ pong_game.player1 }}({{ pong_game.player1.pong_rank }})</span>
+							<span class="col-3">{{ pong_game.player1 }}({{ pong_game.player1_rank }})</span>
 							<span class="col-3">{{ pong_game.player2_score }} - {{ pong_game.player1_score }}</span>
 							{% endif %}
-							<span class="col-3">{{ pong_game.updated_at }}</span>
+							<span class="col-3">{{ pong_game.updated_at|date:"H:i - d M y" }}</span>
 						</div>
 					{% endfor %}
 				{% else %}
@@ -107,9 +115,6 @@
 				{% endif %}
 			</div>
 		</div>
-
-
-
 
 		<div id="cat_chess" class="d-none">
 			<h5 class="text-center">CHESS STATISTICS</h5>
@@ -142,15 +147,17 @@
 						<div class="row ml-3 mr-3 div_game_history_chess">
 							{% if chess_game.winner == user %}
 							<span class="col-4 text-success">WIN</span>
+							{% elif not chess_game.winner %}
+							<span class="col-4 text-warning">DRAW</span>
 							{% else %}
 							<span class="col-4 text-danger">LOSS</span>
 							{% endif %}
 							{% if chess_game.white_player == user %}
-							<span class="col-4">{{ chess_game.black_player }}({{ chess_game.black_player.chess_rank }})</span>
+							<span class="col-4">{{ chess_game.black_player }}({{ chess_game.black_player_rank }})</span>
 							{% else %}
-							<span class="col-4">{{ chess_game.white_player }}({{ chess_game.white_player.chess_rank }})</span>
+							<span class="col-4">{{ chess_game.white_player }}({{ chess_game.white_player_rank }})</span>
 							{% endif %}
-							<span class="col-4">{{ chess_game.updated_at }}</span>
+							<span class="col-4">{{ chess_game.updated_at|date:"H:i - d M y" }}</span>
 						</div>
 					{% endfor %}
 				{% else %}

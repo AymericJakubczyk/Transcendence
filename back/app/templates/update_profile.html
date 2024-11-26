@@ -1,13 +1,16 @@
 <div class="container">
     <h1>Update Profile</h1>
-    <a hx-get="{% url 'password_change' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route col-sm-4" id="nav1">Changer le mot de passe</a>
-    <form method="POST" hx-encoding="multipart/form-data" hx-post="{{request.path}}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
+    <br>
+    <div class="d-flex justify-content-center">
+        <a hx-get="{% url 'password_change' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="change_password_button route">Change password</a>
+    </div>
+    <form class="registerform update-pro" method="POST" hx-encoding="multipart/form-data" hx-post="{{request.path}}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
     {% csrf_token %}
     {% for field in form %}
-    <p>
+    <span>
         {{ field.label_tag }} {{ field }}
-    </p>
+    </span>
     {% endfor %}
-    <input type="submit" value="Envoyer">
+    <input class="registration_submit" type="submit" value="Envoyer">
     </form>
 </div>
