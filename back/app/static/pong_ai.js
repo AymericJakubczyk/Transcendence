@@ -157,5 +157,5 @@ function join_ai_pong(game, you)
     document.addEventListener("keyup", keyUpHandler_ranked);
 
     display3D()
-    display_ranked(game, you)
+    // display_ranked(game, you)
 }

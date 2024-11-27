@@ -42,6 +42,27 @@ async def launch_game(id):
     all_data[id] = PongData()
     asyncio.create_task(calcul_ball(id))
 
+@async_to_sync
+async def launch_ai_game(id):
+    global all_data
+
+    print("[LAUNCH AI GAME]", id, file=sys.stderr)
+    all_data[id] = PongData()
+    asyncio.create_task(calcul_ball(id))
+
+async def send_ai_updates(id):
+    global all_data
+
+    await asyncio.sleep(1)
+    # send ai updates
+    target_y = all_data[id].ball_y
+    if all_data[id].paddle2_y < target_y:
+        move_paddle("up", False, 2, id)
+        move_paddle("down", True, 2, id)
+    elif all_data[id].paddle2_y > target_y:
+        move_paddle("down", False, 2, id)
+        move_paddle("up", True, 2, id)
+
 
 async def calcul_ball(id):
     global arenaWidth, arenaLength, thickness, ballRadius, paddleWidth, paddleHeight, baseSpeed, nbrHit, all_data, winningScore
@@ -56,8 +77,10 @@ async def calcul_ball(id):
     await send_countdown("GO", id)
     await asyncio.sleep(1)
 
+    
     while True:
         await asyncio.sleep(0.01)  # Wait for 0.01 second
+        asyncio.create_task(send_ai_updates(id))
 
         all_data[id].ball_x += all_data[id].ball_dx
         all_data[id].ball_y += all_data[id].ball_dy
@@ -182,12 +205,6 @@ def get_game(id):
 
     return get_object_or_404(Game_Pong, id=id)
 
-
-
-
-
-
-
 @database_sync_to_async
 def get_username_of_game(game_id):
     from app.models import Game_Pong
@@ -285,11 +302,6 @@ def save_winner(id):
         game.winner = game.player2        
     game.save()
     return ({'win_elo_p1': win_elo_p1, 'win_elo_p2': win_elo_p2})
-
-
-
-
-
 
 
 @database_sync_to_async

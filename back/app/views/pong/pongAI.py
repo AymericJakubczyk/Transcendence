@@ -28,7 +28,7 @@ def pongAISetup(request):
     game.player1 = User.objects.get(username="root")
     game.save()
     print("Game created:", game.id, file=sys.stderr)
-    pong_utils.launch_game(game.id)
+    pong_utils.launch_ai_game(game.id)
     game.status = "started"
     game.save()
     request.user.state = User.State.INGAME
