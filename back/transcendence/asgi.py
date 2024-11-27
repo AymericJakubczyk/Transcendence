@@ -30,6 +30,7 @@ websocket_urlpatterns = [
 	re_path(r'ws/pong/$', PongConsumer.as_asgi()),
 	re_path(r'ws/pong/(?P<id>\d+)/$', PongConsumer.as_asgi()),
 	re_path(r'ws/pong/ai/$', PongAIConsumer.as_asgi()),
+	re_path(r'ws/pong/ai/(?P<id>\d+)/$', PongAIConsumer.as_asgi()),
 	re_path(r'ws/pongTournament/$', pongTournamentConsumer.as_asgi()),
 	re_path(r'ws/pongMultiplayer/$', PongMultiplayerConsumer.as_asgi()),
 ]

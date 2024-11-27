@@ -1,7 +1,10 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
-import sys  # pour print
+from channels.db import database_sync_to_async
+from django.shortcuts import get_object_or_404
 from .utils import pong_utils
+
+import sys #for print
 
 class PongAIConsumer(AsyncWebsocketConsumer):
     player1 = None

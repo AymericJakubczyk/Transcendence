@@ -294,10 +294,6 @@ def pongLocalView(request):
         return render(request, 'page_full.html', {'page':'pong.html', 'user':request.user})
     return render(request, 'pong.html', {'user':request.user})
 
-def pongAIGame(request):
-    if request.META.get("HTTP_HX_REQUEST") != 'true':
-        return render(request, 'page_full.html', {'page':'pong_ai.html', 'user':request.user})
-    return render(request, 'pong_ai.html', {'user':request.user})
 
 def pongFoundGameView(request):
     import app.consumers.utils.pong_utils as pong_utils
@@ -352,6 +348,8 @@ def pongFoundGameView(request):
     if request.META.get("HTTP_HX_REQUEST") != 'true':
         return render(request, 'page_full.html', {'page':'waiting_game.html', 'user':request.user, 'game':'pong'})
     return render(request, 'waiting_game.html', {'user':request.user, 'game':'pong'})
+
+
 
 def pongGameView(request, gameID):
     import app.consumers.utils.pong_utils as pong_utils

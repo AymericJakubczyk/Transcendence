@@ -52,13 +52,20 @@
                     </div>
                 </div>
             </div>
-            <h1 id="countdown" style="position:absolute">waiting...</h1>
+            {% if not game.winner %}
+					<h1 id="countdown" style="position:absolute">{% if game.status == 'waiting' %}waiting...{% endif %}</h1>
+            {% endif %}
         </div>
     </div>
 </div>
 
 <script>
-    join_pong_ai_game();
+		{% if game.winner %}
+			display3D()
+			display_endgame("{{game.player1.username}}", "{{game.player2.username}}", {{game.player1_score}}, {{game.player2_score}}, {{game.player1_rank_win}}, {{game.player2_rank_win}} );
+		{% else %}
+			join_ai_pong({id:{{gameID}}, player1:"{{game.player1.username}}", player2:"AI"}, "{{request.user.username}}");
+		{% endif %}
 </script>
 
 </body>

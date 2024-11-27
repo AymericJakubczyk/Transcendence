@@ -76,7 +76,7 @@
                 </div>
             </a>
             <a hx-get="{% url 'myprofile' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route col-sm" id="nav3">Profile</a>
-            <a hx-get="{% url 'pong_found_game' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route col-sm" id="nav4">TEST</a>
+            <a hx-get="{% url 'pong_ai_game' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route col-sm" id="nav4">TEST</a>
         </nav>
     </div>
     <div id="page">{% block content %}{% endblock %}</div>

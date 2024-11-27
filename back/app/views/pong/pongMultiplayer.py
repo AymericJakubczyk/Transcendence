@@ -13,15 +13,10 @@ import logging
 from django.contrib import messages
 
 
-
-
-
 def pongMultiWait(request):
     if request.META.get("HTTP_HX_REQUEST") != 'true':
         return render(request, 'page_full.html', {'page':'pongMultiFound.html', 'user':request.user})
     return render(request, 'pongMultiFound.html', {'user':request.user})
-
-
 
 def pongMultiplayer(request, gameID):
     game = get_object_or_404(Game_PongMulti, id=gameID)

@@ -136,3 +136,26 @@ document.addEventListener("keyup", function(event) {
         send_input_move('down', false);
     }
 });
+
+function join_ai_pong(game, you)
+{   
+    console.log("start ranked pong", game.id)
+    current_player = (you == game.player1) ? 1 : 2
+    join_pong_game(game, current_player)
+
+    upPressed = false
+    downPressed = false
+    resetBall()
+
+    let cmd1 = document.getElementById("cmd1")
+    let cmd2 = document.getElementById("cmd2")
+
+    document.removeEventListener("keydown", keyDownHandler);
+    document.removeEventListener("keyup", keyUpHandler);
+
+    document.addEventListener("keydown", keyDownHandler_ranked);
+    document.addEventListener("keyup", keyUpHandler_ranked);
+
+    display3D()
+    display_ranked(game, you)
+}
