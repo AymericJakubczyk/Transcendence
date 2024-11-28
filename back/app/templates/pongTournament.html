@@ -17,6 +17,7 @@
                 <h3>{{ mytournament.name }} created by {{ mytournament.host_user }}</h3>
             </div>
         </div>
+        {% if mytournament.started == False %}
         <div class="playersList">
             {% for user in mytournament.participants.all %}
             <div class="player">
@@ -33,7 +34,12 @@
         </div>
         {% endfor %}
         </div>
-        </div>
+        {% else %}
+        <br>
+        {% include 'bracket.html' %}
+        <br>
+        {% endif %}
+    </div>
     <br>
     <br>
     {% if mytournament.host_user == user and mytournament.started == False %}
@@ -50,9 +56,7 @@
         <button type="submit" onclick="leave_pong_tournament({{ mytournament.id }})">LEAVE</button>
     </form>
 </div>
-<br>
-{% include 'bracket.html' %}
-<br>
+
 {% elif mytournament.winner %}
 <div>
 
