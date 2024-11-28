@@ -4,6 +4,9 @@
 {% if user.tournament_id != -1 and not mytournament.winner %}
 <script> create_pong_tournament_ws() </script>
 <div>
+    <h4>TOURNAMENT :</h4>
+    <h5>{{ mytournament.name }}</h5>
+    <h6>TOURNAMENT ID : {{ mytournament.id }}</h6>
     <div id="TournamentBox" >
         <div class="d-flex">
             <div class="previewTournament">
@@ -20,21 +23,20 @@
                 <div class="imageFrame">
                     <img src="{{ user.profile_picture.url }}" alt="Profile Picture" class="pp" style="margin : 2px;">
                 </div>
-                <div style="display: grid; margin-left: 5px; background: center;" class="infosPlayer">
+                <div class="infosPlayer">
                     <div class="playerInfo">
                         <h6 class="infoP">Player : {{ user.username }}</h6>
                         <h6 class="infoP">Elo : {{ user.pong_rank }}</h6>
                     </div>
                 </div>
-            </div>
-            {% endfor %}
+            </script>
         </div>
-        {% if mytournament.host_user == user and mytournament.started == False %}
-    </div>
-</div>
-<br>
-{% include 'bracket.html' %}
-<br>
+        {% endfor %}
+        </div>
+        </div>
+    <br>
+    <br>
+    {% if mytournament.host_user == user and mytournament.started == False %}
     <form method="POST" hx-post="{{ request.path }}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
         {% csrf_token %}
         <input type="hidden" name="bracket_tournament" value="{{ mytournament.id }}"/>
@@ -47,22 +49,11 @@
         <input type="hidden" name="leave_tournament" value="{{ mytournament.id }}"/>
         <button type="submit" onclick="leave_pong_tournament({{ mytournament.id }})">LEAVE</button>
     </form>
-    <br>
-    <br>
-
-
-    <!-- <form method="POST" hx-post="{{ request.path }}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
-        {% csrf_token %}
-        <input type="hidden" name="win_tournament" value="{{ mytournament.id }}"/>
-        <button type="submit">WIN TOURNAMENT</button>
-    </form>
-    <form method="POST" hx-post="{{ request.path }}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
-        {% csrf_token %}
-        <input type="hidden" name="leave_tournament" value="{{ mytournament.id }}"/>
-        <button type="submit" onclick="leave_pong_tournament({{ mytournament.id }})">LEAVE</button>
-    </form> -->
+</div>
+<br>
+{% include 'bracket.html' %}
+<br>
 {% elif mytournament.winner %}
-
 <div>
 
     <h4>TOURNAMENT :</h4>
@@ -141,3 +132,29 @@
 </div>
 <script> beautifulrangeforaymeric() </script>
 {% endif %}
+<script>
+    console.log("LOADING");
+    setColor();
+    setTimeout(() => {
+        setColor();
+    }, 1000);
+    let blueShade = 240;
+    function generateBlueGradient() {
+        if (blueShade <= 0)
+            blueShade = 240;
+        blueShade = Math.max(0, blueShade - 30);
+
+        const color = `rgb(0, 0, ${blueShade})`;
+        return color;
+    }
+    function setColor() {
+        document.addEventListener("DOMContentLoaded", () => {
+            const players = document.querySelectorAll('.playersList .player');
+    
+            players.forEach((player, index) => {
+                player.style.backgroundColor = generateBlueGradient();
+            });
+        });
+    }
+    document.addEventListener("DOMContentLoaded", () => {setColor();});
+</script>

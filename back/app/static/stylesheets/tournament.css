@@ -37,7 +37,6 @@
 .imageFrame
 {
     flex-shrink: 1;
-    /* flex-start: 1; */
     height: 5.2rem;
     width: 5.2rem;
     aspect-ratio: 1;
@@ -48,6 +47,8 @@
 
 .imageFrame img
 {
+    
+    margin-left: 1vh;
     width: 95%; 
     height: 95%;
     object-fit: cover;
@@ -65,41 +66,28 @@
 
 .player {
     display: flex;
-    /* align-items: center; Vertically centers content */
-    /* justify-content: center; Horizontally centers content */
     margin-vertical: 1px;
-    background-color: darkslategray;
+    /* background-color: darkslategray; */
     border: solid 1px black;
-    padding: 10px; /* Added for better spacing */
+    padding: 10px;
 }
 
 .infosPlayer {
-    /* display: flex; Changed from grid to flex */
-    /* align-items: center; */
     justify-content: flex-start;
-    flex: 1; /* Takes remaining space */
+    flex: 1;
     margin-left: 5px;
 }
 
 .playerInfo {
-    /* display: flex; */
-    gap: 10px;
+    display: grid;
+    margin-left: 2vh;
     margin: 3px;
+    gap: 10px;
     border: solid 1px;
-    background-color: lavenderblush;
     border-radius: 10px;
     text-align: center;
+    background-color: lavenderblush;
 }
-
-/* .imageFrame > .infosPlayer {
-    margin-left: 100px;
-} */
-
-/* 
-.infosPlayer
-{
-    align-self: center;
-} */
 
 .infoP
 {
