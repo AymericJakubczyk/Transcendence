@@ -6,6 +6,16 @@ import json
 import pickle
 import matplotlib.pyplot as plt
 import time
+from neural_network import Brain
+
+def build_model(input_dim, action_space):
+    model = Sequential([
+        Dense(24, input_dim=input_dim, activation='relu'),
+        Dense(24, activation='relu'),
+        Dense(action_space, activation='linear')
+    ])
+    model.compile(optimizer='adam', loss='mse')
+    return model
 
 arenaWidth = 100
 arenaLength = 150
@@ -22,8 +32,8 @@ all_data = {}
 # Paramètres de la fenêtre Pygame
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
-SCREEN_WIDTH = 1600
-SCREEN_HEIGHT = 1200
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
 SCALE_FACTOR_X = SCREEN_WIDTH / arenaLength
 SCALE_FACTOR_Y = SCREEN_HEIGHT / arenaWidth
 
@@ -36,20 +46,25 @@ pygame.display.set_caption("Pong avec Q-Learning")
 alpha = 0.4
 gamma = 0.7
 epsilon = 1.0  # Initial exploration rate
-epsilon_decay = 0.000001  # Decay of exploration rate
-min_epsilon = 0.01  # Minimum exploration rate
+epsilon_decay = 0.000006  # Decay of exploration rate
+min_epsilon = 0.2  # Minimum exploration rate
 STAY = 0
 UP = 1
 DOWN = 2
-q_table = {}
+# q_table = {}
 
 rewards, episodes, average = [], [], []
+# Crée le réseau pour gérer les décisions du joueur
+
+brain = Brain(input_size=4, output_size=3)  # 4 entrées (état du jeu), 3 actions possibles
 
 
 rewards_per_episode = []
 
 # Possible actions
 actions = [UP, DOWN, STAY]
+# Possible actions
+actions = [y for y in range(0, arenaWidth, 5)]
 
 
 # Initialiser la police pour les statistiques
@@ -71,8 +86,6 @@ class PongData():
         self.score_player2 = 0
         self.difficulty = 0.95
 
-
-
 def updateIA(id):
     # AI follows the ball with a slight delay based on difficulty
     target_y = all_data[id].ball_y
@@ -89,7 +102,6 @@ def launch_game(id):
     all_data[id] = PongData()
     all_data[id].id = id
     calcul_ball(id)
-    
 
 
 def calcul_ball(id):
@@ -103,34 +115,17 @@ def calcul_ball(id):
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
-        if (all_data[id].id > 50):
-            time.sleep(0.01)  # Wait for 0.01 second
-            current_time = time.time()
-        if not (all_data[id].id > 50):
-            distilled_state = distill_state(id)
-            state = (
-                distilled_state,
-                action
-            )
-        elif (current_time - last_update_time >= update_interval):
-            distilled_state = distill_state(id)
-            state = (
-                distilled_state,
-                action
-            )
-            
-        reward = 0
 
-        # Sélection et exécution de l'action
-        action = choose_action(state, epsilon)
+        state = get_game_state(id)
+        action_scores = brain.think(state)
+        action = np.argmax(action_scores)  # Choisit l'action avec le plus haut score
 
-        if action == 1:
+
+        if action == 1:  # UP
             move_paddle("up", 1, id)
-        elif action == 2:
+        elif action == 2:  # DOWN
             move_paddle("down", 1, id)
-
-        reward = 0
-
+            
         all_data[id].ball_x += all_data[id].ball_dx
         all_data[id].ball_y += all_data[id].ball_dy 
 
@@ -168,33 +163,18 @@ def calcul_ball(id):
                     # stop_game(id)
                     return
 
-        if not all_data[id].id > 50:
-            reward = get_reward(id, ball_returned)
-            distilled_state = distill_state(id)
-            next_state = (
-                distilled_state,
-                action
-            )
+        reward = get_reward(id, ball_returned)
+        # Ajuster le réseau
+        target = action_scores.copy()
+        target[0, action] = reward  # Met à jour la cible avec la récompense
+        brain.train(state, target, learning_rate=0.01)
 
-            update_q_table(state, action, reward, next_state)
-            state = next_state
-            total_reward += reward
-        elif (current_time - last_update_time >= update_interval):
-            reward = get_reward(id, ball_returned)
-            distilled_state = distill_state(id)
-            next_state = (
-                distilled_state,
-                action
-            )
-
-            update_q_table(state, action, reward, next_state)
-            state = next_state
-            total_reward += reward
-            last_update_time = current_time
-            current_time = time.time()
+        total_reward += reward
         updateIA(id)
-        if (all_data[id].id > 50):
-            draw_game(id) 
+        if (all_data[id].id % 25 == 0 and all_data[id].score_player1 < 5 and all_data[id].score_player2 < 5):
+            draw_game(id)
+            time.sleep(0.005)
+            # adjust the speed of the game
 
         
 def stop_game(id):
@@ -264,41 +244,38 @@ def goal(player, id):
 
 #   Q-LEARNING FUNCTIONS
 
-def predict_ball_position(id, anticipation_steps=15):
-    # Copie de la position et direction actuelle
-    predicted_x = all_data[id].ball_x
-    predicted_y = all_data[id].ball_y
-    predicted_dx = all_data[id].ball_dx
-    predicted_dy = all_data[id].ball_dy
+# def predict_ball_position(id, anticipation_steps=15):
+#     # Copie de la position et direction actuelle
+#     predicted_x = all_data[id].ball_x
+#     predicted_y = all_data[id].ball_y
+#     predicted_dx = all_data[id].ball_dx
+#     predicted_dy = all_data[id].ball_dy
 
-    # Simule la trajectoire en tenant compte des rebonds
-    for _ in range(anticipation_steps):
-        # Applique le déplacement
-        predicted_x += predicted_dx
-        predicted_y += predicted_dy
+#     # Simule la trajectoire en tenant compte des rebonds
+#     for _ in range(anticipation_steps):
+#         # Applique le déplacement
+#         predicted_x += predicted_dx
+#         predicted_y += predicted_dy
 
-        # Vérifie si la balle touche le mur supérieur ou inférieur
-        if predicted_y <= 0 or predicted_y >= SCREEN_HEIGHT:
-            predicted_dy *= -1  # Inverse la direction verticale pour simuler le rebond
+#         # Vérifie si la balle touche le mur supérieur ou inférieur
+#         if predicted_y <= 0 or predicted_y >= SCREEN_HEIGHT:
+#             predicted_dy *= -1  # Inverse la direction verticale pour simuler le rebond
 
-    # Retourne la position prédite
-    return predicted_x, predicted_y
+#     # Retourne la position prédite
+#     return predicted_x, predicted_y
 
-def distill_state(id, anticipation_steps=15):
-    # Prédit la position future de la balle en tenant compte des rebonds
-    predicted_x, predicted_y = predict_ball_position(id, anticipation_steps)
+def get_game_state(id):
+    """
+    Récupère l'état du jeu sous forme de tableau.
+    """
+    return np.array([[
+        all_data[id].ball_x,
+        all_data[id].ball_y,
+        all_data[id].ball_dx,
+        all_data[id].paddle1_y
+    ]])
 
-    # Détermine la position relative de la balle anticipée par rapport à la raquette
-    if predicted_y < all_data[id].paddle1_y - paddleHeight / 2:
-        position = 1  # La balle est estimée être au-dessus de la raquette
-    elif predicted_y > all_data[id].paddle1_y + paddleHeight / 2:
-        position = 2  # La balle est estimée être en dessous de la raquette
-    else:
-        position = 0  # La balle est estimée être en face de la raquette
 
-    # Inclure la direction actuelle de la balle dans l’état
-    state = (position * 10) + (1 if all_data[id].ball_dx > 0 else 0)
-    return state
 
 def update_q_table(state, action, reward, next_state):
     global q_table
@@ -321,25 +298,16 @@ def choose_action(state, epsilonn):
         action = np.argmax(q_table[state])
     return action
 
-def get_reward(id, anticipation_steps=15):
-    max_reward = 10
-    min_reward = -max_reward
-
-    # Prédit la position future de la balle en tenant compte des rebonds
-    _, predicted_y = predict_ball_position(id, anticipation_steps)
-
-    # Calcul de la distance entre la position anticipée de la balle et la raquette
-    y_distance = abs(all_data[id].paddle1_y - predicted_y)
-
-    # Récompense pour être en position en avance
-    if y_distance < paddleHeight // 2:
-        return max_reward
+def get_reward(id, ball_returned):
+    """
+    Calcule la récompense pour le joueur 1.
+    id : Identifiant de la partie
+    ball_returned : True si la balle a été renvoyée, False sinon
+    """
+    if ball_returned:
+        return 10  # Récompense pour avoir renvoyé la balle
     else:
-        return - (y_distance / SCREEN_HEIGHT) * max_reward
-
-
-
-
+        return -10  # Pénalité pour avoir raté la balle
 
 for episode in range(501):
     action = 0

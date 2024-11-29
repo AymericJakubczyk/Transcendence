@@ -80,7 +80,7 @@ async def calcul_ball(id):
     
     while True:
         await asyncio.sleep(0.01)  # Wait for 0.01 second
-        asyncio.create_task(send_ai_updates(id))
+        # asyncio.create_task(send_ai_updates(id))
 
         all_data[id].ball_x += all_data[id].ball_dx
         all_data[id].ball_y += all_data[id].ball_dy
