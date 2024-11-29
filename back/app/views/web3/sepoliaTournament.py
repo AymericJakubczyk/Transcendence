@@ -68,6 +68,12 @@ abi = [
 				"type": "uint256"
 			},
 			{
+				"indexed": "true",
+				"internalType": "uint256",
+				"name": "bracketId",
+				"type": "uint256"
+			},
+			{
 				"indexed": "false",
 				"internalType": "string",
 				"name": "Winner",
@@ -111,6 +117,34 @@ abi = [
 				"type": "string[]"
 			},
 			{
+				"components": [
+					{
+						"internalType": "string",
+						"name": "Winner",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "Loser",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "WinningScore",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "LosingScore",
+						"type": "uint256"
+					}
+				],
+				"indexed": "false",
+				"internalType": "struct SepoliaTournament.Match[]",
+				"name": "matches",
+				"type": "tuple[]"
+			},
+			{
 				"indexed": "false",
 				"internalType": "string",
 				"name": "Winner",
@@ -145,6 +179,11 @@ abi = [
 			{
 				"internalType": "uint256",
 				"name": "_tournamentId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_bracketId",
 				"type": "uint256"
 			}
 		],
@@ -272,37 +311,36 @@ def test(request):
 	return JsonResponse({"message": "test"})
 
 
-def record_match(player1, score_1, player2, score_2, tournament_id):
+
+
+def record_match(player1, score_1, player2, score_2, tournament_id, bracket_id):
 	print("Recording match", file=sys.stderr)
 
-	# try :
-	print(player1, type(player1), score_1, type(score_1), player2, type(player2), score_2, type(score_2), tournament_id, type(tournament_id), file=sys.stderr)
-	token_hash = contract.functions.addMatchToTournaments(player1, player2, score_1, score_2, tournament_id).transact({'from' : admin_acc})
-	# logs = contract.web3.eth.get_logs({'fromBlock': 'latest'})
-	# print("Logs : ", logs, file=sys.stderr)
-	print("Token hash : ", token_hash, file=sys.stderr)
-	receipt = web3.eth.wait_for_transaction_receipt(token_hash)
-	if (receipt.status == 1):
-		print("Match enregistre avec succes", file=sys.stderr)
-		print_etherscan_link(token_hash)
-	else:
-		print("Error lors de l'enregistrement du match", file=sys.stderr)
-	# except Exception as e:
-	# 	error = "Error creating match, type of error : " + f"{type(e).__name__}\n" + f"Error message :\n {str(e)}\n"  + "\n Traceback : \n" + traceback.format_exc()
-	# 	logger.error(error)
-
+	try :
+		print(player1, type(player1), score_1, type(score_1), player2, type(player2), score_2, type(score_2), tournament_id, type(tournament_id), bracket_id, type(bracket_id), file=sys.stderr)
+		token_hash = contract.functions.addMatchToTournaments(player1, player2, score_1, score_2, tournament_id, bracket_id).transact({'from' : admin_acc})
+		print("Token hash : ", token_hash, file=sys.stderr)
+		receipt = web3.eth.wait_for_transaction_receipt(token_hash)
+		if (receipt.status == 1):
+			print("Match enregistre avec succes", file=sys.stderr)
+			print_etherscan_link(token_hash)
+		else:
+			print("Error lors de l'enregistrement du match", file=sys.stderr)
+	except Exception as e:
+		error = "Error recording match, type of error :\n" + f"{type(e).__name__}\n" + f"Error message :\n {str(e)}\n" + "\n Traceback : \n" + traceback.format_exc()
+		logger.error(error)
+	return None
 
 def print_etherscan_link(token_hash):
 	printer = "https://sepolia.etherscan.io/tx/0x" + token_hash.hex()
 	print("Voici le lien vers la transaction : " + printer, file=sys.stderr)
-
 
 def get_tournament_id():
 	try:
 		tournament_id = contract.functions.getTournamentId().call()
 		logger.info(f"Tournament id retrieved successfully \nID : {tournament_id}")
 	except Exception as e:
-		error = "Error getting tournament id, type of error :\n" + f"{type(e).__name__}\n" + f"Error message :\n {str(e)}\n" + "\n Traceback : \n" + traceback.format.exc()
+		error = "Error getting tournament id, type of error :\n" + f"{type(e).__name__}\n" + f"Error message :\n {str(e)}\n" + "\n Traceback : \n" + traceback.format_exc()
 		logger.error(error)
 		return None
 
@@ -315,27 +353,13 @@ def get_participants_arr(tournament):
 	print("!!!!!!!!!!!!!!!!!!!!Players array : ", players_array, file=sys.stderr)
 	return players_array
 
-
-
 def createTournament(players_arr):
-	# print("|||||||||||||||||||||||||||||||Creating tournament|||||||||||||||||||||||||||||||", file=sys.stderr)
-	# time.sleep(5)
-	# print("END CREATING", file=sys.stderr)
 	test(players_arr)
 	print(players_arr, type(players_arr), file=sys.stderr)
 	for player in players_arr:
 		print("ALED", player, type(player), file=sys.stderr)
 	try:
-		# data = contract.encodeABI(fn_name='createTournament', args=[player_arr])
-		# print(f"Encoded data: {data}")
-		
 		token_hash = contract.functions.createTournament(players_arr).transact({'from' : admin_acc})
-		# token_hash = contract.functions.createTournament().buildTransaction({
-		# 'from': account,
-		# 'gas': 2000000,  # Set appropriate gas limit
-		# 'gasPrice': w3.toWei('20', 'gwei'),  # Set appropriate gas price
-		# 'nonce': w3.eth.getTransactionCount(account),
-		# })
 		print(token_hash, file=sys.stderr)
 		receipt = web3.eth.wait_for_transaction_receipt(token_hash)
 		if (receipt.status == 1):

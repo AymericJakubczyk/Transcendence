@@ -196,9 +196,9 @@ def pongTournament(request):
 
         playercount = tournament.participants.count()
         #CREATE TOURNAMENT ON BLOCKCHAIN
-        # playerlist = get_participants_arr(tournament)
-        # thread = threading.Thread(target=createTournament, args=(playerlist,))
-        # thread.start()
+        playerlist = get_participants_arr(tournament)
+        thread = threading.Thread(target=createTournament, args=(playerlist,))
+        thread.start()
         # TO CHANGE TO 2
         if playercount > 1:
             playerlist = seedPlayers(tournament.participants.all())

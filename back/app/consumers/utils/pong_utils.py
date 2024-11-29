@@ -293,8 +293,8 @@ def update_tournament(id):
         tournament.winner = game.winner
         tournament.results.append(game.winner.id)
         tournament.save()
-        # closeTournament(game.tournament_id, game.winner.username)
-        # thread = threading.Thread(target=closeTournament, args=(game.tournament_id,))
+        closeTournament(game.tournament_id, game.winner.username)
+        # thread = threading.Thread(target=closeTournament, args=(game.tournament_id, game.winner.username,))
         # thread.start()
         print("UPDATING TOURNAMENT:", game.winner, "WON THE TOURNAMENT", file=sys.stderr)
     else:
