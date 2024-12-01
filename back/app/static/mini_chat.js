@@ -158,8 +158,7 @@ function display_all_invite()
                 invite_div.innerHTML = `
                 <div> 🏆 Your tournament game is ready </div>
                 <div>
-                    <button class="btn btn-success" onclick="">GO</button>
-                    <button class="btn btn-danger" onclick="">GIVE UP</button>
+                    <button class="btn btn-success" onclick="invite_tournament_game(${all_invite[i].game_id})">GO</button>
                 </div>
                 `
             }
@@ -415,4 +414,10 @@ function add_friend_request(from, id)
         `
         all_discu_div.append(request_div)
     }
+}
+
+function invite_tournament_game(game_id)
+{
+    minimize_mini_chat()
+    htmx_request(`/game/pong/ranked/${game_id}`, "GET", {})
 }

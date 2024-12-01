@@ -78,7 +78,7 @@ def moveWinners(tournament_matchs):
                     elif (not game_obj.player2):
                         game_obj.player2 = game.winner
                         # send ws tournament game ready
-                        pong_utils.game_pong_tournament_ready(game_obj)
+                        pong_utils.pong_tournament_game_ready(game_obj)
                     game_obj.save()
                     print("\tMOVED", game.winner, "TO", game_obj.tournament_pos, file=sys.stderr)
     return tournament_matchs
@@ -133,6 +133,8 @@ def makematchs(playerlist, number, tournament):
             newGame.tournament_pos = math.ceil((nbmatch / 2) + y)
             y += 1
         newGame.save()
+        if (newGame.player1 != None and newGame.player2 != None):
+            pong_utils.pong_tournament_game_ready(newGame)
         matchs.append(newGame)
 
     matchs.sort(reverse=False, key=match_place)
@@ -199,8 +201,10 @@ def pongTournament(request):
         # TO CHANGE TO 2
         if playercount > 1:
             playerlist = seedPlayers(tournament.participants.all())
+            # create and fill matchs for first round
             tournament_matchs = makematchs(playerlist, playercount, tournament)
 
+            # create and fill matchs for the other rounds
             nbmatch = len(tournament_matchs)
             roundcount = 2
             while (nbmatch > 1):

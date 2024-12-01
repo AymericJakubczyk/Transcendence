@@ -103,3 +103,32 @@ function cancel_game(game) {
     }
     change_game_headbar('Game', '/game/');
 }
+
+function warn_game_ready_message(id)
+{
+    if (document.getElementById("error_msg"))
+        document.getElementById("error_msg").remove()
+
+    const error_msg = document.createElement("div");
+    error_msg.setAttribute("id", "warn_game_msg");
+    error_msg.setAttribute("class", "rounded-1");
+    error_msg.setAttribute("style", "position: fixed; display:flex; width: 100%;top: 10px;left:0px; z-index: 1000;justify-content: center;");
+    error_msg.innerHTML =`
+        <div class="bg-primary text-light rounded-1 shadow p-2" style="position:absolute; width:50%; text-align:center"> 
+            YOUR TOURNAMENT GAME IS READY !
+            <button class="btn btn-success border border border-2 border-success-subtle" onclick="invite_tournament_game(${id})">GO</button>
+            <button class="btn-close text-light" style="position: absolute; right: 10px" onclick="document.getElementById('error_msg').remove()"></button>
+        </div>
+    `
+    document.body.append(error_msg)
+    setTimeout(function(){
+        error_msg.animate([
+            {opacity: 1},
+            {opacity: 0}
+        ], {
+            duration: 500
+        }).onfinish = () => {
+            error_msg.remove()
+        }
+    }, 5000)
+}

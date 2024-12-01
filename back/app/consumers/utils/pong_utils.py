@@ -40,7 +40,18 @@ async def launch_game(id):
 
     print("[LAUNCH GAME]", id, file=sys.stderr)
     all_data[id] = PongData()
+    # if game is tournament delete invite send to both player
+    await delete_tournament_invites(id)
     asyncio.create_task(calcul_ball(id))
+
+@database_sync_to_async
+def delete_tournament_invites(game_id):
+    from app.models import Invite, Game_Pong
+    from django.db.models import Q
+
+    game = get_object_or_404(Game_Pong, id = game_id)
+    Invite.objects.filter(Q(game_id=game_id) & Q(to_user=game.player1)).delete()
+    Invite.objects.filter(Q(game_id=game_id) & Q(to_user=game.player2)).delete()
 
 
 async def calcul_ball(id):
@@ -380,7 +391,8 @@ def pong_tournament_game_ready(game):
             'game': 'pong',
             'player': game.player2.username,
             'id': new_invite.id,
-            'game_id': game.id
+            'game_id': game.id,
+            'for_tournament': True
         }
     )
 
@@ -392,7 +404,8 @@ def pong_tournament_game_ready(game):
             'game': 'pong',
             'player': game.player1.username,
             'id': new_invite.id,
-            'game_id': game.id
+            'game_id': game.id,
+            'for_tournament': True
         }
     )
     
