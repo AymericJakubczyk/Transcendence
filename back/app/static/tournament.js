@@ -1,5 +1,6 @@
 
 pongTournamentSocket = null
+let blueShade = 240;
 
 function beautifulrangeforaymeric(){
     const value = document.getElementById("max_player_value");
@@ -79,4 +80,30 @@ function receive_ws(data)
     {
         htmx.ajax('GET', '/game/pong/tournament/', {target:'#page', swap:'innerHTML'})
     }
+}
+
+function generateBlueGradient() {
+    if (blueShade <= 0)
+        blueShade = 240;
+    blueShade = Math.max(0, blueShade - 30);
+
+    const color = `rgb(0, 0, ${blueShade})`;
+    return color;
+}
+
+function setColor() {
+    console.log("SET COLOR")
+    const players = document.querySelectorAll('.playersList .player');
+
+    players.forEach((player, index) => {
+        player.style.backgroundColor = generateBlueGradient();
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const players = document.querySelectorAll('.playersList .player');
+
+        players.forEach((player, index) => {
+            player.style.backgroundColor = generateBlueGradient();
+        });
+    });
 }

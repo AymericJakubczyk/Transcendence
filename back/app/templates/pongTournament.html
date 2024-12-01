@@ -3,6 +3,7 @@
 <br>
 {% if user.tournament_id != -1 and not mytournament.winner %}
 <script> create_pong_tournament_ws() </script>
+<script> setColor() </script>
 <div>
     <h4>TOURNAMENT :</h4>
     <h5>{{ mytournament.name }}</h5>
@@ -136,29 +137,3 @@
 </div>
 <script> beautifulrangeforaymeric() </script>
 {% endif %}
-<script>
-    console.log("LOADING");
-    setColor();
-    setTimeout(() => {
-        setColor();
-    }, 1000);
-    let blueShade = 240;
-    function generateBlueGradient() {
-        if (blueShade <= 0)
-            blueShade = 240;
-        blueShade = Math.max(0, blueShade - 30);
-
-        const color = `rgb(0, 0, ${blueShade})`;
-        return color;
-    }
-    function setColor() {
-        document.addEventListener("DOMContentLoaded", () => {
-            const players = document.querySelectorAll('.playersList .player');
-    
-            players.forEach((player, index) => {
-                player.style.backgroundColor = generateBlueGradient();
-            });
-        });
-    }
-    document.addEventListener("DOMContentLoaded", () => {setColor();});
-</script>
