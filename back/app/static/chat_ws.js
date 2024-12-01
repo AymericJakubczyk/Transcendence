@@ -1,6 +1,6 @@
 var ws_created = false;
 var chatSocket = null;
-var username = null;
+
 
 function custom_submit(form_id)
 {
@@ -48,9 +48,7 @@ function create_ws()
 	chatSocket.onmessage = function(event) {
 		const data = JSON.parse(event.data);
 		console.log('Received ws:', data);
-		username = data;
-		var statut_elem = document.getElementById("statut_" + data.sender);
-		var statut_mini_elem = document.getElementById("statut_mini_" + data.sender);
+
 		if (data.type == 'chat_message')
 		{
 			add_msg(data.sender, data.message, false, "you")
@@ -66,24 +64,15 @@ function create_ws()
 				last_msg.innerText = "vous : " + data.message;
 			update_list_discu(data.send_to)
 		}
-		if (data.type == 'disconnect')
-		{
-			if (statut_elem)
-				statut_elem.hidden = true;
-			if (statut_mini_elem)
-				statut_mini_elem.hidden = true;
-		}
-		if (data.type == 'connect')
-		{
-			if (statut_elem)
-				statut_elem.hidden = false;
-			if (statut_mini_elem)
-				statut_mini_elem.hidden = false;
-		}
+		if (data.type == 'offline' || data.type == 'online' || data.type == 'ingame')
+			change_statut(data.type, data.sender)
+
 		if (data.type == 'error')
 			error_message(data.message, 2000)
 		if (data.type == 'invite')
 			add_invitation(data.game, data.player, data.id)
+			if (data.for_tournament)
+				warn_game_ready_message(data.game_id)
 		if (data.type == 'invite_accepted')
 			htmx_request("/game/pong/ranked/" + data.game_id + "/", "GET", {})
 		if (data.type == 'match_found')
@@ -93,6 +82,8 @@ function create_ws()
 			else if (data.game_type == 'chess')
 				htmx_request("/game/chess/ranked/" + data.game_id + "/", "GET", {})
 		}
+		if (data.type == 'friend_request')
+			add_friend_request(data.from_user, data.id)
 	};
 	
 	chatSocket.onclose = (event) => {
@@ -105,6 +96,46 @@ function close_ws()
 {
 	if (chatSocket)
 		chatSocket = chatSocket.close();
+}
+
+function change_statut(type, sender)
+{
+	var statut_elem = document.getElementById("statut_" + sender);
+	var statut_mini_elem = document.getElementById("statut_mini_" + sender);
+
+	if (type == 'offline')
+	{
+		if (statut_elem)
+			statut_elem.hidden = true;
+		if (statut_mini_elem)
+			statut_mini_elem.hidden = true;
+	}
+	if (type == 'online')
+	{
+		if (statut_elem)
+		{
+			statut_elem.hidden = false;
+			statut_elem.style.backgroundColor = "green";
+		}
+		if (statut_mini_elem)
+		{
+			statut_mini_elem.hidden = false;
+			statut_mini_elem.style.backgroundColor = "green";
+		}
+	}
+	if (type == 'ingame')
+	{
+		if (statut_elem)
+		{
+			statut_elem.hidden = false;
+			statut_elem.style.backgroundColor = "blue";
+		}
+		if (statut_mini_elem)
+		{
+			statut_mini_elem.hidden = false;
+			statut_mini_elem.style.backgroundColor = "blue";
+		}
+	}
 }
 
 function add_msg(sender, msg, you, send_to)
@@ -177,7 +208,8 @@ function update_discu(sender, msg, discu_id, user)
 	}
 
 	var last_msg_mini = document.getElementById("last_msg_mini_" + sender);
-	if (!last_msg_mini && document.getElementById("all_discu_mini")) // if mini discu not exist create it and add it in list
+	discu_tab = document.getElementById("discu_tab");
+	if (!last_msg_mini && discu_tab && discu_tab.classList.contains("selected_tab")) // if mini discu not exist create it and add it in list
 	{
 		if (document.getElementById("no_discu"))
 			document.getElementById("no_discu").remove()
@@ -238,7 +270,16 @@ function msg_is_read(sender)
 		request_for_read_message(discu_mini.dataset.id)
 
 	if (!(discu && discu.classList.contains("discu_selected")) && !(discu_mini))
-		set_global_notif()
+	{
+		// add notif for discu
+		// set_global_notif()
+		if (document.getElementById("global_notif"))
+			document.getElementById("global_notif").hidden = false
+		if (document.getElementById("global_mini_notif"))
+			document.getElementById("global_mini_notif").hidden = false
+		if (document.getElementById("notif_discu_tab"))
+			document.getElementById("notif_discu_tab").hidden = false			
+		}
 }
 
 function request_for_read_message(discu_id)

@@ -16,7 +16,7 @@ paddleHeight = 17
 thickness = 1
 baseSpeed = 0.5
 nbrHit = 0
-winningScore = 2
+winningScore = 1
 
 all_data = {}
 
@@ -30,6 +30,10 @@ class PongData():
         self.paddle2_y = arenaWidth / 2
         self.score_player1 = 0
         self.score_player2 = 0
+        self.player1_up = False
+        self.player1_down = False
+        self.player2_up = False
+        self.player2_down = False
 
 
 @async_to_sync
@@ -38,7 +42,18 @@ async def launch_game(id):
 
     print("[LAUNCH GAME]", id, file=sys.stderr)
     all_data[id] = PongData()
+    # if game is tournament delete invite send to both player
+    await delete_tournament_invites(id)
     asyncio.create_task(calcul_ball(id))
+
+@database_sync_to_async
+def delete_tournament_invites(game_id):
+    from app.models import Invite, Game_Pong
+    from django.db.models import Q
+
+    game = get_object_or_404(Game_Pong, id = game_id)
+    Invite.objects.filter(Q(game_id=game_id) & Q(to_user=game.player1)).delete()
+    Invite.objects.filter(Q(game_id=game_id) & Q(to_user=game.player2)).delete()
 
 
 async def calcul_ball(id):
@@ -56,8 +71,20 @@ async def calcul_ball(id):
 
     while True:
         await asyncio.sleep(0.01)  # Wait for 0.01 second
+
         all_data[id].ball_x += all_data[id].ball_dx
         all_data[id].ball_y += all_data[id].ball_dy
+
+        # Gestion des mouvements des paddles
+        if (all_data[id].player1_up  and all_data[id].paddle1_y + 0.6 < arenaWidth - thickness / 2 - paddleHeight / 2):
+            all_data[id].paddle1_y += 0.6
+        if (all_data[id].player1_down and all_data[id].paddle1_y - 0.6 > thickness / 2 + paddleHeight / 2):
+            all_data[id].paddle1_y -= 0.6
+        if (all_data[id].player2_up and all_data[id].paddle2_y - 0.6 > thickness / 2 + paddleHeight / 2):
+            all_data[id].paddle2_y -= 0.6
+        if (all_data[id].player2_down and all_data[id].paddle2_y + 0.6 < arenaWidth - thickness / 2 - paddleHeight / 2):
+            all_data[id].paddle2_y += 0.6
+
         await send_updates(id)
 
         # Gestion des collisions avec les murs
@@ -184,20 +211,27 @@ def get_username_of_game(game_id):
     return game.player1.username, game.player2.username
 
 
-async def move_paddle(move, player, id):
+async def move_paddle(move, pressed, player, id):
     global all_data, arenaWidth, paddleHeight
+
     if (player == 1):
-        if (move == 'up' and all_data[id].paddle1_y + 0.6 < arenaWidth - thickness / 2 - paddleHeight / 2):
-            all_data[id].paddle1_y += 0.6
-        if (move == 'down' and all_data[id].paddle1_y - 0.6 > thickness / 2 + paddleHeight / 2):
-            all_data[id].paddle1_y -= 0.6
+        if (move == 'up' and pressed):
+            all_data[id].player1_up = True
+        if (move == 'down' and pressed):
+            all_data[id].player1_down = True
+        if (move == 'up' and not pressed):
+            all_data[id].player1_up = False
+        if (move == 'down' and not pressed):
+            all_data[id].player1_down = False
     if (player == 2):
-        if (move == 'up' and all_data[id].paddle2_y - 0.6 > thickness / 2 + paddleHeight / 2):
-            all_data[id].paddle2_y -= 0.6
-        if (move == 'down' and all_data[id].paddle2_y + 0.6 < arenaWidth - thickness / 2 - paddleHeight / 2):
-            all_data[id].paddle2_y += 0.6
-    
-    await send_updates(id)
+        if (move == 'up' and pressed):
+            all_data[id].player2_up = True
+        if (move == 'down' and pressed):
+            all_data[id].player2_down = True
+        if (move == 'up' and not pressed):
+            all_data[id].player2_up = False
+        if (move == 'down' and not pressed):
+            all_data[id].player2_down = False
 
 
 async def goal(player, id):
@@ -219,7 +253,9 @@ async def goal(player, id):
 
 @database_sync_to_async
 def save_winner(id):
-    from app.models import Game_Pong
+    from app.models import Game_Pong, User
+    import app.consumers.utils.user_utils as user_utils
+    
     global winningScore, all_data
 
     game = get_object_or_404(Game_Pong, id=id)
@@ -239,6 +275,20 @@ def save_winner(id):
     game.player2_rank_win += win_elo_p2
     game.player1.pong_rank += win_elo_p1
     game.player2.pong_rank += win_elo_p2
+
+    # change state of player
+    if (game.player1.state == User.State.INGAME):
+        game.player1.state = User.State.ONLINE
+    if (game.player2.state == User.State.INGAME):
+        game.player2.state = User.State.ONLINE
+    game.player1.game_status_url = 'none'
+    game.player1.game_status_txt = 'none'
+    game.player2.game_status_url = 'none'
+    game.player2.game_status_txt = 'none'
+
+    user_utils.send_change_state(game.player1)
+    user_utils.send_change_state(game.player2)
+
     game.player1.save()
     game.player2.save()
     
@@ -303,6 +353,8 @@ def update_tournament(id):
             next_game.player1 = game.winner
         elif (not next_game.player2):
             next_game.player2 = game.winner
+            # send ws tournament game ready
+            pong_tournament_game_ready(next_game)
         print("UPDATING TOURNAMENT:", game.winner, "will play in game_pos ", new_game_pos, file=sys.stderr)
         next_game.save()
     
@@ -314,3 +366,53 @@ def update_tournament(id):
             "type": "update_room",
         }
     )
+
+def pong_tournament_game_ready(game):
+    from django.db.models import Q
+    from app.models import Invite
+
+    print("[TOURNAMENT] GAME READY", file=sys.stderr)
+    channel_layer = get_channel_layer()
+    print("[TOURNAMENT] SENDING WS TO", game.player1.username, "AND", game.player2.username, file=sys.stderr)
+
+    # CREATE INVITATION
+    new_invite = Invite()
+    new_invite.to_user = game.player1
+    new_invite.game_type = Invite.GameType.PONG
+    new_invite.for_tournament = True
+    new_invite.game_id = game.id
+    new_invite.save()
+
+    new_invite = Invite()
+    new_invite.to_user = game.player2
+    new_invite.game_type = Invite.GameType.PONG
+    new_invite.for_tournament = True
+    new_invite.game_id = game.id
+    new_invite.save()
+
+    async_to_sync(channel_layer.group_send)(
+        game.player1.username,
+        {
+            'type': 'send_ws',
+            'type2': 'invite',
+            'game': 'pong',
+            'player': game.player2.username,
+            'id': new_invite.id,
+            'game_id': game.id,
+            'for_tournament': True
+        }
+    )
+
+    async_to_sync(channel_layer.group_send)(
+        game.player2.username,
+        {
+            'type': 'send_ws',
+            'type2': 'invite',
+            'game': 'pong',
+            'player': game.player1.username,
+            'id': new_invite.id,
+            'game_id': game.id,
+            'for_tournament': True
+        }
+    )
+    

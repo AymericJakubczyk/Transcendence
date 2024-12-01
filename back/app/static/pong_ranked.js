@@ -3,6 +3,8 @@ pongSocket = null;
 function join_pong_game(game_data, player)
 {
     console.log("[JOIN PONG GAME]", game_data, player);
+    if (pongSocket)
+        pongSocket.close()
     if (window.location.protocol == "https:")
         pongSocket = new WebSocket('wss://' + window.location.host + `/ws/pong/${game_data.id}/`);
     else
@@ -21,10 +23,6 @@ function join_pong_game(game_data, player)
 		console.log("[WS PONG] The connection has been closed successfully.");
         pongSocket = null;
 	}
-
-    if (gameInterval)
-        clearInterval(gameInterval)
-    gameInterval = setInterval(function() { catch_input(player) }, 10);
 }
 
 function receive_pong_ws(data)
@@ -77,6 +75,7 @@ function receive_pong_ws(data)
             renderer.render(scene, camera);
         }
         display_endgame(data.player1, data.player2, data.score_player1, data.score_player2, data.win_elo_p1, data.win_elo_p2);
+        change_game_headbar("Game", "/game/");
     }
     if (data.type === 'countdown')
     {
@@ -143,47 +142,16 @@ function join_ranked_pong(game, you)
     let cmd1 = document.getElementById("cmd1")
     let cmd2 = document.getElementById("cmd2")
 
-    document.addEventListener("keydown", keyDownHandler);
-    document.addEventListener("keyup", keyUpHandler);
-    function keyDownHandler(e) {
-        if (e.key === "ArrowUp" || e.key === "ArrowLeft")
-        {
-            e.preventDefault()  // prevent scrolling with arrow keys when you played
-            cmd1.classList.add("pressed")
-            upPressed = true;
-        }
-        else if (e.key === "ArrowDown" || e.key === "ArrowRight")
-        {
-            e.preventDefault()  // prevent scrolling with arrow keys when you played
-            cmd2.classList.add("pressed")
-            downPressed = true;
-        }
-    }
+    document.removeEventListener("keydown", keyDownHandler);
+    document.removeEventListener("keyup", keyUpHandler);
 
-    function keyUpHandler(e) {
-        if (e.key === "ArrowUp" || e.key === "ArrowLeft")
-        {
-            cmd1.classList.remove("pressed")
-            upPressed = false;
-        }
-        else if (e.key === "ArrowDown" || e.key === "ArrowRight")
-        {
-            cmd2.classList.remove("pressed")
-            downPressed = false;
-        }
-    }
+    document.addEventListener("keydown", keyDownHandler_ranked);
+    document.addEventListener("keyup", keyUpHandler_ranked);
 
     display3D()
     display_ranked(game, you)
 }
 
-function catch_input(player)
-{
-    if (upPressed)
-        move_paddle("up", player)
-    else if (downPressed)
-        move_paddle("down", player)  
-}
 
 function display_ranked(game, you)
 {
@@ -192,13 +160,14 @@ function display_ranked(game, you)
         reverse_cam()
 }
 
-function move_paddle(move, player)
+function send_input_move(move, pressed)
 {
     const obj = {
         'type': 'move_paddle',
-        'player': player,
-        'move': move
+        'move': move,
+        'pressed': pressed
     };
-    pongSocket.send(JSON.stringify(obj))
+    if (pongSocket)
+        pongSocket.send(JSON.stringify(obj))
 }
 

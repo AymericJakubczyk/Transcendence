@@ -73,12 +73,14 @@ function display_all_discu()
             `
                 <div id="profile_pic_mini_`+ data.all_discu[i].name_discu +`" style="position: relative;">
                     <img src="` + data.all_discu[i].profile_picture + `" class="pp" alt="Profile Picture">
-                    <div id="statut_mini_`+ data.all_discu[i].name_discu +`" class="rounded-circle bg-success" style="border: 4px rgb(80,80,80) solid;position: absolute; right: -5px; bottom: -5px;width:40%;height:40%" hidden></div>
                 </div>
                 <div class="d-flex flex-column mx-2" style="overflow: hidden;">
-                    <span style="font-size: 24px; font-weight: 400;color:#ffffff; text-align: start;text-overflow: ellipsis;">
-                        `+ data.all_discu[i].name_discu +`
-                    </span>
+                    <div class="d-flex align-items-center">
+                        <span class="pe-1" style="font-size: 24px; font-weight: 400;color:#ffffff; text-align: start;text-overflow: ellipsis;">
+                            `+ data.all_discu[i].name_discu +`
+                        </span>
+                        <div id="statut_mini_`+ data.all_discu[i].name_discu +`" class="rounded-circle" style="width:13px;height:13px; background-color:green" hidden></div>
+                    </div>
                     <span id="last_msg_mini_`+ data.all_discu[i].name_discu +`" style="font-size: 14px; font-weight: 100; color:#c0c0c0 ;padding-left: 5px;text-align: start;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;width:100%">
                     </span>
                 </div>
@@ -151,14 +153,25 @@ function display_all_invite()
             invite_div.setAttribute("class", "rounded-2 m-1 p-1 text-white")
             invite_div.setAttribute("id", "invite_" + all_invite[i].id)
             
-            invite_div.innerHTML = `
-                <div>`+ all_invite[i].game_type +` against `+ all_invite[i].from_user +`</div>
+            if (all_invite[i].for_tournament)
+            {
+                invite_div.innerHTML = `
+                <div> 🏆 Your tournament game is ready </div>
                 <div>
-                    <button class="btn btn-success" onclick="accept_invite(`+ all_invite[i].id +`)">Accept</button>
-                    <button class="btn btn-danger" onclick="decline_invite(`+ all_invite[i].id +`)">Decline</button>
+                    <button class="btn btn-success" onclick="invite_tournament_game(${all_invite[i].game_id})">GO</button>
                 </div>
-
-            `
+                `
+            }
+            else
+            {
+                invite_div.innerHTML = `
+                    <div>`+ all_invite[i].game_type +` against `+ all_invite[i].from_user +`</div>
+                    <div>
+                        <button class="btn btn-success" onclick="accept_invite(`+ all_invite[i].id +`)">Accept</button>
+                        <button class="btn btn-danger" onclick="decline_invite(`+ all_invite[i].id +`)">Decline</button>
+                    </div>
+                `
+            }
             htmx.process(invite_div);
             all_discu_div.append(invite_div)
         }
@@ -203,14 +216,14 @@ function display_friend_request()
         {
             request_div = document.createElement("div")
             request_div.setAttribute("class", "rounded-2 my-1 p-1 text-white")
+            request_div.setAttribute("id", "request_" + all_request[i].id)
             
             request_div.innerHTML = `
                 <div>`+ all_request[i].from_user +` send you a friend request</div>
                 <div>
-                    <button class="btn btn-success">Accept</button>
-                    <button class="btn btn-danger">Decline</button>
+                    <button class="btn btn-success" onclick="friend_request('accept', `+ all_request[i].id +`)">Accept</button>
+                    <button class="btn btn-danger" onclick="friend_request('decline', `+ all_request[i].id +`)">Decline</button>
                 </div>
-
             `
             all_discu_div.append(request_div)
         }
@@ -265,7 +278,7 @@ function display_mini_discu(name, id)
     })
     .then(response => response.json())
     .then(data => {
-        // set_global_notif()
+        set_global_notif()
         all_discu = document.getElementById("all_msg_mini_" + name)
 
         all_discu.innerHTML = ''
@@ -317,6 +330,27 @@ function decline_invite(id)
     chatSocket.send(JSON.stringify(obj));
 }
 
+function friend_request(action, id)
+{
+    console.log("[FRIEND REQUEST]", action, id)
+    // delete friend request from list
+    if (document.getElementById("request_" + id))
+        document.getElementById("request_" + id).remove()
+
+    //if no element in the list after decline or accept friend request, display no friend request and remove notif
+    if (document.getElementById("all_discu_mini").children.length == 0)
+    {
+        let div = document.createElement("div")
+        div.id = "no_request"
+        div.setAttribute("class", "m-1 p-1 text-white text-center")
+        div.innerHTML = '<h3>No friend request</h3>'
+        document.getElementById("all_discu_mini").append(div)
+        document.getElementById("notif_request_tab").hidden = true
+    }
+
+    chatSocket.send(JSON.stringify({"type":"friend_request", "action":action , "id":id}));
+}
+
 function add_invitation(game, player, id)
 {
     console.log("[ADD INVITATION]", game, player)
@@ -327,7 +361,10 @@ function add_invitation(game, player, id)
         document.getElementById("no_invite").remove()
     if (invite_tab)
         document.getElementById("notif_invite_tab").hidden = false
+
     //else if no invite tab but mini chat is minimized, display global notif
+    if (document.getElementById("global_mini_notif"))
+        document.getElementById("global_mini_notif").hidden = false
 
         
     if (invite_tab && invite_tab.classList.contains("selected_tab"))
@@ -346,4 +383,41 @@ function add_invitation(game, player, id)
         htmx.process(invite_div);
         all_discu_div.append(invite_div)
     }
+}
+
+function add_friend_request(from, id)
+{
+    console.log("[ADD FRIEND REQUEST]", from, id)
+    all_discu_div = document.getElementById("all_discu_mini")
+    friend_req_tab = document.getElementById("friend_req_tab")
+
+    if (document.getElementById("no_request"))
+        document.getElementById("no_request").remove()
+    if (friend_req_tab)
+        document.getElementById("notif_request_tab").hidden = false
+    //else if no request tab but mini chat is minimized, display global notif
+    if (document.getElementById("global_mini_notif"))
+        document.getElementById("global_mini_notif").hidden = false
+
+    if (friend_req_tab && friend_req_tab.classList.contains("selected_tab"))
+    {
+        request_div = document.createElement("div")
+        request_div.setAttribute("class", "rounded-2 my-1 p-1 text-white")
+        request_div.setAttribute("id", "request_" + id)
+        
+        request_div.innerHTML = `
+            <div>${from} send you a friend request</div>
+            <div>
+                <button class="btn btn-success" onclick="friend_request('accept', ${id})">Accept</button>
+                <button class="btn btn-danger" onclick="friend_request('decline', ${id})">Decline</button>
+            </div>
+        `
+        all_discu_div.append(request_div)
+    }
+}
+
+function invite_tournament_game(game_id)
+{
+    minimize_mini_chat()
+    htmx_request(`/game/pong/ranked/${game_id}`, "GET", {})
 }

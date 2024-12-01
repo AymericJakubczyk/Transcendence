@@ -39,6 +39,7 @@ def launch_game(id):
         board[7][4].piece = chess_class.King("white")
 
     all_chess_data[id] = board
+    save_position(id)
 
 
 def get_board(id):
@@ -141,6 +142,9 @@ def get_color_turn(id):
 
 @database_sync_to_async
 def save_result_game(game_id, winner, by):
+    import app.consumers.utils.user_utils as user_utils
+    global all_position
+
     game = get_object_or_404(Game_Chess, id=game_id)
     white_player = get_object_or_404(User, id=game.white_player.id)
     black_player = get_object_or_404(User, id=game.black_player.id)
@@ -170,6 +174,18 @@ def save_result_game(game_id, winner, by):
     white_player.chess_rank += win_elo_pw
     black_player.chess_rank += win_elo_pb
 
+    # change state of player
+    if (white_player.state == User.State.INGAME):
+        white_player.state = User.State.ONLINE
+    if (black_player.state == User.State.INGAME):
+        black_player.state = User.State.ONLINE
+    white_player.game_status_txt = 'none'
+    white_player.game_status_url = 'none'
+    black_player.game_status_txt = 'none'
+    black_player.game_status_url = 'none'
+
+    user_utils.send_change_state(white_player)
+    user_utils.send_change_state(black_player)
 
     white_player.save()
     black_player.save()

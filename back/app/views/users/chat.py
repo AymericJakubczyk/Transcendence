@@ -132,6 +132,16 @@ def mini_chat(request):
     if (current_user.is_authenticated == False):
         return JsonResponse({'type': 'error', 'message':'not authenticated'})
 
+    # verif if you have a notif in a discussion
+    all_discu = Discussion.objects.filter(Q(user1=current_user) | Q(user2=current_user))
+    for discussion in all_discu:
+        # if other user in discu is blocked, skip him (for mini chat)
+        if (discussion.get_other_user(current_user) in current_user.blocked_users.all()):
+            continue
+        last_message = discussion.get_last_message()
+        if last_message and not last_message.read and last_message.sender != current_user:
+            notif_discu = True
+            break
     if (Invite.objects.filter(to_user=current_user).count() > 0):
         notif_invite = True
     if (Friend_Request.objects.filter(to_user=current_user).count() > 0):
@@ -148,7 +158,10 @@ def mini_chat(request):
             json_all_invite = []
             all_invite = Invite.objects.filter(to_user=current_user)
             for invite in all_invite:
-                obj = {'from_user':invite.from_user.username, 'game_type':invite.game_type, 'id':invite.id}
+                if invite.for_tournament:
+                    obj = {'from_user':'Tournament', 'game_type':invite.game_type, 'id':invite.id, 'for_tournament':True, 'game_id':invite.game_id}
+                else:
+                    obj = {'from_user':invite.from_user.username, 'game_type':invite.game_type, 'id':invite.id}
                 json_all_invite.append(obj)
             return JsonResponse({'type': request_type, 'all_invite': json_all_invite, 'current_username':current_user.username, 'notif_discu':notif_discu, 'notif_invite':notif_invite, 'notif_request':notif_request})
 
@@ -156,7 +169,7 @@ def mini_chat(request):
             all_request = Friend_Request.objects.filter(to_user=current_user)
             json_all_request = []
             for request in all_request:
-                obj = {'from_user':request.from_user.username}
+                obj = {'from_user':request.from_user.username, 'id':request.id}
                 json_all_request.append(obj)
             return JsonResponse({'type': request_type, 'all_request': json_all_request, 'current_username':current_user.username , 'notif_discu':notif_discu, 'notif_invite':notif_invite, 'notif_request':notif_request})
 
@@ -171,7 +184,7 @@ def mini_chat(request):
             for msg in all_message:
                 obj = {'message': msg.message, 'sender':msg.sender.username}
                 all_obj_msg.append(obj)
-            return JsonResponse({'type': request_type, 'all_message': all_obj_msg, 'current_username':current_user.username})
+            return JsonResponse({'type': request_type, 'all_message': all_obj_msg, 'current_username':current_user.username, 'notif_discu':notif_discu})
             
         return JsonResponse({'type': request_type})
     else:
@@ -192,6 +205,9 @@ def invite(request):
         elif request.POST.get('game') == 'chess':
             obj.game_type = Invite.GameType.CHESS
         obj.save()
+        current_user.game_status_txt = "🕒Waiting..."
+        current_user.game_status_url = "/invite/"
+        current_user.save()
 
         # send invite to opponent
         channel_layer = get_channel_layer()
@@ -201,7 +217,7 @@ def invite(request):
                 "type": "send_ws",
                 "type2": "invite",
                 "game": request.POST.get('game'),
-                "player": request.user.username,
+                "player": current_user.username,
                 "id": obj.id
             }   
         )
@@ -243,9 +259,22 @@ def invite(request):
         invite.delete()
 
     if request.META.get("HTTP_HX_REQUEST") != 'true':
-        return render(request, 'page_full.html', {'page':'waiting_game.html'})
-    return render(request, 'waiting_game.html')
+        return render(request, 'page_full.html', {'page':'waiting_game.html', 'game':'invite'})
+    return render(request, 'waiting_game.html', {'game':'invite'})
 
+def inviteCancel(request):
+    print("[CANCEL] invite", file=sys.stderr)
+
+    invite = Invite.objects.filter(from_user=request.user)
+    if invite:
+        invite.delete()
+    else :
+        print("[ERROR] no invite to delete", file=sys.stderr)
+
+    request.user.game_status_txt = "Game"
+    request.user.game_status_url = "/game/"
+    request.user.save()
+    return redirect('game')
 
 # UTILS
 

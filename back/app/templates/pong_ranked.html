@@ -1,6 +1,15 @@
 {% load static %}
 <script>
 	console.log("[LOG PONG RANKED]", "{{ game.player1.username }}", "{{ game.player2.username }}")
+	{% if user == game.player1 or user == game.player2  %}
+		console.log("[LOG PONG RANKED] You are in the game")
+		url = '/game/pong/ranked/' + {{ game.id }} + '/';
+		{% if game.winner %}
+			change_game_headbar('Game', "/game/");
+		{% else %}
+			change_game_headbar('🏓in game...', url);
+		{% endif %}
+	{% endif %}
 </script>
 <div class="container">
 	<h1 class="header">ULTIMATE EXTRA COOL SUPER PONG TOURNAMENT EXTREME BATTLE</h1>

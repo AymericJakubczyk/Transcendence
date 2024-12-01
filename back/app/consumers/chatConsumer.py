@@ -24,7 +24,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         all_username =  await self.get_all()
         for username in all_username:
             await self.channel_layer.group_send(
-                username, {'type':'send_ws', 'type2':'connect', 'sender':self.scope["user"].username}
+                username, {'type':'send_ws', 'type2':'online', 'sender':self.scope["user"].username}
             )
 
 
@@ -36,7 +36,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         all_username =  await self.get_all()
         for username in all_username:
             await self.channel_layer.group_send(
-                username, {'type':'send_ws', 'type2':'disconnect', 'sender': self.scope["user"].username}
+                username, {'type':'send_ws', 'type2':'offline', 'sender': self.scope["user"].username}
         )
 
         await self.channel_layer.group_discard(
@@ -61,6 +61,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.channel_layer.group_send(
                 sender.username,{'type':'send_ws' ,'type2':'decline', 'id':data['id']}
             )
+
+        if (data['type'] == "friend_request" and data.get('action') and data.get('id')):
+            if (data['action'] == "accept"):
+                await self.accept_friend_request(data['id'])
+            elif (data['action'] == "decline"):
+                await self.decline_friend_request(data['id'])
 
 
     async def verif_and_send_msg(self, data):
@@ -153,6 +159,24 @@ class ChatConsumer(AsyncWebsocketConsumer):
         invitation.delete()
         return stock_sender
 
+    @database_sync_to_async
+    def accept_friend_request(self, requestID):
+        from app.models import Friend_Request
+
+        friend_request = get_object_or_404(Friend_Request, id=requestID)
+        print("[ACCEPT] friend request from", friend_request.from_user, "to", friend_request.to_user, file=sys.stderr)
+        if friend_request.to_user == self.scope["user"]:
+            friend_request.to_user.friends.add(friend_request.from_user)
+            friend_request.delete()
+
+    @database_sync_to_async
+    def decline_friend_request(self, requestID):
+        from app.models import Friend_Request
+
+        friend_request = get_object_or_404(Friend_Request, id=requestID)
+        print("[DECLINE] friend request from", friend_request.from_user, "to", friend_request.to_user, file=sys.stderr)
+        if friend_request.to_user == self.scope["user"]:
+            friend_request.delete()
 
     async def send_ws(self, event):
         print("[SEND CHAT WS]", event, file=sys.stderr)

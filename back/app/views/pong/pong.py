@@ -11,8 +11,8 @@ import json, math
 from django.http import JsonResponse, HttpResponse
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync, sync_to_async
-import asyncio
 import threading
+import app.consumers.utils.pong_utils as pong_utils
 
 from app.consumers.pongTournamentConsumer import pongTournamentConsumer
 
@@ -79,6 +79,8 @@ def moveWinners(tournament_matchs):
                         game_obj.player1 = game.winner
                     elif (not game_obj.player2):
                         game_obj.player2 = game.winner
+                        # send ws tournament game ready
+                        pong_utils.pong_tournament_game_ready(game_obj)
                     game_obj.save()
                     print("\tMOVED", game.winner, "TO", game_obj.tournament_pos, file=sys.stderr)
     return tournament_matchs
@@ -133,6 +135,8 @@ def makematchs(playerlist, number, tournament):
             newGame.tournament_pos = math.ceil((nbmatch / 2) + y)
             y += 1
         newGame.save()
+        if (newGame.player1 != None and newGame.player2 != None):
+            pong_utils.pong_tournament_game_ready(newGame)
         matchs.append(newGame)
 
     matchs.sort(reverse=False, key=match_place)
@@ -202,7 +206,10 @@ def pongTournament(request):
         # TO CHANGE TO 2
         if playercount > 1:
             playerlist = seedPlayers(tournament.participants.all())
+            # create and fill matchs for first round
             tournament_matchs = makematchs(playerlist, playercount, tournament)
+
+            # create and fill matchs for the other rounds
             nbmatch = len(tournament_matchs)
             roundcount = 2
             while (nbmatch > 1):
@@ -298,11 +305,16 @@ def pongTournament(request):
 
 def pongFoundGameView(request):
     import app.consumers.utils.pong_utils as pong_utils
+    import app.consumers.utils.user_utils as user_utils
 
+    if request.user in list_waiter:
+        print("User already in list_waiter", file=sys.stderr)
     # if list_waiter length is zero, add user to list_waiter
-    if len(list_waiter) == 0:
+    elif len(list_waiter) == 0:
         list_waiter.append(request.user)
-    
+        request.user.game_status_txt = "🕒Waiting..."
+        request.user.game_status_url = "/game/pong/ranked/"
+        request.user.save()
     # else remove user from list_waiter, create game redirect to game, and send match_found to wainting user
     else:
         opponent = list_waiter[0]
@@ -325,12 +337,25 @@ def pongFoundGameView(request):
         pong_utils.launch_game(game.id)
         game.status = "started"
         game.save()
+
+        # PASS USER IN GAME STATUT
+        opponent.state = User.State.INGAME
+        opponent.game_status_txt = "🏓in game..."
+        opponent.game_status_url = "/game/pong/ranked/" + str(game.id) + "/"
+        opponent.save()
+        request.user.state = User.State.INGAME
+        request.user.game_status_txt = "🏓in game..."
+        request.user.game_status_url = "/game/pong/ranked/" + str(game.id) + "/"
+        request.user.save()
+        user_utils.send_change_state(opponent)
+        user_utils.send_change_state(request.user)
+
         print("Game launched:", game.id, file=sys.stderr)
         return redirect('pong_game', gameID=game.id)
 
     if request.META.get("HTTP_HX_REQUEST") != 'true':
-        return render(request, 'page_full.html', {'page':'waiting_game.html', 'user':request.user})
-    return render(request, 'waiting_game.html', {'user':request.user})
+        return render(request, 'page_full.html', {'page':'waiting_game.html', 'user':request.user, 'game':'pong'})
+    return render(request, 'waiting_game.html', {'user':request.user, 'game':'pong'})
 
 def pongGameView(request, gameID):
     import app.consumers.utils.pong_utils as pong_utils
@@ -352,3 +377,12 @@ def pongGameView(request, gameID):
     if request.META.get("HTTP_HX_REQUEST") != 'true':
         return render(request, 'page_full.html', {'page':'pong_ranked.html', 'user':request.user, 'game':game, 'gameID':gameID})
     return render(request, 'pong_ranked.html', {'user':request.user, 'game':game, 'gameID':gameID})
+
+def pongCancelQueue(request):
+    print("[LOG] User cancel pong queue", file=sys.stderr)
+    if request.user in list_waiter:
+        list_waiter.remove(request.user)
+        request.user.game_status_txt = "Game"
+        request.user.game_status_url = "/game/"
+        request.user.save()
+    return redirect('game')

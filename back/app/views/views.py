@@ -18,10 +18,12 @@ logger = logging.getLogger(__name__)
 # Create your views here.
 
 def homeView(request):
-    next_url = get_url('home')
-    if (request.GET.get('next')):
-        next_url = request.GET.get('next')
+
+    if request.user.is_authenticated:
+        return redirect('myprofile')
+
     form = LoginForm()
+    error = None
 
     if request.method == 'POST':
         form = LoginForm(request.POST)
@@ -33,10 +35,18 @@ def homeView(request):
             if user is not None:
                 print("login", request.user, file=sys.stderr)
                 login(request, user)
-                return (redirect(next_url))
+                return redirect('myprofile')
+            else:
+                if User.objects.filter(username=form.cleaned_data['username']).exists():
+                    error = "password"
+                else:
+                    error = "username"
+                    form = LoginForm()
+
     if request.META.get("HTTP_HX_REQUEST") != 'true':
-        return render(request, 'page_full.html', {'page':'home.html', 'form':form, 'next_url':next_url, 'refresh':1})
-    return render(request, 'home.html', {'form':form, 'next_url':next_url, 'refresh':0})
+        return render(request, 'page_full.html', {'page':'login.html', 'form':form, 'error':error})
+    return render(request, 'login.html', {'form':form, 'error':error})
+
 
 def gameView(request):
     if not request.user.is_authenticated:

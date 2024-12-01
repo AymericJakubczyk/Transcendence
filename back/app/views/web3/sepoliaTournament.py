@@ -271,29 +271,35 @@ abi = [
 #Logs
 logger = getLogger(__name__)
 
-#Connect to the Ethereum node
+if (os.getenv('INFURA_SEPOLIA_API_KEY') and os.getenv('PRIVATE_KEY') and os.getenv('CONTRACT_ADDRESS')):
+	#Connect to the Ethereum node
 
-sepolia_key = os.getenv('INFURA_SEPOLIA_API_KEY')
-private_key = os.getenv('PRIVATE_KEY')
+	sepolia_key = os.getenv('INFURA_SEPOLIA_API_KEY')
+	private_key = os.getenv('PRIVATE_KEY')
 
-#Get contract address
+	#Get contract address
 
-contractAddress = Web3.to_checksum_address(os.getenv('CONTRACT_ADDRESS'))
+	contractAddress = Web3.to_checksum_address(os.getenv('CONTRACT_ADDRESS'))
 
-#Get and connect metamask account
+	#Get and connect metamask account
 
 
-web3 = Web3(Web3.HTTPProvider(sepolia_key))
-account = Account.from_key(private_key)
+	web3 = Web3(Web3.HTTPProvider(sepolia_key))
+	account = Account.from_key(private_key)
 
-#Add middleware (sign and send raw transaction)
+	#Add middleware (sign and send raw transaction)
 
-web3.middleware_onion.inject(SignAndSendRawMiddlewareBuilder.build(account), layer=0)
-#Connect account to the contract
+	web3.middleware_onion.inject(SignAndSendRawMiddlewareBuilder.build(account), layer=0)
+	#Connect account to the contract
 
-admin_acc = account.address
-contract = web3.eth.contract(address=contractAddress, abi=abi)
+	admin_acc = account.address
+	contract = web3.eth.contract(address=contractAddress, abi=abi)
 
+else :
+	print("Error : Missing environment variables for web3", file=sys.stderr)
+	account = None
+	admin_acc = None
+	contract = None
 
 #Record match on the blockchain
 
