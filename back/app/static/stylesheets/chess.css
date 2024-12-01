@@ -1,13 +1,33 @@
 .test {
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.game-row {
+    display: flex;
+    align-items: center;
+    gap: 20px; /* Space between the boxes */
+    width: 100%;
+    justify-content: center;
 }
 
 .chessBox {
-	width: 100%;
-	height: 100%;
-	position: relative;
-	border:2px solid;
+    width: 800px; /* Or your desired width */
+    height: 800px; /* Or your desired height */
+    position: relative;
+    border: 2px solid;
+    flex-shrink: 0; /* Prevents the chess board from shrinking */
+}
+
+.side-box {
+    width: 100px; /* Or your desired width */
+    height: 800px; /* Same height as chessBox */
+	background:rgba(50, 50, 50, 0.7);
+}
+
+.PlayerName {
+    font-size: 30px;
 }

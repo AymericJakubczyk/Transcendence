@@ -5,6 +5,8 @@ from asgiref.sync import sync_to_async, async_to_sync
 from channels.layers import get_channel_layer
 from django.shortcuts import get_object_or_404
 from channels.db import database_sync_to_async
+from app.views.web3.sepoliaTournament import record_match, closeTournament
+import threading
 
 arenaWidth = 100
 arenaLength = 150
@@ -184,7 +186,15 @@ async def stop_game(id):
         }
     )
     if (game.tournament_pos != -1):
-        await update_tournament(id) 
+        await update_tournament(id)
+        # print("ALL DATA", all_data, file=sys.stderr);
+        # print(all_data[id], file=sys.stderr)
+        # print(game.tournament_round, file=sys.stderr)
+        if (all_data[id].score_player1 > all_data[id].score_player2):
+            thread = threading.Thread(target=record_match, args=(player[0], all_data[id].score_player1, player[1], all_data[id].score_player2, game.tournament_id, game.tournament_round,))
+        elif (all_data[id].score_player1 < all_data[id].score_player2):
+            thread = threading.Thread(target=record_match, args=(player[1], all_data[id].score_player2, player[0], all_data[id].score_player1, game.tournament_id, game.tournament_round,))
+        thread.start()
 
 
 @database_sync_to_async
@@ -192,12 +202,6 @@ def get_game(id):
     from app.models import Game_Pong
 
     return get_object_or_404(Game_Pong, id=id)
-
-
-
-
-
-
 
 @database_sync_to_async
 def get_username_of_game(game_id):
@@ -339,6 +343,9 @@ def update_tournament(id):
         tournament.winner = game.winner
         tournament.results.append(game.winner.id)
         tournament.save()
+        closeTournament(game.tournament_id, game.winner.username)
+        # thread = threading.Thread(target=closeTournament, args=(game.tournament_id, game.winner.username,))
+        # thread.start()
         print("UPDATING TOURNAMENT:", game.winner, "WON THE TOURNAMENT", file=sys.stderr)
     else:
         # PUT WINNER IN THE GAME

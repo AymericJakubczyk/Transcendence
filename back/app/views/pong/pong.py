@@ -4,12 +4,14 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from app.forms import SignupForm, LoginForm, UpdateForm
 from app.models import User, Tournament, Friend_Request, Discussion, Message, Game_Chess, Game_Pong
+from app.views.web3.sepoliaTournament import createTournament, get_participants_arr, record_match
 from django.urls import reverse as get_url
 from django.db.models import Q
 import json, math
 from django.http import JsonResponse, HttpResponse
 from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
+from asgiref.sync import async_to_sync, sync_to_async
+import threading
 import app.consumers.utils.pong_utils as pong_utils
 
 from app.consumers.pongTournamentConsumer import pongTournamentConsumer
@@ -171,12 +173,12 @@ def pongTournament(request):
             tournament.save()
             request.user.tournament_id = tournament.id
             request.user.save()
-    
+
+
     # TO REMOVE
     if 'win_tournament' in request.POST:
         tournament_id = request.POST.get('win_tournament')
         tournament = Tournament.objects.get(id=tournament_id)
-
         tournament.winner = request.user
         print("STARTING RESULTS", file=sys.stderr)
         place = 1
@@ -186,7 +188,6 @@ def pongTournament(request):
             place+= 1
         tournament.started = True
         tournament.save()
-    # ------
 
     if 'bracket_tournament' in request.POST:
         print("making brackets", file=sys.stderr)
@@ -198,6 +199,10 @@ def pongTournament(request):
             print("\tPlayer:", player.username, file=sys.stderr)
 
         playercount = tournament.participants.count()
+        #CREATE TOURNAMENT ON BLOCKCHAIN
+        playerlist = get_participants_arr(tournament)
+        thread = threading.Thread(target=createTournament, args=(playerlist,))
+        thread.start()
         # TO CHANGE TO 2
         if playercount > 1:
             playerlist = seedPlayers(tournament.participants.all())

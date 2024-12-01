@@ -4,3 +4,4 @@ __pycache__
 /back/app/migrations
 /back/media/imgs/profils/*
 !creepy-cat.webp
+jsconfig.json
