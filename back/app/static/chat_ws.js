@@ -1,6 +1,6 @@
 var ws_created = false;
 var chatSocket = null;
-
+var username = null;
 
 function custom_submit(form_id)
 {
@@ -34,7 +34,11 @@ function create_ws()
 	if (ws_created)
 		return ;
 	console.log("create websocket")
-	chatSocket = new WebSocket('ws://' + window.location.host + '/ws/chat/');
+	if (window.location.protocol == "https:")
+		chatSocket = new WebSocket('wss://' + window.location.host + '/ws/chat/');
+	else 
+		chatSocket = new WebSocket('ws://' + window.location.host + '/ws/chat/');
+
 	
 	chatSocket.onopen = function() {
 		console.log('WebSocket connection established.');
@@ -44,6 +48,7 @@ function create_ws()
 	chatSocket.onmessage = function(event) {
 		const data = JSON.parse(event.data);
 		console.log('Received ws:', data);
+		username = data;
 		var statut_elem = document.getElementById("statut_" + data.sender);
 		var statut_mini_elem = document.getElementById("statut_mini_" + data.sender);
 		if (data.type == 'chat_message')
@@ -79,6 +84,15 @@ function create_ws()
 			error_message(data.message, 2000)
 		if (data.type == 'invite')
 			add_invitation(data.game, data.player, data.id)
+		if (data.type == 'invite_accepted')
+			htmx_request("/game/pong/ranked/" + data.game_id + "/", "GET", {})
+		if (data.type == 'match_found')
+		{
+			if (data.game_type == 'pong')
+				htmx_request("/game/pong/ranked/" + data.game_id + "/", "GET", {})
+			else if (data.game_type == 'chess')
+				htmx_request("/game/chess/ranked/" + data.game_id + "/", "GET", {})
+		}
 	};
 	
 	chatSocket.onclose = (event) => {

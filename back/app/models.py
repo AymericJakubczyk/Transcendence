@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.fields import HStoreField
 from django.db.models import Q
 from django.db.models import JSONField
 
@@ -21,7 +22,8 @@ from django.db.models import JSONField
 
 class User(AbstractUser):
 	profile_picture = models.ImageField(default='imgs/profils/creepy-cat.webp', blank=True, upload_to = 'imgs/profils/')
-	friends = models.ManyToManyField("User", blank=True)
+	friends = models.ManyToManyField('self', blank=True)
+	blocked_users = models.ManyToManyField('self', symmetrical=False, blank=True)
 	tournament_id = models.IntegerField(default=-1)
 
 	# PONG ATTRIBUTS
@@ -29,6 +31,9 @@ class User(AbstractUser):
 	pong_games_played = models.IntegerField(default=0)
 	pong_winrate = models.IntegerField(default=0)
 	pong_max_exchange = models.IntegerField(default=0)
+
+	# CHESS ATTRIBUTS
+	chess_rank = models.IntegerField(default=700)
 
 	class State(models.TextChoices):
 		ONLINE = 'ON'
@@ -81,6 +86,12 @@ class Discussion(models.Model):
 		else :
 			return self.user1.username
 
+	def get_other_user(self, you):
+		if self.user1 == you:
+			return self.user2
+		else :
+			return self.user1
+
 	def get_last_message(self):
 		last_message = Message.objects.filter(Q(discussion=self)).last()
 		if (last_message):
@@ -97,19 +108,26 @@ class Game_Chess(models.Model):
 	white_player = models.ForeignKey(User, null=True, on_delete=models.CASCADE, related_name='white_player')
 	black_player = models.ForeignKey(User, null=True, on_delete=models.CASCADE, related_name='black_player')
 	turn_white = models.BooleanField(default=True)
+	status = models.CharField(max_length=20, default='waiting')
+	winner = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='chesswinner')
+	reason_endgame = models.CharField(max_length=100, default='test', blank=True, null=True)
+	all_position = ArrayField(models.JSONField(), null=True, blank=True, default=list)
+	class Color(models.TextChoices):
+		WHITE = 'white'
+		BLACK = 'black'
+	propose_draw = models.CharField(max_length=5, choices=Color.choices, null=True, blank=True, default=None)
 
-	def board_default():
-		return {'piece': None, 'color': None}
+	white_player_rank = models.IntegerField(default=0)
+	black_player_rank = models.IntegerField(default=0)
+	white_player_rank_win = models.IntegerField(default=0)
+	black_player_rank_win = models.IntegerField(default=0)
 
-	board = ArrayField(
-        ArrayField(
-            models.JSONField(null=True, blank=True, default=board_default),
-            size=8
-        ),
-        size=8
-    )
-	over = models.BooleanField(default=False)
-	winner = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name='chesswinner')
+	def __repr__(self):
+		return f"Game {self.id} - {self.white_player.username} vs {self.black_player.username} - {self.status} - {self.winner} - {self.reason_endgame} - {self.white_player_rank} - {self.black_player_rank} - {self.white_player_rank_win} - {self.black_player_rank_win}"
+
+	def __str__(self):
+		return f"Game {self.id} - {self.white_player.username} vs {self.black_player.username} - {self.status} - {self.winner} - {self.reason_endgame} - {self.white_player_rank} - {self.black_player_rank} - {self.white_player_rank_win} - {self.black_player_rank_win}"
+
 
 class Game_Pong(models.Model):
 	player1 = models.ForeignKey(User, related_name='player1', on_delete=models.CASCADE, null=True, blank=True)
@@ -130,6 +148,7 @@ class Game_Pong(models.Model):
 
 	tournament_pos = models.IntegerField(default=-1)
 	tournament_round = models.IntegerField(default=1)
+	tournament_id = models.IntegerField(default=-1)
 
 	class Meta:
 		ordering = ('tournament_pos', 'id', )
@@ -141,8 +160,9 @@ class Game_Pong(models.Model):
 			return self.player2.username
 
 	def __str__(self):
+		player1_name = self.player1.username if self.player1 else "No Opponent"
 		player2_name = self.player2.username if self.player2 else "No Opponent"
-		return f"Game {self.id} - {self.player1.username} vs {player2_name}"
+		return f"Game {self.id} - {player1_name} vs {player2_name}"
 
 class PongMultiDataGame(models.Model):
 	ball_x = models.FloatField(default=0)
@@ -165,3 +185,48 @@ class Game_PongMulti(models.Model):
 
 	class Meta:
 		ordering = ('id', )
+
+#WEB3 models
+
+class TournamentMatch(models.Model):
+	roundNumber = models.ForeignKey('TournamentRound', related_name='roundNb', on_delete=models.CASCADE)
+	tour = models.ForeignKey('Tournament', related_name='round', on_delete=models.CASCADE)
+	state = models.CharField(max_length=20, choices=[('pending', 'Pending'), ('playing', 'Playing'), ('finished', 'Finished')], default='pending')
+	identifier = models.IntegerField()
+	winner : 'User' = models.ForeignKey(User, related_name='matchWinner', on_delete=models.SET_NULL, null=True, blank=True)
+	
+	def __str__(self):
+		return f"{self.tour.name} + {self.state} + {self.date}"
+
+class TournamentRound(models.Model):
+	tournament = models.ForeignKey('Tournament', related_name='tournamentId', on_delete=models.CASCADE)
+	roundNumber = models.IntegerField()
+	matches = models.ManyToManyField('TournamentMatch', blank=True)
+	date = models.DateTimeField(null=True, blank=True)
+	
+	class Meta:
+		unique_together = ('tournament', 'roundNumber')
+
+	def __str__(self):
+		return f"{self.tour.name} + {self.roundNumber}"
+	
+class TournamentPlayer(models.Model):
+	user: 'User' = models.ForeignKey(User, related_name='TournamentRegistered' , on_delete=models.CASCADE)
+	match = models.ForeignKey('TournamentMatch', on_delete=models.CASCADE, null=True)
+	state = models.CharField(max_length=20, choices=[('eliminated', 'Eliminated'), ('playing', 'Playing')], default='eliminated')
+	
+	class Meta:
+		unique_together = ('user', 'match')
+	
+	def __str__(self):
+		return f"{self.user.username}"
+	
+class Match_Player(models.Model):
+	player : 'User' = models.ForeignKey(User, related_name='player', on_delete=models.CASCADE)
+	match = models.ForeignKey('TournamentMatch', related_name='match', on_delete=models.CASCADE, null=True, blank=True)
+	
+	class Meta:
+		unique_together = ('player', 'match')
+	
+	def __str__(self):
+		return f"{self.player.username} + {self.match.id}"

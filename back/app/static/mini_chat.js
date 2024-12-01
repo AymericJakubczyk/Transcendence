@@ -317,27 +317,6 @@ function decline_invite(id)
     chatSocket.send(JSON.stringify(obj));
 }
 
-
-function waiting_invite()
-{
-    pongSocket = new WebSocket('ws://' + window.location.host + '/ws/pong/');
-
-    pongSocket.onopen = function() {
-		console.log('[WS PONG] WebSocket PONG connection established.');
-	};
-
-    pongSocket.onmessage = function(e) {
-        const data = JSON.parse(e.data);
-        // console.log("[WS PONG] Received:", data);
-        receive_pong_ws(data)
-    }
-
-    pongSocket.onclose = (event) => {
-		console.log("[WS PONG] The connection has been closed successfully.");
-        pongSocket = null;
-	}
-}
-
 function add_invitation(game, player, id)
 {
     console.log("[ADD INVITATION]", game, player)

@@ -27,7 +27,10 @@ function create_pong_tournament_ws()
 {
     if (pongTournamentSocket != null)
         pongTournamentSocket.close();
-    pongTournamentSocket = new WebSocket('ws://' + window.location.host + '/ws/pongTournament/');
+    if (window.location.protocol == "https:")
+        pongTournamentSocket = new WebSocket('wss://' + window.location.host + '/ws/pongTournament/');
+    else
+        pongTournamentSocket = new WebSocket('ws://' + window.location.host + '/ws/pongTournament/');
 
     pongTournamentSocket.onopen = function() {
 		console.log('[WS pongTournament] WebSocket pongTournament connection established.');
@@ -49,7 +52,7 @@ function leave_pong_tournament(id_tournament)
 
 function receive_ws(data)
 {
-    console.log("[RECEIVE WS]");
+    console.log("[RECEIVE WS]", data);
     if (data.action =="join")
     {
         console.log("JOIN", data)

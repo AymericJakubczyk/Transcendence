@@ -87,6 +87,7 @@ function startGame()
 
 function display3D()
 {
+    reverse = false
     console.log("TEST3D")
     myCanvas = document.getElementById("pongCanvas")
 
