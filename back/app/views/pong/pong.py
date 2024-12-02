@@ -117,6 +117,7 @@ def makematchs(playerlist, number, tournament):
     y = 101
     while (len(matchs) != nbmatch):
         newGame = Game_Pong()
+        newGame.tournament_id = tournament.id
 
         if (len(first) != 0 and first[0] != None):
             newGame.player1 = first[0]
@@ -197,7 +198,9 @@ def pongTournament(request):
         playercount = tournament.participants.count()
         #CREATE TOURNAMENT ON BLOCKCHAIN
         playerlist = get_participants_arr(tournament)
-        thread = threading.Thread(target=createTournament, args=(playerlist,))
+        print("ALED", tournament.tournamentId, file=sys.stderr)
+        print("ID : ", int(tournament_id), type(int(tournament_id)), file=sys.stderr)
+        thread = threading.Thread(target=createTournament, args=(playerlist, int(tournament_id),))
         thread.start()
         # TO CHANGE TO 2
         if playercount > 1:

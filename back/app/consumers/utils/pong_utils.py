@@ -160,9 +160,7 @@ async def stop_game(id):
     )
     if (game.tournament_pos != -1):
         await update_tournament(id)
-        # print("ALL DATA", all_data, file=sys.stderr);
-        # print(all_data[id], file=sys.stderr)
-        # print(game.tournament_round, file=sys.stderr)
+
         if (all_data[id].score_player1 > all_data[id].score_player2):
             thread = threading.Thread(target=record_match, args=(player[0], all_data[id].score_player1, player[1], all_data[id].score_player2, game.tournament_id, game.tournament_round,))
         elif (all_data[id].score_player1 < all_data[id].score_player2):
