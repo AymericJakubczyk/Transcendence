@@ -5,6 +5,8 @@ var nbPlayers;
 var activePlayers;
 var myplayerID;
 
+var refresh;
+
 let playersObjs = [
     { alive: 0, color: 0x00f3ff, paddle: null, zone: null, zoneStart: null, paddlePosition: null},
     { alive: 0, color: 0xff49ec, paddle: null, zone: null, zoneStart: null, paddlePosition: null},
@@ -28,20 +30,18 @@ function join_multi_game(game_data)
 
     pongMultiSocket.onopen = function() {
 		console.log('[WS MULTI] WebSocket MULTI connection established.');
-		myplayerID = game_data.ingameID;
-		nbPlayers = game_data.nbPlayers;
-		activePlayers = nbPlayers;
-		console.log('[WS MULTI] game params set !');
+        refresh = true;
 	};
 
     pongMultiSocket.onmessage = function(e) {
         const data = JSON.parse(e.data);
-        receive_multi_ws(data)
+        receive_multi_ws(data);
     }
 
     pongMultiSocket.onclose = (event) => {
 		console.log("[WS MULTI] The connection has been closed successfully.");
         pongMultiSocket = null;
+        refresh = false;
 	}
 }
 
@@ -84,7 +84,7 @@ function receive_multi_ws(data)
 			parent = document.getElementById("endgame_multi_loss");
 			parent.appendChild(element);
 			if (gameInterval)
-			clearInterval(gameInterval)
+			    clearInterval(gameInterval)
 		}
 		if (activePlayers == 1)
 		{
@@ -125,6 +125,12 @@ function receive_multi_ws(data)
 			lifeElem.textContent = "X X";
 		}
 		render_paddles(data.paddles);
+
+        if (refresh)
+        {
+            updateZones();
+            refresh = false
+        }
 		return;
 	}
 }
@@ -189,6 +195,7 @@ function setup_game()
     // KEY HANDLING
     document.addEventListener("keydown", keyDownHandler);
     document.addEventListener("keyup", keyUpHandler);
+
     function keyDownHandler(e) {
         if (e.key === "Up" || e.key === "ArrowUp")
             upPressed = true;
@@ -212,6 +219,11 @@ function connectMultiGame(data)
 {
 	console.log("Connecting multi game id =", data.id);
 	join_multi_game(data);
+
+    myplayerID = data.ingameID;
+    nbPlayers = data.nbPlayers;
+    activePlayers = nbPlayers;
+    console.log('[WS MULTI] game params set !');
 
 	upPressed = false;
 	downPressed = false;
@@ -243,7 +255,10 @@ function ws_call_move(move, player)
         'player': player,
         'move': move
     };
-    pongMultiSocket.send(JSON.stringify(obj))
+    if (pongMultiSocket)
+        pongMultiSocket.send(JSON.stringify(obj))
+    else
+        console.log("INPUUUUUUUUUUUUUUT");
 }
 
 function updateZones()
@@ -251,6 +266,10 @@ function updateZones()
     for (let i = 0; i < nbPlayers; i++)
 		if (playersObjs[i].zone)
         	scene.remove( playersObjs[i].zone );
+
+    for (let i = 0; i < nbPlayers; i++)
+		if (playersObjs[i].paddle && playersObjs[i].alive == 0)
+        	scene.remove( playersObjs[i].paddle );
 
     playerZoneSize = (2 * Math.PI) / activePlayers;
     console.log("Creating", activePlayers, "zones. Zone size =", playerZoneSize);

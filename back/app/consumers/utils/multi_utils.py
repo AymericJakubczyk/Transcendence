@@ -62,9 +62,9 @@ async def launch_multi_game(id, playerlist):
 
     print("zone size", all_multi_data[id].playerZoneSize, file=sys.stderr)
 
+    await send_updates(id)
+
     asyncio.create_task(multi_calcul_ball(id))
-
-
 
 
 async def calc_paddle_collision(id, startAngle, endAngle, ballAngle):
@@ -118,9 +118,6 @@ async def multi_calcul_ball(id):
                                 break
 
             # COLLISION AVEC LE CERCLE ET MARQUAGE
-            calc_dx = (arenaLength / 2) - all_multi_data[id].ball_x
-            calc_dy = (arenaWidth / 2) - all_multi_data[id].ball_y
-            distance = math.sqrt(calc_dx * calc_dx + calc_dy * calc_dy)
 
             if (distance > ringRadius):
                 ballAngle = math.atan2(all_multi_data[id].ball_y - arenaWidth/2, all_multi_data[id].ball_x - arenaLength/2)
@@ -204,6 +201,14 @@ def stop_game(id):
                     game.save()
     print("[END GAME] -", game.winner, "WON", file=sys.stderr)
 
+
+def move_paddle(move, player, id):
+    global all_multi_data
+
+    if (move == 'up'):
+            all_multi_data[id].paddleStart[player] += 0.05
+    if (move == 'down'):
+            all_multi_data[id].paddleStart[player] -= 0.05
 
 async def send_updates(id):
     # print("[SEND UPDATES 2]", file=sys.stderr)

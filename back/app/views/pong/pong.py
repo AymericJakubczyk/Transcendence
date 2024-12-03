@@ -260,6 +260,7 @@ def pongTournament(request):
                     'user_username': request.user.username,
                     'user_rank': request.user.pong_rank,
                     'tournamentName': tournament.name,
+                    'profile_pic' : request.user.profile_picture.url,
                     'tournamentNB': tournament.participants.count()
                 }
             )
