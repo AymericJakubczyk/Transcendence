@@ -5,7 +5,7 @@ from asgiref.sync import sync_to_async, async_to_sync
 from channels.layers import get_channel_layer
 from django.shortcuts import get_object_or_404
 from channels.db import database_sync_to_async
-
+ 
 arenaWidth = 100
 arenaLength = 150
 ballRadius = 1
@@ -178,8 +178,12 @@ async def stop_game(id):
     global all_data
 
     game = await get_game(id)
-    
+
     await send_updates(id) # Send final update for the score
+    
+    if not game.player2:
+        return
+
     win_elo = await save_winner(id)
     player = await get_username_of_game(id)
     channel_layer = get_channel_layer()

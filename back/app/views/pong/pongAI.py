@@ -23,9 +23,9 @@ def pongAISetup(request):
     import app.consumers.utils.user_utils as user_utils
 
     game = Game_Pong()
-    game.player2 = request.user
+    game.player2 = None
     # get user root for ia
-    game.player1 = User.objects.get(username="root")
+    game.player1 = request.user
     game.save()
     print("Game created:", game.id, file=sys.stderr)
     pong_utils.launch_ai_game(game.id)
