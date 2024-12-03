@@ -4,7 +4,7 @@ from channels.db import database_sync_to_async
 from django.shortcuts import get_object_or_404
 from .utils import pong_utils
 
-import sys #for print
+import sys
 
 class PongConsumer(AsyncWebsocketConsumer):
     id = None
