@@ -7,11 +7,11 @@
 	</div>
 	<hr>
 	<div class="justify-content-around d-flex text-center">
-		<div class="d-block chooseGame" hx-get="{% url 'pong' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
+		<div id="choosePong" class="d-block chooseGame" hx-get="{% url 'pong' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
 			<a class="route col-sm">PONG</a>
 			<p>🏓</p>
 		</div>
-		<div class="d-block chooseGame" hx-get="{% url 'chess' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
+		<div id="chooseChess" class="d-block chooseGame" hx-get="{% url 'chess' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
 			<a class="route col-sm">CHESS</a>
 			<p>♟️</p>
 		</div>

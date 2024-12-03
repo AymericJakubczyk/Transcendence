@@ -81,6 +81,8 @@ function create_ws()
 				htmx_request("/game/pong/ranked/" + data.game_id + "/", "GET", {})
 			else if (data.game_type == 'chess')
 				htmx_request("/game/chess/ranked/" + data.game_id + "/", "GET", {})
+			else if (data.game_type == 'multi')
+				htmx_request("/game/pong/multiplayer/" + data.game_id + "/", "GET", {})
 		}
 		if (data.type == 'friend_request')
 			add_friend_request(data.from_user, data.id)

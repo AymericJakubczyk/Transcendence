@@ -7,19 +7,13 @@
     <hr>
 
     <div class="d-flex flex-row justify-content-around">
-        <div class="chooseMode" hx-get="{% url 'chess_local' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
+        <div class="chesschooseMode chooseMode" hx-get="{% url 'chess_local' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
             <h1>Local Game</h1>
             <h1>🕹️</h1>
         </div>
-        <div class="chooseMode" hx-get="{% url 'chess_found_game' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
+        <div class="chesschooseMode chooseMode" hx-get="{% url 'chess_found_game' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
             <h1>Ranked Game</h1>
             <h1>🏅</h1>
-        </div>
-    </div>
-    <div class="d-flex flex-row justify-content-around">
-        <div class="chooseMode">
-            <h1>Tournament</h1>
-            <h1>🏆</h1>
         </div>
     </div>
 </div>

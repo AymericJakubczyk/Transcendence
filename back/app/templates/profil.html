@@ -1,84 +1,171 @@
 <div class="container">
 	{% include 'messages.html' %}
-	<h1>Profile Page</h1>
-	<br>
-	<div class="row ml-5">
-		<div class="profile_pp col-4">
+	<div class="pp_header">
+		<div class="text-center">
+			<h1>{{ user.username }}</h1>
+		</div>
+		<div class="profile_pp">
 			<img src="{{ user.profile_picture.url }}" alt="Profile Picture">
 		</div>
-		<div class="col-6 d-table">
-			<div class="d-table-cell align-middle pl-5">
-				<div>
-					<h6>Pseudo :</h6>
-					<h4>{{ user.username }}</h4>
-				</div>
-				<div>
-					<h6>Name :</h6>
-					<h4>{{ user.first_name }} {{ user.last_name }}</h4>
-				</div>
-			</div>
+		<div class="text-center">
+			<h6>Name :</h6>
+			<h4>{{ user.first_name }} {{ user.last_name }}</h4>
 		</div>
+	</div>
+	<br>
+	<div class="d-flex justify-content-evenly">
 		{% if user not in request.user.friends.all and user != request.user %}
-		<div class="col-2">
-			<a hx-get="{% url 'send_friend_request' user.username %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route">SEND FRIEND REQUEST</a>
+		<div class="text-center">
+			<a class="tournament-list-refresh" hx-get="{% url 'send_friend_request' user.username %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route">SEND FRIEND REQUEST</a>
 		</div>
 		{% endif %}
 		{% if user not in request.user.blocked_users.all and user != request.user %}
-		<div class="col-2">
-			<a hx-get="{% url 'block_user' user.username  %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route">BLOCK</a>
+		<div class="text-center">
+			<a class="tournament-list-refresh" hx-get="{% url 'block_user' user.username  %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route">BLOCK</a>
 		</div>
 		{% endif %}
 	</div>
+	<br>
 	<div class="row mt-3">
 		<div class="text-center col-6">
 			<h6>Joined :</h6>
-			<p>{{ user.date_joined }}</p>
+			<p>{{ user.date_joined|date:"d M Y" }}</p>
 		</div>
 		<div class="text-center col-6">
 			<h6>Last Connexion :</h6>
-			<p>{{ user.last_login }}</p>
+			{% if context_last_login.total_seconds < 60 %}
+				<p>{{ context_last_login.total_seconds|floatformat:0}} seconds ago</p>
+			{% elif context_last_login.total_seconds < 3600 %}
+				<p>{{ context_last_login.minutes|floatformat:0 }} minutes ago</p>
+			{% elif context_last_login.total_seconds < 86400 %}
+				<p>{{ context_last_login.hours|floatformat:0 }} hours ago</p>
+			{% else %}
+				<p>more than {{ context_last_login.days }} days ago</p>
+			{% endif %}
 		</div>
 		<div class="text-center col-12">
 			<h6>STATUS</h6>
-			{% if user.is_online %} <!-- online checker to do -->
+			{% if user.state == 'ON' %}
 			<p class="text-success">ONLINE</p>
-			{% else %}
+			{% elif user.state == 'OFF' %}
 			<p class="text-danger">OFFLINE</p>
+			{% elif user.state == 'ING' %}
+			<p class="text-primary">IN-GAME</p>
 			{% endif %}
 		</div>
 	</div>
-	<div class="bg-info mt-1 pt-3 pb-3 rounded-pill">
-		<h3 class="text-center mb-3">PONG</h3>
-		<div class="row">
-			<br>
-			<div class="text-center col-6">
-				<h6>Rank :</h6>
-				<p>{{ user.pong_rank }}</p>
+	<div class="stat-selector">
+		<a class="profil-cat-button pong-selector" onclick="switch_profile_stats('PONG')">PONG</a>
+		<a class="profil-cat-button chess-selector" onclick="switch_profile_stats('CHESS')" >CHESS</a>
+	</div>
+	<div class="profile_statistics">
+
+		<div id="cat_pong">
+			<h5 class="text-center">PONG STATISTICS</h5>
+			<div class="row">
+				<br>
+				<div class="text-center col-6">
+					<h6>Rank :</h6>
+					<p>{{ user.pong_rank }}</p>
+				</div>
+				<div class="text-center col-6">
+					<h6>Games Played :</h6>
+					<p>{{ user.pong_games_played }}</p>
+				</div>
+				<div class="text-center col-6">
+					<h6>Winrate :</h6>
+					<p>{{ user.pong_winrate }}%</p>
+				</div>
+				<div class="text-center col-6">
+					<h6>Max Exchange :</h6>
+					<p>{{ user.pong_max_exchange }}</p>
+				</div>
 			</div>
-			<div class="text-center col-6">
-				<h6>Games Played :</h6>
-				<p>{{ user.pong_games_played }}</p>
-			</div>
-			<div class="text-center col-6">
-				<h6>Winrate :</h6>
-				<p>{{ user.pong_winrate }}</p>
-			</div>
-			<div class="text-center col-6">
-				<h6>Max Exchange :</h6>
-				<p>{{ user.pong_max_exchange }}</p>
+			<div class="text-center">
+				<div class="game_history_header">
+					<h5 class="mb-3 ">GAME HISTORY</h5>
+					<div class="row ml-3 mr-3">
+						<span class="col-3">Result</span>
+						<span class="col-3">Opponnent(Rank)</span>
+						<span class="col-3">Score</span>
+						<span class="col-3">Date</span>
+					</div>
+				</div>
+				{% if all_pong_games %}
+					{% for pong_game in all_pong_games %}
+						<div class="row ml-3 mr-3 div_game_history_pong">
+							{% if pong_game.winner == user %}
+							<span class="col-3 text-success">WIN</span>
+							{% else %}
+							<span class="col-3 text-danger">LOSS</span>
+							{% endif %}
+							{% if pong_game.player1 == user %}
+							<span class="col-3">{{ pong_game.player2 }}({{ pong_game.player2_rank }})</span>
+							<span class="col-3">{{ pong_game.player1_score }} - {{ pong_game.player2_score }}</span>
+							{% else %}
+							<span class="col-3">{{ pong_game.player1 }}({{ pong_game.player1_rank }})</span>
+							<span class="col-3">{{ pong_game.player2_score }} - {{ pong_game.player1_score }}</span>
+							{% endif %}
+							<span class="col-3">{{ pong_game.updated_at|date:"H:i - d M y" }}</span>
+						</div>
+					{% endfor %}
+				{% else %}
+					<br>
+					<p>No history yet...</p>
+				{% endif %}
 			</div>
 		</div>
-		<div class="text-center">
-			<h5 class="mb-3">GAME HISTORY</h5>
-			<div class="row ml-3 mr-3">
-				<span class="col-3">WIN</span>
-				<span class="col-3">Opponnent(Rank)</span>
-				<span class="col-2">Score</span>
-				<span class="col-1">Rank win/loss</span>
-				<span class="col-3">Date</span>
+
+		<div id="cat_chess" class="d-none">
+			<h5 class="text-center">CHESS STATISTICS</h5>
+			<div class="row">
+				<br>
+				<div class="text-center col-6">
+					<h6>Rank :</h6>
+					<p>{{ user.chess_rank }}</p>
+				</div>
+				<div class="text-center col-6">
+					<h6>Games Played :</h6>
+					<p>{{ user.chess_games_played }}</p>
+				</div>
+				<div class="text-center col-12">
+					<h6>Winrate :</h6>
+					<p>{{ user.chess_winrate }}%</p>
+				</div>
 			</div>
-			<p>...</p>
+			<div class="text-center">
+				<div class="game_history_header">
+					<h5 class="mb-3 ">GAME HISTORY</h5>
+					<div class="row ml-3 mr-3">
+						<span class="col-4">Result</span>
+						<span class="col-4">Opponnent(Rank)</span>
+						<span class="col-4">Date</span>
+					</div>
+				</div>
+				{% if all_chess_games %}
+					{% for chess_game in all_chess_games %}
+						<div class="row ml-3 mr-3 div_game_history_chess">
+							{% if chess_game.winner == user %}
+							<span class="col-4 text-success">WIN</span>
+							{% elif not chess_game.winner %}
+							<span class="col-4 text-warning">DRAW</span>
+							{% else %}
+							<span class="col-4 text-danger">LOSS</span>
+							{% endif %}
+							{% if chess_game.white_player == user %}
+							<span class="col-4">{{ chess_game.black_player }}({{ chess_game.black_player_rank }})</span>
+							{% else %}
+							<span class="col-4">{{ chess_game.white_player }}({{ chess_game.white_player_rank }})</span>
+							{% endif %}
+							<span class="col-4">{{ chess_game.updated_at|date:"H:i - d M y" }}</span>
+						</div>
+					{% endfor %}
+				{% else %}
+					<br>
+					<p>No history yet...</p>
+				{% endif %}
+			</div>
 		</div>
 	</div>
-    
+    <br>
 </div>
