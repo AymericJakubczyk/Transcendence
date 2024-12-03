@@ -2,6 +2,7 @@ import json, math
 from django.shortcuts import get_object_or_404
 from channels.generic.websocket import AsyncWebsocketConsumer, WebsocketConsumer
 from channels.db import database_sync_to_async
+from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 import random
 import asyncio
@@ -29,68 +30,35 @@ playerZoneSize = 0
 
 
 class PongMultiplayerConsumer(AsyncWebsocketConsumer):
+    id = None
     data = None
     game = None
 
     async def connect(self):
-        global nbr_waiter
-        global list_waiter
-        print("[CONNECT]", self.scope["user"], file=sys.stderr)
+        print("[CONNECT PONG MULTI]", self.scope["user"], file=sys.stderr)
         self.room_group_name = self.scope["user"].username + "_pongMulti"
-        self.should_calcul_ball = True  # New flag to control updates
+
+        if "id" in self.scope["url_route"]["kwargs"]:
+            self.id = self.scope["url_route"]["kwargs"]["id"]
+            print("[GAME ID]", self.id, file=sys.stderr)
+            self.room_group_name = "pong_multi_" + str(self.id)
+        else:
+            print("[ERROR] no id", file=sys.stderr)
+            return
 
         await self.channel_layer.group_add(
             self.room_group_name,
             self.channel_name
         )
-
         await self.accept()
 
-
-        nbr_waiter += 1
-        list_waiter.append(self.room_group_name)
-        print(nbr_waiter, "waiting...", file=sys.stderr)
-        playerIDlist.append(self.scope["user"].id)
-
-        if (nbr_waiter >= 2):
-            print("Creating game...", file=sys.stderr)
-            self.game = await self.create_game()
-            nb = nbr_waiter
-            i = 0
-            for group in list_waiter:
-                print(i, file=sys.stderr)
-                await self.channel_layer.group_send(
-                    group,
-                    {
-                        'type': 'multi_match_found',
-                        'game_id': self.game.id,
-                        'player_id': i,
-                        'player_nb': nb,
-                    }
-                )
-                nbr_waiter -= 1
-                i += 1
-            asyncio.create_task(self.calcul_ball())
-            list_waiter.clear()
-            return
-
-
     async def disconnect(self, close_code):
-        global nbr_waiter
-        global list_waiter
-        print("[DISCONNECT]", file=sys.stderr)
-
-        if list_waiter.count(self.room_group_name) > 0:
-            nbr_waiter -= 1
-            list_waiter.remove(self.room_group_name)
+        print("[DISCONNECT PONG MULTI]", self.scope["user"], self.room_group_name, file=sys.stderr)
 
         await self.channel_layer.group_discard(
             self.room_group_name,
             self.channel_name
-        ) 
-
-        if (playerIDlist.count(self.scope["user"].id) > 0):
-            playerIDlist.remove(self.scope["user"].id)
+        )
     
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
@@ -119,7 +87,6 @@ class PongMultiplayerConsumer(AsyncWebsocketConsumer):
             'player_nb': event['player_nb'],
         }))
             
-
     @database_sync_to_async
     def get_game(self, game_id):
         from app.models import Game_PongMulti
@@ -130,11 +97,11 @@ class PongMultiplayerConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def create_game(self):
         global arenaWidth, arenaLength, all_data, playerIDlist
-        from app.models import User, Game_PongMulti, PongMultiDataGame
+        from app.models import User, Game_PongMulti
 
         print("[CREATE MULTI GAME]", file=sys.stderr)
 
-        self.data = PongMultiDataGame()
+        # self.data = PongMultiDataGame()
         self.data.nb_players = len(playerIDlist)
         self.data.active_players = len(playerIDlist)
         self.data.ball_dy = random.random() - 0.5
@@ -176,7 +143,7 @@ class PongMultiplayerConsumer(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def stop_game(self):
-        from app.models import User, Game_PongMulti, PongMultiDataGame
+        from app.models import User, Game_PongMulti
         print("asking for the end of the game", file=sys.stderr)
         self.should_calcul_ball = False
         if (self.data.active_players == 1):

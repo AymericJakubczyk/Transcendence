@@ -1,38 +1,4 @@
-// let upPressed = false;
-// let downPressed = false;
-// let wPressed = false;
-// let sPressed = false;
-
-// gameInterval = null
-
-// var scene = undefined;
-// var camera = undefined;
-// var renderer = undefined;
-
-// const arenaWidth = 100
-// const arenaLength = 150
-// const ballRadius = 1;
-// const paddleWidth = 1;
-// const paddleHeight = 17;
-// const thickness = 1;
-
-// var myCanvas;
-
-// var nbrHit = 0;
-// var ball, paddle_1, paddle_2;
-// var paddle_1Light, paddle_2Light;
-
-// let x = arenaLength / 2;
-// let y = arenaWidth / 2;
-// let baseSpeed = 0.5;
-// let dx = 0.5;
-// let dy = 0.5;
-
-// let playerScore = 0;
-// let opponentScore = 0;
-// let ballDirection = (Math.random() > 0.5 ? 1 : -1);
-
-// const winningScore = 5;
+pongMultiSocket = null
 
 var ring;
 var nbPlayers;
@@ -52,8 +18,120 @@ let playersObjs = [
 
 const ringRadius = 50;
 
+function join_multi_game(game_data)
+{
+    console.log("[JOIN MULTI GAME]", game_data);
+    if (window.location.protocol == "https:")
+        pongMultiSocket = new WebSocket('wss://' + window.location.host + `/ws/pongMultiplayer/${game_data.id}/`);
+    else
+		pongMultiSocket = new WebSocket('ws://' + window.location.host + `/ws/pongMultiplayer/${game_data.id}/`);
+
+    pongMultiSocket.onopen = function() {
+		console.log('[WS MULTI] WebSocket MULTI connection established.');
+		myplayerID = game_data.ingameID;
+		nbPlayers = game_data.nbPlayers;
+		activePlayers = nbPlayers;
+		console.log('[WS MULTI] game params set !');
+	};
+
+    pongMultiSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        receive_multi_ws(data)
+    }
+
+    pongMultiSocket.onclose = (event) => {
+		console.log("[WS MULTI] The connection has been closed successfully.");
+        pongMultiSocket = null;
+	}
+}
+
+function receive_multi_ws(data)
+{
+	if (data.type === 'update_after_death')
+	{
+		console.log("Player", data.dead_id + 1, "is dead");
+		playersObjs[data.dead_id].alive = 0;
+
+		div_id = "name-player-" + data.dead_id;
+		dead_elem = document.getElementById(div_id);
+		dead_elem.style.textDecoration = "line-through";
+		div_id = "life-player-" + data.dead_id;
+		lifeElem = document.getElementById(div_id);
+		lifeElem.textContent = "O_o";
+		lifeElem.style.textDecoration = "line-through";
+
+		activePlayers = data.active_players;
+
+		scene.remove( playersObjs[data.dead_id].paddle );
+
+		if (activePlayers >= 1)
+		{
+			console.log("UPDATING ZONES");
+			updateZones();
+			renderer.render(scene, camera);
+		}
+		if (activePlayers == 1 && playersObjs[myplayerID].alive == 1)
+		{
+			element = document.createElement("h3");
+			element.textContent = "YOU WIN";
+			parent = document.getElementById("endgame_multi_win");
+			parent.appendChild(element);
+		}
+		else if (data.dead_id == myplayerID)
+		{
+			element = document.createElement("h3");
+			element.textContent = "YOU LOST";
+			parent = document.getElementById("endgame_multi_loss");
+			parent.appendChild(element);
+			if (gameInterval)
+			clearInterval(gameInterval)
+		}
+		if (activePlayers == 1)
+		{
+			redirect = document.createElement("a")
+			redirect.setAttribute("hx-get", "/game/pong/multiplayer/");
+			redirect.setAttribute("hx-push-url", "true");
+			redirect.setAttribute("hx-target", "#page");
+			redirect.setAttribute("hx-swap", "innerHTML");
+			redirect.setAttribute("hx-indicator", "#content-loader");
+			redirect.textContent = "REMATCH";
+			redirect.setAttribute("class", "tournament-list-refresh")
+			htmx.process(redirect);
+			parent = document.getElementById("rematch-button");
+			parent.appendChild(redirect);
+		}
+		return;
+	}
+	if (data.type === 'game_update')
+	{
+		x = data.x;
+		y = data.y;
+		dx = data.dx;
+		dy = data.dy;
+		render_ball(x, y);
+
+		activePlayers = data.active_players;
+
+		lifes = data.lifes;
+		for (let i = 0; i < nbPlayers; i++) 
+		{
+			if (lifes[i] > 0)
+				playersObjs[i].alive = 1
+			div_id = "life-player-" + i;
+			lifeElem = document.getElementById(div_id);
+			if (lifes[i] == 1)
+			lifeElem.textContent = "X";
+			if (lifes[i] == 2)
+			lifeElem.textContent = "X X";
+		}
+		render_paddles(data.paddles);
+		return;
+	}
+}
+
 function setup_game()
 {
+	console.log("Setuping game");
     // PLAYER COLOR DISPLAY
     htmlplayerlist = document.getElementById("pongmulti_playerlist");
     for (let i = 0; i < nbPlayers; i++) {
@@ -77,10 +155,6 @@ function setup_game()
         playerDiv.appendChild(playerLife);
 
         htmlplayerlist.appendChild(playerDiv);
-    }
-
-    for (let i = 0; i < nbPlayers; i++) {
-        playersObjs[i].alive = 1;
     }
 
     // CANVAS SETUP 
@@ -134,17 +208,23 @@ function setup_game()
     gameInterval = setInterval(function() { handle_input(myplayerID) }, 10);
 }
 
-function startMultiGame()
+function connectMultiGame(data)
 {
-    setup_game();
-    console.log("Starting a pong multi game with", nbPlayers, "players");
-    setupZones();
-    setupPaddles();
-    cam1();
+	console.log("Connecting multi game id =", data.id);
+	join_multi_game(data);
 
+	upPressed = false;
+	downPressed = false;
+	resetBall();
 
+	document.removeEventListener("keydown", keyDownHandler);
+    document.removeEventListener("keyup", keyUpHandler);
 
-    renderer.render( scene, camera );
+	setup_game();
+	setupZones();
+	setupPaddles();
+	cam1();
+	renderer.render(scene, camera);
 }
 
 function handle_input(player)
@@ -169,7 +249,8 @@ function ws_call_move(move, player)
 function updateZones()
 {
     for (let i = 0; i < nbPlayers; i++)
-        scene.remove( playersObjs[i].zone );
+		if (playersObjs[i].zone)
+        	scene.remove( playersObjs[i].zone );
 
     playerZoneSize = (2 * Math.PI) / activePlayers;
     console.log("Creating", activePlayers, "zones. Zone size =", playerZoneSize);
@@ -203,6 +284,7 @@ function updateZones()
 
 function setupZones()
 {   
+	console.log("Setuping zones");
     playerZoneSize = (2 * Math.PI) / nbPlayers;
     for (let i = 0; i < nbPlayers; i++)
     {
@@ -237,6 +319,7 @@ function getPaddlesColor(hexColor, factor)
 
 function setupPaddles()
 {
+	console.log("Setuping paddles");
     playerZoneSize = (2 * Math.PI) / nbPlayers;
     playerPaddleSize = ((2 * Math.PI) / nbPlayers) / 4;
     paddleRadius = ringRadius-3

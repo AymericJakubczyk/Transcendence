@@ -14,7 +14,7 @@
         <div class="d-flex justify-content-center mt-3" id="rematch-button"></div>
 
         <script>
-            startMultiGame()
+            connectMultiGame({id:{{data.gameID}}, nbPlayers:{{data.nbPlayers}}, ingameID:{{data.ingameID}}}, "{{request.user.username}}")
         </script>
     </div>
 
