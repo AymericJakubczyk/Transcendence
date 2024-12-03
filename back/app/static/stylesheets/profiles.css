@@ -1,4 +1,55 @@
+.myprofile_pp {
+	margin: auto;
+	max-width: 150px;
+	max-height: 150px;
+	clip-path: ellipse(50% 50%);
+	display: flex;
+	justify-content: center;
+	margin-bottom: 15px;
+}
+
+.myprofile_pp img {
+	object-fit: contain;
+}
+
+#friend_div{
+	background-color: rgb(96, 96, 96);
+	border-radius: 15px;
+	padding: 20px;
+	display: block;
+	justify-self: center;
+}
+
+#friend_div h4{
+	color: black;
+}
+
+.clic_to_profile{
+	text-decoration: underline;
+	font-size: 15px;
+	color: white;
+	cursor: pointer;
+}
+
+.accept_button
+{
+	font-size: 15px;
+    padding: 5px;
+    border: solid 2px;
+    border-radius: 15px;
+    border-color: white;
+    color: white;
+    text-decoration: none;
+}
+.accept_button:hover
+{
+    background-color: rgb(255, 255, 255);
+    transition: 0.3s;
+    cursor: pointer;
+}
+
 .profile_pp {
+	margin: auto;
 	max-width: 250px;
 	max-height: 250px;
 	clip-path: ellipse(50% 50%);
@@ -12,6 +63,59 @@
 	object-fit: contain;
 }
 
-#page h6 {
-	color: grey;
+.stat-selector
+{
+	width: 20%;
+	display: flex;
+	justify-content: center;
+	margin: auto;
+}
+
+.profil-cat-button{
+	padding: 10px;
+	border: 2px solid black;
+	border-bottom: 0px;
+	text-decoration: none;
+	color: white;
+	cursor: pointer;
+}
+
+.pong-selector{
+	border-radius: 15px 0 0 0;
+	padding-right: 15px;
+	background-color: rgb(153, 46, 252);
+}
+
+.chess-selector{
+	border-radius: 0 15px 0 0;
+	padding-left: 15px;
+	background-color: rgb(252, 149, 46);
+}
+
+#cat_pong{
+	background-color: rgb(153, 46, 252);
+	border-radius: 50px;
+	padding: 15px 0 50px 0;
+}
+
+#cat_chess{
+	background-color: rgb(252, 149, 46);
+	border-radius: 50px;
+	padding: 15px 0 50px 0;
+}
+
+.game_history_header{
+	padding: 10px 0 0 0;
+	color: black;
+	border-top: 2px solid black;
+}
+
+.div_game_history_pong{
+	margin: 2px auto 2px auto;
+	background-color: blueviolet;
+}
+
+.div_game_history_chess{
+	margin: 2px auto 2px auto;
+	background-color: rgb(218, 129, 40);
 }

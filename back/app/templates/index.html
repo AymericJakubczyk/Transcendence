@@ -55,6 +55,7 @@
     <script type="text/javascript" src="{% static 'pongMultiplayer.js' %} "></script>
     <script type="text/javascript" src="{% static 'pongMultiplayer_ws.js' %} "></script>
     <script type="text/javascript" src="{% static 'login_animation.js' %} "></script>
+	<script type="text/javascript" src="{% static 'profile.js' %}"></script>
     <script>
         var csrftoken = '{{ csrf_token }}';
     </script>
@@ -75,7 +76,6 @@
                 </div>
             </a>
             <a hx-get="{% url 'myprofile' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route col-sm" id="nav3">Profile</a>
-            <a hx-get="{% url 'pong_found_game' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route col-sm" id="nav4">TEST</a>
         </nav>
     </div>
     <div id="page">{% block content %}{% endblock %}</div>
@@ -91,7 +91,6 @@
     {% if user.is_authenticated %}
         <script>set_global_notif()</script>
     {% endif %}
-	<script src="{% static 'profile.js' %}"></script>
     <script src="{% static 'app.js' %}"></script>
 </body>
 </html>

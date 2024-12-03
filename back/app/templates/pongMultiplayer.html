@@ -4,15 +4,17 @@
         <h1 class="header">ULTIMATE EXTRA COOL SUPER PONG TOURNAMENT EXTREME BATTLE</h1>
         <h5 class="header">Welcome in the history</h5>
 
-
-        <canvas class="w-100" id="pongCanvas" width="780" height="480"></canvas>
-
-        <div>
-            <h3>GAME ID: {{game.id}}</h3>
+        <div style="position: relative;" class="d-flex align-items-center justify-content-center">
+            <div id="endgame_multi_win"></div>
+            <canvas class="w-100" id="pongCanvas" width="780" height="480"></canvas>
+            <div id="endgame_multi_loss"></div>
         </div>
 
+        <div id="pongmulti_playerlist" class="d-flex justify-content-evenly"></div>
+        <div class="d-flex justify-content-center mt-3" id="rematch-button"></div>
+
         <script>
-            startMultiGame()
+            connectMultiGame({id:{{data.gameID}}, nbPlayers:{{data.nbPlayers}}, ingameID:{{data.ingameID}}}, "{{request.user.username}}")
         </script>
     </div>
 

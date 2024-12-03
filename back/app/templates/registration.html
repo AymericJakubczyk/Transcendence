@@ -1,16 +1,16 @@
 <div class="container">
     <h1>Registration</h1>
-
-    <form method="POST" hx-encoding="multipart/form-data" hx-post="{{request.path}}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
+    <br>
+    <form class="registerform" method="POST" hx-encoding="multipart/form-data" hx-post="{{request.path}}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
     {% csrf_token %}
     {% for field in form %}
-    <p>
+    <span>
         {{ field.label_tag }} {{ field }}
         {% if field.errors %}
             {{ field.errors }}
         {% endif %}
-    </p>
+    </span>
     {% endfor %}
-    <input type="submit" value="Envoyer">
+    <input class="registration_submit" type="submit" value="Register">
     </form>
 </div>
