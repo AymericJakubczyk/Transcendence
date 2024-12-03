@@ -20,9 +20,10 @@ def pongFoundMultiView(request):
     import app.consumers.utils.multi_utils as multi_utils
 
     maxNbPlayers = 3
-
+    if request.user in multi_list_waiter:
+        print(request.user.username, "is already in multi queue.", file=sys.stderr)
     # if multi_list_waiter length is zero, add user to multi_list_waiter
-    if len(multi_list_waiter) < maxNbPlayers - 1:
+    elif len(multi_list_waiter) < maxNbPlayers - 1:
         multi_list_waiter.append(request.user)
         print(request.user.username, "is waiting for multi game.", len(multi_list_waiter), "waiting...", file=sys.stderr)
 
@@ -37,11 +38,12 @@ def pongFoundMultiView(request):
         game.save()
         all_games_playerlist[game.id] = multi_list_waiter.copy()
         print("MultiGame created:", game.id, file=sys.stderr)
-        
 
         channel_layer = get_channel_layer()
 
         for user in multi_list_waiter:
+            if user == request.user:
+                continue
             async_to_sync(channel_layer.group_send)(
                 user.username,
                 {
