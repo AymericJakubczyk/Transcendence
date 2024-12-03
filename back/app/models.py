@@ -86,6 +86,9 @@ class Tournament(models.Model):
 	winner = models.ForeignKey(User, related_name='tournamentwinner', on_delete=models.CASCADE, null=True, blank=True)
 	results = JSONField(default=list)
 
+	created_at = models.DateTimeField(auto_now_add=True)
+	updated_at = models.DateTimeField(auto_now=True)
+
 	def display_results(self):
 		players = User.objects.filter(id__in=self.results)
 		ordered = sorted(players, key=lambda player: self.results.index(player.id))

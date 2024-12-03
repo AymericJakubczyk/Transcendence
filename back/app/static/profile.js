@@ -36,12 +36,20 @@ function switch_profile_stats(choice)
 {
 	if (choice == 'CHESS')
 	{
-		document.getElementById('cat_pong').classList.add("d-none")
 		document.getElementById('cat_chess').classList.remove("d-none");
+		document.getElementById('cat_pong').classList.add("d-none");
+		document.getElementById('cat_pongtournament').classList.add("d-none");
+	}
+	else if (choice == 'TOURNAMENT')
+	{
+		document.getElementById('cat_pongtournament').classList.remove("d-none");
+		document.getElementById('cat_chess').classList.add("d-none");
+		document.getElementById('cat_pong').classList.add("d-none");
 	}
 	else if (choice == 'PONG')
 	{
-		document.getElementById('cat_chess').classList.add("d-none")
 		document.getElementById('cat_pong').classList.remove("d-none");
+		document.getElementById('cat_chess').classList.add("d-none");
+		document.getElementById('cat_pongtournament').classList.add("d-none");
 	}
 }
