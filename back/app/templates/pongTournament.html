@@ -3,7 +3,6 @@
 <br>
 {% if user.tournament_id != -1 and not mytournament.winner %}
 <script> create_pong_tournament_ws() </script>
-<script> setColor() </script>
 <div>
     <h4>TOURNAMENT :</h4>
     <h5>{{ mytournament.name }}</h5>
@@ -19,9 +18,9 @@
             </div>
         </div>
         {% if mytournament.started == False %}
-        <div class="playersList">
+        <div class="playersList" id="playersList">
             {% for user in mytournament.participants.all %}
-            <div class="player">
+            <div class="player" id="{{ user.username }}">
                 <div class="imageFrame">
                     <img src="{{ user.profile_picture.url }}" alt="Profile Picture" class="pp" style="margin : 2px;">
                 </div>
@@ -31,9 +30,8 @@
                         <h6 class="infoP">Elo : {{ user.pong_rank }}</h6>
                     </div>
                 </div>
-            </script>
-        </div>
-        {% endfor %}
+            </div>
+            {% endfor %}
         </div>
         {% else %}
         <br>
@@ -57,7 +55,7 @@
         <button type="submit" onclick="leave_pong_tournament({{ mytournament.id }})">LEAVE</button>
     </form>
 </div>
-
+<script> setColor() </script>
 {% elif mytournament.winner %}
 <div>
 

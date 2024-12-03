@@ -1,6 +1,6 @@
 
 pongTournamentSocket = null
-let blueShade = 240;
+let count = 0;
 
 function beautifulrangeforaymeric(){
     const value = document.getElementById("max_player_value");
@@ -57,15 +57,9 @@ function receive_ws(data)
     if (data.action =="join")
     {
         console.log("JOIN", data)
-        const div = document.getElementById("tournament_players")
-        const line = document.createElement("span")
-        line.setAttribute("id", data.user_username);
-        const node = document.createTextNode(data.user_username + " - ("+ data.user_rank + ") / ")
-        if (line != null)
-            line.appendChild(node);
-        if (div != null)
-            div.appendChild(line);
         document.getElementById("tournament_count").innerHTML = data.tournamentNB;
+        // document.getElementById("tournament_players").style.display = "block";
+        addPlayer(data);
     }
     if (data.action =="leave")
     {
@@ -74,7 +68,7 @@ function receive_ws(data)
         if (element != null)
             element.remove();
         document.getElementById("tournament_count").innerHTML = data.tournamentNB;
-        
+        setColor();
     }
     if (data.type == "update_room")
     {
@@ -82,12 +76,14 @@ function receive_ws(data)
     }
 }
 
-function generateBlueGradient() {
-    if (blueShade <= 0)
-        blueShade = 240;
-    blueShade = Math.max(0, blueShade - 30);
+function generateColor() {
+    let color;
 
-    const color = `rgb(0, 0, ${blueShade})`;
+    if (count % 2 == 0)
+        color = "#982efc";
+    else
+        color = "#fc952e";
+    count++;
     return color;
 }
 
@@ -96,14 +92,31 @@ function setColor() {
     const players = document.querySelectorAll('.playersList .player');
 
     players.forEach((player, index) => {
-        player.style.backgroundColor = generateBlueGradient();
+        player.style.backgroundColor = generateColor();
     });
 
-    document.addEventListener("DOMContentLoaded", () => {
-        const players = document.querySelectorAll('.playersList .player');
+    // document.addEventListener("DOMContentLoaded", () => {
+    //     const players = document.querySelectorAll('.playersList .player');
 
-        players.forEach((player, index) => {
-            player.style.backgroundColor = generateBlueGradient();
-        });
-    });
+    //     players.forEach((player, index) => {
+    //         player.style.backgroundColor = generateColor();
+    //     });
+    // });
+}
+
+function addPlayer(data) {
+    document.getElementById("playersList").innerHTML += `
+    <div class="player" id="${data.user_username}">
+        <div class="imageFrame">
+            <img src="${data.profile_pic}" alt="Profile Picture" class="pp" style="margin : 2px;">
+        </div>
+        <div class="infosPlayer">
+            <div class="playerInfo">
+                <h6 class="infoP">Player : ${data.user_username}</h6>
+                <h6 class="infoP">Elo : ${data.user_rank}</h6>
+            </div>
+        </div>
+    </div>
+    `;
+    setColor();
 }
