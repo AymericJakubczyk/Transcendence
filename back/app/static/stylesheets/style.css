@@ -50,7 +50,6 @@ body {
 }
 
 .chooseGame:hover{
-    background-color: rgb(255, 102, 102);
     box-shadow: 0 0 .2rem #fff,
     0 0 .2rem #fff,
     0 0 2rem white,
@@ -59,6 +58,13 @@ body {
     inset 0 0 1.3rem white;
     cursor: pointer;
     transition: 0.4s;
+}
+
+#choosePong:hover{
+    background-color: rgb(153, 46, 252);
+}
+#chooseChess:hover{
+    background-color: rgb(252, 149, 46);
 }
 
 .chooseMode {
@@ -85,8 +91,124 @@ body {
     transition: 0.4s;
 }
 
+.chesschooseMode{
+    padding: 8rem 5rem 8rem 5rem;
+}
+
 .pp_game {
 	border-radius: 10%;
 	height:6vw;
 	max-height: 80px;
+}
+
+.registration_submit{
+    width: 35%;
+    margin: 5px auto 0 auto;
+    background-color: rgb(50, 50, 50);
+    padding: 0.5rem 1.5rem;
+    border: solid 3px;
+    border-radius: 15px;
+    border-color: white;
+    color: white;
+    text-decoration: none;
+}
+
+.registration_submit:hover
+{
+    background-color: white;
+    color: black;
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+.registerform{
+    background-color: rgb(96, 96, 96);
+    margin: auto;
+    width: 25vw;
+    max-width: 450px;
+    display: flex;
+    flex-direction: column;
+    border-radius: 20px;
+    padding: 20px 0 20px 0;
+}
+
+.registerform span{
+    margin: 5px auto 5px auto;
+    width: 80%;
+    display: flex;
+    flex-direction: column;
+}
+
+.registerform span:last-of-type{
+    margin-bottom: 1rem;
+}
+
+.change_password_button{
+    margin: 5px auto 30px auto;
+    background-color: rgb(50, 50, 50);
+    padding: 0.5rem 1.5rem;
+    border: solid 3px;
+    border-radius: 15px;
+    border-color: white;
+    color: #ffbaba;
+    text-decoration: none;
+}
+
+.change_password_button:hover
+{
+    background-color: #ffbaba;
+    color: black;
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+.update-pro span:last-of-type label:nth-of-type(2),
+.update-pro span:last-of-type input:nth-of-type(1),
+.update-pro span:last-of-type br{
+    display: none;
+}
+
+.login_buttons{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.login_buttons a,
+.login_buttons input{
+    color: white;
+    text-decoration: none;
+
+    background-color: rgb(50, 50, 50);
+    padding: 0.5rem 1.5rem;
+    border: solid 3px;
+    border-radius: 15px;
+    border-color: white;
+    text-decoration: none;
+}
+
+.login_buttons a:hover{
+    background-color: #fc952e;
+    color: white;
+    transition: 0.4s;
+    cursor: pointer;
+    box-shadow: 0 0 .2rem #fc952e,
+    0 0 .2rem #fc952e,
+    0 0 2rem #fc952e,
+    0 0 0.8rem #fc952e,
+    0 0 2.8rem #fc952e,
+    inset 0 0 1.3rem #fc952e;
+}
+
+.login_buttons input:hover{
+    background-color: #992efc;
+    color: white;
+    transition: 0.4s;
+    cursor: pointer;
+    box-shadow: 0 0 .2rem #992efc,
+    0 0 .2rem #992efc,
+    0 0 2rem #992efc,
+    0 0 0.8rem #992efc,
+    0 0 2.8rem #992efc,
+    inset 0 0 1.3rem #992efc;
 }

@@ -3,11 +3,13 @@ from django.contrib.auth import login, authenticate, logout, update_session_auth
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from app.forms import SignupForm, LoginForm, UpdateForm
-from app.models import User, Tournament, Friend_Request, Discussion, Message, Game_Chess
+from app.models import User, Tournament, Friend_Request, Discussion, Message, Game_Chess, Game_Pong, Game_PongMulti
 from django.urls import reverse as get_url
 from django.db.models import Q
 import json
 from django.http import JsonResponse, HttpResponse
+from datetime import datetime
+from django.utils.timezone import make_aware
 
 import sys
 import logging
@@ -17,9 +19,26 @@ logger = logging.getLogger(__name__)
 
 def profilView(request, username):
     user = get_object_or_404(User, username=username)
+
+    all_pong_games_to_order = Game_Pong.objects.filter(Q(player1=user) | Q(player2=user))
+    all_pong_games = all_pong_games_to_order.order_by('-updated_at')
+    
+    all_chess_games_to_order = Game_Chess.objects.filter(Q(white_player=user) | Q(black_player=user))
+    all_chess_games = all_chess_games_to_order.order_by('-updated_at')
+
+    now = make_aware(datetime.now())
+    if user.last_login:
+        delta = now - user.last_login
+    context_last_login = {
+        'delta': delta,
+        'total_seconds': delta.total_seconds() if delta else None,
+        'minutes': (delta.total_seconds() / 60) if delta else None,
+        'hours': (delta.total_seconds() / 3600) if delta else None,
+        'days': delta.days if delta else None,
+    }
     if request.META.get("HTTP_HX_REQUEST") != 'true':
-        return render(request, 'page_full.html', {'page':'profil.html', 'user':user})
-    return render(request, 'profil.html', {'user':user})
+        return render(request, 'page_full.html', {'page':'profil.html', 'user':user, 'all_chess_games':all_chess_games, 'all_pong_games':all_pong_games, 'context_last_login':context_last_login})
+    return render(request, 'profil.html', {'user':user, 'all_chess_games':all_chess_games, 'all_pong_games':all_pong_games, 'context_last_login':context_last_login})
 
 def myProfilView(request):
     if request.user.is_authenticated:

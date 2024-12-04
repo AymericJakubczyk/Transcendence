@@ -29,21 +29,32 @@ class User(AbstractUser):
 	# PONG ATTRIBUTS
 	pong_rank = models.IntegerField(default=700)
 	pong_games_played = models.IntegerField(default=0)
-	pong_winrate = models.IntegerField(default=0)
+	pong_nb_win = models.IntegerField(default=0)
 	pong_max_exchange = models.IntegerField(default=0)
 
 	# CHESS ATTRIBUTS
 	chess_rank = models.IntegerField(default=700)
+	chess_nb_win = models.IntegerField(default=0)
+	chess_games_played = models.IntegerField(default=0)
 
 	class State(models.TextChoices):
 		ONLINE = 'ON'
 		OFFLINE = 'OFF'
 		INGAME = 'ING'
-    # online checker to do
 	state = models.CharField(max_length=3, choices=State.choices, default=State.OFFLINE)
 	game_status_txt = models.CharField(max_length=50, default='none')
 	game_status_url = models.CharField(max_length=50, default='none')
 
+
+	def pong_winrate(self):
+		if self.pong_games_played > 0:
+			return round((self.pong_nb_win / self.pong_games_played) * 100)
+		return "?"
+
+	def chess_winrate(self):
+		if self.chess_games_played > 0:
+			return round((self.chess_nb_win / self.chess_games_played) * 100)
+		return "?"
 
 class Invite(models.Model):
 	from_user = models.ForeignKey(User, related_name='from_user_invite', on_delete=models.CASCADE, null=True)
@@ -127,6 +138,9 @@ class Game_Chess(models.Model):
 	white_player_rank_win = models.IntegerField(default=0)
 	black_player_rank_win = models.IntegerField(default=0)
 
+	created_at = models.DateTimeField(auto_now_add=True)
+	updated_at = models.DateTimeField(auto_now=True)
+
 	def __repr__(self):
 		return f"Game {self.id} - {self.white_player.username} vs {self.black_player.username} - {self.status} - {self.winner} - {self.reason_endgame} - {self.white_player_rank} - {self.black_player_rank} - {self.white_player_rank_win} - {self.black_player_rank_win}"
 
@@ -169,24 +183,12 @@ class Game_Pong(models.Model):
 		player2_name = self.player2.username if self.player2 else "No Opponent"
 		return f"Game {self.id} - {player1_name} vs {player2_name}"
 
-class PongMultiDataGame(models.Model):
-	ball_x = models.FloatField(default=0)
-	ball_y = models.FloatField(default=0)
-	ball_dx = models.FloatField(default=0)
-	ball_dy = models.FloatField(default=0)
-
-	zoneStart = ArrayField(models.IntegerField(), null=True, blank=True, default=list)
-	paddleStart = ArrayField(models.IntegerField(), null=True, blank=True, default=list)
-
-
 class Game_PongMulti(models.Model):
 	playerlist = models.ManyToManyField("User", blank=True)
-	playerlifes = ArrayField(models.IntegerField(default=2), null=True, blank=True)
 	winner = models.ForeignKey(User, related_name='pongMultiwinner', on_delete=models.CASCADE, null=True, blank=True)
 	status = models.CharField(max_length=20, default='waiting')
 	created_at = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
-	data = models.OneToOneField(PongMultiDataGame, on_delete=models.SET_NULL, null=True, blank=True)
 
 	class Meta:
 		ordering = ('id', )

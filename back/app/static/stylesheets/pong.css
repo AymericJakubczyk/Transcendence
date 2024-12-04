@@ -1,3 +1,9 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+
+
 .header {
     color: white;
     font-size: 2em;
@@ -94,6 +100,44 @@
     0 0 0.8rem blue,
     0 0 2.8rem blue,
     inset 0 0 1.3rem blue;
+}
+
+#endgame_multi_win {
+    position: absolute;
+    margin: 0 0 0 0;
+    padding: 5 0 5 0;
+}
+
+#endgame_multi_loss {
+    position: absolute;
+    margin: 0 0 0 0;
+    padding: 5 0 5 0;
+}
+
+#endgame_multi_win h3{
+    color: #fff;
+    text-shadow:
+      0 0 5px #fff,
+      0 0 10px #fff,
+      0 0 20px rgb(0, 255, 102),
+      0 0 40px rgb(0, 255, 102),
+      0 0 80px rgb(0, 255, 102),
+      0 0 90px rgb(0, 255, 102),
+      0 0 100px rgb(0, 255, 102),
+      0 0 150px rgb(0, 255, 102);
+}
+
+#endgame_multi_loss h3{
+    color: #fff;
+    text-shadow:
+      0 0 5px #fff,
+      0 0 10px #fff,
+      0 0 20px rgb(255, 0, 106),
+      0 0 40px rgb(255, 0, 106),
+      0 0 80px rgb(255, 0, 106),
+      0 0 90px rgb(255, 0, 106),
+      0 0 100px rgb(255, 0, 106),
+      0 0 150px rgb(255, 0, 106);
 }
 
 .chess_endgame {

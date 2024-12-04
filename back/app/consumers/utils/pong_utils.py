@@ -16,7 +16,8 @@ paddleHeight = 17
 thickness = 1
 baseSpeed = 0.5
 nbrHit = 0
-winningScore = 1
+maxnbHit = 0
+winningScore = 2
 
 all_data = {}
 
@@ -38,9 +39,10 @@ class PongData():
 
 @async_to_sync
 async def launch_game(id):
-    global all_data
+    global all_data, maxnbHit
 
     print("[LAUNCH GAME]", id, file=sys.stderr)
+    maxnbHit = 0
     all_data[id] = PongData()
     # if game is tournament delete invite send to both player
     await delete_tournament_invites(id)
@@ -233,12 +235,14 @@ async def move_paddle(move, pressed, player, id):
 
 
 async def goal(player, id):
-    global all_data, nbrHit, arenaWidth, arenaLength
+    global all_data, nbrHit, arenaWidth, arenaLength, maxnbHit
 
     if (player == 'player1'):
         all_data[id].score_player1 += 1
     else:
         all_data[id].score_player2 += 1
+    if (nbrHit > maxnbHit):
+        maxnbHit = nbrHit
     nbrHit = 0
     await send_updates(id)
     await send_bump('ball', 0, id)
@@ -254,7 +258,7 @@ def save_winner(id):
     from app.models import Game_Pong, User
     import app.consumers.utils.user_utils as user_utils
     
-    global winningScore, all_data
+    global winningScore, all_data, maxnbHit
 
     game = get_object_or_404(Game_Pong, id=id)
 
@@ -297,6 +301,21 @@ def save_winner(id):
     elif (all_data[id].score_player2 == winningScore):
         game.winner = game.player2        
     game.save()
+
+    # update stats
+    game.player1.pong_games_played += 1
+    game.player2.pong_games_played += 1
+    game.winner.pong_nb_win += 1
+    
+    if (game.player1.pong_max_exchange < maxnbHit):
+        game.player1.pong_max_exchange = maxnbHit
+
+    if (game.player2.pong_max_exchange < maxnbHit):
+        game.player2.pong_max_exchange = maxnbHit
+
+    game.player1.save()
+    game.player2.save()
+
     return ({'win_elo_p1': win_elo_p1, 'win_elo_p2': win_elo_p2})
 
 
