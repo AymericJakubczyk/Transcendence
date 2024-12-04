@@ -12,7 +12,6 @@ contract SepoliaTournament {
 
     struct Tournament {
         string[] players;
-        bool status; // True:False / Open:Closed
         uint256 id;
         Match[] matches;
     }
@@ -24,7 +23,7 @@ contract SepoliaTournament {
         uint256 LosingScore;
     }
 
-    uint256 nbrTournament;
+    uint256 nbrTournament = 0;
     mapping(uint256 => Tournament) private tournaments;
 
     event previewTournament(uint256 indexed tournamentId, string[] players);
@@ -43,16 +42,15 @@ contract SepoliaTournament {
         _;
     }
 
-    function createTournament(string[] memory _players) public onlyOwner returns (uint256) {
+    function createTournament(string[] memory _players, uint256 _tournamentId) public onlyOwner returns (uint256) {
         if (_players.length == 0)
             revert NoPlayers();
-        Tournament storage newOne = tournaments[nbrTournament];
+        Tournament storage newOne = tournaments[_tournamentId - 1];
         newOne.players = _players;
-        newOne.id = nbrTournament;
-        newOne.status = true;
-        nbrTournament++;
-        emit previewTournament(nbrTournament, _players);
-        return nbrTournament - 1;
+        newOne.id = _tournamentId;
+        emit previewTournament(_tournamentId, _players);
+        nbrTournament ++;
+        return newOne.id;
     }
 
     function isInTournament(uint256 _tournamentId, string memory player) public view returns (bool) {
@@ -69,8 +67,6 @@ contract SepoliaTournament {
     function addMatchToTournaments(string memory _player1, string memory _player2, uint256 _score1, uint256 _score2, uint256 _tournamentId, uint256 _bracketId) public onlyOwner {
         uint256 tId = _tournamentId - 1;
         Tournament storage tournament = tournaments[tId];
-        if (tournament.status == false)
-            revert TournamentClosed();
         if (!isInTournament(tId, _player1))
             revert TournamentDoesntExist();
         if (!isInTournament(tId, _player2))
@@ -92,7 +88,6 @@ contract SepoliaTournament {
         if (tId > nbrTournament)
             revert TournamentDoesntExist();
         Tournament memory tournament = tournaments[tId];
-        tournament.status = false;
         emit publishTournament(tId, tournament.players, _winner);
     }
 }

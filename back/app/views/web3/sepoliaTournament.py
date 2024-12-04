@@ -31,11 +31,6 @@ abi = [
 	},
 	{
 		"inputs": [],
-		"name": "TournamentClosed",
-		"type": "error"
-	},
-	{
-		"inputs": [],
 		"name": "TournamentDoesntExist",
 		"type": "error"
 	},
@@ -117,34 +112,6 @@ abi = [
 				"type": "string[]"
 			},
 			{
-				"components": [
-					{
-						"internalType": "string",
-						"name": "Winner",
-						"type": "string"
-					},
-					{
-						"internalType": "string",
-						"name": "Loser",
-						"type": "string"
-					},
-					{
-						"internalType": "uint256",
-						"name": "WinningScore",
-						"type": "uint256"
-					},
-					{
-						"internalType": "uint256",
-						"name": "LosingScore",
-						"type": "uint256"
-					}
-				],
-				"indexed": "false",
-				"internalType": "struct SepoliaTournament.Match[]",
-				"name": "matches",
-				"type": "tuple[]"
-			},
-			{
 				"indexed": "false",
 				"internalType": "string",
 				"name": "Winner",
@@ -216,6 +183,11 @@ abi = [
 				"internalType": "string[]",
 				"name": "_players",
 				"type": "string[]"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_tournamentId",
+				"type": "uint256"
 			}
 		],
 		"name": "createTournament",
@@ -359,13 +331,14 @@ def get_participants_arr(tournament):
 	print("!!!!!!!!!!!!!!!!!!!!Players array : ", players_array, file=sys.stderr)
 	return players_array
 
-def createTournament(players_arr):
+def createTournament(players_arr, tournament_id):
 	test(players_arr)
 	print(players_arr, type(players_arr), file=sys.stderr)
+	print(tournament_id, type(tournament_id), file=sys.stderr)
 	for player in players_arr:
 		print("ALED", player, type(player), file=sys.stderr)
 	try:
-		token_hash = contract.functions.createTournament(players_arr).transact({'from' : admin_acc})
+		token_hash = contract.functions.createTournament(players_arr, tournament_id).transact({'from' : admin_acc})
 		print(token_hash, file=sys.stderr)
 		receipt = web3.eth.wait_for_transaction_receipt(token_hash)
 		if (receipt.status == 1):
