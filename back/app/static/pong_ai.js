@@ -1,6 +1,7 @@
 pongSocket = null;
 
 function join_pong_ai_game(game_data) {
+    console.log("[JOIN PONG AI GAME]", game_data);
     if (pongSocket)
         pongSocket.close()
     if (window.location.protocol == "https:")
@@ -24,6 +25,7 @@ function join_pong_ai_game(game_data) {
 }
 
 function receive_pong_ws(data) {
+    console.log("[RECEIVE PONG WS]", data);
     if (data.type === 'game_update') {
         x = data.x;
         y = data.y;
@@ -65,7 +67,7 @@ function receive_pong_ws(data) {
             light_bump_effect_wall.intensity = 0
             renderer.render(scene, camera);
         }
-        display_endgame(data.player1, data.player2, data.score_player1, data.score_player2, data.win_elo_p1, data.win_elo_p2);
+        display_endgame(data.score_player1, data.score_player2);
         change_game_headbar("Game", "/game/");
     }
     if (data.type === 'countdown') {
@@ -87,29 +89,57 @@ function receive_pong_ws(data) {
     }
 }
 
-function display_endgame(player1, player2, player1Score, player2Score, win_elo_p1, win_elo_p2) {
-    if (player2Score > player1Score) {
-        document.getElementById("winnerScore").innerHTML = player2Score;
-        document.getElementById("loserScore").innerHTML = player1Score;
-        document.getElementById("winnerName").innerHTML = player2;
-        document.getElementById("loserName").innerHTML = player1;
-        stock_src = document.getElementById("winnerpp").src;
-        document.getElementById("winnerpp").src = document.getElementById("loserpp").src;
-        document.getElementById("loserpp").src = stock_src;
-        stock_rank = document.getElementById("winnerRank").innerHTML;
-        document.getElementById("winnerRank").innerHTML = document.getElementById("loserRank").innerHTML;
-        document.getElementById("loserRank").innerHTML = stock_rank;
-        document.getElementById("winnerRank").innerHTML += "<span style='color:green'> +"+win_elo_p2+"</span>";
-        document.getElementById("loserRank").innerHTML += "<span style='color:red'> "+win_elo_p1+"</span>";
+function display_endgame( player1Score, player2Score) {
+    // Éléments du DOM pour le gagnant et le perdant
+    var winnerScoreElement = document.getElementById("winnerScore");
+    var loserScoreElement = document.getElementById("loserScore");
+    var winnerNameElement = document.getElementById("winnerName");
+    var loserNameElement = document.getElementById("loserName");
+    var winnerPpElement = document.getElementById("winnerpp");
+    var loserPpElement = document.getElementById("loserpp");
+    var winnerRankElement = document.getElementById("winnerRank");
+    var loserRankElement = document.getElementById("loserRank");
+
+    // Élément pour l'écran de fin de jeu
+    var endgame = document.getElementById("endgame");
+
+    // Données par défaut pour l'IA
+    var aiName = "IA";
+    var aiProfilePic = "/static/srcs/assets/ai.webp"; // Chemin vers une image par défaut pour l'IA
+    var aiRank = "500"; // Ou tout autre valeur par défaut
+
+    // Récupérer les données du joueur humain
+    var playerProfilePic = document.getElementById("winnerpp").src; // Assurez-vous que cet élément existe
+    var playerRank = document.getElementById("winnerRank").innerHTML; // Assurez-vous que cet élément existe
+    var playerName = document.getElementById("winnerName").innerHTML; // Assurez-vous que cet élément existe
+
+
+    if (player1Score > player2Score) {
+        // Le joueur humain gagne
+        winnerScoreElement.innerHTML = player1Score;
+        loserScoreElement.innerHTML = player2Score;
+        winnerNameElement.innerHTML = playerName;
+        loserNameElement.innerHTML = aiName;
+        winnerPpElement.src = playerProfilePic;
+        loserPpElement.src = aiProfilePic;
+        winnerRankElement.innerHTML = playerRank;
+        loserRankElement.innerHTML = aiRank;
     } else {
-        document.getElementById("winnerScore").innerHTML = player1Score;
-        document.getElementById("loserScore").innerHTML = player2Score;
-        document.getElementById("winnerRank").innerHTML += "<span style='color:green'> +"+win_elo_p1+"</span>";
-        document.getElementById("loserRank").innerHTML += "<span style='color:red'> "+win_elo_p2+"</span>";
+        // L'IA gagne
+        winnerScoreElement.innerHTML = player2Score;
+        loserScoreElement.innerHTML = player1Score;
+        winnerNameElement.innerHTML = aiName;
+        loserNameElement.innerHTML = playerName;
+        winnerPpElement.src = aiProfilePic;
+        loserPpElement.src = playerProfilePic;
+        winnerRankElement.innerHTML = aiRank;
+        loserRankElement.innerHTML = playerRank;
     }
-    endgame = document.getElementById("endgame")
+
+    // Afficher l'écran de fin de jeu
     endgame.style.display = "flex";
 }
+
 
 function send_input_move(move, pressed) {
     const obj = {
@@ -137,10 +167,10 @@ document.addEventListener("keyup", function(event) {
     }
 });
 
-function join_ai_pong(game, you)
+function join_ai_pong(game)
 {   
     console.log("start ai pong", game.id)
-    current_player = (you == game.player1) ? 1 : 2
+    current_player = 1
     join_pong_ai_game(game)
 
     upPressed = false

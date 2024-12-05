@@ -14,30 +14,48 @@
 <div class="container">
 	<h1 class="header">ULTIMATE EXTRA COOL SUPER PONG TOURNAMENT EXTREME BATTLE</h1>
 	<h5 class="header">Welcome in the history</h5>
-    <div id="game_area" class="w-100">
-        <div class="d-flex position-relative justify-content-between scoreboard">
-            <!-- Joueur humain à gauche -->
-            <div class="d-flex">
-                <img src="{{ user.profile_picture.url }}" class="pp_game">
-                <div>
-                    <h2 class="mb-0" id="yourName">{{ user.username }}</h2>
-                    <h5>{{ user.pong_rank }}</h5>
+    <div class="d-flex">
+		{% if game.player1 == request.user or game.player2 == request.user %}
+		<div class="align-content-center">
+			<div class="d-flex align-items-center">
+				<h1 class="key m-1" id="cam1">1</h1>
+				<h1 class="key m-1" id="cam2">2</h1> 
+			</div>
+
+			<div id="div-controls" class="d-flex align-items-center" style="height:216px; flex-direction:column">
+				<h1 class="key m-1" id="cmd1">🠕</h1>
+				<h1 class="key m-1" id="cmd2">🠗</h1>
+			</div>
+		</div>
+		{% endif %}
+
+		<div id="game_area" class="w-100">
+			<!-- Affichage des scores -->
+			<div class="d-flex position-relative justify-content-between scoreboard"
+			{% if game.winner %}
+				style="opacity:0"
+			{% endif %}
+			>
+				<div class="d-flex">
+					<img src="{{ game.player1.profile_picture.url }}" class="pp_game">
+					<div>
+						<h2 class="mb-0" id="yourName">{{ game.player1.username }}</h2>
+						<h5>{{ game.player1.pong_rank }}</h5>
+					</div>
+				</div>
+				<div class="d-flex position-absolute start-50 top-50 translate-middle score">
+					<div id="player1Score">0</div>
+					:
+					<div id="player2Score">0</div>
+				</div>
+                <!-- IA à droite -->
+                <div class="d-flex justify-content-end align-items-center">
+                    <div class="text-end me-2">
+                        <h2 class="mb-0" id="opponentName">AI</h2>
+                        <h5>500</h5>
+                    </div>
+                    <img src="{% static 'srcs/assets/ai.webp' %}" class="pp_game">
                 </div>
-            </div>
-            <!-- Score au centre -->
-            <div class="d-flex position-absolute start-50 top-50 translate-middle score">
-                <div id="player1Score">0</div>
-                :
-                <div id="player2Score">0</div>
-            </div>
-            <!-- IA à droite -->
-            <div class="d-flex justify-content-end align-items-center">
-                <div class="text-end me-2">
-                    <h2 class="mb-0" id="opponentName">AI</h2>
-                    <h5>AI Rank</h5>
-                </div>
-                <img src="{% static 'srcs/assets/ai.webp' %}" class="pp_game">
-            </div>
         </div>
         <!-- Canvas du jeu -->
         <div class="main-box w-100 align-items-center justify-content-center" style="display: flex; position:relative" id="gameContainer">
@@ -46,9 +64,9 @@
                 <h1 class="text-center">Game Over</h1>
                 <div>
                     <div class="d-flex justify-content-center">
-                        <h3 id="winnerScore">0</h3>
+                        <h3 id="winnerScore">{{game.player1_score}}</h3>
                         <h3>-</h3>
-                        <h3 id="loserScore">0</h3>
+                        <h3 id="loserScore">{{game.player2_score}}</h3>
                     </div>
                     <div class="d-flex justify-content-end">
                         <div id="winner" class="d-flex flex-column align-items-center justify-content-center w-50">
@@ -74,7 +92,7 @@
 <script>
 		{% if game.winner %}
 			display3D()
-			display_endgame("{{game.player1.username}}", "{{game.player2.username}}", {{game.player1_score}}, {{game.player2_score}}, {{game.player1_rank_win}}, {{game.player2_rank_win}} );
+			display_endgame("{{game.player1_score}}", "{game.player2_score}}");
 		{% else %}
 			join_ai_pong({id:{{gameID}}, player1:"{{request.user.username}}"});
 		{% endif %}

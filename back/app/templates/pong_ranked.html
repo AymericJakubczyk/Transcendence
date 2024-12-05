@@ -36,7 +36,7 @@
 			{% if game.winner %}
 				style="opacity:0"
 			{% endif %}
-			>
+			>	
 				<!-- if spectator or player1 -->
 				{% if request.user.username != game.player1.username and request.user.username != game.player2.username or request.user.username == game.player1.username %}
 				<div class="d-flex">

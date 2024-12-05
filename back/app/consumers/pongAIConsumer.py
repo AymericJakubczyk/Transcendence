@@ -2,20 +2,28 @@ import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from django.shortcuts import get_object_or_404
-from .utils import pong_utils
+from .utils import pong_ai_utils
 
 import sys #for print
 
 class PongAIConsumer(AsyncWebsocketConsumer):
+    id = None
     player1 = None
+    player2 = None
 
     async def connect(self):
         print("[CONNECT PONG AI]", self.scope["user"], file=sys.stderr)
-        self.room_group_name = f"ai_pong_{self.scope['user'].username}"
-        
-        # Le joueur humain est toujours "player1"
-        self.player1 = self.scope["user"]
-        
+        self.room_group_name = self.scope["user"].username + "_ai_pong"
+
+        if "id" in self.scope["url_route"]["kwargs"]:
+            self.id = self.scope["url_route"]["kwargs"]["id"]
+            self.player1 = await self.get_player1()
+            print("[GAME ID]", self.id, file=sys.stderr)
+            self.room_group_name = "ai_pong_" + str(self.id)
+        else:
+            print("[ERROR] no id", file=sys.stderr)
+            return
+
         # Ajouter ce consumer à un groupe de WebSocket
         await self.channel_layer.group_add(
             self.room_group_name,
@@ -36,37 +44,55 @@ class PongAIConsumer(AsyncWebsocketConsumer):
         text_data_json = json.loads(text_data)
         print("[RECEIVE PONG AI]", text_data_json, file=sys.stderr)
 
-        if text_data_json['type'] == 'move_paddle':
-            # Gérer le mouvement de la raquette du joueur humain
-            await pong_utils.move_paddle(
-                text_data_json['move'],
-                text_data_json['pressed'],
-                player=1,  # Player 1 est le joueur humain
-                game_id=None  # Pas d'ID de jeu pour l'IA locale
-            )
+        player = 0
+        if self.scope["user"] == self.player1:
+            player = 1
+        elif self.scope["user"] == self.player2:
+            player = 1
         
-        # Simuler une réponse de l'IA ici
-        await self.simulate_ai_response()
+        if player == 0:
+            print("[ERROR] player not in game", file=sys.stderr)
+            return
 
-    async def simulate_ai_response(self):
-        """Simule les actions de l'IA (par exemple, suivre la balle)."""
-        print("[AI RESPONSE] Simulating AI paddle movement", file=sys.stderr)
-        ai_action = {
-            "type": "move_paddle",
-            "move": "down",  # Exemple : l'IA bouge sa raquette vers le bas
-            "pressed": True
-        }
-        await self.channel_layer.group_send(
-            self.room_group_name,
-            {
-                "type": "game_update",
-                "ai_action": ai_action
-            }
-        )
+        if (text_data_json['type'] == 'move_paddle'):
+            await pong_ai_utils.move_paddle(text_data_json['move'], text_data_json['pressed'], player, int(self.id))
+
+    # async def simulate_ai_response(self):
+    #     """Simule les actions de l'IA (par exemple, suivre la balle)."""
+    #     print("[AI RESPONSE] Simulating AI paddle movement", file=sys.stderr)
+    #     ai_action = {
+    #         "type": "move_paddle",
+    #         "move": "down",  # Exemple : l'IA bouge sa raquette vers le bas
+    #         "pressed": True
+    #     }
+    #     await self.channel_layer.group_send(
+    #         self.room_group_name,
+    #         {
+    #             "type": "game_update",
+    #             "ai_action": ai_action
+    #         }
+    #     )
+
+    @database_sync_to_async
+    def get_player1(self):
+        from app.models import Game_Pong
+
+        game = get_object_or_404(Game_Pong, id=self.id)
+        return game.player1
+
+    # @database_sync_to_async
+    # def get_player2(self):
+    #     from app.models import Game_Pong
+
+    #     game = get_object_or_404(Game_Pong, id=self.id)
+    #     return game.player2
 
     # ======================== SENDER ======================== #
     async def game_update(self, event):
         """Envoie des mises à jour de jeu au client."""
+        await self.send(text_data=json.dumps(event))
+
+    async def bump(self, event):
         await self.send(text_data=json.dumps(event))
 
     async def end_game(self, event):

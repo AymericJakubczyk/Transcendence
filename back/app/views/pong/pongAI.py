@@ -11,7 +11,7 @@ from django.http import JsonResponse, HttpResponse
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 
-import app.consumers.utils.pong_utils as pong_utils
+import app.consumers.utils.pong_ai_utils as pong_ai_utils
 from app.consumers.pongAIConsumer import PongAIConsumer
 
 import sys
@@ -19,7 +19,7 @@ import logging
 from django.contrib import messages
 
 def pongAISetup(request):
-    import app.consumers.utils.pong_utils as pong_utils
+    import app.consumers.utils.pong_ai_utils as pong_ai_utils
     import app.consumers.utils.user_utils as user_utils
 
     game = Game_Pong()
@@ -28,7 +28,7 @@ def pongAISetup(request):
     game.player1 = request.user
     game.save()
     print("Game created:", game.id, file=sys.stderr)
-    pong_utils.launch_ai_game(game.id)
+    pong_ai_utils.launch_ai_game(game.id)
     game.status = "started"
     game.save()
     request.user.state = User.State.INGAME
@@ -42,8 +42,15 @@ def pongAISetup(request):
     return render(request, 'pong_ai.html', {'user':request.user})
 
 def pongAIGame(request, gameID):
-    import app.consumers.utils.pong_utils as pong_utils
+    import app.consumers.utils.pong_ai_utils as pong_ai_utils
     game = get_object_or_404(Game_Pong, id=gameID)
+
+    # pong_ai_utils.launch_ai_game(game.id)
+    # game.status = "started"
+    # game.save()
+    # update for put spectate btn in real time but don't work
+    # updateTournamentRoom(game.tournament_id)
+    # print("Game launched:", game.id, file=sys.stderr)
 
     if request.META.get("HTTP_HX_REQUEST") != 'true':
         return render(request, 'page_full.html', {'page':'pong_ai.html', 'user':request.user, 'game':game, 'gameID':gameID})
