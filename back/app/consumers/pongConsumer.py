@@ -12,7 +12,8 @@ class PongConsumer(AsyncWebsocketConsumer):
     player2 = None
 
     async def connect(self):
-        print("[CONNECT PONG RANKED]", self.scope["user"], file=sys.stderr)
+        print ("[CONNECT PONG]", self.scope["path"], file=sys.stderr)
+        # print("[CONNECT PONG RANKED]", self.scope["user"], file=sys.stderr)
         self.room_group_name = self.scope["user"].username + "_pong"
 
         if "id" in self.scope["url_route"]["kwargs"]:

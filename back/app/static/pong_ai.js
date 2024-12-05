@@ -4,9 +4,9 @@ function join_pong_ai_game(game_data) {
     if (pongSocket)
         pongSocket.close()
     if (window.location.protocol == "https:")
-        pongSocket = new WebSocket('wss://' + window.location.host + `/ws/pong/ai/${game_data.id}/`);
+        pongSocket = new WebSocket('wss://' + window.location.host + `/ws/pong/local/vs-ia/${game_data.id}/`);
     else
-        pongSocket = new WebSocket('ws://' + window.location.host + `/ws/pong/ai/${game_data.id}/`);
+        pongSocket = new WebSocket('ws://' + window.location.host + `/ws/pong/local/vs-ia/${game_data.id}/`);
 
     pongSocket.onopen = function() {
         console.log('[WS PONG AI] WebSocket PONG AI connection established.');
@@ -139,7 +139,7 @@ document.addEventListener("keyup", function(event) {
 
 function join_ai_pong(game, you)
 {   
-    console.log("start ranked pong", game.id)
+    console.log("start ai pong", game.id)
     current_player = (you == game.player1) ? 1 : 2
     join_pong_ai_game(game)
 

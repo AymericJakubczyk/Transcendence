@@ -46,5 +46,5 @@ def pongAIGame(request, gameID):
     game = get_object_or_404(Game_Pong, id=gameID)
 
     if request.META.get("HTTP_HX_REQUEST") != 'true':
-        return render(request, 'page_full.html', {'page':'pong_ranked.html', 'user':request.user, 'game':game, 'gameID':gameID})
-    return render(request, 'pong_ranked.html', {'user':request.user, 'game':game, 'gameID':gameID})
+        return render(request, 'page_full.html', {'page':'pong_ai.html', 'user':request.user, 'game':game, 'gameID':gameID})
+    return render(request, 'pong_ai.html', {'user':request.user, 'game':game, 'gameID':gameID})
