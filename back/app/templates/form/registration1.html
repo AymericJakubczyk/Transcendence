@@ -1,0 +1,23 @@
+
+<h1>Registration</h1>
+<h4>personnal data</h4>
+<form id="myForm" hx-post="{{request.path}}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" style="display: flex; flex-direction: column; padding: 30px 10px 30px 10px">
+    {% for field in form %}
+    {{ field.label_tag }} {{ field }}
+    {% if field.errors %}
+        {{ field.errors }}
+        <script>
+            // set error class for last field
+            document.getElementById("{{ field.auto_id }}").classList.add("error");
+            document.getElementById("{{ field.auto_id }}").addEventListener('input', function() {
+                document.getElementById("{{ field.auto_id }}").classList.remove("error")
+            });
+        </script>
+    {% endif %}
+    {% endfor %}
+</form>
+<div class="login_buttons">
+    <input type="submit" value="Next Step" form="myForm">
+    or 
+    <a hx-get hx-target="#test" hx-swap="innerHTML" hx-vals='{"login":1}'>Register here</a>
+</div>

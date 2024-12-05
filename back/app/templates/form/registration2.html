@@ -1,0 +1,21 @@
+<h1>Registration</h1>
+<h3>Personnalise profile</h3>
+<div class="profile_pp">
+    <img id="test_img" src="/media/imgs/profils/creepy-cat.webp" alt="Profile Picture">
+</div>
+<form id="myForm" hx-post="{{request.path}}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" style="display: flex; flex-direction: column; padding: 30px 10px 30px 10px">
+    {% for field in form %}
+    {{ field.label_tag }} {{ field }}
+    {% endfor %}
+    <script>
+        // detect when the user change the profile picture
+        document.getElementById("id_profile_picture").addEventListener('input', function() {
+            document.getElementById("test_img").src = URL.createObjectURL(document.getElementById("id_profile_picture").files[0]);
+        });
+    </script>  
+</form>
+<div class="login_buttons">
+    <input type="submit" value="Next Step" form="myForm">
+    or 
+    <a hx-get hx-target="#test" hx-swap="innerHTML" hx-vals='{"login":1}'>Register here</a>
+</div>

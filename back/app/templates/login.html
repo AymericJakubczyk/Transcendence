@@ -2,18 +2,8 @@
 
 <div class="d-flex align-items-center justify-content-center" style="background-color:red; height:100%">
     <canvas class="w-100 h-100 m-0" id="pongCanvas" height="100" style="position:absolute; top:0; background-color:rgba(50, 50, 50)"></canvas>
-    <div id="test" style="position:absolute; background:rgba(50, 50, 50, 0.9); display:flex; height:40%" class="px-5 z-3 chess_endgame flex-column border border-secondary rounded">
-        <h1>LOGIN</h1>
-        <form id="myForm" hx-post="{{request.path}}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML">
-            {% for field in form %}
-            {{ field.label_tag }} {{ field }}
-            {% endfor %}
-        </form>
-        <div class="login_buttons">
-            <input type="submit" value="LOG IN" form="myForm">
-            or 
-            <a href="{% url 'register' %}">Register here</a>
-        </div>
+    <div id="test" style="position:absolute; background:rgba(50, 50, 50, 0.9); display:flex; height:fit-content" class="px-5 py-4 z-3 chess_endgame flex-column border border-secondary rounded">
+        {% include viewForm %}
     </div>
 </div>
 

@@ -1,0 +1,12 @@
+
+<h1>LOGIN</h1>
+<form id="myForm" hx-post hx-push-url="true" hx-target="#page" hx-swap="innerHTML" style="display: flex; flex-direction: column; padding: 30px 10px 30px 10px">
+    {% for field in form %}
+    {{ field.label_tag }} {{ field }}
+    {% endfor %}
+</form>
+<div class="login_buttons">
+    <input type="submit" value="LOG IN" form="myForm">
+    or 
+    <a hx-get hx-target="#test" hx-swap="innerHTML" hx-vals='{"registration1":1}'>Register here</a>
+</div>

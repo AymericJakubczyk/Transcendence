@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
-from app.forms import SignupForm, LoginForm, UpdateForm
+from app.forms import SignupForm, SignupFormBis, LoginForm, UpdateForm
 from app.models import User, Tournament, Friend_Request, Discussion, Message, Game_Chess
 from django.urls import reverse as get_url
 from django.db.models import Q
@@ -24,28 +24,53 @@ def homeView(request):
 
     form = LoginForm()
     error = None
+    viewForm = "form/login.html"
 
     if request.method == 'POST':
-        form = LoginForm(request.POST)
-        if form.is_valid():
-            user = authenticate(
-                username=form.cleaned_data['username'],
-                password=form.cleaned_data['password'],
-            )
-            if user is not None:
-                print("login", request.user, file=sys.stderr)
-                login(request, user)
-                return redirect('myprofile')
+        print("post", request.POST, file=sys.stderr)
+        print("login", request.POST.get('first_name'), file=sys.stderr)
+        if (request.POST.get('first_name')):
+            form = SignupForm(request.POST)
+            if form.is_valid():
+                viewForm = "form/registration2.html"
+                form = SignupFormBis()
             else:
-                if User.objects.filter(username=form.cleaned_data['username']).exists():
-                    error = "password"
+                viewForm = "form/registration1.html"
+        else:
+            form = LoginForm(request.POST)
+            if form.is_valid():
+                user = authenticate(
+                    username=form.cleaned_data['username'],
+                    password=form.cleaned_data['password'],
+                )
+                if user is not None:
+                    print("login", request.user, file=sys.stderr)
+                    login(request, user)
+                    return redirect('myprofile')
                 else:
-                    error = "username"
-                    form = LoginForm()
+                    if User.objects.filter(username=form.cleaned_data['username']).exists():
+                        error = "password"
+                    else:
+                        error = "username"
+                        form = LoginForm()
+
+
+
+    if request.method == 'GET' and request.GET.get('login'):
+        print("get", request.GET, file=sys.stderr)
+        return render(request, 'form/login.html', {'form':form})
+
+    if request.method == 'GET' and request.GET.get('registration1'):
+        print("get", request.GET, file=sys.stderr)
+        form = SignupForm()
+        return render(request, 'form/registration1.html', {'form':form})
+
+    
+    
 
     if request.META.get("HTTP_HX_REQUEST") != 'true':
-        return render(request, 'page_full.html', {'page':'login.html', 'form':form, 'error':error})
-    return render(request, 'login.html', {'form':form, 'error':error})
+        return render(request, 'page_full.html', {'page':'login.html', 'form':form, 'viewForm':viewForm, 'error':error})
+    return render(request, 'login.html', {'form':form, 'viewForm':viewForm, 'error':error})
 
 
 def gameView(request):
