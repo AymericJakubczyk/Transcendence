@@ -94,6 +94,8 @@ function cancel_game(game) {
         htmx_request("/game/chess/ranked/cancel/", "GET", {})
     else if (game == 'pong')
         htmx_request("/game/pong/ranked/cancel/", "GET", {})
+    else if(game == 'pong_multi')
+        htmx_request("/game/pong/multiplayer/cancel/", "GET", {})
     else if (game == 'invite')
         htmx_request("/invite/cancel/", "GET", {})
     else

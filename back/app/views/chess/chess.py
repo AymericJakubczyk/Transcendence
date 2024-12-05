@@ -62,8 +62,8 @@ def chessCancelQueue(request):
     if request.user in list_waiter:
         # list_waiter.remove(request.user)
         del list_waiter[request.user]
-        request.user.game_status_txt = "Game"
-        request.user.game_status_url = "/game/"
+        request.user.game_status_txt = 'none'
+        request.user.game_status_url = 'none'
         request.user.save()
     return redirect('game')
 

@@ -25,6 +25,9 @@ def pongFoundMultiView(request):
     # if multi_list_waiter length is zero, add user to multi_list_waiter
     elif len(multi_list_waiter) < maxNbPlayers - 1:
         multi_list_waiter.append(request.user)
+        request.user.game_status_txt = "🕒Waiting..."
+        request.user.game_status_url = "/game/pong/ranked/"
+        request.user.save()
         print(request.user.username, "is waiting for multi game.", len(multi_list_waiter), "waiting...", file=sys.stderr)
 
     # else remove user from multi_list_waiter, create game redirect to game, and send match_found to wainting user
@@ -54,6 +57,11 @@ def pongFoundMultiView(request):
                 }
             )
 
+        for user in multi_list_waiter:
+            user.game_status_txt = "👥in game..."
+            user.game_status_url = "/game/pong/multiplayer/" + str(game.id) + "/"
+            user.save()
+
         multi_list_waiter.clear()
         multi_utils.launch_multi_game(game.id, all_games_playerlist[game.id])
         game.status = "started"
@@ -62,8 +70,8 @@ def pongFoundMultiView(request):
         return redirect('pong_multiplayer', gameID=game.id)
 
     if request.META.get("HTTP_HX_REQUEST") != 'true':
-        return render(request, 'page_full.html', {'page':'waiting_game.html', 'user':request.user})
-    return render(request, 'waiting_game.html', {'user':request.user})
+        return render(request, 'page_full.html', {'page':'waiting_game.html', 'user':request.user, 'game':'pong_multi'})
+    return render(request, 'waiting_game.html', {'user':request.user, 'game':'pong_multi'})
 
 
 def pongMultiplayer(request, gameID):
@@ -88,4 +96,13 @@ def pongMultiplayer(request, gameID):
     if request.META.get("HTTP_HX_REQUEST") != 'true':
         return render(request, 'page_full.html', {'page':'pongMultiplayer.html', 'user':request.user, 'game':game, 'data':data})
     return render(request, 'pongMultiplayer.html', {'user':request.user, 'game':game, 'data':data})
+
+def pongMultiCancelQueue(request):
+    print("[LOG] User cancel pong queue", file=sys.stderr)
+    if request.user in multi_list_waiter:
+        multi_list_waiter.remove(request.user)
+        request.user.game_status_txt = "Game"
+        request.user.game_status_url = "/game/"
+        request.user.save()
+    return redirect('game')
 

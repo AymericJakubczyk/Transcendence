@@ -198,7 +198,13 @@ def stop_game(id):
                 user = get_object_or_404(User, id=all_multi_data[id].playerid_table[i])
                 if user:
                     game.winner = user
+                    game.status = "finish"
                     game.save()
+
+    for user in game.playerlist.all():
+        user.game_status_txt = 'none'
+        user.game_status_url = 'none'
+        user.save()
     print("[END GAME] -", game.winner, "WON", file=sys.stderr)
 
 

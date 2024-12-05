@@ -24,6 +24,7 @@ urlpatterns = [
     path('game/pong/ranked/<int:gameID>/', pong.pongGameView, name='pong_game'),
 
     path('game/pong/multiplayer/', pongMultiplayer.pongFoundMultiView, name='pong_multi_found'),
+    path('game/pong/multiplayer/cancel/', pongMultiplayer.pongMultiCancelQueue, name='pong_multi_cancel_queue'),
     path('game/pong/multiplayer/<int:gameID>/', pongMultiplayer.pongMultiplayer, name='pong_multiplayer'),
 
 

@@ -383,7 +383,7 @@ def pongCancelQueue(request):
     print("[LOG] User cancel pong queue", file=sys.stderr)
     if request.user in list_waiter:
         list_waiter.remove(request.user)
-        request.user.game_status_txt = "Game"
-        request.user.game_status_url = "/game/"
+        request.user.game_status_txt = 'none'
+        request.user.game_status_url = 'none'
         request.user.save()
     return redirect('game')
