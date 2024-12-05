@@ -1,12 +1,10 @@
-import random
-import torch
-import sys
 import pygame
+import random
+import sys
 import numpy as np
-from ql_agent import QLAgent
-# import time
+import matplotlib.pyplot as plt
 
-# Game settings
+# Paramètres du jeu
 arenaWidth = 100
 arenaLength = 150
 ballRadius = 1
@@ -16,28 +14,57 @@ thickness = 1
 baseSpeed = 0.5
 nbrHit = 0
 
-SCREEN_WIDTH = 1600
-SCREEN_HEIGHT = 1200
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 SCALE_FACTOR_X = SCREEN_WIDTH / arenaLength
 SCALE_FACTOR_Y = SCREEN_HEIGHT / arenaWidth
+
+state_size = 111  # Taille de l'état (exemple)
+action_size = 5   # Taille de l'action (exemple)
+
+# Variables globales
+all_data = {}
+target_y = 0
+actions = ['down far', 'down close', 'stay', 'up close', 'up far']
+
+# Initialisation de Pygame
+pygame.init()
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption("Pong avec Q-Learning")
 clock = pygame.time.Clock()
 
-state_size = 999  # Example state size
-action_size = 5  # Example action size
+# Pour le traçage
+rewards = []
+episodes = []
+average = []
+
+class QLAgent:
+    def __init__(self, state_size, action_size, lr=0.4, gamma=0.7, epsilon=1.0, epsilon_min=0.1, epsilon_decay=0.00001):
+        self.state_size = state_size
+        self.action_size = action_size
+        self.lr = lr
+        self.gamma = gamma
+        self.epsilon = epsilon
+        self.epsilon_min = epsilon_min
+        self.epsilon_decay = epsilon_decay
+        self.q_table = np.zeros((state_size, action_size))
+
+    def get_act(self, state):
+        if random.random() < self.epsilon:
+            return random.choice(range(self.action_size))
+        return np.argmax(self.q_table[state])
+
+    def train(self, state, action, reward, next_state, done):
+        best_next_action = np.argmax(self.q_table[next_state])
+        target = reward + (self.gamma * self.q_table[next_state, best_next_action] * (1 - done))
+        self.q_table[state, action] += self.lr * (target - self.q_table[state, action])
+
+        if self.epsilon > self.epsilon_min:
+            self.epsilon -= self.epsilon_decay
 
 agent = QLAgent(state_size, action_size)
-
-# Global variables
-all_data = {}
-
-target_y = 0
-
-# states will be paddle pos and estimated ball pos in the future
-# actions will be up, down, stay, up far and down far
-
-actions = ['down far', 'down close', 'stay', 'up close', 'up far']
 
 class PongData:
     def __init__(self):
@@ -72,17 +99,16 @@ def move_paddle(move, player, id):
             all_data[id].paddle2_y += 0.6
 
 def get_target_y(action, id):
-    match action:
-        case 0:
-            return all_data[id].paddle1_y - 0.6 * 20
-        case 1:
-            return all_data[id].paddle1_y - 0.6 * 40
-        case 3:
-            return all_data[id].paddle1_y + 0.6 * 20
-        case 4:
-            return all_data[id].paddle1_y + 0.6 * 40
-        case _:
-            return all_data[id].paddle1_y
+    if action == 0:
+        return all_data[id].paddle1_y - 0.6 * 20
+    elif action == 1:
+        return all_data[id].paddle1_y - 0.6 * 40
+    elif action == 3:
+        return all_data[id].paddle1_y + 0.6 * 20
+    elif action == 4:
+        return all_data[id].paddle1_y + 0.6 * 40
+    else:
+        return all_data[id].paddle1_y
 
 def updateIA(id):
     if all_data[id].paddle2_y < all_data[id].ball_y:
@@ -106,8 +132,7 @@ def draw_game(id, screen):
     pygame.display.flip()
 
 def draw_dot(screen, x, y):
-    print (x, y)    
-    pygame.draw.circle(screen, WHITE, (int(x * SCALE_FACTOR_X), int(y * SCALE_FACTOR_Y)), int(ballRadius * SCALE_FACTOR_X))
+    pygame.draw.circle(screen, WHITE,  (int(x * SCALE_FACTOR_X), int(y * SCALE_FACTOR_Y)), int(ballRadius * SCALE_FACTOR_X))
 
 def predict_ball(data):
     if data.ball_dx > 0:
@@ -119,19 +144,15 @@ def predict_ball(data):
             next_x += data.ball_dx
             next_y += data.ball_dy
         else:
-            return (next_y)
-    return (next_y)
+            return next_y
+    return next_y
 
 def get_state(data, screen):
-    # return something like an int that represents the state like  data.paddle1_y * 10 + predict_ball(data)
     predicted_ball = predict_ball(data)
-    if predicted_ball >= 0:
-        draw_dot(screen, 50, predicted_ball)
-    return int(data.paddle1_y * 10 + predicted_ball // 10)
+    return int(data.paddle1_y // 10 * 10 + predicted_ball // 10)
 
 def calcul_ball(id, screen, total_reward): 
-    global arenaWidth, arenaLength, thickness, ballRadius, paddleWidth, paddleHeight, baseSpeed, nbrHit, all_data, winningScore, action, agent
-
+    global arenaWidth, arenaLength, thickness, ballRadius, paddleWidth, paddleHeight, baseSpeed, nbrHit, all_data, agent
     reward = 0
     action = 2
     target_y = arenaWidth / 2
@@ -141,10 +162,9 @@ def calcul_ball(id, screen, total_reward):
                 pygame.quit()
                 quit()
         
-        state =  get_state(all_data[id], screen)
+        state = get_state(all_data[id], screen)
         if i % 120 == 0:
             action = agent.get_act(state)
-            # print (action)
             target_y = get_target_y(action, id)
         elif all_data[id].paddle1_y > target_y:
             move_paddle('up', 1, id)
@@ -185,9 +205,36 @@ def calcul_ball(id, screen, total_reward):
         updateIA(id)
         if all_data[id].id % 100 == 0 and i < 1000:
             draw_game(id, screen)
-            # handle fps
             clock.tick(120)
-            # printf agent data
-    # if all_data[id].id % 5 == 0:
-    #     torch.save(agent.model, 'model.pth')    
     return total_reward
+
+def stop_game():
+    pygame.quit()
+    quit()
+
+def plot_model(reward, episode):
+    rewards.append(reward)
+    episodes.append(episode)
+    average.append(sum(rewards) / len(rewards))
+    plt.plot(episodes, average, 'r')
+    plt.plot(episodes, rewards, 'b')
+    plt.ylabel('Reward', fontsize=18)
+    plt.xlabel('Games', fontsize=18)
+
+    try:
+        plt.savefig('player_2_evolution.png')
+    except OSError as e:
+        print(f"Error saving file: {e}")
+
+five_games_reward = 0
+
+for episode in range(1000):
+    total_reward = 0
+    total_reward = launch_game(episode, screen, total_reward)
+    five_games_reward += total_reward
+    print(f"Episode {episode + 1}, Total Reward: {total_reward}")
+    if episode % 10 == 0:
+        plot_model(five_games_reward, episode)
+        five_games_reward = 0
+
+pygame.quit()
