@@ -18,10 +18,19 @@
 		<div class="text-center">
 			<a class="tournament-list-refresh" hx-get="{% url 'send_friend_request' user.username %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route">SEND FRIEND REQUEST</a>
 		</div>
+		{% elif user in request.user.friends.all and user != request.user %}
+		<div class="text-center">
+			<a class="tournament-list-refresh" hx-get="{% url 'remove_friend' user.username %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route">REMOVE FROM FRIENDS</a>
+		</div>
 		{% endif %}
+
 		{% if user not in request.user.blocked_users.all and user != request.user %}
 		<div class="text-center">
 			<a class="tournament-list-refresh" hx-get="{% url 'block_user' user.username  %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route">BLOCK</a>
+		</div>
+		{% elif user in request.user.blocked_users.all and user != request.user %}
+		<div class="text-center">
+			<a class="tournament-list-refresh" hx-get="{% url 'unblock_user' user.username  %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route">UNBLOCK</a>
 		</div>
 		{% endif %}
 	</div>

@@ -172,14 +172,12 @@ function invite(opponent)
     invite_div.style.cursor = "initial"
 
     pong_div = document.createElement("div")
-    pong_div.setAttribute("style", "cursor:pointer; background: grey")
-    pong_div.setAttribute("class", "rounded p-1 m-1")
+    pong_div.setAttribute("class", "rounded invite_to")
     pong_div.setAttribute("onclick", "send_invite('"+opponent+"', 'pong')")
     pong_div.innerHTML = "🏓PONG"
 
     chess_div = document.createElement("div")
-    chess_div.setAttribute("style", "cursor:pointer; background: grey")
-    chess_div.setAttribute("class", "rounded p-1 m-1")
+    chess_div.setAttribute("class", "rounded invite_to")
     chess_div.setAttribute("onclick", "send_invite('"+opponent+"', 'chess')")
     chess_div.innerHTML = "♟️CHESS"
 

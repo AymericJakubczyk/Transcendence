@@ -30,9 +30,15 @@
     display:inline-flex
 }
 
+.discu:hover
+{
+  background-color: rgb(70, 70, 70);
+  transition: 0.3s;
+}
+
 .discu_selected
 {
-    background-color: rgb(81,81,81);
+    background-color: rgb(85,85,85);
     width:100%;
     border-width: 0px;
     display:inline-flex
@@ -133,4 +139,76 @@
   position: absolute;
   right: 0;
   top: 0;
+}
+
+#add_btn{
+  padding: 0.3rem;
+  border: solid 2px;
+  border-radius: 15px;
+  border-color: white;
+  color: white;
+  text-decoration: none;
+  background-color: transparent;
+}
+
+#add_btn:hover
+{
+  background-color: white;
+  color: black;
+  transition: 0.3s;
+  cursor: pointer;
+}
+
+#interlocutor{
+  margin: 0 0 0 20px;
+}
+
+.interlocutor-name{
+  margin: 0 0 0 20px;
+}
+
+.interlocutor-name:hover{
+  text-decoration: underline;
+}
+
+.send_button{
+  padding: 0.4rem;
+  border: solid 1px;
+  border-radius: 0 30px 30px 0;
+  border-color: white;
+  color: white;
+  text-decoration: none;
+  background-color: rgb(153, 46, 252);
+}
+
+.send_button:hover{
+  background-color: rgb(200, 141, 255);
+  transition: 0.3s;
+}
+
+#invite{
+  display: flex;
+}
+
+.invite_to{
+  display:flex;
+  align-items: center;
+  margin: 0.6rem 1rem;
+  background-color: rgb(153, 46, 252);
+  padding: 0.2rem 0.8rem;
+}
+
+.invite_to:hover{
+  background-color: rgb(200, 141, 255);
+  transition: 0.3s;
+}
+
+#mini_interlocutor
+{
+  color: white;
+}
+
+#mini_chat
+{
+  max-width: 30vw;
 }

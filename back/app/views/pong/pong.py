@@ -160,7 +160,7 @@ def pongTournament(request):
         game_played = "PONG"
         max_users = request.POST.get('group-size')
         if request.POST.get('tournament_name') == "":
-            name = "Unamed Tournament"
+            name = request.user.username + "'s tournament"
         else :
             name = request.POST.get('tournament_name')
         if game_played and len(request.POST.get('tournament_name')) < 26:

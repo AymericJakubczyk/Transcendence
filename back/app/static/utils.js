@@ -77,8 +77,6 @@ function change_game_headbar(text, url)
     game_headbar = document.getElementById('game_headbar');
 	game_headbar.innerHTML = text;
 	game_headbar.style.textDecoration = 'none';
-    if (text == "Game")
-    	game_headbar.style.textDecoration = 'underline';
     game_headbar.setAttribute('hx-get', url);
 
     // create copy of game_head
