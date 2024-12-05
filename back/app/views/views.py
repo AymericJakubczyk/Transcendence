@@ -24,7 +24,7 @@ def homeView(request):
 
     form = LoginForm()
     error = None
-    viewForm = "form/login.html"
+    viewForm = "viewForm/login.html"
 
     if request.method == 'POST':
         print("post", request.POST, file=sys.stderr)
@@ -32,10 +32,38 @@ def homeView(request):
         if (request.POST.get('first_name')):
             form = SignupForm(request.POST)
             if form.is_valid():
-                viewForm = "form/registration2.html"
+                # Store form data in session for get them in second step
+                signup_data = form.save(commit=False)
+                request.session['signup_data'] = {
+                    'first_name': signup_data.first_name,
+                    'last_name': signup_data.last_name,
+                    'email': signup_data.email,
+                    'password': signup_data.password,
+                }
                 form = SignupFormBis()
+                return render(request, 'viewForm/registration2.html', {'form':form})
             else:
-                viewForm = "form/registration1.html"
+                viewForm = "viewForm/registration1.html"
+                return render(request, 'viewForm/registration1.html', {'form':form})
+
+        if (request.POST.get('username') and not request.POST.get('password')):
+            form = SignupFormBis(request.POST, request.FILES)
+            if form.is_valid():
+                user = form.save(commit=False)
+                # Get data from step1 and add them to user
+                signup_data = request.session.get('signup_data')
+                user.first_name = signup_data['first_name']
+                user.last_name = signup_data['last_name']
+                user.email = signup_data['email']
+                user.set_password(signup_data['password'])
+                user.save()
+                login(request, user)
+
+                # Delete session data
+                del request.session['signup_data']
+                return redirect('myprofile')
+            else:
+                viewForm = "viewForm/registration2.html"
         else:
             form = LoginForm(request.POST)
             if form.is_valid():
@@ -54,19 +82,13 @@ def homeView(request):
                         error = "username"
                         form = LoginForm()
 
-
-
     if request.method == 'GET' and request.GET.get('login'):
         print("get", request.GET, file=sys.stderr)
-        return render(request, 'form/login.html', {'form':form})
-
+        return render(request, 'viewForm/login.html', {'form':form})
     if request.method == 'GET' and request.GET.get('registration1'):
         print("get", request.GET, file=sys.stderr)
         form = SignupForm()
-        return render(request, 'form/registration1.html', {'form':form})
-
-    
-    
+        return render(request, 'viewForm/registration1.html', {'form':form})
 
     if request.META.get("HTTP_HX_REQUEST") != 'true':
         return render(request, 'page_full.html', {'page':'login.html', 'form':form, 'viewForm':viewForm, 'error':error})

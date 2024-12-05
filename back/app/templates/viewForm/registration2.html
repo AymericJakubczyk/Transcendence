@@ -1,0 +1,48 @@
+<h1>Registration</h1>
+<h3>Personnalise profile</h3>
+<div class="profile_pp mb-0">
+    <img id="img_pp" src="/media/imgs/profils/creepy-cat.webp" alt="Profile Picture">
+</div>
+<form id="myForm" hx-post="{{request.path}}" hx-encoding="multipart/form-data" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" style="display: flex; flex-direction: column; padding: 30px 10px 30px 10px;">
+    <label id="choose_file" for='{{ form.profile_picture.auto_id }}' style='cursor: pointer; margin: 0 10px 0 10px; text-align: center'>change profile picture</label>
+    {{ form.profile_picture }}
+    <script>
+        elem = document.getElementById("{{ form.profile_picture.auto_id }}").style.display = "none";;
+    </script>
+    {% if form.profile_picture.errors %}
+        {{ form.profile_picture.errors }}
+    {% endif %}
+
+    {{ form.username.label_tag }} {{ form.username }}
+    <script>
+        document.getElementById("{{ form.username.auto_id }}").setAttribute("autofocus", "true");
+    </script>
+    {% if form.username.errors %}
+        {{ form.username.errors }}
+        <script>
+            // set error class
+            document.getElementById("{{ form.username.auto_id }}").classList.add("error");
+            document.getElementById("{{ form.username.auto_id }}").addEventListener('input', function() {
+                document.getElementById("{{ form.username.auto_id }}").classList.remove("error")
+            });
+        </script>
+    {% endif %}
+
+    <script>
+        // detect when the user change the profile picture
+        document.getElementById("id_profile_picture").addEventListener('input', function(event) {
+            {% comment %} const maxSize = 1024 * 1024 * 5; // 5MB
+            if (event.target.files[0].size > maxSize) {
+                error_message("The file is too big, please choose a file smaller than 5MB", 3000);
+                event.target.value = "";
+                return;
+            } {% endcomment %}
+            document.getElementById("img_pp").src = URL.createObjectURL(event.target.files[0]);
+        });
+    </script>  
+</form>
+<div class="login_buttons d-flex flex-column">
+    <input type="submit" value="Register" form="myForm">
+    <span>or</span> 
+    <a hx-get hx-target="#viewForm" hx-swap="innerHTML" hx-vals='{"login":1}'>already have an account</a>
+</div>
