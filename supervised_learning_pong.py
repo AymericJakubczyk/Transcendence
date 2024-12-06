@@ -280,7 +280,7 @@ elif MODE == "TEST":
 
     num_episodes = 500
     for episode in range(num_episodes):
-        total_reward, _, _ = calcul_ball(episode, mode="TEST")
+        total_reward = calcul_ball(episode, mode="TEST")
         print(f"Episode {episode+1}, Reward: {total_reward}")
     pygame.quit()
     sys.exit()
