@@ -14,10 +14,8 @@ import os
 from pathlib import Path
 import torch
 
-# Définir le répertoire de base de votre projet
-BASE_DIR = Path(__file__).resolve().parent.parent.parent  # Ajustez selon la structure de votre projet
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-# Construire le chemin complet vers le modèle
 model_path = os.path.join(BASE_DIR, 'static', 'ai_datasets', 'model_supervised.pth')
 
 arenaWidth = 100
@@ -31,7 +29,6 @@ winningScore = 5
 
 all_data = {}
 
-# Réseau de neurones avec une seule sortie (prédiction de la position y cible)
 class PolicyNetwork(nn.Module):
     def __init__(self, input_size=5, hidden_size=64, output_size=1):
         super(PolicyNetwork, self).__init__()
@@ -48,7 +45,6 @@ class PolicyNetwork(nn.Module):
 network = PolicyNetwork()
 optimizer = optim.Adam(network.parameters(), lr=1e-3)
 
-# Charger le modèle avec weights_only=True pour la sécurité
 network.load_state_dict(torch.load(model_path, weights_only=True))
 network.eval()
 
@@ -91,10 +87,9 @@ async def get_target_y_from_network(network, state):
         y_pred = network(state_tensor)
         return y_pred.item()
 
-async def get_ai_paddle_target_position(pong_data):
-    # Pour le moment, l'IA suit simplement la balle
-    target_y = pong_data.ball_y
-    return target_y
+# async def get_ai_paddle_target_position(pong_data):
+#     target_y = pong_data.ball_y
+#     return target_y
 
 async def calcul_ai_ball(id):
     global arenaWidth, arenaLength, thickness, ballRadius, paddleWidth, paddleHeight, baseSpeed, winningScore, all_data
@@ -111,29 +106,26 @@ async def calcul_ai_ball(id):
 
 
     last_ai_update_time = asyncio.get_event_loop().time()
-    ai_update_interval = 1.0  # Intervalle de mise à jour en secondes
+    ai_update_interval = 1.0
     i = 0;
 
     while True:
-        await asyncio.sleep(0.01)  # Attente de 0.01 seconde
+        await asyncio.sleep(0.01)
         i+=1
         current_time = asyncio.get_event_loop().time()
         if current_time - last_ai_update_time >= ai_update_interval:
             print("Iteration", i, file=sys.stderr)
             i = 0;
             last_ai_update_time = current_time
-            # Appeler la fonction de l'IA pour obtenir la position cible
             state = await get_state(all_data[id])
             target_y = await get_target_y_from_network(network, state)
             all_data[id].paddle2_target_y = target_y
             print("[AI TARGET Y]", target_y, file=sys.stderr)
             print("[AI PADDLE Y]", all_data[id].paddle2_target_y, file=sys.stderr)
 
-        # Mise à jour de la position de la balle
         all_data[id].ball_x += all_data[id].ball_dx
         all_data[id].ball_y += all_data[id].ball_dy
 
-        # Mise à jour des drapeaux de mouvement du paddle de l'IA
         if all_data[id].paddle2_y + 1 < all_data[id].paddle2_target_y:
             all_data[id].player2_up = True
             all_data[id].player2_down = False
@@ -144,8 +136,7 @@ async def calcul_ai_ball(id):
             all_data[id].player2_up = False
             all_data[id].player2_down = False
 
-        # Gestion des mouvements des paddles
-        paddle_speed = 0.6  # Vitesse du paddle
+        paddle_speed = 0.6
         if (all_data[id].player1_up and all_data[id].paddle1_y + paddle_speed < arenaWidth - thickness / 2 - paddleHeight / 2):
             all_data[id].paddle1_y += paddle_speed
         if (all_data[id].player1_down and all_data[id].paddle1_y - paddle_speed > thickness / 2 + paddleHeight / 2):
@@ -157,13 +148,11 @@ async def calcul_ai_ball(id):
 
         await send_updates(id)
 
-        # Gestion des collisions avec les murs
         if (all_data[id].ball_y + all_data[id].ball_dy > arenaWidth - thickness/2 - ballRadius or all_data[id].ball_y + all_data[id].ball_dy < thickness/2 + ballRadius ):
             print("[PONG WALL]", file=sys.stderr)
             await send_ai_bump('wall', 0, id)
             all_data[id].ball_dy = -all_data[id].ball_dy
 
-        # Gestion des collisions avec les paddles
         if (all_data[id].ball_x > arenaLength - thickness * 2):
             if (all_data[id].ball_y > all_data[id].paddle2_y - paddleHeight / 2 and all_data[id].ball_y < all_data[id].paddle2_y + paddleHeight / 2):
                 all_data[id].nbrHit += 1
@@ -235,7 +224,7 @@ async def stop_ai_game(id):
 
     game = await get_ai_game(id)
 
-    await send_updates(id)  # Envoyer la mise à jour finale pour le score
+    await send_updates(id)
 
     await save_ai_winner(id)
     player = await get_username_of_game(id)
@@ -294,7 +283,7 @@ async def ai_goal(player, id):
         all_data[id].score_player1 += 1
     else:
         all_data[id].score_player2 += 1
-    all_data[id].nbrHit = 0  # Réinitialiser le compteur de rebonds
+    all_data[id].nbrHit = 0
     await send_updates(id)
     await send_ai_bump('ball', 0, id)
     await asyncio.sleep(0.5)
@@ -314,7 +303,6 @@ def save_ai_winner(id):
 
     game.player1_rank = game.player1.pong_rank
 
-    # Changer l'état du joueur
     if (game.player1.state == User.State.INGAME):
         game.player1.state = User.State.ONLINE
     game.player1.game_status_url = 'none'

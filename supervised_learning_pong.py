@@ -118,24 +118,20 @@ def goal(player, id):
 def expert_policy(state):
     bx, by, bdx, bdy, py = state
     
-    # Si le ballon se déplace vers la gauche, le paddle IA n'a pas besoin de bouger
     if bdx <= 0:
-        return arenaWidth / 2  # Garde la position actuelle
+        return arenaWidth / 2
     
-    # Simulation de la trajectoire du ballon jusqu'à ce qu'il atteigne le paddle IA (player2)
     sim_x = bx * arenaLength
     sim_y = by * arenaWidth
     sim_dx = bdx
     sim_dy = bdy
-    
-    # Position x du paddle IA (player2)
+
     paddle_x = arenaLength - thickness*2
     
     while sim_x < paddle_x:
         sim_x += sim_dx
         sim_y += sim_dy
         
-        # Gestion des rebonds verticaux
         if sim_y <= ballRadius + thickness/2:
             sim_y = ballRadius + thickness/2
             sim_dy = -sim_dy
@@ -143,7 +139,6 @@ def expert_policy(state):
             sim_y = arenaWidth - ballRadius - thickness/2
             sim_dy = -sim_dy
     
-    # Assurer que la position prédite est dans les limites de l'arène
     predicted_y = max(ballRadius + thickness/2, min(sim_y, arenaWidth - ballRadius - thickness/2))
     
     return predicted_y
@@ -160,7 +155,7 @@ def calcul_ball(id, mode="COLLECT"):
     all_data[id] = PongData()
     done = False
     i = 0
-    target_y = all_data[id].paddle2_y  # Initialisation pour paddle2
+    target_y = all_data[id].paddle2_y
     max_steps = 2000
     total_reward = 0
 
@@ -175,7 +170,6 @@ def calcul_ball(id, mode="COLLECT"):
 
         if i % 90 == 0:
             # print(f"Step {j}")
-
             state = get_state(all_data[id])
 
             if mode == "COLLECT":
@@ -187,13 +181,11 @@ def calcul_ball(id, mode="COLLECT"):
                 states_collected.append(state)
                 ys_collected.append(target_y)
 
-        # Contrôler paddle2 avec target_y
         if all_data[id].paddle2_y > target_y:
             move_paddle('up', 2, id)
         elif all_data[id].paddle2_y < target_y:
             move_paddle('down', 2, id)
 
-        # Contrôler paddle1 avec l'IA
         all_data[id].ball_x += all_data[id].ball_dx
         all_data[id].ball_y += all_data[id].ball_dy
 
@@ -229,7 +221,6 @@ def calcul_ball(id, mode="COLLECT"):
         total_reward += reward
         updateIA(id)
 
-        # Condition pour afficher uniquement pendant les deux premières parties
         if mode == "TEST":
             draw_game(id, screen)
             clock.tick(90)
