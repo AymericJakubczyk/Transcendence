@@ -8,8 +8,8 @@
 </div>
 
 
-{% if error %}
 <script>
+{% if error %}
     error = "{{ error }}"
     console.log(error)
     if (error == "password") {
@@ -19,7 +19,7 @@
             document.getElementById("id_password").classList.remove("error")
         });
     }
-    if (error == "username") {
+    else if (error == "username") {
         error_message("Nom d'utilisateur inconnu", 5000)
         document.getElementById("id_username").classList.add("error")
         document.getElementById("id_username").addEventListener('input', function() {
@@ -27,8 +27,13 @@
         });
         document.getElementById("id_username").focus()
     }
-</script>
 {% endif %}
+{% if messages %}
+    {% for message in messages %}
+        error_message("{{ message }}", 4000)
+    {% endfor %}
+{% endif %}
+</script>
 
 <script>
     display3D()

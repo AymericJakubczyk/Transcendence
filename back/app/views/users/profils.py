@@ -41,6 +41,9 @@ def profilView(request, username):
     return render(request, 'profil.html', {'user':user, 'all_chess_games':all_chess_games, 'all_pong_games':all_pong_games, 'context_last_login':context_last_login})
 
 def myProfilView(request):
+    if not request.user.is_authenticated:
+        messages.error(request, 'You need to log-in !')
+        return redirect('home')
     if request.user.is_authenticated:
         all_friend_requests = Friend_Request.objects.filter(to_user=request.user)
         if request.META.get("HTTP_HX_REQUEST") != 'true':

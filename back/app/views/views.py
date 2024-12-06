@@ -99,7 +99,7 @@ def homeView(request):
 def gameView(request):
     if not request.user.is_authenticated:
         messages.error(request, 'Log-in to play cool games !')
-        return redirect('myprofile')
+        return redirect('home')
     else:
         if request.META.get("HTTP_HX_REQUEST") != 'true':
             return render(request, 'page_full.html', {'page':'game.html', 'user':request.user})

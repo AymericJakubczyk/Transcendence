@@ -7,8 +7,6 @@ from .views.users import users, chat, profils
 from .views.views import custom_404
 from .views.web3 import sepoliaTournament
 from django.contrib.auth.views import PasswordChangeView
-from .views.api import initialize_game, move_paddle
-
 
 handler404 = custom_404
 
@@ -39,7 +37,6 @@ urlpatterns = [
 	path('update-profile/', profils.updateProfile, name='update-profile'),
     path('change-password/', profils.password_change, name='password_change'),
 
-    path('register/', users.registrationView, name='register'),
     path('logout/', users.logout_user, name='logout'),
 
     path('chat/', chat.chatView, name='chat'),
@@ -52,12 +49,6 @@ urlpatterns = [
 
     path('invite/', chat.invite, name='invite'),
     path('invite/cancel/', chat.inviteCancel, name='invite_cancel'),
-
-    # API URLS
-    path('api-auth/', include('rest_framework.urls')),
-    path('initialize-game/', initialize_game, name='initialize-game'),
-    path('move-paddle/', move_paddle, name='move-paddle'),
-    
     
     
     # WEB3 URLS

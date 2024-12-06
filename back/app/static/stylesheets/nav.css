@@ -22,11 +22,11 @@ nav a {
     transition: 0.2s;
 }
 
-#nav1 {
+.nav1 {
 	border-radius: 0 0 0 1.3rem;
 }
 
-#nav3 {
+.nav3 {
 	border-radius: 0 0 1.3rem 0;
 }
 

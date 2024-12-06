@@ -67,15 +67,14 @@
 <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
     <div style="z-index:42">
         <nav>
-            <a hx-get="{% url 'home' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route col-sm" id="nav1">Home</a>
-            <a hx-get="{% url 'game' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route col-sm" id="game_headbar">Game</a>
-            <a hx-get="{% url 'chat' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route col-sm" id="nav2">
+            <a hx-get="{% url 'game' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route col-sm nav1" id="game_headbar">Game</a>
+            <a hx-get="{% url 'chat' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route col-sm nav2">
                 <div id="chat_headbar" style="position:relative">
                     Chat
                     <div id="global_notif" class='notif bg-danger text-light rounded-circle' style="left: -10px;top: -10px" hidden>!</div>
                 </div>
             </a>
-            <a hx-get="{% url 'myprofile' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route col-sm" id="nav3">Profile</a>
+            <a hx-get="{% url 'myprofile' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route col-sm nav3">Profile</a>
         </nav>
     </div>
     <div id="page">{% block content %}{% endblock %}</div>
