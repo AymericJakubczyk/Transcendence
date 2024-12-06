@@ -57,6 +57,10 @@ urlpatterns = [
     path('initialize-game/', initialize_game, name='initialize-game'),
     path('move-paddle/', move_paddle, name='move-paddle'),
     
+    ## 42 AUTH 
+
+    path('oauth42/login/', views.oauth42_login, name='oauth42_login'),
+    path('oauth/callback/', views.oauth42_callback, name='oauth42_callback'),
     
     
     # WEB3 URLS

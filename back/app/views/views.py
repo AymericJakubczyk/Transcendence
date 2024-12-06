@@ -59,3 +59,73 @@ def gameView(request):
 
 def custom_404(request, exception):
     return render(request, 'index.html', {})
+
+
+
+from django.shortcuts import redirect
+from django.contrib.auth import login
+from django.http import HttpResponseRedirect
+import requests
+
+def oauth42_login(request):
+    # L'URL d'autorisation de 42
+    oauth_url = 'https://api.intra.42.fr/oauth/authorize'
+    
+    # Les paramètres nécessaires
+    params = {
+        'client_id': 'u-s4t2ud-4563ca57b3380ce7bbccc561b5016566f1f437071451a54f27e316f5501a2f57',
+        'redirect_uri': 'http://localhost:8042/oauth/callback/',
+        'response_type': 'code',
+        'scope': 'public'
+    }
+    
+    # Construire l'URL complète
+    authorization_url = f"{oauth_url}?{'&'.join(f'{key}={value}' for key, value in params.items())}"
+    
+    # Rediriger vers 42
+    return redirect(authorization_url)
+
+def oauth42_callback(request):
+    code = request.GET.get('code')
+    
+    if not code:
+        # Gérer l'erreur si pas de code
+        return redirect('login')
+        
+    try:
+        # Échanger le code contre un token
+        token_response = requests.post('https://api.intra.42.fr/oauth/token', data={
+            'grant_type': 'authorization_code',
+            'client_id': 'u-s4t2ud-4563ca57b3380ce7bbccc561b5016566f1f437071451a54f27e316f5501a2f57',
+            'client_secret': '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',
+            'code': code,
+            'redirect_uri': 'http://localhost:8042/oauth/callback/'
+        })
+        
+        token_data = token_response.json()
+        
+        # Obtenir les informations de l'utilisateur avec le token
+        user_response = requests.get('https://api.intra.42.fr/v2/me', 
+            headers={'Authorization': f"Bearer {token_data['access_token']}"})
+        user_data = user_response.json()
+        
+        # Ici, vous devez implémenter la logique pour créer/mettre à jour
+        # l'utilisateur dans votre base de données
+        # Par exemple:
+        user, created = User.objects.get_or_create(
+            username=user_data['login'],
+            defaults={
+                'email': user_data['email'],
+                # autres champs...
+            }
+        )
+        
+        # Connecter l'utilisateur
+        login(request, user)
+        
+        # Rediriger vers la page souhaitée après connexion
+        return redirect('home')  # ou 'dashboard', etc.
+        
+    except Exception as e:
+        print(f"Erreur lors de l'authentification: {e}")
+        return redirect('login')

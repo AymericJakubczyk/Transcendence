@@ -98,6 +98,14 @@ DATABASES = {
 }
 
 
+AUTH_USER_MODEL = 'transcendence.CustomUser'  # Si vous utilisez un modèle personnalisé
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    # Ajoutez votre backend personnalisé si nécessaire
+]
+
+
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
 
