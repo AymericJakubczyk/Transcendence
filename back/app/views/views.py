@@ -27,9 +27,26 @@ def homeView(request):
     viewForm = "viewForm/login.html"
 
     if request.method == 'POST':
-        print("post", request.POST, file=sys.stderr)
-        print("login", request.POST.get('first_name'), file=sys.stderr)
-        if (request.POST.get('first_name')):
+        if (request.POST.get('loginForm')):
+            form = LoginForm(request.POST)
+            if form.is_valid():
+                user = authenticate(
+                    username=form.cleaned_data['username'],
+                    password=form.cleaned_data['password'],
+                )
+                if user is not None:
+                    print("login", request.user, file=sys.stderr)
+                    login(request, user)
+                    return redirect('myprofile')
+                else:
+                    if User.objects.filter(username=form.cleaned_data['username']).exists():
+                        error = "password"
+                    else:
+                        error = "username"
+                        form = LoginForm()
+            else:
+                print("form not valid", form.errors, file=sys.stderr)
+        elif (request.POST.get('registration1Form')):
             form = SignupForm(request.POST)
             if form.is_valid():
                 # Store form data in session for get them in second step
@@ -46,7 +63,7 @@ def homeView(request):
                 viewForm = "viewForm/registration1.html"
                 return render(request, 'viewForm/registration1.html', {'form':form})
 
-        if (request.POST.get('username') and not request.POST.get('password')):
+        elif (request.POST.get('registration2Form')):
             form = SignupFormBis(request.POST, request.FILES)
             if form.is_valid():
                 user = form.save(commit=False)
@@ -64,23 +81,7 @@ def homeView(request):
                 return redirect('myprofile')
             else:
                 viewForm = "viewForm/registration2.html"
-        else:
-            form = LoginForm(request.POST)
-            if form.is_valid():
-                user = authenticate(
-                    username=form.cleaned_data['username'],
-                    password=form.cleaned_data['password'],
-                )
-                if user is not None:
-                    print("login", request.user, file=sys.stderr)
-                    login(request, user)
-                    return redirect('myprofile')
-                else:
-                    if User.objects.filter(username=form.cleaned_data['username']).exists():
-                        error = "password"
-                    else:
-                        error = "username"
-                        form = LoginForm()
+
 
     if request.method == 'GET' and request.GET.get('login'):
         print("get", request.GET, file=sys.stderr)

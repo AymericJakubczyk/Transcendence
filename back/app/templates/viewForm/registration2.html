@@ -4,6 +4,7 @@
     <img id="img_pp" src="/media/imgs/profils/creepy-cat.webp" alt="Profile Picture">
 </div>
 <form id="myForm" hx-post="{{request.path}}" hx-encoding="multipart/form-data" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" style="display: flex; flex-direction: column; padding: 30px 10px 30px 10px;">
+    <input type="hidden" name="registration2Form" value="1"/>
     <label id="choose_file" for='{{ form.profile_picture.auto_id }}' style='cursor: pointer; margin: 0 10px 0 10px; text-align: center'>change profile picture</label>
     {{ form.profile_picture }}
     <script>

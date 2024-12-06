@@ -2,6 +2,7 @@
 <h1>Registration</h1>
 <h4>personnal data</h4>
 <form id="myForm" hx-post hx-target="#viewForm" hx-swap="innerHTML" style="display: flex; flex-direction: column; padding: 30px 10px 30px 10px">
+    <input type="hidden" name="registration1Form" value="1"/>
     {% for field in form %}
     {{ field.label_tag }} {{ field }}
     {% if field.errors %}
