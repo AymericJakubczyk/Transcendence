@@ -5,6 +5,20 @@ from asgiref.sync import sync_to_async, async_to_sync
 from channels.layers import get_channel_layer
 from django.shortcuts import get_object_or_404
 from channels.db import database_sync_to_async
+import numpy as np
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from torch.utils.data import TensorDataset, DataLoader
+import os
+from pathlib import Path
+import torch
+
+# Définir le répertoire de base de votre projet
+BASE_DIR = Path(__file__).resolve().parent.parent.parent  # Ajustez selon la structure de votre projet
+
+# Construire le chemin complet vers le modèle
+model_path = os.path.join(BASE_DIR, 'static', 'ai_datasets', 'model_supervised.pth')
 
 arenaWidth = 100
 arenaLength = 150
@@ -13,9 +27,30 @@ paddleWidth = 1
 paddleHeight = 17
 thickness = 1
 baseSpeed = 0.5
-winningScore = 1
+winningScore = 5
 
 all_data = {}
+
+# Réseau de neurones avec une seule sortie (prédiction de la position y cible)
+class PolicyNetwork(nn.Module):
+    def __init__(self, input_size=5, hidden_size=64, output_size=1):
+        super(PolicyNetwork, self).__init__()
+        self.fc1 = nn.Linear(input_size, hidden_size)
+        self.fc2 = nn.Linear(hidden_size, hidden_size)
+        self.fc3 = nn.Linear(hidden_size, output_size)
+        
+    def forward(self, x):
+        x = torch.relu(self.fc1(x))
+        x = torch.relu(self.fc2(x))
+        x = self.fc3(x)
+        return x
+
+network = PolicyNetwork()
+optimizer = optim.Adam(network.parameters(), lr=1e-3)
+
+# Charger le modèle avec weights_only=True pour la sécurité
+network.load_state_dict(torch.load(model_path, weights_only=True))
+network.eval()
 
 class PongData():
     def __init__(self):
@@ -42,6 +77,20 @@ async def launch_ai_game(id):
     all_data[id] = PongData()
     asyncio.create_task(calcul_ai_ball(id))
 
+async def get_state(data):
+    bx = data.ball_x / arenaLength
+    by = data.ball_y / arenaWidth
+    bdx = data.ball_dx
+    bdy = data.ball_dy
+    py = data.paddle2_y / arenaWidth
+    return np.array([bx, by, bdx, bdy, py])
+
+async def get_target_y_from_network(network, state):
+    with torch.no_grad():
+        state_tensor = torch.tensor(state, dtype=torch.float32).unsqueeze(0)
+        y_pred = network(state_tensor)
+        return y_pred.item()
+
 async def get_ai_paddle_target_position(pong_data):
     # Pour le moment, l'IA suit simplement la balle
     target_y = pong_data.ball_y
@@ -60,18 +109,25 @@ async def calcul_ai_ball(id):
     await send_ai_countdown("GO", id)
     await asyncio.sleep(1)
 
+
     last_ai_update_time = asyncio.get_event_loop().time()
     ai_update_interval = 1.0  # Intervalle de mise à jour en secondes
+    i = 0;
 
     while True:
         await asyncio.sleep(0.01)  # Attente de 0.01 seconde
-
+        i+=1
         current_time = asyncio.get_event_loop().time()
         if current_time - last_ai_update_time >= ai_update_interval:
+            print("Iteration", i, file=sys.stderr)
+            i = 0;
             last_ai_update_time = current_time
             # Appeler la fonction de l'IA pour obtenir la position cible
-            target_y = await get_ai_paddle_target_position(all_data[id])
+            state = await get_state(all_data[id])
+            target_y = await get_target_y_from_network(network, state)
             all_data[id].paddle2_target_y = target_y
+            print("[AI TARGET Y]", target_y, file=sys.stderr)
+            print("[AI PADDLE Y]", all_data[id].paddle2_target_y, file=sys.stderr)
 
         # Mise à jour de la position de la balle
         all_data[id].ball_x += all_data[id].ball_dx

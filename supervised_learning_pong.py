@@ -66,7 +66,7 @@ def get_state(data):
     by = data.ball_y / arenaWidth
     bdx = data.ball_dx
     bdy = data.ball_dy
-    py = data.paddle1_y / arenaWidth
+    py = data.paddle2_y / arenaWidth  # Utilisation de paddle2_y
     return np.array([bx, by, bdx, bdy, py])
 
 def move_paddle(direction, player, data_id):
@@ -91,10 +91,10 @@ def move_paddle(direction, player, data_id):
                 all_data[data_id].paddle2_y = arenaWidth - paddleHeight/2
 
 def updateIA(id):
-    if all_data[id].paddle2_y < all_data[id].ball_y:
-        move_paddle("down", 2, id)
-    elif all_data[id].paddle2_y > all_data[id].ball_y:
-        move_paddle("up", 2, id)
+    if all_data[id].paddle1_y < all_data[id].ball_y:
+        move_paddle("down", 1, id)
+    elif all_data[id].paddle1_y > all_data[id].ball_y:
+        move_paddle("up", 1, id)
 
 def draw_game(id, screen):
     screen.fill(BLACK)
@@ -118,17 +118,24 @@ def goal(player, id):
 def expert_policy(state):
     bx, by, bdx, bdy, py = state
     
-    if bdx >= 0:
-        return arenaWidth / 2
+    # Si le ballon se déplace vers la gauche, le paddle IA n'a pas besoin de bouger
+    if bdx <= 0:
+        return arenaWidth / 2  # Garde la position actuelle
     
+    # Simulation de la trajectoire du ballon jusqu'à ce qu'il atteigne le paddle IA (player2)
     sim_x = bx * arenaLength
     sim_y = by * arenaWidth
     sim_dx = bdx
     sim_dy = bdy
     
-    while sim_x > thickness*2:
+    # Position x du paddle IA (player2)
+    paddle_x = arenaLength - thickness*2
+    
+    while sim_x < paddle_x:
         sim_x += sim_dx
         sim_y += sim_dy
+        
+        # Gestion des rebonds verticaux
         if sim_y <= ballRadius + thickness/2:
             sim_y = ballRadius + thickness/2
             sim_dy = -sim_dy
@@ -136,8 +143,11 @@ def expert_policy(state):
             sim_y = arenaWidth - ballRadius - thickness/2
             sim_dy = -sim_dy
     
-    predicted_y = sim_y
+    # Assurer que la position prédite est dans les limites de l'arène
+    predicted_y = max(ballRadius + thickness/2, min(sim_y, arenaWidth - ballRadius - thickness/2))
+    
     return predicted_y
+
 
 def get_target_y_from_network(network, state):
     with torch.no_grad():
@@ -150,36 +160,40 @@ def calcul_ball(id, mode="COLLECT"):
     all_data[id] = PongData()
     done = False
     i = 0
-    target_y = all_data[id].paddle1_y
+    target_y = all_data[id].paddle2_y  # Initialisation pour paddle2
     max_steps = 2000
     total_reward = 0
 
     states_collected = []
     ys_collected = []
-    
+
     while not done and i < max_steps:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
 
-        state = get_state(all_data[id])
+        if i % 90 == 0:
+            # print(f"Step {j}")
 
-        if i % 120 == 0:
+            state = get_state(all_data[id])
+
             if mode == "COLLECT":
                 target_y = expert_policy(state)
             else:
                 target_y = get_target_y_from_network(network, state)
-
+            
             if mode == "COLLECT":
                 states_collected.append(state)
                 ys_collected.append(target_y)
 
-        if all_data[id].paddle1_y > target_y:
-            move_paddle('up', 1, id)
-        elif all_data[id].paddle1_y < target_y:
-            move_paddle('down', 1, id)
+        # Contrôler paddle2 avec target_y
+        if all_data[id].paddle2_y > target_y:
+            move_paddle('up', 2, id)
+        elif all_data[id].paddle2_y < target_y:
+            move_paddle('down', 2, id)
 
+        # Contrôler paddle1 avec l'IA
         all_data[id].ball_x += all_data[id].ball_dx
         all_data[id].ball_y += all_data[id].ball_dy
 
@@ -215,17 +229,15 @@ def calcul_ball(id, mode="COLLECT"):
         total_reward += reward
         updateIA(id)
 
+        # Condition pour afficher uniquement pendant les deux premières parties
         if mode == "TEST":
             draw_game(id, screen)
-            clock.tick(60)
-        else:
-            if id % 100 == 0 and i < 1000 and mode != "TRAIN":
-                draw_game(id, screen)
-                clock.tick(120)
+            clock.tick(90)
 
         i += 1
-    
+
     return total_reward, states_collected, ys_collected
+
 
 def train_supervised(network, optimizer, states_dataset, ys_dataset, batch_size=64, epochs=5):
     X = torch.tensor(states_dataset, dtype=torch.float32)
@@ -233,12 +245,15 @@ def train_supervised(network, optimizer, states_dataset, ys_dataset, batch_size=
 
     dataset = TensorDataset(X, y)
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
-    
+    best_loss = float("inf")
     loss_fn = nn.MSELoss()
     
     network.train()
     for epoch in range(epochs):
         total_loss = 0
+        # if total_loss < best_loss:
+        #     best_loss = total_loss
+        #     torch.save(network.state_dict(), "best_model_supervised.pth")
         for batch_x, batch_y in dataloader:
             optimizer.zero_grad()
             y_pred = network(batch_x)
@@ -247,6 +262,7 @@ def train_supervised(network, optimizer, states_dataset, ys_dataset, batch_size=
             optimizer.step()
             total_loss += loss.item()
         print(f"Epoch {epoch+1}/{epochs}, Loss: {total_loss/len(dataloader)}")
+
 
 if MODE == "COLLECT":
     num_episodes = 2000
@@ -268,7 +284,7 @@ elif MODE == "TRAIN":
     states_dataset = np.load("states_dataset.npy")
     ys_dataset = np.load("ys_dataset.npy")
 
-    train_supervised(network, optimizer, states_dataset, ys_dataset, epochs=50)
+    train_supervised(network, optimizer, states_dataset, ys_dataset, epochs=20)
 
     torch.save(network.state_dict(), "model_supervised.pth")
     pygame.quit()
@@ -280,7 +296,7 @@ elif MODE == "TEST":
 
     num_episodes = 500
     for episode in range(num_episodes):
-        total_reward = calcul_ball(episode, mode="TEST")
+        total_reward, _, _ = calcul_ball(episode, mode="TEST")
         print(f"Episode {episode+1}, Reward: {total_reward}")
     pygame.quit()
     sys.exit()
