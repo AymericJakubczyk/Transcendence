@@ -4,3 +4,5 @@ __pycache__
 /back/app/migrations
 /back/media/imgs/profils/*
 !creepy-cat.webp
+back/app/static/ai_models/new_model.pth
+back/ai_utils/*.npy

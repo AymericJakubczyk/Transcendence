@@ -14,6 +14,7 @@ RUN pip install Pillow
 RUN pip install channels
 RUN pip install daphne
 RUN pip install torch --index-url https://download.pytorch.org/whl/cpu
+RUN pip install matplotlib
 RUN pip install djangorestframework
 COPY django-setup.sh /
 RUN chmod +x django-setup.sh

@@ -16,7 +16,7 @@ import torch
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-model_path = os.path.join(BASE_DIR, 'static', 'ai_datasets', 'model_supervised.pth')
+model_path = os.path.join(BASE_DIR, 'static', 'ai_models', 'model_supervised.pth')
 
 arenaWidth = 100
 arenaLength = 150

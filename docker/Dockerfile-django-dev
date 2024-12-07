@@ -12,6 +12,7 @@ RUN pip install channels
 RUN pip install daphne
 RUN pip install torch --index-url https://download.pytorch.org/whl/cpu
 RUN pip install numpy
+RUN pip install matplotlib
 RUN pip install djangorestframework
 COPY django-setup-dev.sh /
 RUN chmod +x django-setup-dev.sh
