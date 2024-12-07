@@ -8,8 +8,6 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import TensorDataset, DataLoader
 
-print("Hello world")
-
 arenaWidth = 100
 arenaLength = 150
 ballRadius = 1
@@ -25,7 +23,7 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 SCALE_FACTOR_X = SCREEN_WIDTH / arenaLength
 SCALE_FACTOR_Y = SCREEN_HEIGHT / arenaWidth
-MODE = "TEST"  # "COLLECT", "TRAIN", "TEST"
+MODE = "TRAIN"  # "COLLECT", "TRAIN", "TEST"
 
 # pygame.init()
 # screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
