@@ -18,6 +18,7 @@ function create_chess_ws(game_id)
         console.log("[RECEIVE CHESS WS]", data);
         if (data.type == "move")
         {
+			decline_draw();
 			move_piece(data.from, data.to.x, data.to.y);
 			player = player == "white" ? "black" : "white";
 			if (document.getElementById("random").checked && board[data.to.y][data.to.x].piece.color != player)

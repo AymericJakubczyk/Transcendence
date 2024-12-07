@@ -110,6 +110,8 @@ def check_repetition(id):
 @database_sync_to_async
 def propose_draw(id, color):
     game = get_object_or_404(Game_Chess, id=id)
+    if game.propose_draw:
+        return
     if color == 'white':
         game.propose_draw = 'white'
     elif color == 'black':

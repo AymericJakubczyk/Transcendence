@@ -66,8 +66,10 @@ class ChessConsumer(AsyncWebsocketConsumer):
             
         elif (data['type'] == 'accept_draw'):
             print("[ACCEPT DRAW] by ",self.scope["user"], "for", self.id, file=sys.stderr)
-            # verif also if draw is proposed by the opponent
-            await chess_utils.save_result_game(int(self.id), 0, 'agreement')
+            if (await self.draw_is_proposed(color_player)):
+                await chess_utils.save_result_game(int(self.id), 0, 'agreement')
+            else:
+                print("[ERROR] draw not proposed by opponent", self.id, file=sys.stderr)
         
         elif (data['type'] == 'decline_draw'):
             print("[DECLINE DRAW] by ",self.scope["user"], "for", self.id, file=sys.stderr)
@@ -85,7 +87,8 @@ class ChessConsumer(AsyncWebsocketConsumer):
             }))
             return
         
-        
+        await self.cancel_propose_draw(game_id)
+
         await self.channel_layer.group_send(
             self.room_group_name,
             {
@@ -163,6 +166,24 @@ class ChessConsumer(AsyncWebsocketConsumer):
         from app.models import Game_Chess
         game = get_object_or_404(Game_Chess, id=game_id)
         return game.status == "finish"
+
+    @database_sync_to_async
+    def draw_is_proposed(self, color_player):
+        from app.models import Game_Chess
+        game = get_object_or_404(Game_Chess, id=self.id)
+        print("[DRAW IS PROPOSED]", game.propose_draw, color_player, file=sys.stderr)
+        if (color_player == "white" and game.propose_draw == 'black'):
+            return True
+        elif (color_player == "black" and game.propose_draw == 'white'):
+            return True
+        return False
+
+    @database_sync_to_async
+    def cancel_propose_draw(self, game_id):
+        from app.models import Game_Chess
+        game = get_object_or_404(Game_Chess, id=game_id)
+        game.propose_draw = None
+        game.save()
 
     async def propose_draw(self, event):
         if (event['color'] == "black" and await self.get_white_player(self.id) == self.scope["user"]):
