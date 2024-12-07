@@ -67,6 +67,10 @@ from django.contrib.auth import login
 from django.http import HttpResponseRedirect
 import requests
 
+import tempfile
+from django.core.files import File
+from app.models import User
+
 def oauth42_login(request):
     # L'URL d'autorisation de 42
     oauth_url = 'https://api.intra.42.fr/oauth/authorize'
@@ -89,7 +93,6 @@ def oauth42_callback(request):
     code = request.GET.get('code')
     
     if not code:
-        # Gérer l'erreur si pas de code
         return redirect('login')
         
     try:
@@ -109,23 +112,51 @@ def oauth42_callback(request):
             headers={'Authorization': f"Bearer {token_data['access_token']}"})
         user_data = user_response.json()
         
-        # Ici, vous devez implémenter la logique pour créer/mettre à jour
-        # l'utilisateur dans votre base de données
-        # Par exemple:
+        # Créer ou obtenir l'utilisateur
         user, created = User.objects.get_or_create(
             username=user_data['login'],
             defaults={
                 'email': user_data['email'],
-                # autres champs...
+                'state': User.State.ONLINE,
             }
         )
+
+        # Télécharger et sauvegarder la photo de profil
+        if 'image' in user_data and user_data['image']['link']:
+            import tempfile
+            import os
+            from django.core.files import File
+            from urllib.request import urlopen
+            
+            # Créer un fichier temporaire pour stocker l'image
+            temp_file = tempfile.NamedTemporaryFile(delete=True)
+            # Télécharger l'image
+            image_url = user_data['image']['link']
+            image_response = requests.get(image_url)
+            
+            if image_response.status_code == 200:
+                # Écrire l'image dans le fichier temporaire
+                temp_file.write(image_response.content)
+                temp_file.flush()
+                
+                # Sauvegarder l'image dans le profil de l'utilisateur
+                filename = f"42_{user.username}_profile.jpg"
+                user.profile_picture.save(
+                    f'imgs/profils/{filename}',
+                    File(open(temp_file.name, 'rb'))
+                )
+                
+                temp_file.close()
+        
+        # Mettre à jour l'état de l'utilisateur
+        user.state = User.State.ONLINE
+        user.save()
         
         # Connecter l'utilisateur
         login(request, user)
         
-        # Rediriger vers la page souhaitée après connexion
-        return redirect('home')  # ou 'dashboard', etc.
+        return redirect('profile', username=user.username)
         
     except Exception as e:
-        print(f"Erreur lors de l'authentification: {e}")
+        print(f"Erreur lors de l'authentification 42: {e}")
         return redirect('login')
