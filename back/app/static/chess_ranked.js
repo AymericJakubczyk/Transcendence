@@ -3,7 +3,7 @@ chessSocket = null;
 function create_chess_ws(game_id)
 {
 	if (chessSocket)
-		chessSocket.close();
+		return;
   	if (window.location.protocol == "https:")
     	chessSocket = new WebSocket('wss://' + window.location.host + `/ws/chess/${game_id}/`);
 	else
@@ -36,6 +36,7 @@ function create_chess_ws(game_id)
 
     chatSocket.onclose = (event) => {
 		console.log("[WS CHESS] The connection has been closed successfully.");
+		chessSocket = null;
 	}
 }
 

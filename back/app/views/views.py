@@ -49,13 +49,11 @@ def homeView(request):
         elif (request.POST.get('registration1Form')):
             form = SignupForm(request.POST)
             if form.is_valid():
-                # Store form data in session for get them in second step
-                signup_data = form.save(commit=False)
                 request.session['signup_data'] = {
-                    'first_name': signup_data.first_name,
-                    'last_name': signup_data.last_name,
-                    'email': signup_data.email,
-                    'password': signup_data.password,
+                    'first_name': request.POST.get('first_name'),
+                    'last_name': request.POST.get('last_name'),
+                    'email': request.POST.get('email'),
+                    'password': request.POST.get('password1'),
                 }
                 form = SignupFormBis()
                 return render(request, 'viewForm/registration2.html', {'form':form})
