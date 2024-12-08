@@ -170,7 +170,7 @@ class Game_Pong(models.Model):
 	created_at = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
 
-	opponent_ready = models.BooleanField(default=False)
+	opponent_ready = models.ForeignKey(User, related_name='opponent_ready', on_delete=models.CASCADE, null=True, blank=True)
 
 	tournament_pos = models.IntegerField(default=-1)
 	tournament_round = models.IntegerField(default=1)
