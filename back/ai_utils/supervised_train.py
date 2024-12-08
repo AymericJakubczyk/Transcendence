@@ -248,8 +248,7 @@ def train_supervised(network, optimizer, states_dataset, ys_dataset, batch_size=
             optimizer.step()
             total_loss += loss.item()
         print(f"Epoch {epoch+1}/{epochs}, Loss: {total_loss/len(dataloader)}")
-        if total_loss/len(dataloader) < 2:
-            torch.save(network.state_dict(), "model_supervised.pth")
+        if total_loss/len(dataloader) < 1:
             break
 
 states_dataset = np.load("states_dataset.npy")

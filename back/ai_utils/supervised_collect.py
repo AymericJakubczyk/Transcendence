@@ -69,6 +69,14 @@ def get_state(data):
     py = data.paddle2_y / arenaWidth  # Utilisation de paddle2_y
     return np.array([bx, by, bdx, bdy, py])
 
+def get_state_p1(data):
+    bx = data.ball_x / arenaLength
+    by = data.ball_y / arenaWidth
+    bdx = data.ball_dx
+    bdy = data.ball_dy
+    py = data.paddle1_y / arenaWidth  # Utilisation de paddle2_y
+    return np.array([bx, by, bdx, bdy, py])
+
 def move_paddle(direction, player, data_id):
     speed = 0.8
     if player == 1:
@@ -90,14 +98,14 @@ def move_paddle(direction, player, data_id):
             if all_data[data_id].paddle2_y > arenaWidth - paddleHeight/2:
                 all_data[data_id].paddle2_y = arenaWidth - paddleHeight/2
 
-def updateIA(id):
-    # paddle_y = all_data[id].paddle1_y
-    # put random y between paddle -7 and +7
-    # paddle_y += random.randint(2, 2)
-    if all_data[id].paddle1_y < all_data[id].ball_y:
-        move_paddle("down", 1, id)
-    elif all_data[id].paddle1_y > all_data[id].ball_y:
-        move_paddle("up", 1, id)
+# def updateIA(id):
+#     # paddle_y = all_data[id].paddle1_y
+#     # put random y between paddle -7 and +7
+#     # paddle_y += random.randint(2, 2)
+#     if all_data[id].paddle1_y < all_data[id].ball_y:
+#         move_paddle("down", 1, id)
+#     elif all_data[id].paddle1_y > all_data[id].ball_y:
+#         move_paddle("up", 1, id)
 
 # def draw_game(id, screen):
 #     screen.fill(BLACK)
@@ -117,6 +125,30 @@ def goal(player, id):
         all_data[id].score_player1 += 1
     else:
         all_data[id].score_player2 += 1
+
+def updateIA(state):
+    bx, by, bdx, bdy, py = state
+    
+    if bdx >= 0:
+        return arenaWidth / 2
+    
+    sim_x = bx * arenaLength
+    sim_y = by * arenaWidth
+    sim_dx = bdx
+    sim_dy = bdy
+    
+    while sim_x > thickness*2:
+        sim_x += sim_dx
+        sim_y += sim_dy
+        if sim_y <= ballRadius + thickness/2:
+            sim_y = ballRadius + thickness/2
+            sim_dy = -sim_dy
+        elif sim_y >= arenaWidth - ballRadius - thickness/2:
+            sim_y = arenaWidth - ballRadius - thickness/2
+            sim_dy = -sim_dy
+    
+    predicted_y = sim_y
+    return predicted_y
 
 def expert_policy(state):
     bx, by, bdx, bdy, py = state
@@ -158,8 +190,9 @@ def calcul_ball(id, mode="COLLECT"):
     all_data[id] = PongData()
     done = False
     i = 0
+    ai_target_y = all_data[id].paddle1_y
     target_y = all_data[id].paddle2_y
-    max_steps = 5000
+    max_steps = 10000
     total_reward = 0
 
     states_collected = []
@@ -172,6 +205,7 @@ def calcul_ball(id, mode="COLLECT"):
                 # sys.exit()
 
             # print(f"Step {j}")
+        ai_target_y = updateIA(get_state_p1(all_data[id]))
         if i % 90 == 0:
             state = get_state(all_data[id])
             target_y = expert_policy(state)
@@ -187,6 +221,11 @@ def calcul_ball(id, mode="COLLECT"):
             move_paddle('up', 2, id)
         elif all_data[id].paddle2_y < target_y:
             move_paddle('down', 2, id)
+
+        if all_data[id].paddle1_y > ai_target_y:
+            move_paddle('up', 1, id)
+        elif all_data[id].paddle1_y < ai_target_y:
+            move_paddle('down', 1, id)
 
         all_data[id].ball_x += all_data[id].ball_dx
         all_data[id].ball_y += all_data[id].ball_dy
@@ -221,7 +260,6 @@ def calcul_ball(id, mode="COLLECT"):
                 done = True
 
         total_reward += reward
-        updateIA(id)
 
         # if mode == "TEST":
         #     # draw_game(id, screen)
@@ -257,7 +295,7 @@ def train_supervised(network, optimizer, states_dataset, ys_dataset, batch_size=
         print(f"Epoch {epoch+1}/{epochs}, Loss: {total_loss/len(dataloader)}")
 
 # if MODE == "COLLECT":
-num_episodes = 7000
+num_episodes = 5000
 all_states = []
 all_ys = []
 

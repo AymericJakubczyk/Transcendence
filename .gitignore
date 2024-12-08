@@ -6,3 +6,4 @@ __pycache__
 !creepy-cat.webp
 back/app/static/ai_models/new_model.pth
 back/ai_utils/*.npy
+back/ai_utils/*.pth
