@@ -28,7 +28,9 @@ def pongAISetup(request):
     game.player1 = request.user
     game.save()
     print("Game created:", game.id, file=sys.stderr)
-    pong_ai_utils.launch_ai_game(game.id)
+    if pong_ai_utils.launch_ai_game(game.id) == False:
+        messages.error(request, 'Error launching AI game (AI model not found)')
+        return redirect('home')
     game.status = "started"
     game.save()
     request.user.state = User.State.INGAME

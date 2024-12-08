@@ -16,8 +16,6 @@ import torch
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-model_path = os.path.join(BASE_DIR, 'static', 'ai_models', 'model_supervised.pth')
-
 arenaWidth = 100
 arenaLength = 150
 ballRadius = 1
@@ -42,12 +40,6 @@ class PolicyNetwork(nn.Module):
         x = self.fc3(x)
         return x
 
-network = PolicyNetwork()
-optimizer = optim.Adam(network.parameters(), lr=1e-3)
-
-network.load_state_dict(torch.load(model_path, weights_only=True))
-network.eval()
-
 class PongData():
     def __init__(self):
         self.ball_dy = random.random() - 0.5
@@ -68,10 +60,18 @@ class PongData():
 @async_to_sync
 async def launch_ai_game(id):
     global all_data
-
+    model_path = os.path.join(BASE_DIR, 'static', 'ai_models', 'model_supervised.pth')
+    if not os.path.exists(model_path):
+        print("[ERROR] Model not found", file=sys.stderr)
+        return False
+    
+    network = PolicyNetwork()
+    optimizer = optim.Adam(network.parameters(), lr=1e-3)
+    network.load_state_dict(torch.load(model_path, weights_only=True))
+    network.eval()
     print("[LAUNCH GAME]", id, file=sys.stderr)
     all_data[id] = PongData()
-    asyncio.create_task(calcul_ai_ball(id))
+    asyncio.create_task(calcul_ai_ball(id, network))
 
 async def get_state(data):
     bx = data.ball_x / arenaLength
@@ -91,7 +91,7 @@ async def get_target_y_from_network(network, state):
 #     target_y = pong_data.ball_y
 #     return target_y
 
-async def calcul_ai_ball(id):
+async def calcul_ai_ball(id, network):
     global arenaWidth, arenaLength, thickness, ballRadius, paddleWidth, paddleHeight, baseSpeed, winningScore, all_data
 
     await asyncio.sleep(1)

@@ -42,28 +42,6 @@ async def launch_game(id):
     all_data[id] = PongData()
     asyncio.create_task(calcul_ball(id))
 
-@async_to_sync
-async def launch_ai_game(id):
-    global all_data
-
-    print("[LAUNCH AI GAME]", id, file=sys.stderr)
-    all_data[id] = PongData()
-    asyncio.create_task(calcul_ball(id))
-
-async def send_ai_updates(id):
-    global all_data
-
-    await asyncio.sleep(1)
-    # send ai updates
-    target_y = all_data[id].ball_y
-    if all_data[id].paddle2_y < target_y:
-        move_paddle("up", False, 2, id)
-        move_paddle("down", True, 2, id)
-    elif all_data[id].paddle2_y > target_y:
-        move_paddle("down", False, 2, id)
-        move_paddle("up", True, 2, id)
-
-
 async def calcul_ball(id):
     global arenaWidth, arenaLength, thickness, ballRadius, paddleWidth, paddleHeight, baseSpeed, nbrHit, all_data, winningScore
 
