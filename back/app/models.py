@@ -74,6 +74,7 @@ class Tournament(models.Model):
 	name = models.CharField(max_length = 25, default='Unamed Tournament')
 	host_user = models.ForeignKey(User, related_name='host_user', on_delete=models.CASCADE)
 	participants = models.ManyToManyField("User", blank=True)
+	has_participate = models.ManyToManyField("User", related_name='has_participate', blank=True)
 	max_users = models.IntegerField(default=8)
 	class GameState(models.TextChoices):
 		PONG = 'PONG'

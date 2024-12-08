@@ -319,15 +319,18 @@ def save_winner(id):
     return ({'win_elo_p1': win_elo_p1, 'win_elo_p2': win_elo_p2})
 
 
+@async_to_sync
+async def leave_update(id):
+    await update_tournament(id)
+
 @database_sync_to_async
 def update_tournament(id):
     from app.models import Tournament, Game_Pong
 
     # GET TOURNAMENT OBJ
     game = get_object_or_404(Game_Pong, id=id)
-    bracket_id = game.player1.tournament_id
-    print("UPDATING TOURNAMENT", bracket_id, file=sys.stderr)
-    tournament = get_object_or_404(Tournament, id=bracket_id)
+    print("UPDATING TOURNAMENT", game.tournament_id, file=sys.stderr)
+    tournament = get_object_or_404(Tournament, id=game.tournament_id)
 
     # ADD LOSER TO RESULTS
     if game.winner == game.player1:

@@ -193,6 +193,8 @@ def pongTournament(request):
         print("making brackets", file=sys.stderr)
         tournament_id = request.POST.get('bracket_tournament')
         tournament = Tournament.objects.get(id=tournament_id)
+        for user in tournament.participants.all():
+            tournament.has_participate.add(user)
         playercount = tournament.participants.count()
         #CREATE TOURNAMENT ON BLOCKCHAIN
         playerlist = get_participants_arr(tournament)
@@ -266,14 +268,14 @@ def pongTournament(request):
         tournament_id = request.POST.get('leave_tournament')
         tournament = Tournament.objects.get(id=tournament_id)
         if request.user in tournament.participants.all():
-            if (tournament.started == False):
-                tournament.participants.remove(request.user)
+            tournament.participants.remove(request.user)
             request.user.tournament_id = -1
             request.user.save()
             if (request.user == tournament.host_user and tournament.participants.count() > 0):
                 tournament.host_user = tournament.participants.all()[0]
                 print("NEW HOST IS :", tournament.host_user, file=sys.stderr)
             tournament.save()
+
             if (tournament.participants.count() == 0 and tournament.started == False):
                 tournament.delete()
             else :
@@ -289,12 +291,6 @@ def pongTournament(request):
                         'tournamentNB': tournament.participants.count()
                     }
                 )
-    
-    for tournament in all_tournaments:
-        print("Tournament :", tournament.name, file=sys.stderr)
-        for player in tournament.participants.all():
-            print("participants", player, file=sys.stderr)
-        print(tournament.closing_link, file=sys.stderr)
 
     if request.user.tournament_id != -1:
         mytournament = Tournament.objects.get(id=request.user.tournament_id)
@@ -366,6 +362,19 @@ def pongGameView(request, gameID):
     game = get_object_or_404(Game_Pong, id=gameID)
     if (game.tournament_pos != -1 ):
         # need to add more secure to check which player is joining the game (because if you refresh page while you wait for opponent, you launch the game alone)
+        
+        tournament = get_object_or_404(Tournament, id=game.tournament_id)
+        if (game.player1 not in tournament.participants.all() or game.player2 not in tournament.participants.all()):
+            game.status = "started"
+            if (game.player1 not in tournament.participants.all()):
+                game.winner = game.player2
+            if (game.player2 not in tournament.participants.all()):
+                game.winner = game.player1
+            game.save()
+            print(game.winner,"won game", game.id, "by forfeit", file=sys.stderr)
+            pong_utils.leave_update(game.id)
+            return redirect('pong_tournament')
+
         if (game.opponent_ready and game.status == "waiting"):
             pong_utils.launch_game(game.id)
             game.status = "started"

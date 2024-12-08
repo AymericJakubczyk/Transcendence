@@ -26,14 +26,9 @@ def profilView(request, username):
     all_chess_games_to_order = Game_Chess.objects.filter(Q(white_player=user) | Q(black_player=user))
     all_chess_games = all_chess_games_to_order.order_by('-updated_at')
 
-    all_tournament_to_order = Tournament.objects.filter(participants=user, winner__isnull=False)
+    all_tournament_to_order = Tournament.objects.filter(has_participate=user, winner__isnull=False)
     all_tournaments = all_tournament_to_order.order_by('-updated_at')
-    print("USER ", user, " username", user.username, file=sys.stderr)
-    print(all_tournament_to_order, file=sys.stderr)
-    print("HEEEEEEEEEEEEEEEEEEEEERE", file=sys.stderr)
-    for tournament in all_tournaments:
-        for player in tournament.participants.all():
-            print("participants", player, file=sys.stderr)
+
     now = make_aware(datetime.now())
     if user.last_login:
         delta = now - user.last_login
