@@ -33,7 +33,7 @@ let playerScore = 0;
 let opponentScore = 0;
 let ballDirection = (Math.random() > 0.5 ? 1 : -1);
 
-const winningScore = 5;
+const winningScore = 1;
 
 var explosion = false;
 const fragmentCount = 50;
@@ -51,9 +51,6 @@ function startGame()
     downPressed = false
     updateScore()
     resetBall()
-
-    document.getElementById("playButton").style.display = "none"; // Réafficher le bouton "JOUER"
-    document.getElementById("gameContainer").style.display = "flex"; // Masquer le canevas du jeu
     
     document.removeEventListener("keydown", keyDownHandler_ranked);
     document.removeEventListener("keyup", keyUpHandler_ranked);
@@ -363,8 +360,8 @@ function resetBall()
 function updateScore() {
     if (document.getElementById('playerScore') && document.getElementById('opponentScore'))
     {
-        document.getElementById('playerScore').innerText = 'Player1: ' + playerScore;
-        document.getElementById('opponentScore').innerText = opponentScore + ': Player2 ';
+        document.getElementById('playerScore').innerText = playerScore;
+        document.getElementById('opponentScore').innerText = opponentScore;
     }
     if (playerScore == winningScore || opponentScore == winningScore)
         stopGame()
@@ -375,11 +372,18 @@ function stopGame()
     upPressed = false
     downPressed = false
     clearInterval(gameInterval); // Arrêter l'intervalle de jeu
-    clearInterval(IAInterval)
-    clearInterval(moveIAInterval)
     gameStarted = false; // Réinitialiser l'état du jeu
-    document.getElementById("playButton").style.display = "block"; // Réafficher le bouton "JOUER"
-    document.getElementById("gameContainer").style.display = "none"; // Masquer le canevas du jeu
+    document.getElementById("winnerScore").innerText = (playerScore == winningScore ? playerScore : opponentScore);
+    document.getElementById("loserScore").innerText = (playerScore == winningScore ? opponentScore : playerScore);
+    if (opponentScore == winningScore)
+    {
+        document.getElementById("winnerName").innerText = "Player 2";
+        document.getElementById("loserName").innerText = "Player 1";
+        // winnerpp
+        document.getElementById("winnerpp").src = "{% static 'srcs/assets/player2.webp' %}";
+        document.getElementById("loserpp").src = "{% static 'srcs/assets/player1.webp' %}";
+    }
+    document.getElementById("endgame").style.display = "block";
 }
 
 function cam1()

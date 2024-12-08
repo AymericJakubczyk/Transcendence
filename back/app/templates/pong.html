@@ -5,32 +5,14 @@
 	<h1 class="header">ULTIMATE EXTRA COOL SUPER PONG TOURNAMENT EXTREME BATTLE</h1>
 	<h5 class="header">Welcome in the history</h5>
 	
-	<!-- Affichage des scores -->
-	<div class="scoreboard">
-		<div id="playerScore" class="score">Player1: 0</div>
-		<div id="opponentScore" class="score">0 :Player2</div>
-	</div>
-	
-	<!-- Bouton pour démarrer le jeu -->
-	<div id="playButton" class="buttongroup text-center mt-4">
-		<button onclick="startGame()" class="playButton">JOUER</button>
-
-		<!-- redirect to pong_ai_game urlpattern name button -->
-		<a href="{% url 'pong_ai_game' %}" class="playButton">VS IA</a>
-
-	</div>
-
-	<!-- Canevas du jeu, masqué par défaut -->
-	<div class="main-box w-100 align-items-center" style="display: none" id="gameContainer">
-		<div style="z-index:1000">
-			<h1 class="key" id="keyw">w</h1>
-			<h1 class="key" id="keys">s</h1>
-		</div>
-		<canvas class="w-100" id="pongCanvas" width="780" height="480"></canvas>
-		<div id="opponentController">
-			<h1 class="key" id="keyup">🠕</h1>
-			<h1 class="key" id="keydown">🠗</h1>
-		</div>
+	 <!-- Groupe de boutons côte à côte -->
+	 <div id="playButtonGroup" class="button-group">
+		<a href="{% url 'pong_local_game' %}" class="play-button btn-left" aria-label="Jouer au Pong">
+			<span>JOUER</span>
+		</a>
+		<a href="{% url 'pong_ai_game' %}" class="play-button btn-right" aria-label="Jouer contre l'IA">
+			<span>VS IA</span>
+		</a>
 	</div>
 
 	<script>
