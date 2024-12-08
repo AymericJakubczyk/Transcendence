@@ -17,5 +17,15 @@
             connectMultiGame({id:{{data.gameID}}, nbPlayers:{{data.nbPlayers}}, ingameID:{{data.ingameID}}}, "{{request.user.username}}")
         </script>
     </div>
-
+{% if request.user in game.playerlist.all %}
+    <script>
+        console.log("[LOG PONG MULTI] You are in the game")
+        url = '/game/pong/multiplayer/' + {{ game.id }} + '/';
+        {% if game.status == 'finish' %}
+            change_game_headbar('Game', "/game/");
+        {% else %}
+            change_game_headbar('👥in game...', url);
+        {% endif %}
+    </script>
+{% endif %}
 </div>

@@ -120,3 +120,10 @@ function addPlayer(data) {
     `;
     setColor();
 }
+
+function cancel_waiting_tournament_game(game_id)
+{
+    pongSocket.close();
+    pongSocket = null;
+    htmx_request("/game/pong/tounament/cancel/"+ game_id + "/", "GET", {})
+}

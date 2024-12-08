@@ -1,7 +1,7 @@
 from django.conf.urls import handler404
 from django.urls import path, include
 from .views import views
-from .views.pong import pong, pongMultiplayer
+from .views.pong import pong, pongMultiplayer, pongAI
 from .views.chess import chess
 from .views.users import users, chat, profils
 from .views.views import custom_404
@@ -17,12 +17,17 @@ urlpatterns = [
 
 	path('game/pong/', pong.pongModeView, name='pong'),
     path('game/pong/tournament/', pong.pongTournament, name='pong_tournament'),
-	path('game/pong/local/', pong.pongView, name='pong_local'),
+    path('game/pong/tounament/cancel/<int:gameID>/', pong.pongCancelWaitingTournament, name='pong_cancel_waiting_tournament'),
+	path('game/pong/local/', pong.pongLocalView, name='pong_local'),
+	path('game/pong/local/vs-player', pong.pongView, name='pong_local_game'),
+	path('game/pong/local/vs-ia/', pongAI.pongAISetup, name='pong_ai_game'),
+	path('game/pong/local/vs-ia/<int:gameID>/', pongAI.pongAIGame, name='pong_ai'),
     path('game/pong/ranked/', pong.pongFoundGameView, name='pong_found_game'),
     path('game/pong/ranked/cancel/', pong.pongCancelQueue, name='pong_cancel_queue'),
     path('game/pong/ranked/<int:gameID>/', pong.pongGameView, name='pong_game'),
 
     path('game/pong/multiplayer/', pongMultiplayer.pongFoundMultiView, name='pong_multi_found'),
+    path('game/pong/multiplayer/cancel/', pongMultiplayer.pongMultiCancelQueue, name='pong_multi_cancel_queue'),
     path('game/pong/multiplayer/<int:gameID>/', pongMultiplayer.pongMultiplayer, name='pong_multiplayer'),
 
 
@@ -37,7 +42,6 @@ urlpatterns = [
 	path('update-profile/', profils.updateProfile, name='update-profile'),
     path('change-password/', profils.password_change, name='password_change'),
 
-    path('register/', users.registrationView, name='register'),
     path('logout/', users.logout_user, name='logout'),
 
     path('chat/', chat.chatView, name='chat'),
@@ -53,6 +57,7 @@ urlpatterns = [
 
     path('invite/', chat.invite, name='invite'),
     path('invite/cancel/', chat.inviteCancel, name='invite_cancel'),
+    
     
     # WEB3 URLS
     path('test/', sepoliaTournament.test, name='test'),

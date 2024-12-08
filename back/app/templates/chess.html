@@ -34,9 +34,6 @@
 						cell_div.className = 'cell';
 						cell_div.id = 'cell' + x + y;
 						cell_div.style.backgroundColor = (x + y) % 2 == 0 ? "antiquewhite" : "burlywood";
-						cell_div.style.width = 'calc(min(8vh, 10vw))';
-						cell_div.style.height = 'calc(min(8vh, 10vw))';
-						cell_div.style.position = 'relative';
 						cell_div.onclick = function() {cell_click(x, y, 0, 0)};
 						{% if game and game.white_player.username == request.user.username %}
 						cell_div.onclick = function() {cell_click(x, y, 1, "white")};

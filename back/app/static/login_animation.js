@@ -18,7 +18,7 @@ function calculBall_animation() {
             nbrHit++
             // set random between -4 and 4 for tap the ball on the border of the paddle
             random = Math.floor(Math.random() * 8) - 4
-            dx = -baseSpeed - (0.02 * nbrHit)
+            dx = -baseSpeed - (0.04 * nbrHit)
             let hitPos = y - paddle_2.position.y;
             dy = hitPos * 0.15;
         } else {
@@ -36,7 +36,7 @@ function calculBall_animation() {
             nbrHit++
             // set random between -4 and 4 for tap the ball on the border of the paddle
             random = Math.floor(Math.random() * 8) - 4
-            dx = baseSpeed + (0.02 * nbrHit)
+            dx = baseSpeed + (0.04 * nbrHit)
             let hitPos = y - paddle_1.position.y;
             dy = hitPos * 0.15;
         } else {

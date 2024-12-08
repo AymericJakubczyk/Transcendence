@@ -5,3 +5,7 @@ __pycache__
 /back/media/imgs/profils/*
 !creepy-cat.webp
 jsconfig.json
+
+back/app/static/ai_models/new_model.pth
+back/ai_utils/*.npy
+back/ai_utils/*.pth

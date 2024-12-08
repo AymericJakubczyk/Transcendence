@@ -2,24 +2,14 @@
 
 <div class="d-flex align-items-center justify-content-center" style="background-color:red; height:100%">
     <canvas class="w-100 h-100 m-0" id="pongCanvas" height="100" style="position:absolute; top:0; background-color:rgba(50, 50, 50)"></canvas>
-    <div id="test" style="position:absolute; background:rgba(50, 50, 50, 0.9); display:flex; height:40%" class="px-5 z-3 chess_endgame flex-column border border-secondary rounded">
-        <h1>LOGIN</h1>
-        <form id="myForm" hx-post="{{request.path}}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML">
-            {% for field in form %}
-            {{ field.label_tag }} {{ field }}
-            {% endfor %}
-        </form>
-        <div class="login_buttons">
-            <input type="submit" value="LOG IN" form="myForm">
-            or 
-            <a href="{% url 'register' %}">Register here</a>
-        </div>
+    <div id="viewForm" style="position:absolute; background:rgba(50, 50, 50, 0.9); display:flex; height:fit-content; max-width: 500px; width: 30%;" class="px-5 py-4 z-3 chess_endgame flex-column border border-secondary rounded">
+        {% include viewForm %}
     </div>
 </div>
 
 
-{% if error %}
 <script>
+{% if error %}
     error = "{{ error }}"
     console.log(error)
     if (error == "password") {
@@ -29,7 +19,7 @@
             document.getElementById("id_password").classList.remove("error")
         });
     }
-    if (error == "username") {
+    else if (error == "username") {
         error_message("Nom d'utilisateur inconnu", 5000)
         document.getElementById("id_username").classList.add("error")
         document.getElementById("id_username").addEventListener('input', function() {
@@ -37,11 +27,16 @@
         });
         document.getElementById("id_username").focus()
     }
-</script>
 {% endif %}
+{% if messages %}
+    {% for message in messages %}
+        error_message("{{ message }}", 4000)
+    {% endfor %}
+{% endif %}
+</script>
 
 <script>
-    display3D()
+    display3D(false)
 
     pivotPoint = new THREE.Object3D();
     pivotPoint.position.set(arenaLength/2, arenaWidth/2, 0);

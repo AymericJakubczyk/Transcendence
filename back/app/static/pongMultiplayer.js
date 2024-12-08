@@ -99,6 +99,7 @@ function receive_multi_ws(data)
 			htmx.process(redirect);
 			parent = document.getElementById("rematch-button");
 			parent.appendChild(redirect);
+            change_game_headbar("Game", "/game/");
 		}
 		return;
 	}

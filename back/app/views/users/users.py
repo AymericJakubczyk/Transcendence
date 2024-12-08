@@ -22,29 +22,7 @@ logger = logging.getLogger(__name__)
 def logout_user(request):
     print("LOGOUT", request.user, file=sys.stderr)
     logout(request)
-    return (redirect('myprofile'))
-
-def registrationView(request):
-    if request.method == 'POST':
-        form = SignupForm(request.POST, request.FILES)
-        if form.is_valid():
-            user = form.save(commit=False)
-            if request.FILES:
-                logger.info(f"Files received: {request.FILES}")
-            else:
-                logger.warning("No files received")
-            user.save()
-            # auto-login user
-            login(request, user)
-            return redirect('myprofile')
-        else:
-            logger.warning(f"Form errors: {form.errors}")
-    else:
-        form = SignupForm()
-    if request.META.get("HTTP_HX_REQUEST") != 'true':
-        return render(request, 'page_full.html', {'page':'registration.html', 'form':form})
-    return render(request, 'registration.html', {'form': form})
-
+    return (redirect('home'))
 
 @login_required
 def send_friend_request(request, username):

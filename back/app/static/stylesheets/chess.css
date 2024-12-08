@@ -31,3 +31,14 @@
 .PlayerName {
     font-size: 30px;
 }
+
+.cell {
+    width: min(8vh, 10vw);
+    height: min(8vh, 10vw);
+    position: relative;
+}
+
+.promotion_cell:hover {
+    background-color: #f0f0f0;
+    cursor: pointer;
+}

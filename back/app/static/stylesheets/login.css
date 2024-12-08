@@ -5,12 +5,7 @@
     padding: 10px;
 }
 
-#myForm label {
-    text-align: end;
-    align-content: center;
-}
-
-#myForm input {
+#myForm input:not([type=file]) {
     border: 1px solid white;
     color: white;
     border-radius: 5px;
@@ -18,41 +13,64 @@
     padding:5px;
 }
 
-#myForm input:focus {
+#myForm input:not([type=file]):focus {
     background-color: rgb(100, 100, 100);
     box-shadow: 0 0 .2rem white,
     0 0 1.5rem white,
     0 0 0.8rem white;
 }
 
-#myForm label:has(+input:focus) {
+#myForm label:has(+input:not([type=file]):focus) {
     text-shadow: 0 0 .2rem white,
     0 0 1.5rem white,
     0 0 0.8rem white;
 }
 
-input.error {
+input:not([type=file]).error {
     box-shadow: 0 0 .2rem red,
     0 0 1.5rem red,
     0 0 0.8rem red;
 }
 
-#myForm input.error:focus {
+#myForm input:not([type=file]).error:focus {
     background-color: rgb(100, 100, 100);
     box-shadow: 0 0 .2rem red,
     0 0 1.5rem red,
     0 0 0.8rem red;
 }
 
-#myForm label:has(+input.error) {
+#myForm label:has(+input:not([type=file]).error) {
     text-shadow: 0 0 .2rem red,
     0 0 1.5rem red,
     0 0 0.8rem red;
 }
 
-#myForm label:has(+input.error:focus) {
+#myForm label:has(+input:not([type=file]).error:focus) {
     text-shadow: 0 0 .2rem red,
     0 0 1.5rem red,
     0 0 0.8rem red;
 }
 
+#choose_file {
+    color: white;
+    text-decoration: none;
+    background-color: rgb(50, 50, 50);
+    padding: 0.5rem 1.5rem;
+    border: solid 3px;
+    border-radius: 15px;
+    border-color: white;
+    text-decoration: none;
+}
+
+#choose_file:hover{
+    background-color: #fc952e;
+    color: white;
+    transition: 0.4s;
+    cursor: pointer;
+    box-shadow: 0 0 .2rem #fc952e,
+    0 0 .2rem #fc952e,
+    0 0 2rem #fc952e,
+    0 0 0.8rem #fc952e,
+    0 0 2.8rem #fc952e,
+    inset 0 0 1.3rem #fc952e;
+}

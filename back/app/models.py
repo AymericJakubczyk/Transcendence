@@ -4,6 +4,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.fields import HStoreField
 from django.db.models import Q
 from django.db.models import JSONField
+from django.core.exceptions import ValidationError
 
 # ---- HERITED FROM USER ----
 # id
@@ -21,7 +22,13 @@ from django.db.models import JSONField
 # user_permissions
 
 class User(AbstractUser):
-	profile_picture = models.ImageField(default='imgs/profils/creepy-cat.webp', blank=True, upload_to = 'imgs/profils/')
+	def validate_image(fieldfile_obj):
+		filesize = fieldfile_obj.file.size
+		megabyte_limit = 5.0
+		if filesize > megabyte_limit*1024*1024:
+			raise ValidationError("Max file size is %sMB" % str(megabyte_limit))
+	
+	profile_picture = models.ImageField(default='imgs/profils/creepy-cat.webp', blank=True, upload_to = 'imgs/profils/', validators=[validate_image])
 	friends = models.ManyToManyField('self', blank=True)
 	blocked_users = models.ManyToManyField('self', symmetrical=False, blank=True)
 	tournament_id = models.IntegerField(default=-1)
@@ -168,7 +175,7 @@ class Game_Pong(models.Model):
 	created_at = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
 
-	opponent_ready = models.BooleanField(default=False)
+	opponent_ready = models.ForeignKey(User, related_name='opponent_ready', on_delete=models.CASCADE, null=True, blank=True)
 
 	tournament_pos = models.IntegerField(default=-1)
 	tournament_round = models.IntegerField(default=1)

@@ -75,10 +75,20 @@ async def calcul_ball(id):
 
     while True:
         await asyncio.sleep(0.01)  # Wait for 0.01 second
+        # asyncio.create_task(send_ai_updates(id))
 
         all_data[id].ball_x += all_data[id].ball_dx
         all_data[id].ball_y += all_data[id].ball_dy
 
+        # Gestion des mouvements des paddles
+        if (all_data[id].player1_up  and all_data[id].paddle1_y + 0.8 < arenaWidth - thickness / 2 - paddleHeight / 2):
+            all_data[id].paddle1_y += 0.8
+        if (all_data[id].player1_down and all_data[id].paddle1_y - 0.8 > thickness / 2 + paddleHeight / 2):
+            all_data[id].paddle1_y -= 0.8
+        if (all_data[id].player2_up and all_data[id].paddle2_y - 0.8 > thickness / 2 + paddleHeight / 2):
+            all_data[id].paddle2_y -= 0.8
+        if (all_data[id].player2_down and all_data[id].paddle2_y + 0.8 < arenaWidth - thickness / 2 - paddleHeight / 2):
+            all_data[id].paddle2_y += 0.8
         # moving paddles
         if (all_data[id].player1_up  and all_data[id].paddle1_y + 0.6 < arenaWidth - thickness / 2 - paddleHeight / 2):
             all_data[id].paddle1_y += 0.6
@@ -102,7 +112,7 @@ async def calcul_ball(id):
             if (all_data[id].ball_y > all_data[id].paddle2_y - paddleHeight / 2 and all_data[id].ball_y < all_data[id].paddle2_y + paddleHeight / 2):
                 nbrHit += 1
                 await send_bump('paddle', 2, id)
-                all_data[id].ball_dx = -baseSpeed - (0.02 * nbrHit)
+                all_data[id].ball_dx = -baseSpeed - (0.04 * nbrHit)
                 hitPos = all_data[id].ball_y - all_data[id].paddle2_y
                 all_data[id].ball_dy = hitPos * 0.15
             else:
@@ -115,7 +125,7 @@ async def calcul_ball(id):
             if (all_data[id].ball_y > all_data[id].paddle1_y - paddleHeight / 2 and all_data[id].ball_y < all_data[id].paddle1_y + paddleHeight / 2):
                 nbrHit += 1
                 await send_bump('paddle', 1, id)
-                all_data[id].ball_dx = baseSpeed + (0.02 * nbrHit)
+                all_data[id].ball_dx = baseSpeed + (0.04 * nbrHit)
                 hitPos = all_data[id].ball_y - all_data[id].paddle1_y
                 all_data[id].ball_dy = hitPos * 0.15
             else:
@@ -210,6 +220,7 @@ def get_game(id):
     from app.models import Game_Pong
 
     return get_object_or_404(Game_Pong, id=id)
+
 
 @database_sync_to_async
 def get_username_of_game(game_id):

@@ -110,11 +110,14 @@ function detect_scroll(id)
         if (div_msg.scrollTop == 0)
         {
             console.log("TOP")
+            if (document.getElementById("loader")) // if already loading
+                return;
             nbr_message = div_all_msg.children.length
             if (div_all_msg.children[0].id == "no_more_message")
                 return
             //do little animation of loading
             let loader = document.createElement('div');
+            loader.id = "loader";
             loader.className = "loader align-self-center";
             div_all_msg.prepend(loader);
             await new Promise(r => setTimeout(r, 500)); // wait 0.5s for loader to be displayed same if request is fast

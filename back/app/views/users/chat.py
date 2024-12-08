@@ -20,9 +20,9 @@ logger = logging.getLogger(__name__)
 def chatView(request):
         
     print("[CHAT]", request.POST, request.body, request.user, file=sys.stderr)
-    if request.user.is_authenticated == False:
+    if not request.user.is_authenticated:
         messages.error(request, 'Log-in to chat with friends !')
-        return redirect('myprofile')
+        return redirect('home')
 
     interlocutor = None
     msg = None

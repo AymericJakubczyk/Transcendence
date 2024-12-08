@@ -5,11 +5,20 @@ from django.contrib.auth.forms import UserCreationForm
 
 
 class SignupForm(UserCreationForm):  
-    profile_picture = forms.ImageField(required=False)
+    # first_name =  forms.CharField(max_length=150, label='first name')
+    # last_name =  forms.CharField(max_length=150, label='last name')
+    # email = forms.EmailField(max_length=254, label='email address')
 
     class Meta(UserCreationForm.Meta):
         model = get_user_model()
-        fields = ('username', 'email', 'first_name', 'last_name', 'profile_picture')
+        fields = ('first_name', 'last_name', 'email')
+
+class SignupFormBis(forms.ModelForm):
+    profile_picture = forms.ImageField(required=False)
+
+    class Meta():
+        model = get_user_model()
+        fields = ('profile_picture', 'username')
 
 class LoginForm(forms.Form):
     username = forms.CharField(max_length=63, label='Nom d’utilisateur')

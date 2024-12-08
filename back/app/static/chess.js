@@ -17,8 +17,8 @@ function init_game()
 
     for (let x = 0; x < 8; x++)
     {
-        board[1][x].piece = new Pawn("black");
-        board[6][x].piece = new Pawn("white");
+        board[5][x].piece = new Pawn("black");
+        board[2][x].piece = new Pawn("white");
     }
 
     board[0][0].piece = board[0][7].piece = new Rook("black");
@@ -121,6 +121,13 @@ function cell_click(x, y, isRanked, userColor)
         return;
     if (board[y][x].possibleMove && piecePos)
     {
+        // if it is pawn and reach last line display promotion
+        if (board[piecePos.y][piecePos.x].piece.constructor.name == "Pawn" && (y == 0 || y == 7))
+        {
+            console.log("[CHESS] promotion");
+            display_promotion(x, y, isRanked, userColor);
+            return;
+        }
         console.log("move", piecePos.x, piecePos.y, x, y);
         document.getElementById("cell"+piecePos.x+piecePos.y).style.backgroundColor = (piecePos.x+piecePos.y) % 2 == 0 ? "antiquewhite" : "burlywood";
         reset_possible_moves(board);
@@ -248,4 +255,82 @@ function update_last_move(from, to)
     document.getElementById("cell"+to.x+to.y).style.backgroundColor = (to.x+to.y) % 2 == 0 ? "#ffff33" : "#eeee33";
 
     last_move = {'from': from, 'to': to};
+}
+
+function display_promotion(x, y, isRanked, userColor)
+{
+    reset_possible_moves(board);
+    let promotion = document.createElement("div");
+    let color = "white";
+    promotion.setAttribute("id", "promotion");
+    promotion.style = "display:flex; flex-direction: column; position: absolute;background-color: rgba(225, 225, 225, 0.9); border-radius: 10px;";
+    promotion.style.left = x * 12.5 + "%";
+
+    if (isRanked) 
+    {
+        color = userColor
+        promotion.style.top = "0"
+        if (userColor == "black")
+            promotion.style.left = (7 - x) * 12.5 + "%"
+    }
+    else if (player == "black")
+    {
+        color = "black";
+        promotion.style.bottom = "0"
+        promotion.style.flexDirection = "column-reverse";
+    }
+    else
+        promotion.style.top = "0"
+    promotion.innerHTML = `
+        <div class="cell" onclick="do_promotion('Queen', ${x}, ${y}, ${isRanked})" style="padding:2px">
+            <img class="promotion_cell" src="/static/srcs/chess/${color}queen.svg" style="width: 100%; height: 100%; border-radius: 8px">
+        </div>
+        <div class="cell" onclick="do_promotion('Rook', ${x}, ${y}, ${isRanked})" style="padding:2px">
+            <img class="promotion_cell" src="/static/srcs/chess/${color}rook.svg" style="width: 100%; height: 100%; border-radius: 8px">
+        </div>
+        <div class="cell" onclick="do_promotion('Bishop', ${x}, ${y}, ${isRanked})" style="padding:2px">
+            <img class="promotion_cell" src="/static/srcs/chess/${color}bishop.svg" style="width: 100%; height: 100%; border-radius: 8px">
+        </div>
+        <div class="cell" onclick="do_promotion('Knight', ${x}, ${y}, ${isRanked})" style="padding:2px">
+            <img class="promotion_cell" src="/static/srcs/chess/${color}knight.svg" style="width: 100%; height: 100%; border-radius: 8px">
+        </div>
+    `
+
+    document.getElementById("board").appendChild(promotion);
+}
+
+function do_promotion(piece, x, y, isRanked)
+{
+    console.log("promotion", piece);
+    if (isRanked)
+    {
+        chessSocket.send(JSON.stringify({
+            'type': 'move',
+            'from': {'x': piecePos.x, 'y': piecePos.y},
+            'to': {'x': x, 'y': y},
+            'promotion': piece
+        }));
+    }
+    else
+    {
+        move_piece(piecePos, x, y);
+        do_promotion_move(piece, x, y);
+        piecePos = null;
+        player = player == "white" ? "black" : "white";
+        whosPlaying(player);
+        verif_end_game(board, player);
+    }
+}
+
+function do_promotion_move(piece, x, y)
+{
+    if (piece == "Queen")
+        board[y][x].piece = new Queen(board[y][x].piece.color);
+    else if (piece == "Rook")
+        board[y][x].piece = new Rook(board[y][x].piece.color);
+    else if (piece == "Bishop")
+        board[y][x].piece = new Bishop(board[y][x].piece.color);
+    else if (piece == "Knight")
+        board[y][x].piece = new Knight(board[y][x].piece.color);
+    document.getElementById("cell"+x+y).children[0].src = board[y][x].piece.src;
 }

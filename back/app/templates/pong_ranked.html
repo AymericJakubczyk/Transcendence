@@ -121,7 +121,12 @@
 					</div>
 				</div>
 				{% if not game.winner %}
-					<h1 id="countdown" style="position:absolute">{% if game.status == 'waiting' %}waiting...{% endif %}</h1>
+				<div class="d-flex flex-column justify-content-center" style="position:absolute;">
+					<h1 id="countdown">{% if game.status == 'waiting' %}waiting...{% endif %}</h1>
+					{% if game.tournament_id != -1 and game.status == 'waiting' %}
+						<button id="cancel_tounament_game" onclick="cancel_waiting_tournament_game({{game.id}})">Cancel</button>
+					{% endif %}
+				</div>
 				{% endif %}
 			</div>
 		</div>

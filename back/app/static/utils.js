@@ -2,36 +2,31 @@ window.addEventListener('htmx:beforeSwap', function(evt) {
     const old_path = window.location.pathname;
     const new_path = evt.detail.pathInfo.path
     // console.log('old location!', old_path);
-    // console.log('new location!', new_path);    
-    if (old_path == "/game/chess/ranked/" && chessSocket)
-    {
-        console.log("[WS] chess socket closed")
-        chessSocket.close()
-        chessSocket = null
-    }
+    // console.log('new location!', new_path);
     if (old_path == "/game/pong/local/")
     {
         console.log("[LOG] Stop local game")
         clearInterval(gameInterval)
-        clearInterval(moveIAInterval)
-        clearInterval(IAInterval)
     }
-    if (old_path.startsWith("/game/pong/ranked/") && (new_path == "/game/pong/ranked/" || !new_path.startsWith("/game/pong/ranked/"))  && pongSocket)
+
+    if (pongSocket && old_path.startsWith("/game/pong/ranked/") && old_path != new_path)
     {
         console.log("[WS PONG] socket closed")
         pongSocket.close()
         pongSocket = null
     }
+    if (chessSocket && old_path.startsWith("/game/chess/ranked/") && old_path != new_path)
+    {
+        console.log("[WS CHESS] socket closed")
+        chessSocket.close()
+        chessSocket = null
+    }
+    
     if (old_path.startsWith("/game/pong/multiplayer/") && !new_path.startsWith("/game/pong/multiplayer/"))
     {
         console.log("[WS PONG MULTI] socket closed")
         pongMultiSocket.close()
         pongMultiSocket = null
-    }
-    if (old_path == "/invite/" && pongSocket)
-    {
-        pongSocket.close()
-        pongSocket = null
     }
     if (old_path == "/game/pong/tournament/" && pongTournamentSocket)
     {
@@ -92,6 +87,8 @@ function cancel_game(game) {
         htmx_request("/game/chess/ranked/cancel/", "GET", {})
     else if (game == 'pong')
         htmx_request("/game/pong/ranked/cancel/", "GET", {})
+    else if(game == 'pong_multi')
+        htmx_request("/game/pong/multiplayer/cancel/", "GET", {})
     else if (game == 'invite')
         htmx_request("/invite/cancel/", "GET", {})
     else

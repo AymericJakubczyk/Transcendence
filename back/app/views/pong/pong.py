@@ -25,10 +25,6 @@ logger = logging.getLogger(__name__)
 
 list_waiter = []
 
-def pongView(request):
-    if request.META.get("HTTP_HX_REQUEST") != 'true':
-        return render(request, 'page_full.html', {'page':'pong.html', 'user':request.user})
-    return render(request, 'pong.html', {'user':request.user})
 
 def pongModeView(request):
     if request.META.get("HTTP_HX_REQUEST") != 'true':
@@ -291,6 +287,17 @@ def pongTournament(request):
         return render(request, 'page_full.html', {'page':'pongTournament.html', 'user':request.user, 'all_tournaments': all_tournaments, 'mytournament': mytournament})
     return render(request, 'pongTournament.html', {'user':request.user, 'all_tournaments': all_tournaments, 'mytournament': mytournament})
 
+def pongLocalView(request):
+    if request.META.get("HTTP_HX_REQUEST") != 'true':
+        return render(request, 'page_full.html', {'page':'pong.html', 'user':request.user})
+    return render(request, 'pong.html', {'user':request.user})
+
+
+def pongView(request):
+    if request.META.get("HTTP_HX_REQUEST") != 'true':
+        return render(request, 'page_full.html', {'page':'pong_local.html', 'user':request.user})
+    return render(request, 'pong_local.html', {'user':request.user})
+
 
 def pongFoundGameView(request):
     import app.consumers.utils.pong_utils as pong_utils
@@ -346,6 +353,7 @@ def pongFoundGameView(request):
         return render(request, 'page_full.html', {'page':'waiting_game.html', 'user':request.user, 'game':'pong'})
     return render(request, 'waiting_game.html', {'user':request.user, 'game':'pong'})
 
+
 def pongGameView(request, gameID):
     import app.consumers.utils.pong_utils as pong_utils
 
@@ -373,7 +381,7 @@ def pongGameView(request, gameID):
             # updateTournamentRoom(game.tournament_id)
             print("Game launched:", game.id, file=sys.stderr)
         else :
-            game.opponent_ready = True
+            game.opponent_ready = request.user
             game.save()
 
     if request.META.get("HTTP_HX_REQUEST") != 'true':
@@ -384,7 +392,20 @@ def pongCancelQueue(request):
     print("[LOG] User cancel pong queue", file=sys.stderr)
     if request.user in list_waiter:
         list_waiter.remove(request.user)
-        request.user.game_status_txt = "Game"
-        request.user.game_status_url = "/game/"
+        request.user.game_status_txt = 'none'
+        request.user.game_status_url = 'none'
         request.user.save()
     return redirect('game')
+
+
+def pongCancelWaitingTournament(request, gameID):
+    print("[LOG] User cancel pong waiting", file=sys.stderr)
+
+    game = get_object_or_404(Game_Pong, id=gameID)
+    if game.opponent_ready == request.user:
+        game.opponent_ready = None
+        game.save()
+    request.user.game_status_txt = 'none'
+    request.user.game_status_url = 'none'
+    request.user.save()
+    return redirect('pong_tournament')

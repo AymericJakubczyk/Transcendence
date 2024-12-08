@@ -4,7 +4,7 @@ function join_pong_game(game_data, player)
 {
     console.log("[JOIN PONG GAME]", game_data, player);
     if (pongSocket)
-        pongSocket.close()
+        return;
     if (window.location.protocol == "https:")
         pongSocket = new WebSocket('wss://' + window.location.host + `/ws/pong/${game_data.id}/`);
     else
@@ -79,6 +79,8 @@ function receive_pong_ws(data)
     }
     if (data.type === 'countdown')
     {
+        if (document.getElementById("cancel_tounament_game"))
+            document.getElementById("cancel_tounament_game").remove();
         console.log("[COUNTDOWN]", data);
         countdownElement = document.getElementById("countdown")
         countdownElement.style.opacity = 1;
