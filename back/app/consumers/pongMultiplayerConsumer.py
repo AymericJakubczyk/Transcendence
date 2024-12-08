@@ -9,7 +9,7 @@ import asyncio
 
 from .utils import multi_utils
 
-import sys #for print
+import sys
 
 nbr_waiter = 0
 list_waiter = []
@@ -27,7 +27,6 @@ paddleHeight = 17
 thickness = 1
 baseSpeed = 0.5
 nbrHit = 0
-winningScore = 2
 playerZoneSize = 0
 
 
@@ -64,7 +63,6 @@ class PongMultiplayerConsumer(AsyncWebsocketConsumer):
     
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
-        # print("[RECEIVE WS]", text_data_json, file=sys.stderr)
         if (text_data_json['type'] == 'move_paddle'):
             multi_utils.move_paddle(text_data_json['move'], text_data_json['player'], int(self.id))
             multi_utils.send_updates(int(self.id))

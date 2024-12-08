@@ -1,4 +1,4 @@
-import sys #for print
+import sys
 import random
 import asyncio
 from asgiref.sync import sync_to_async, async_to_sync
@@ -18,7 +18,8 @@ thickness = 1
 baseSpeed = 0.5
 nbrHit = 0
 maxnbHit = 0
-winningScore = 2
+#to change
+winningScore = 5
 
 all_data = {}
 
@@ -78,7 +79,7 @@ async def calcul_ball(id):
         all_data[id].ball_x += all_data[id].ball_dx
         all_data[id].ball_y += all_data[id].ball_dy
 
-        # Gestion des mouvements des paddles
+        # moving paddles
         if (all_data[id].player1_up  and all_data[id].paddle1_y + 0.6 < arenaWidth - thickness / 2 - paddleHeight / 2):
             all_data[id].paddle1_y += 0.6
         if (all_data[id].player1_down and all_data[id].paddle1_y - 0.6 > thickness / 2 + paddleHeight / 2):
@@ -90,13 +91,13 @@ async def calcul_ball(id):
 
         await send_updates(id)
 
-        # Gestion des collisions avec les murs
+        # wall collisions
         if (all_data[id].ball_y + all_data[id].ball_dy > arenaWidth - thickness/2 - ballRadius or all_data[id].ball_y + all_data[id].ball_dy < thickness/2 + ballRadius ):
             print("[PONG WALL]", file=sys.stderr)
             await send_bump('wall', 0, id)
             all_data[id].ball_dy = -all_data[id].ball_dy
 
-        # Gestion des collisions avec les paddles
+        # paddles collisions
         if (all_data[id].ball_x > arenaLength - thickness * 2):
             if (all_data[id].ball_y > all_data[id].paddle2_y - paddleHeight / 2 and all_data[id].ball_y < all_data[id].paddle2_y + paddleHeight / 2):
                 nbrHit += 1
@@ -379,7 +380,7 @@ def update_tournament(id):
         print("UPDATING TOURNAMENT:", game.winner, "will play in game_pos ", new_game_pos, file=sys.stderr)
         next_game.save()
 
-    # UPDATE BARCKET (PAS SUR CA MARCHE LA)
+    # UPDATE BRACKET 
     channel_layer = get_channel_layer()
     async_to_sync(channel_layer.group_send)(
         "pong_tournament_" + str(game.player1.tournament_id),

@@ -1,9 +1,6 @@
 from django.contrib import admin
 from .models import User, Friend_Request, Discussion, Message, Game_Chess, Tournament, Game_Pong, Invite
 
-# Register your models here.
-
-
 class MessageAdmin(admin.ModelAdmin):
 	list_display = ('discussion', 'sender', 'message', 'read')
 class InviteAdmin(admin.ModelAdmin):

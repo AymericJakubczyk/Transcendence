@@ -110,10 +110,6 @@
     font-size: 1.3rem;
 }
 
-.bracket-result-list li::marker{
-    /* ??? */
-}
-
 .bracket-result-list li{
     margin: 1rem 0.5rem;
     font-size: 1.3rem;

@@ -74,7 +74,6 @@ async def verif_end_game(board, id):
             print("Pat", file=sys.stderr)
             await save_result_game(id, 0, 'pat')
 
-    # check repetition
     if check_repetition(id):
         await save_result_game(id, 0, 'repetition')
 

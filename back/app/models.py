@@ -5,7 +5,7 @@ from django.contrib.postgres.fields import HStoreField
 from django.db.models import Q
 from django.db.models import JSONField
 
-# ---- USER HERITE DE TOUT CA ----
+# ---- HERITED FROM USER ----
 # id
 # password
 # last_login

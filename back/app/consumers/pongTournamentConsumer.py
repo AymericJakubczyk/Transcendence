@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404
 from channels.generic.websocket import AsyncWebsocketConsumer, WebsocketConsumer
 from channels.db import database_sync_to_async
 
-import sys #for print
+import sys
 import time
 
 class pongTournamentConsumer(AsyncWebsocketConsumer):

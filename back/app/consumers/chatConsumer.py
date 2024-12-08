@@ -4,7 +4,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from django.db.models import Q
 
-import sys #for print
+import sys
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -116,7 +116,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
         obj.discussion = current_discu
         obj.sender =  get_object_or_404(User, username=sender.username)
         obj.message = message
-        current_discu.save() # update last_activity
+        # update last_activity
+        current_discu.save()
         obj.save()
 
     @database_sync_to_async

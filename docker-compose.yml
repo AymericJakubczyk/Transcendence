@@ -8,9 +8,6 @@ services:
     container_name: postgres
     networks:
       - Transcendence
-    # build:
-    #   context: docker # ou se trouve son Dockerfile
-    #   dockerfile: Dockerfile-postgres # le nom du Dockerfile ?!
     env_file: .env
     volumes:
       - db:/var/lib/postgresql/data
@@ -20,13 +17,12 @@ services:
       - "5432"
 
   nginx:
-    # image: nginx
     container_name: nginx
     networks:
       - Transcendence
     build:
-      context: docker # ou se trouve son Dockerfile
-      dockerfile: Dockerfile-nginx # le nom du Dockerfile ?!
+      context: docker
+      dockerfile: Dockerfile-nginx 
     volumes:
       - nginx:/transcendence/static/
     ports:
@@ -36,14 +32,13 @@ services:
       - django
 
   django:
-    # image: django
     container_name: django
     networks:
       - Transcendence
     env_file: .env
     build:
-      context: docker # ou se trouve son Dockerfile
-      dockerfile: Dockerfile-django # le nom du Dockerfile ?!
+      context: docker
+      dockerfile: Dockerfile-django
     volumes:
       - back:/transcendence
     depends_on:
@@ -56,21 +51,17 @@ services:
 
 volumes:
   nginx:
-    driver: local # ici nous stockons le volume en local
+    driver: local
     driver_opts:
-      type: 'none' # aucun type spécifique
+      type: 'none'
       o: 'bind'
-      device: './back/app/static' #Ou stocker le dossier sur votre ordinateur en local
+      device: './back/app/static'
 
   back:
-    driver: local # ici nous stockons le volume en local
+    driver: local
     driver_opts:
-      type: 'none' # aucun type spécifique
+      type: 'none'
       o: 'bind'
-      device: './back' #Ou stocker le dossier sur votre ordinateur en local
+      device: './back'
   db:
     driver: local
-    # driver_opts:
-    #   type: 'none' 
-    #   o: 'bind' # Les Bind Mounts sont des volumes qui se montent sur un chemin d'accès à l'hôte, et ils peuvent être modifiés par d'autres processus en dehors de docker.
-    #   device: './db' #Ou stocker le dossier sur votre ordinateur en local

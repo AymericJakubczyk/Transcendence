@@ -202,8 +202,7 @@ def pongTournament(request):
         print("ID : ", int(tournament_id), type(int(tournament_id)), file=sys.stderr)
         thread = threading.Thread(target=createTournament, args=(playerlist, int(tournament_id), tournament.name))
         thread.start()
-        # TO CHANGE TO 2
-        if playercount > 1:
+        if playercount > 2:
             playerlist = seedPlayers(tournament.participants.all())
             # create and fill matchs for first round
             tournament_matchs = makematchs(playerlist, playercount, tournament)
@@ -230,15 +229,6 @@ def pongTournament(request):
             tournament.started = True
             tournament.save()
             updateTournamentRoom(tournament.id)
-
-    if 'update_tournament' in request.POST:
-        print("launching tournament", file=sys.stderr)
-        # launch games
-        # wait results
-        # get winners
-        # players = winners.count()
-        # redo games
-
 
     if 'join_tournament' in request.POST:
         print("trying to join", file=sys.stderr)

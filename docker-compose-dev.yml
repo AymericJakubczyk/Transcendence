@@ -22,7 +22,7 @@ services:
       - Transcendence
     env_file: .env
     build:
-      context: docker # ou se trouve son Dockerfile
+      context: docker
       dockerfile: Dockerfile-django-dev
     volumes:
       - back:/transcendence
@@ -38,10 +38,10 @@ services:
 
 volumes:
   back:
-    driver: local # ici nous stockons le volume en local
+    driver: local
     driver_opts:
-      type: 'none' # aucun type spécifique
+      type: 'none'
       o: 'bind'
-      device: './back' #Ou stocker le dossier sur votre ordinateur en local
+      device: './back'
   db:
     driver: local
