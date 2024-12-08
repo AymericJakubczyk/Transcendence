@@ -18,7 +18,6 @@ thickness = 1
 baseSpeed = 0.5
 nbrHit = 0
 maxnbHit = 0
-#to change
 winningScore = 5
 
 all_data = {}

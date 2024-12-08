@@ -149,9 +149,7 @@ def makematchs(playerlist, number, tournament):
     return matchs
 
 def pongTournament(request):
-    print("[PONG]", request.POST, file=sys.stderr)
     all_tournaments = Tournament.objects.filter(game_played="PONG")
-    print("HELP", all_tournaments, file=sys.stderr)
 
     if 'create_tournament' in request.POST:
         print("trying to create", file=sys.stderr)
@@ -192,13 +190,15 @@ def pongTournament(request):
         for user in tournament.participants.all():
             tournament.has_participate.add(user)
         playercount = tournament.participants.count()
-        #CREATE TOURNAMENT ON BLOCKCHAIN
-        playerlist = get_participants_arr(tournament)
-        print("ALED", tournament.tournamentId, file=sys.stderr)
-        print("ID : ", int(tournament_id), type(int(tournament_id)), file=sys.stderr)
-        thread = threading.Thread(target=createTournament, args=(playerlist, int(tournament_id), tournament.name))
-        thread.start()
         if playercount > 2:
+            #CREATE TOURNAMENT ON BLOCKCHAIN
+            playerlist = get_participants_arr(tournament)
+            print("ALED", tournament.tournamentId, file=sys.stderr)
+            print("ID : ", int(tournament_id), type(int(tournament_id)), file=sys.stderr)
+            thread = threading.Thread(target=createTournament, args=(playerlist, int(tournament_id), tournament.name))
+            thread.start()
+
+            #seed the players
             playerlist = seedPlayers(tournament.participants.all())
             # create and fill matchs for first round
             tournament_matchs = makematchs(playerlist, playercount, tournament)

@@ -33,7 +33,7 @@ let playerScore = 0;
 let opponentScore = 0;
 let ballDirection = (Math.random() > 0.5 ? 1 : -1);
 
-const winningScore = 1;
+const winningScore = 5;
 
 var explosion = false;
 const fragmentCount = 50;
