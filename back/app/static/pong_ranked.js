@@ -79,6 +79,8 @@ function receive_pong_ws(data)
     }
     if (data.type === 'countdown')
     {
+        if (document.getElementById("cancel_tounament_game"))
+            document.getElementById("cancel_tounament_game").remove();
         console.log("[COUNTDOWN]", data);
         countdownElement = document.getElementById("countdown")
         countdownElement.style.opacity = 1;

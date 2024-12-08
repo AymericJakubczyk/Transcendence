@@ -387,3 +387,16 @@ def pongCancelQueue(request):
         request.user.game_status_url = 'none'
         request.user.save()
     return redirect('game')
+
+
+def pongCancelWaitingTournament(request, gameID):
+    print("[LOG] User cancel pong waiting", file=sys.stderr)
+
+    game = get_object_or_404(Game_Pong, id=gameID)
+    if game.opponent_ready == request.user:
+        game.opponent_ready = None
+        game.save()
+    request.user.game_status_txt = 'none'
+    request.user.game_status_url = 'none'
+    request.user.save()
+    return redirect('pong_tournament')
