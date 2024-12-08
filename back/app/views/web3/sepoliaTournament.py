@@ -244,9 +244,6 @@ abi = [
 	}
 ];
 
-#Logs
-logger = getLogger(__name__)
-
 if (os.getenv('INFURA_SEPOLIA_API_KEY') and os.getenv('PRIVATE_KEY') and os.getenv('CONTRACT_ADDRESS')):
 
 	#Connect to the Ethereum node
@@ -307,7 +304,7 @@ def record_match(player1, score_1, player2, score_2, tournament_id, bracket_id, 
 			print("Error lors de l'enregistrement du match", file=sys.stderr)
 	except Exception as e:
 		error = "Error recording match, type of error :\n" + f"{type(e).__name__}\n" + f"Error message :\n {str(e)}\n" + "\n Traceback : \n" + traceback.format_exc()
-		logger.error(error)
+		print(error, file=sys.stderr)
 	return None
 
 def return_etherscan_link(token_hash):
@@ -320,10 +317,10 @@ def print_etherscan_link(token_hash):
 def get_tournament_id():
 	try:
 		tournament_id = contract.functions.getTournamentId().call()
-		logger.info(f"Tournament id retrieved successfully \nID : {tournament_id}")
+		print(f"Tournament id retrieved successfully \nID : {tournament_id}", file=sys.stderr)
 	except Exception as e:
 		error = "Error getting tournament id, type of error :\n" + f"{type(e).__name__}\n" + f"Error message :\n {str(e)}\n" + "\n Traceback : \n" + traceback.format_exc()
-		logger.error(error)
+		print(error, file=sys.stderr)
 		return None
 
 def get_participants_arr(tournament):
