@@ -93,6 +93,10 @@ class Tournament(models.Model):
 	winner = models.ForeignKey(User, related_name='tournamentwinner', on_delete=models.CASCADE, null=True, blank=True)
 	results = JSONField(default=list)
 
+	created_at = models.DateTimeField(auto_now_add=True)
+	updated_at = models.DateTimeField(auto_now=True)
+	closing_link = models.CharField(max_length=150, default="https://sepolia.etherscan.io/address/0x90d99956a092129708797c2c7a05f705c235928c")
+
 	def display_results(self):
 		players = User.objects.filter(id__in=self.results)
 		ordered = sorted(players, key=lambda player: self.results.index(player.id))

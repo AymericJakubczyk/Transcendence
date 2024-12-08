@@ -59,9 +59,23 @@ def accept_friend_request(request, requestID):
         return redirect('myprofile')
 
 @login_required
+def remove_friend(request, username):
+    to_user = get_object_or_404(User, username=username)
+    request.user.friends.remove(to_user)
+    return redirect('profile', username=to_user.username)
+
+
+@login_required
 def block_user(request, username):
     print("[BLOCK]", request.user, username, file=sys.stderr)
     user = get_object_or_404(User, username=username)
     request.user.blocked_users.add(user)
-    return redirect('myprofile')
+    return redirect('profile', username=user.username)
+
+@login_required
+def unblock_user(request, username):
+    print("[UNBLOCK]", request.user, username, file=sys.stderr)
+    user = get_object_or_404(User, username=username)
+    request.user.blocked_users.remove(user)
+    return redirect('profile', username=user.username)
 

@@ -115,6 +115,7 @@ def makematchs(playerlist, number, tournament):
     y = 101
     while (len(matchs) != nbmatch):
         newGame = Game_Pong()
+        newGame.tournament_id = tournament.id
 
         if (len(first) != 0 and first[0] != None):
             newGame.player1 = first[0]
@@ -150,13 +151,14 @@ def makematchs(playerlist, number, tournament):
 def pongTournament(request):
     print("[PONG]", request.POST, file=sys.stderr)
     all_tournaments = Tournament.objects.filter(game_played="PONG")
+    print("HELP", all_tournaments, file=sys.stderr)
 
     if 'create_tournament' in request.POST:
         print("trying to create", file=sys.stderr)
         game_played = "PONG"
         max_users = request.POST.get('group-size')
         if request.POST.get('tournament_name') == "":
-            name = "Unamed Tournament"
+            name = request.user.username + "'s tournament"
         else :
             name = request.POST.get('tournament_name')
         if game_played and len(request.POST.get('tournament_name')) < 26:
@@ -169,8 +171,6 @@ def pongTournament(request):
             tournament.save()
             request.user.tournament_id = tournament.id
             request.user.save()
-
-
     # TO REMOVE
     if 'win_tournament' in request.POST:
         tournament_id = request.POST.get('win_tournament')
@@ -189,15 +189,12 @@ def pongTournament(request):
         print("making brackets", file=sys.stderr)
         tournament_id = request.POST.get('bracket_tournament')
         tournament = Tournament.objects.get(id=tournament_id)
-
-        print("Tournament Players:", file=sys.stderr)
-        for player in tournament.participants.all():
-            print("\tPlayer:", player.username, file=sys.stderr)
-
         playercount = tournament.participants.count()
         #CREATE TOURNAMENT ON BLOCKCHAIN
         playerlist = get_participants_arr(tournament)
-        thread = threading.Thread(target=createTournament, args=(playerlist,))
+        print("ALED", tournament.tournamentId, file=sys.stderr)
+        print("ID : ", int(tournament_id), type(int(tournament_id)), file=sys.stderr)
+        thread = threading.Thread(target=createTournament, args=(playerlist, int(tournament_id), tournament.name))
         thread.start()
         # TO CHANGE TO 2
         if playercount > 1:
@@ -227,7 +224,6 @@ def pongTournament(request):
             tournament.started = True
             tournament.save()
             updateTournamentRoom(tournament.id)
-            
 
     if 'update_tournament' in request.POST:
         print("launching tournament", file=sys.stderr)
@@ -266,14 +262,15 @@ def pongTournament(request):
         tournament_id = request.POST.get('leave_tournament')
         tournament = Tournament.objects.get(id=tournament_id)
         if request.user in tournament.participants.all():
-            tournament.participants.remove(request.user)
+            if (tournament.started == False):
+                tournament.participants.remove(request.user)
             request.user.tournament_id = -1
             request.user.save()
             if (request.user == tournament.host_user and tournament.participants.count() > 0):
                 tournament.host_user = tournament.participants.all()[0]
                 print("NEW HOST IS :", tournament.host_user, file=sys.stderr)
             tournament.save()
-            if (tournament.participants.count() == 0):
+            if (tournament.participants.count() == 0 and tournament.started == False):
                 tournament.delete()
             else :
                 channel_layer = get_channel_layer()
@@ -288,12 +285,17 @@ def pongTournament(request):
                         'tournamentNB': tournament.participants.count()
                     }
                 )
+    
+    for tournament in all_tournaments:
+        print("Tournament :", tournament.name, file=sys.stderr)
+        for player in tournament.participants.all():
+            print("participants", player, file=sys.stderr)
+        print(tournament.closing_link, file=sys.stderr)
 
     if request.user.tournament_id != -1:
         mytournament = Tournament.objects.get(id=request.user.tournament_id)
     else:
         mytournament = None
-
 
     if request.META.get("HTTP_HX_REQUEST") != 'true':
         return render(request, 'page_full.html', {'page':'pongTournament.html', 'user':request.user, 'all_tournaments': all_tournaments, 'mytournament': mytournament})

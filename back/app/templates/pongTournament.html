@@ -4,19 +4,23 @@
 {% if user.tournament_id != -1 and not mytournament.winner %}
 <script> create_pong_tournament_ws() </script>
 <div>
-    <h4>TOURNAMENT :</h4>
-    <h5>{{ mytournament.name }}</h5>
-    <h6>TOURNAMENT ID : {{ mytournament.id }}</h6>
     <div id="TournamentBox" >
         <div class="d-flex">
             <div class="previewTournament">
-                <h4>Bienvenue dans le tournoi n°: {{ mytournament.id }}</h4>
-                <h5>PARTICIPANTS: <span id="tournament_count" class="text-white">{{mytournament.participants.count}}</span> / {{mytournament.max_users}}</h6>
+                <h4>Tournament ID : {{ mytournament.id }}</h4>
+                <h5>Players: <span id="tournament_count" class="text-white">{{mytournament.participants.count}}</span> / {{mytournament.max_users}}</h6>
             </div>
             <div class="tournamentName">
-                <h3>{{ mytournament.name }} created by {{ mytournament.host_user }}</h3>
+                <h3>{{ mytournament.name }}</h3>
             </div>
         </div>
+        {% if mytournament.host_user == user and mytournament.started == False %}
+        <form class="launch_bracket" method="POST" hx-post="{{ request.path }}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
+            {% csrf_token %}
+            <input type="hidden" name="bracket_tournament" value="{{ mytournament.id }}"/>
+            <button class="tournament-list-refresh" type="submit" onclick="launch_tournament_error({{ mytournament.participants.count }})">LAUNCH TOURNAMENT</button>
+        </form>
+        {% endif %}
         {% if mytournament.started == False %}
         <div class="playersList" id="playersList">
             {% for user in mytournament.participants.all %}
@@ -41,18 +45,11 @@
     </div>
     <br>
     <br>
-    {% if mytournament.host_user == user and mytournament.started == False %}
-    <form method="POST" hx-post="{{ request.path }}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
-        {% csrf_token %}
-        <input type="hidden" name="bracket_tournament" value="{{ mytournament.id }}"/>
-        <button type="submit" onclick="launch_tournament_error({{ mytournament.participants.count }})">LAUNCH TOURNAMENT</button>
-    </form>
-    {% endif %}
     <h6>finish this tournament before join or create others</h6>
     <form method="POST" hx-post="{{ request.path }}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
         {% csrf_token %}
         <input type="hidden" name="leave_tournament" value="{{ mytournament.id }}"/>
-        <button type="submit" onclick="leave_pong_tournament({{ mytournament.id }})">LEAVE</button>
+        <button class="text-danger tournament-list-refresh" type="submit" onclick="leave_pong_tournament({{ mytournament.id }})">LEAVE</button>
     </form>
 </div>
 <script> setColor() </script>

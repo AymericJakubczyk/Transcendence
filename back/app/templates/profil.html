@@ -18,10 +18,19 @@
 		<div class="text-center">
 			<a class="tournament-list-refresh" hx-get="{% url 'send_friend_request' user.username %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route">SEND FRIEND REQUEST</a>
 		</div>
+		{% elif user in request.user.friends.all and user != request.user %}
+		<div class="text-center">
+			<a class="tournament-list-refresh" hx-get="{% url 'remove_friend' user.username %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route">REMOVE FROM FRIENDS</a>
+		</div>
 		{% endif %}
+
 		{% if user not in request.user.blocked_users.all and user != request.user %}
 		<div class="text-center">
 			<a class="tournament-list-refresh" hx-get="{% url 'block_user' user.username  %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route">BLOCK</a>
+		</div>
+		{% elif user in request.user.blocked_users.all and user != request.user %}
+		<div class="text-center">
+			<a class="tournament-list-refresh" hx-get="{% url 'unblock_user' user.username  %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader" class="route">UNBLOCK</a>
 		</div>
 		{% endif %}
 	</div>
@@ -56,6 +65,7 @@
 	</div>
 	<div class="stat-selector">
 		<a class="profil-cat-button pong-selector" onclick="switch_profile_stats('PONG')">PONG</a>
+		<a class="profil-cat-button tournament-selector" onclick="switch_profile_stats('TOURNAMENT')" >TOURNAMENT</a>
 		<a class="profil-cat-button chess-selector" onclick="switch_profile_stats('CHESS')" >CHESS</a>
 	</div>
 	<div class="profile_statistics">
@@ -93,21 +103,80 @@
 				</div>
 				{% if all_pong_games %}
 					{% for pong_game in all_pong_games %}
-						<div class="row ml-3 mr-3 div_game_history_pong">
-							{% if pong_game.winner == user %}
-							<span class="col-3 text-success">WIN</span>
-							{% else %}
-							<span class="col-3 text-danger">LOSS</span>
-							{% endif %}
-							{% if pong_game.player1 == user %}
-							<span class="col-3">{{ pong_game.player2 }}({{ pong_game.player2_rank }})</span>
-							<span class="col-3">{{ pong_game.player1_score }} - {{ pong_game.player2_score }}</span>
-							{% else %}
-							<span class="col-3">{{ pong_game.player1 }}({{ pong_game.player1_rank }})</span>
-							<span class="col-3">{{ pong_game.player2_score }} - {{ pong_game.player1_score }}</span>
-							{% endif %}
-							<span class="col-3">{{ pong_game.updated_at|date:"H:i - d M y" }}</span>
-						</div>
+						{% if pong_game.player1 and pong_game.player2 %}
+							<div class="row ml-3 mr-3 div_game_history_pong">
+								{% if pong_game.winner == user %}
+								<span class="col-3 text-success">WIN</span>
+								{% else %}
+								<span class="col-3 text-danger">LOSS</span>
+								{% endif %}
+								{% if pong_game.player1 == user %}
+								<span class="col-3">{{ pong_game.player2 }}({{ pong_game.player2_rank }})</span>
+								<span class="col-3">{{ pong_game.player1_score }} - {{ pong_game.player2_score }}</span>
+								{% else %}
+								<span class="col-3">{{ pong_game.player1 }}({{ pong_game.player1_rank }})</span>
+								<span class="col-3">{{ pong_game.player2_score }} - {{ pong_game.player1_score }}</span>
+								{% endif %}
+								<span class="col-3">{{ pong_game.updated_at|date:"H:i - d M y" }}</span>
+							</div>
+						{% endif %}
+					{% endfor %}
+				{% else %}
+					<br>
+					<p>No history yet...</p>
+				{% endif %}
+			</div>
+		</div>
+
+		<div id="cat_pongtournament" class="d-none">
+			<h5 class="text-center">PONG STATISTICS</h5>
+			<div class="row">
+				<br>
+				<div class="text-center col-6">
+					<h6>Rank :</h6>
+					<p>{{ user.pong_rank }}</p>
+				</div>
+				<div class="text-center col-6">
+					<h6>Games Played :</h6>
+					<p>{{ user.pong_games_played }}</p>
+				</div>
+				<div class="text-center col-6">
+					<h6>Winrate :</h6>
+					<p>{{ user.pong_winrate }}%</p>
+				</div>
+				<div class="text-center col-6">
+					<h6>Max Exchange :</h6>
+					<p>{{ user.pong_max_exchange }}</p>
+				</div>
+			</div>
+			<div class="text-center">
+				<div class="game_history_header">
+					<h5 class="mb-3 ">TOURNAMENT HISTORY</h5>
+					<div class="row ml-3 mr-3 justify-content-center">
+						<span class="col-2">Name</span>
+						<span class="col-2">Host</span>
+						<span class="col-2">Winner</span>
+						<span class="col-2">Contract</span>
+						<span class="col-2">Date</span>
+					</div>
+				</div>
+				<!-- HERE -->
+				{% if all_tournaments %}
+					{% for tournament in all_tournaments %}
+					<div class="row ml-3 mr-3 div_game_history_tournament">
+						<span class="col-2">{{ tournament.name }}</span>
+						{% if tournament.host_user %}
+						<span class="col-2">{{ tournament.host_user.username }}</span>
+						{% endif %}
+						{% if tournament.winner %}
+							<span class="col-2">{{ tournament.winner.username }}</span>
+						{% endif %}
+						{% if tournament.closing_link %}
+						<!-- <link href="{{ tournament.closing_link }}" rel="stylesheet" /> -->
+						<a class="col-2" href="{{ tournament.closing_link }}">See transaction</a>
+						{% endif %}
+						<span class="col-2">{{ tournament.updated_at|date:"H:i - d M y" }}</span>
+					</div>
 					{% endfor %}
 				{% else %}
 					<br>

@@ -6,6 +6,7 @@ from channels.layers import get_channel_layer
 from django.shortcuts import get_object_or_404
 from channels.db import database_sync_to_async
 from app.views.web3.sepoliaTournament import record_match, closeTournament
+from app.models import Tournament, Game_Pong
 import threading
 
 arenaWidth = 100
@@ -190,15 +191,19 @@ async def stop_game(id):
     )
     if (game.tournament_pos != -1):
         await update_tournament(id)
-        # print("ALL DATA", all_data, file=sys.stderr);
-        # print(all_data[id], file=sys.stderr)
-        # print(game.tournament_round, file=sys.stderr)
-        if (all_data[id].score_player1 > all_data[id].score_player2):
-            thread = threading.Thread(target=record_match, args=(player[0], all_data[id].score_player1, player[1], all_data[id].score_player2, game.tournament_id, game.tournament_round,))
-        elif (all_data[id].score_player1 < all_data[id].score_player2):
-            thread = threading.Thread(target=record_match, args=(player[1], all_data[id].score_player2, player[0], all_data[id].score_player1, game.tournament_id, game.tournament_round,))
-        thread.start()
-
+        await sendMatch(id, player[0], player[1])
+        
+@database_sync_to_async
+def sendMatch(id, player1, player2):
+    global all_data
+    game = get_object_or_404(Game_Pong, id=id)
+    bracket_id = game.player1.tournament_id
+    tournament = get_object_or_404(Tournament, id=bracket_id)
+    if (all_data[id].score_player1 > all_data[id].score_player2):
+        thread = threading.Thread(target=record_match, args=(player1, all_data[id].score_player1, player2, all_data[id].score_player2, game.tournament_id, game.tournament_round, tournament.name,))
+    elif (all_data[id].score_player1 < all_data[id].score_player2):
+        thread = threading.Thread(target=record_match, args=(player2, all_data[id].score_player2, player1, all_data[id].score_player1, game.tournament_id, game.tournament_round, tournament.name,))
+    thread.start()
 
 @database_sync_to_async
 def get_game(id):
@@ -325,7 +330,6 @@ def save_winner(id):
 
 @database_sync_to_async
 def update_tournament(id):
-    from app.models import Tournament, Game_Pong
 
     # GET TOURNAMENT OBJ
     game = get_object_or_404(Game_Pong, id=id)
@@ -359,21 +363,21 @@ def update_tournament(id):
         tournament.winner = game.winner
         tournament.results.append(game.winner.id)
         tournament.save()
-        closeTournament(game.tournament_id, game.winner.username)
-        # thread = threading.Thread(target=closeTournament, args=(game.tournament_id, game.winner.username,))
-        # thread.start()
-        print("UPDATING TOURNAMENT:", game.winner, "WON THE TOURNAMENT", file=sys.stderr)
+        link = closeTournament(game.tournament_id, game.winner.username, tournament.name)
+        tournament.closing_link = link
+        tournament.save()
+        print("UPDATING TOURNAMENT:", tournament.winner, "WON THE TOURNAMENT", tournament, file=sys.stderr)
     else:
         # PUT WINNER IN THE GAME
         if (not next_game.player1):
             next_game.player1 = game.winner
         elif (not next_game.player2):
             next_game.player2 = game.winner
-            # send ws tournament game ready
+        # send ws tournament game ready
             pong_tournament_game_ready(next_game)
         print("UPDATING TOURNAMENT:", game.winner, "will play in game_pos ", new_game_pos, file=sys.stderr)
         next_game.save()
-    
+
     # UPDATE BARCKET (PAS SUR CA MARCHE LA)
     channel_layer = get_channel_layer()
     async_to_sync(channel_layer.group_send)(
