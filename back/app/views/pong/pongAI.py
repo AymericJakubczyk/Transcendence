@@ -1,0 +1,59 @@
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import login, authenticate, logout, update_session_auth_hash
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import PasswordChangeForm
+from app.forms import SignupForm, LoginForm, UpdateForm
+from app.models import User, Tournament, Friend_Request, Discussion, Message, Game_Chess, Game_Pong
+from django.urls import reverse as get_url
+from django.db.models import Q
+import json, math
+from django.http import JsonResponse, HttpResponse
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+
+import app.consumers.utils.pong_ai_utils as pong_ai_utils
+from app.consumers.pongAIConsumer import PongAIConsumer
+
+import sys
+import logging
+from django.contrib import messages
+
+def pongAISetup(request):
+    import app.consumers.utils.pong_ai_utils as pong_ai_utils
+    import app.consumers.utils.user_utils as user_utils
+
+    game = Game_Pong()
+    game.player2 = None
+    # get user root for ia
+    game.player1 = request.user
+    game.save()
+    print("Game created:", game.id, file=sys.stderr)
+    if pong_ai_utils.launch_ai_game(game.id) == False:
+        messages.error(request, 'Error launching AI game (AI model not found)')
+        return redirect('home')
+    game.status = "started"
+    game.save()
+    request.user.state = User.State.INGAME
+    request.user.game_status_txt = "🏓in game..."
+    user_utils.send_change_state(request.user)
+    print("Game launched:", game.id, file=sys.stderr)
+    return redirect('pong_ai', gameID=game.id)
+
+    if request.META.get("HTTP_HX_REQUEST") != 'true':
+        return render(request, 'page_full.html', {'page':'pong_ai.html', 'user':request.user})
+    return render(request, 'pong_ai.html', {'user':request.user})
+
+def pongAIGame(request, gameID):
+    import app.consumers.utils.pong_ai_utils as pong_ai_utils
+    game = get_object_or_404(Game_Pong, id=gameID)
+
+    # pong_ai_utils.launch_ai_game(game.id)
+    # game.status = "started"
+    # game.save()
+    # update for put spectate btn in real time but don't work
+    # updateTournamentRoom(game.tournament_id)
+    # print("Game launched:", game.id, file=sys.stderr)
+
+    if request.META.get("HTTP_HX_REQUEST") != 'true':
+        return render(request, 'page_full.html', {'page':'pong_ai.html', 'user':request.user, 'game':game, 'gameID':gameID})
+    return render(request, 'pong_ai.html', {'user':request.user, 'game':game, 'gameID':gameID})

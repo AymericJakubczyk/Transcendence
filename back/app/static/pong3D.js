@@ -33,7 +33,7 @@ let playerScore = 0;
 let opponentScore = 0;
 let ballDirection = (Math.random() > 0.5 ? 1 : -1);
 
-const winningScore = 5;
+const winningScore = 1;
 
 var explosion = false;
 const fragmentCount = 50;
@@ -52,23 +52,20 @@ function startGame()
     updateScore()
     resetBall()
 
-    document.getElementById("playButton").style.display = "none"; // Réafficher le bouton "JOUER"
-    document.getElementById("gameContainer").style.display = "flex"; // Masquer le canevas du jeu
-    
     document.removeEventListener("keydown", keyDownHandler_ranked);
     document.removeEventListener("keyup", keyUpHandler_ranked);
 
     document.addEventListener("keydown", keyDownHandler);
     document.addEventListener("keyup", keyUpHandler);
 
-    display3D()
+    display3D(false)
     if (gameInterval)
         clearInterval(gameInterval)
     gameInterval = setInterval(calculBall, 10);
 }
 
 
-function display3D()
+function display3D(canChangeCam = true)
 {
     reverse = false
     console.log("TEST3D")
@@ -81,12 +78,15 @@ function display3D()
     renderer.setSize( myCanvas.clientWidth, myCanvas.clientHeight);
     camera = new THREE.PerspectiveCamera( 75, (myCanvas.clientWidth * 10) / (myCanvas.clientHeight * 10), 0.1, 1000 );
 
-    addEventListener("keypress", (event) => {
-        if (event.key == '1')
-            cam1()
-        if (event.key == '2')
-            cam2()  
-    });
+    if (canChangeCam == true)
+    {       
+        addEventListener("keypress", (event) => {
+            if (event.key == '1')
+                cam1()
+            if (event.key == '2')
+                cam2()  
+        });
+    }
     
     scene = new THREE.Scene()
     scene.background = new THREE.Color( 0x323232 );
@@ -257,7 +257,7 @@ function calculBall() {
         if (y > paddle_2.position.y - paddleHeight / 2 && y < paddle_2.position.y + paddleHeight / 2) {
             paddle_2Light.intensity = 50
             nbrHit++
-            dx = -baseSpeed - (0.02 * nbrHit)
+            dx = -baseSpeed - (0.04 * nbrHit)
             let hitPos = y - paddle_2.position.y;
             dy = hitPos * 0.15;
         } else {
@@ -274,7 +274,7 @@ function calculBall() {
         if (y > paddle_1.position.y - paddleHeight / 2 && y < paddle_1.position.y + paddleHeight / 2) {
             paddle_1Light.intensity = 50
             nbrHit++
-            dx = baseSpeed + (0.02 * nbrHit)
+            dx = baseSpeed + (0.04 * nbrHit)
             let hitPos = y - paddle_1.position.y;
             dy = hitPos * 0.15;
         } else {
@@ -296,15 +296,15 @@ function calculBall() {
     }
 
     // Mouvement des paddles
-    if (wPressed && paddle_1.position.y + 0.6 < arenaWidth - thickness / 2 - paddleHeight / 2)
-        paddle_1.position.y += 0.6;
-    if (sPressed && paddle_1.position.y - 0.6 > thickness / 2 + paddleHeight / 2)
-        paddle_1.position.y -= 0.6;
+    if (wPressed && paddle_1.position.y + 0.8 < arenaWidth - thickness / 2 - paddleHeight / 2)
+        paddle_1.position.y += 0.8;
+    if (sPressed && paddle_1.position.y - 0.8 > thickness / 2 + paddleHeight / 2)
+        paddle_1.position.y -= 0.8;
 
-    if (upPressed && paddle_2.position.y + 0.6 < arenaWidth - thickness / 2 - paddleHeight / 2)
-        paddle_2.position.y += 0.6;
-    if (downPressed && paddle_2.position.y - 0.6 > thickness / 2 + paddleHeight / 2)
-        paddle_2.position.y -= 0.6;
+    if (upPressed && paddle_2.position.y + 0.8 < arenaWidth - thickness / 2 - paddleHeight / 2)
+        paddle_2.position.y += 0.8;
+    if (downPressed && paddle_2.position.y - 0.8 > thickness / 2 + paddleHeight / 2)
+        paddle_2.position.y -= 0.8;
 
     if (paddle_1Light.position.y != paddle_1.position.y)
         paddle_1Light.position.y = paddle_1.position.y
@@ -363,8 +363,8 @@ function resetBall()
 function updateScore() {
     if (document.getElementById('playerScore') && document.getElementById('opponentScore'))
     {
-        document.getElementById('playerScore').innerText = 'Player1: ' + playerScore;
-        document.getElementById('opponentScore').innerText = opponentScore + ': Player2 ';
+        document.getElementById('playerScore').innerText = playerScore;
+        document.getElementById('opponentScore').innerText = opponentScore;
     }
     if (playerScore == winningScore || opponentScore == winningScore)
         stopGame()
@@ -375,11 +375,18 @@ function stopGame()
     upPressed = false
     downPressed = false
     clearInterval(gameInterval); // Arrêter l'intervalle de jeu
-    clearInterval(IAInterval)
-    clearInterval(moveIAInterval)
     gameStarted = false; // Réinitialiser l'état du jeu
-    document.getElementById("playButton").style.display = "block"; // Réafficher le bouton "JOUER"
-    document.getElementById("gameContainer").style.display = "none"; // Masquer le canevas du jeu
+    document.getElementById("winnerScore").innerText = (playerScore == winningScore ? playerScore : opponentScore);
+    document.getElementById("loserScore").innerText = (playerScore == winningScore ? opponentScore : playerScore);
+    if (opponentScore == winningScore)
+    {
+        document.getElementById("winnerName").innerText = "Player 2";
+        document.getElementById("loserName").innerText = "Player 1";
+        // winnerpp
+        document.getElementById("winnerpp").src = "/static/srcs/assets/player2.webp";
+        document.getElementById("loserpp").src = "/static/srcs/assets/player1.webp"; 
+    }
+    document.getElementById("endgame").style.display = "block";
 }
 
 function cam1()

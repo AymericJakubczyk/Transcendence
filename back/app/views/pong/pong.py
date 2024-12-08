@@ -25,10 +25,6 @@ logger = logging.getLogger(__name__)
 
 list_waiter = []
 
-def pongView(request):
-    if request.META.get("HTTP_HX_REQUEST") != 'true':
-        return render(request, 'page_full.html', {'page':'pong.html', 'user':request.user})
-    return render(request, 'pong.html', {'user':request.user})
 
 def pongModeView(request):
     if request.META.get("HTTP_HX_REQUEST") != 'true':
@@ -303,6 +299,17 @@ def pongTournament(request):
         return render(request, 'page_full.html', {'page':'pongTournament.html', 'user':request.user, 'all_tournaments': all_tournaments, 'mytournament': mytournament})
     return render(request, 'pongTournament.html', {'user':request.user, 'all_tournaments': all_tournaments, 'mytournament': mytournament})
 
+def pongLocalView(request):
+    if request.META.get("HTTP_HX_REQUEST") != 'true':
+        return render(request, 'page_full.html', {'page':'pong.html', 'user':request.user})
+    return render(request, 'pong.html', {'user':request.user})
+
+
+def pongView(request):
+    if request.META.get("HTTP_HX_REQUEST") != 'true':
+        return render(request, 'page_full.html', {'page':'pong_local.html', 'user':request.user})
+    return render(request, 'pong_local.html', {'user':request.user})
+
 
 def pongFoundGameView(request):
     import app.consumers.utils.pong_utils as pong_utils
@@ -357,6 +364,7 @@ def pongFoundGameView(request):
     if request.META.get("HTTP_HX_REQUEST") != 'true':
         return render(request, 'page_full.html', {'page':'waiting_game.html', 'user':request.user, 'game':'pong'})
     return render(request, 'waiting_game.html', {'user':request.user, 'game':'pong'})
+
 
 def pongGameView(request, gameID):
     import app.consumers.utils.pong_utils as pong_utils

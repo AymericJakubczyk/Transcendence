@@ -1,7 +1,7 @@
 from django.conf.urls import handler404
 from django.urls import path, include
 from .views import views
-from .views.pong import pong, pongMultiplayer
+from .views.pong import pong, pongMultiplayer, pongAI
 from .views.chess import chess
 from .views.users import users, chat, profils
 from .views.views import custom_404
@@ -17,7 +17,10 @@ urlpatterns = [
 	path('game/pong/', pong.pongModeView, name='pong'),
     path('game/pong/tournament/', pong.pongTournament, name='pong_tournament'),
     path('game/pong/tounament/cancel/<int:gameID>/', pong.pongCancelWaitingTournament, name='pong_cancel_waiting_tournament'),
-	path('game/pong/local/', pong.pongView, name='pong_local'),
+	path('game/pong/local/', pong.pongLocalView, name='pong_local'),
+	path('game/pong/local/vs-player', pong.pongView, name='pong_local_game'),
+	path('game/pong/local/vs-ia/', pongAI.pongAISetup, name='pong_ai_game'),
+	path('game/pong/local/vs-ia/<int:gameID>/', pongAI.pongAIGame, name='pong_ai'),
     path('game/pong/ranked/', pong.pongFoundGameView, name='pong_found_game'),
     path('game/pong/ranked/cancel/', pong.pongCancelQueue, name='pong_cancel_queue'),
     path('game/pong/ranked/<int:gameID>/', pong.pongGameView, name='pong_game'),

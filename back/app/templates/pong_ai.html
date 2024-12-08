@@ -1,0 +1,93 @@
+{% load static %}
+<div class="container">
+	<h1 class="header">ULTIMATE EXTRA COOL SUPER PONG TOURNAMENT EXTREME BATTLE</h1>
+	<h5 class="header">Welcome in the history</h5>
+    <div class="d-flex">
+		{% if game.player1 == request.user or game.player2 == request.user %}
+		<div class="align-content-center">
+			<div class="d-flex align-items-center">
+				<h1 class="key m-1" id="cam1">1</h1>
+				<h1 class="key m-1" id="cam2">2</h1> 
+			</div>
+
+			<div id="div-controls" class="d-flex align-items-center" style="height:216px; flex-direction:column">
+				<h1 class="key m-1" id="cmd1">🠕</h1>
+				<h1 class="key m-1" id="cmd2">🠗</h1>
+			</div>
+		</div>
+		{% endif %}
+
+		<div id="game_area" class="w-100">
+			<!-- Affichage des scores -->
+			<div class="d-flex position-relative justify-content-between scoreboard"
+			{% if game.winner %}
+				style="opacity:0"
+			{% endif %}
+			>
+				<div class="d-flex">
+					<img src="{{ game.player1.profile_picture.url }}" class="pp_game">
+					<div>
+						<h2 class="mb-0" id="yourName">{{ game.player1.username }}</h2>
+						<h5>{{ game.player1.pong_rank }}</h5>
+					</div>
+				</div>
+				<div class="d-flex position-absolute start-50 top-50 translate-middle score">
+					<div id="player1Score">0</div>
+					:
+					<div id="player2Score">0</div>
+				</div>
+                <!-- IA à droite -->
+                <div class="d-flex justify-content-end align-items-center">
+                    <div class="text-end me-2">
+                        <h2 class="mb-0" id="opponentName">AI</h2>
+                        <h5>500</h5>
+                    </div>
+                    <img src="{% static 'srcs/assets/ai.webp' %}" class="pp_game">
+                </div>
+        </div>
+        <!-- Canvas du jeu -->
+        <div class="main-box w-100 align-items-center justify-content-center" style="display: flex; position:relative" id="gameContainer">
+            <canvas class="w-100 m-0" id="pongCanvas" width="780" height="480"></canvas>
+            <div id="endgame" style="position:absolute; background:rgba(50, 50, 50, 0.7); display:none" class="endgame flex-column border border-secondary rounded w-25 h-75">
+                <h1 class="text-center" style="padding: 10%;">Game Over</h1>
+                <div>
+                    <div class="d-flex justify-content-center">
+                        <h3 id="winnerScore">{{game.player1_score}}</h3>
+                        <h3>-</h3>
+                        <h3 id="loserScore">{{game.player2_score}}</h3>
+                    </div>
+                    <div class="d-flex justify-content-end">
+                        <div id="winner" class="d-flex flex-column align-items-center justify-content-center w-50">
+                            <img id="winnerpp" src="{{ user.profile_picture.url }}" class="pp_game" style="height:8vw; max-height:100px">
+                            <h2 id="winnerName" class="mb-0">{{ user.username }}</h2>
+                            <h5 id="winnerRank">{{ user.pong_rank }}</h5>
+                        </div>
+                        <div id="loser" class="d-flex flex-column align-items-center justify-content-center w-50" style="opacity:0.5">
+                            <img id="loserpp" src="{% static 'srcs/assets/ai.webp' %}" class="pp_game">
+                            <h3 id="loserName" class="mb-0">AI</h3>
+                            <h5 id="loserRank">700</h5>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-center" style="padding: 10%;">
+                        <a href="{% url 'pong_ai_game' %}" class="rematchButton">Rejouer</a>
+                    </div>
+                </div>
+            </div>
+            {% if not game.winner %}
+					<h1 id="countdown" style="position:absolute">{% if game.status == 'waiting' %}waiting...{% endif %}</h1>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+		{% if game.winner %}
+			display3D()
+			display_endgame_ai("{{game.player1_score}}", "{game.player2_score}}");
+		{% else %}
+			join_ai_pong({id:{{gameID}}, player1:"{{request.user.username}}"});
+		{% endif %}
+</script>
+
+</body>
+</div>

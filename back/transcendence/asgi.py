@@ -16,6 +16,7 @@ import os
 from app.consumers.chatConsumer import ChatConsumer
 from app.consumers.chessConsumer import ChessConsumer
 from app.consumers.pongConsumer import PongConsumer
+from app.consumers.pongAIConsumer import PongAIConsumer
 from app.consumers.pongTournamentConsumer import pongTournamentConsumer
 from app.consumers.pongMultiplayerConsumer import PongMultiplayerConsumer
 
@@ -28,6 +29,8 @@ websocket_urlpatterns = [
 	re_path(r'ws/chess/(?P<id>\d+)/$', ChessConsumer.as_asgi()),
 	re_path(r'ws/pong/$', PongConsumer.as_asgi()),
 	re_path(r'ws/pong/(?P<id>\d+)/$', PongConsumer.as_asgi()),
+	re_path(r'ws/pong/local/vs-ia/$', PongAIConsumer.as_asgi()),
+	re_path(r'ws/pong/local/vs-ia/(?P<id>\d+)/$', PongAIConsumer.as_asgi()),
 	re_path(r'ws/pongTournament/$', pongTournamentConsumer.as_asgi()),
 	re_path(r'ws/pongMultiplayer/(?P<id>\d+)/$', PongMultiplayerConsumer.as_asgi()),
 ]

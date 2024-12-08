@@ -7,8 +7,6 @@ window.addEventListener('htmx:beforeSwap', function(evt) {
     {
         console.log("[LOG] Stop local game")
         clearInterval(gameInterval)
-        clearInterval(moveIAInterval)
-        clearInterval(IAInterval)
     }
 
     if (pongSocket && old_path.startsWith("/game/pong/ranked/") && old_path != new_path)
