@@ -15,6 +15,101 @@ import time
 #ABI
 abi = [
 	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_player1",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_player2",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_tournamentName",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_score1",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_score2",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_tournamentId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_bracketId",
+				"type": "uint256"
+			}
+		],
+		"name": "addMatchToTournaments",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_tournamentId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "_winner",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_tournamentName",
+				"type": "string"
+			}
+		],
+		"name": "closeTournament",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string[]",
+				"name": "_players",
+				"type": "string[]"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_tournamentId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "_tournamentName",
+				"type": "string"
+			}
+		],
+		"name": "createTournament",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
 		"inputs": [],
 		"stateMutability": "nonpayable",
 		"type": "constructor"
@@ -30,11 +125,6 @@ abi = [
 		"type": "error"
 	},
 	{
-		"inputs": [],
-		"name": "TournamentDoesntExist",
-		"type": "error"
-	},
-	{
 		"anonymous": "false",
 		"inputs": [
 			{
@@ -42,6 +132,12 @@ abi = [
 				"internalType": "uint256",
 				"name": "tournamentId",
 				"type": "uint256"
+			},
+			{
+				"indexed": "false",
+				"internalType": "string",
+				"name": "tournamentName",
+				"type": "string"
 			},
 			{
 				"indexed": "false",
@@ -67,6 +163,12 @@ abi = [
 				"internalType": "uint256",
 				"name": "bracketId",
 				"type": "uint256"
+			},
+			{
+				"indexed": "false",
+				"internalType": "string",
+				"name": "tournamentName",
+				"type": "string"
 			},
 			{
 				"indexed": "false",
@@ -107,6 +209,12 @@ abi = [
 			},
 			{
 				"indexed": "false",
+				"internalType": "string",
+				"name": "tournamentName",
+				"type": "string"
+			},
+			{
+				"indexed": "false",
 				"internalType": "string[]",
 				"name": "players",
 				"type": "string[]"
@@ -120,110 +228,6 @@ abi = [
 		],
 		"name": "publishTournament",
 		"type": "event"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "string",
-				"name": "_player1",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_player2",
-				"type": "string"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_score1",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_score2",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_tournamentId",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_bracketId",
-				"type": "uint256"
-			}
-		],
-		"name": "addMatchToTournaments",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "_tournamentId",
-				"type": "uint256"
-			},
-			{
-				"internalType": "string",
-				"name": "_winner",
-				"type": "string"
-			}
-		],
-		"name": "closeTournament",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "string[]",
-				"name": "_players",
-				"type": "string[]"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_tournamentId",
-				"type": "uint256"
-			}
-		],
-		"name": "createTournament",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "_tournamentId",
-				"type": "uint256"
-			},
-			{
-				"internalType": "string",
-				"name": "player",
-				"type": "string"
-			}
-		],
-		"name": "isInTournament",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
 	},
 	{
 		"inputs": [],
@@ -289,12 +293,11 @@ def test(request):
 
 
 
-def record_match(player1, score_1, player2, score_2, tournament_id, bracket_id):
+def record_match(player1, score_1, player2, score_2, tournament_id, bracket_id, tournamentName):
 	print("Recording match", file=sys.stderr)
-
 	try :
 		print(player1, type(player1), score_1, type(score_1), player2, type(player2), score_2, type(score_2), tournament_id, type(tournament_id), bracket_id, type(bracket_id), file=sys.stderr)
-		token_hash = contract.functions.addMatchToTournaments(player1, player2, score_1, score_2, tournament_id, bracket_id).transact({'from' : admin_acc})
+		token_hash = contract.functions.addMatchToTournaments(player1, player2, tournamentName, score_1, score_2, tournament_id, bracket_id).transact({'from' : admin_acc})
 		print("Token hash : ", token_hash, file=sys.stderr)
 		receipt = web3.eth.wait_for_transaction_receipt(token_hash)
 		if (receipt.status == 1):
@@ -332,14 +335,11 @@ def get_participants_arr(tournament):
 	print("!!!!!!!!!!!!!!!!!!!!Players array : ", players_array, file=sys.stderr)
 	return players_array
 
-def createTournament(players_arr, tournament_id):
+def createTournament(players_arr, tournament_id, tournamentName):
 	test(players_arr)
-	print(players_arr, type(players_arr), file=sys.stderr)
-	print(tournament_id, type(tournament_id), file=sys.stderr)
-	for player in players_arr:
-		print("ALED", player, type(player), file=sys.stderr)
+	print("NAME", tournamentName, tournament_id, players_arr, file=sys.stderr)
 	try:
-		token_hash = contract.functions.createTournament(players_arr, tournament_id).transact({'from' : admin_acc})
+		token_hash = contract.functions.createTournament(players_arr, tournament_id, tournamentName).transact({'from' : admin_acc})
 		print(token_hash, file=sys.stderr)
 		receipt = web3.eth.wait_for_transaction_receipt(token_hash)
 		if (receipt.status == 1):
@@ -353,11 +353,11 @@ def createTournament(players_arr, tournament_id):
 		print(error, file=sys.stderr)
 		return ""
 
-def closeTournament(tournament_id, winner):
+def closeTournament(tournament_id, winner, tournamentName):
 	print(tournament_id, type(tournament_id), file=sys.stderr)
 	print("WINNER", winner, type(winner), file=sys.stderr)
 	try:
-		token_hash = contract.functions.closeTournament(tournament_id, winner).transact({'from' : admin_acc})
+		token_hash = contract.functions.closeTournament(tournament_id, winner, tournamentName).transact({'from' : admin_acc})
 		receipt = web3.eth.wait_for_transaction_receipt(token_hash)
 		if (receipt.status == 1):
 			print("Tournament closed successfully", file=sys.stderr)

@@ -6,6 +6,7 @@ from channels.layers import get_channel_layer
 from django.shortcuts import get_object_or_404
 from channels.db import database_sync_to_async
 from app.views.web3.sepoliaTournament import record_match, closeTournament
+from app.models import Tournament, Game_Pong
 import threading
 
 arenaWidth = 100
@@ -189,13 +190,19 @@ async def stop_game(id):
     )
     if (game.tournament_pos != -1):
         await update_tournament(id)
-
-        if (all_data[id].score_player1 > all_data[id].score_player2):
-            thread = threading.Thread(target=record_match, args=(player[0], all_data[id].score_player1, player[1], all_data[id].score_player2, game.tournament_id, game.tournament_round,))
-        elif (all_data[id].score_player1 < all_data[id].score_player2):
-            thread = threading.Thread(target=record_match, args=(player[1], all_data[id].score_player2, player[0], all_data[id].score_player1, game.tournament_id, game.tournament_round,))
-        thread.start()
-
+        await sendMatch(id, player[0], player[1])
+        
+@database_sync_to_async
+def sendMatch(id, player1, player2):
+    global all_data
+    game = get_object_or_404(Game_Pong, id=id)
+    bracket_id = game.player1.tournament_id
+    tournament = get_object_or_404(Tournament, id=bracket_id)
+    if (all_data[id].score_player1 > all_data[id].score_player2):
+        thread = threading.Thread(target=record_match, args=(player1, all_data[id].score_player1, player2, all_data[id].score_player2, game.tournament_id, game.tournament_round, tournament.name,))
+    elif (all_data[id].score_player1 < all_data[id].score_player2):
+        thread = threading.Thread(target=record_match, args=(player2, all_data[id].score_player2, player1, all_data[id].score_player1, game.tournament_id, game.tournament_round, tournament.name,))
+    thread.start()
 
 @database_sync_to_async
 def get_game(id):
@@ -321,7 +328,6 @@ def save_winner(id):
 
 @database_sync_to_async
 def update_tournament(id):
-    from app.models import Tournament, Game_Pong
 
     # GET TOURNAMENT OBJ
     game = get_object_or_404(Game_Pong, id=id)
@@ -355,7 +361,7 @@ def update_tournament(id):
         tournament.winner = game.winner
         tournament.results.append(game.winner.id)
         tournament.save()
-        link = closeTournament(game.tournament_id, game.winner.username)
+        link = closeTournament(game.tournament_id, game.winner.username, tournament.name)
         tournament.closing_link = link
         tournament.save()
         print("UPDATING TOURNAMENT:", tournament.winner, "WON THE TOURNAMENT", tournament, file=sys.stderr)

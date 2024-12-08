@@ -198,7 +198,7 @@ def pongTournament(request):
         playerlist = get_participants_arr(tournament)
         print("ALED", tournament.tournamentId, file=sys.stderr)
         print("ID : ", int(tournament_id), type(int(tournament_id)), file=sys.stderr)
-        thread = threading.Thread(target=createTournament, args=(playerlist, int(tournament_id),))
+        thread = threading.Thread(target=createTournament, args=(playerlist, int(tournament_id), tournament.name))
         thread.start()
         # TO CHANGE TO 2
         if playercount > 1:
