@@ -3,6 +3,8 @@ function reset_possible_moves(board)
     let allmove = document.getElementsByClassName("move");
     for (let i = allmove.length - 1; i >= 0; i--)
         allmove[i].remove();
+    if (document.getElementById("promotion"))
+        document.getElementById("promotion").remove();
 
     for (let i = 0; i < 8; i++)
     {

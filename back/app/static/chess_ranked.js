@@ -20,6 +20,10 @@ function create_chess_ws(game_id)
         {
 			decline_draw();
 			move_piece(data.from, data.to.x, data.to.y);
+			if (data.promotion)
+				do_promotion_move(data.promotion, data.to.x, data.to.y);
+			if (document.getElementById("promotion"))
+				document.getElementById("promotion").remove();
 			player = player == "white" ? "black" : "white";
 			if (document.getElementById("random").checked && board[data.to.y][data.to.x].piece.color != player)
 				random_move(player);

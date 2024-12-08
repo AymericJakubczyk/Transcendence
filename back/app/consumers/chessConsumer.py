@@ -50,7 +50,9 @@ class ChessConsumer(AsyncWebsocketConsumer):
             return
 
         if (data['type'] == 'move'):
-            await self.move_piece(data['from'], data['to'], int(self.id))
+            if (data.get('promotion') == None):
+                data['promotion'] = None
+            await self.move_piece(data['from'], data['to'], int(self.id), data['promotion'])
         
         elif (data['type'] == 'resign'):
             print("[RESIGN]", file=sys.stderr)
@@ -76,10 +78,10 @@ class ChessConsumer(AsyncWebsocketConsumer):
             await chess_utils.decline_draw(int(self.id), color_player)
         
     
-    async def move_piece(self, posPiece, posReach, game_id):
+    async def move_piece(self, posPiece, posReach, game_id, promotion):
         print("[MOVE PIECE]", posPiece, posReach, file=sys.stderr)
         
-        move = await self.modif_board(posPiece, posReach, game_id)
+        move = await self.modif_board(posPiece, posReach, game_id, promotion)
         if move != "good":
             await self.send(text_data=json.dumps({
                 'type': 'error',
@@ -94,7 +96,8 @@ class ChessConsumer(AsyncWebsocketConsumer):
             {
                 'type': 'move',
                 'from': posPiece,
-                'to': posReach
+                'to': posReach,
+                'promotion': promotion
             }
         )
 
@@ -104,9 +107,10 @@ class ChessConsumer(AsyncWebsocketConsumer):
         await chess_utils.verif_end_game(board, game_id)
 
     @database_sync_to_async
-    def modif_board(self, posPiece, posReach, game_id):
+    def modif_board(self, posPiece, posReach, game_id, promotion):
         from app.models import Game_Chess
         import app.consumers.utils.chess_utils as chess_utils
+        import app.consumers.utils.chess_class as chess_class
 
         if (posPiece['x'] > 7 or posPiece['x'] < 0 or posPiece['y'] > 7 or posPiece['y'] < 0 or posReach['x'] > 7 or posReach['x'] < 0 or posReach['y'] > 7 or posReach['y'] < 0):
             return "STOP HACKING"
@@ -131,6 +135,8 @@ class ChessConsumer(AsyncWebsocketConsumer):
         if not game.turn_white and piece.color == 'white':
             return "Not your piece (STOP HACKING)"
 
+        if (promotion != None and (not isinstance(piece, chess_class.Pawn) or (posReach['y'] != 0 and posReach['y'] != 7))):
+            return "Invalid promotion (STOP HACKING)"
 
         # check if move is valid
         piece.setPossibleMoves(board, posPiece['x'], posPiece['y'])
@@ -140,6 +146,8 @@ class ChessConsumer(AsyncWebsocketConsumer):
 
 
         move_piece(board, posPiece, posReach)
+        if (promotion != None):
+            do_promotion_move(board, posReach['x'], posReach['y'], promotion)
         # verif for opponent
         chess_utils.reset_possible_moves(board)
 
@@ -257,3 +265,15 @@ def remove_en_passant(board, color):
     for i in range(8):
         if (board[y][i].enPassant):
             board[y][i].enPassant = 0
+
+def do_promotion_move(board, x, y, promotion):
+    import app.consumers.utils.chess_class as chess_class
+
+    if (promotion == "Queen"):
+        board[y][x].piece = chess_class.Queen(board[y][x].piece.color)
+    elif (promotion == "Rook"):
+        board[y][x].piece = chess_class.Rook(board[y][x].piece.color)
+    elif (promotion == "Bishop"):
+        board[y][x].piece = chess_class.Bishop(board[y][x].piece.color)
+    elif (promotion == "Knight"):
+        board[y][x].piece = chess_class.Knight(board[y][x].piece.color)
