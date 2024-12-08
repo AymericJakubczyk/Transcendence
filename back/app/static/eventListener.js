@@ -35,15 +35,26 @@ function keyUpHandler_ranked(e) {
 
 function keyDownHandler(e) {
     console.log("[LOCAL] pressed")
-    e.preventDefault()  // prevent scrolling with arrow keys when you played
     if (e.key === "Up" || e.key === "ArrowUp")
+    {
+        e.preventDefault()   
         upPressed = true;
+    }
     else if (e.key === "Down" || e.key === "ArrowDown")
+    {
+        e.preventDefault()
         downPressed = true;
-    else if (e.key === "w" || e.key === "W")
+    }   
+    else if (e.key === "w" || e.key === "W")     
+    {
+        e.preventDefault()
         wPressed = true;
+    }   
     else if (e.key === "s" || e.key === "S")
+    {
+        e.preventDefault()
         sPressed = true;
+    }   
 }
 
 function keyUpHandler(e) {

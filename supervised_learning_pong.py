@@ -70,7 +70,7 @@ def get_state(data):
     return np.array([bx, by, bdx, bdy, py])
 
 def move_paddle(direction, player, data_id):
-    speed = 0.6
+    speed = 0.8
     if player == 1:
         if direction == 'up':
             all_data[data_id].paddle1_y -= speed
@@ -197,7 +197,7 @@ def calcul_ball(id, mode="COLLECT"):
             if (all_data[id].ball_y > all_data[id].paddle2_y - paddleHeight / 2 
                 and all_data[id].ball_y < all_data[id].paddle2_y + paddleHeight / 2):
                 nbrHit += 1
-                all_data[id].ball_dx = -baseSpeed - (0.02 * nbrHit)
+                all_data[id].ball_dx = -baseSpeed - (0.04 * nbrHit)
                 hitPos = all_data[id].ball_y - all_data[id].paddle2_y
                 all_data[id].ball_dy = hitPos * 0.15
             else:
@@ -209,7 +209,7 @@ def calcul_ball(id, mode="COLLECT"):
             if (all_data[id].ball_y > all_data[id].paddle1_y - paddleHeight / 2 
                 and all_data[id].ball_y < all_data[id].paddle1_y + paddleHeight / 2):
                 nbrHit += 1
-                all_data[id].ball_dx = baseSpeed + (0.02 * nbrHit)
+                all_data[id].ball_dx = baseSpeed + (0.04 * nbrHit)
                 hitPos = all_data[id].ball_y - all_data[id].paddle1_y
                 all_data[id].ball_dy = hitPos * 0.15
                 reward = 2

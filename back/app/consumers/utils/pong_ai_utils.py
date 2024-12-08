@@ -136,7 +136,7 @@ async def calcul_ai_ball(id, network):
             all_data[id].player2_up = False
             all_data[id].player2_down = False
 
-        paddle_speed = 0.6
+        paddle_speed = 0.8
         if (all_data[id].player1_up and all_data[id].paddle1_y + paddle_speed < arenaWidth - thickness / 2 - paddleHeight / 2):
             all_data[id].paddle1_y += paddle_speed
         if (all_data[id].player1_down and all_data[id].paddle1_y - paddle_speed > thickness / 2 + paddleHeight / 2):
@@ -157,7 +157,7 @@ async def calcul_ai_ball(id, network):
             if (all_data[id].ball_y > all_data[id].paddle2_y - paddleHeight / 2 and all_data[id].ball_y < all_data[id].paddle2_y + paddleHeight / 2):
                 all_data[id].nbrHit += 1
                 await send_ai_bump('paddle', 2, id)
-                all_data[id].ball_dx = -baseSpeed - (0.02 * all_data[id].nbrHit)
+                all_data[id].ball_dx = -baseSpeed - (0.04 * all_data[id].nbrHit)
                 hitPos = all_data[id].ball_y - all_data[id].paddle2_y
                 all_data[id].ball_dy = hitPos * 0.15
             else:
@@ -170,7 +170,7 @@ async def calcul_ai_ball(id, network):
             if (all_data[id].ball_y > all_data[id].paddle1_y - paddleHeight / 2 and all_data[id].ball_y < all_data[id].paddle1_y + paddleHeight / 2):
                 all_data[id].nbrHit += 1
                 await send_ai_bump('paddle', 1, id)
-                all_data[id].ball_dx = baseSpeed + (0.02 * all_data[id].nbrHit)
+                all_data[id].ball_dx = baseSpeed + (0.04 * all_data[id].nbrHit)
                 hitPos = all_data[id].ball_y - all_data[id].paddle1_y
                 all_data[id].ball_dy = hitPos * 0.15
             else:

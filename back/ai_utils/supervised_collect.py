@@ -70,7 +70,7 @@ def get_state(data):
     return np.array([bx, by, bdx, bdy, py])
 
 def move_paddle(direction, player, data_id):
-    speed = 0.6
+    speed = 0.8
     if player == 1:
         if direction == 'up':
             all_data[data_id].paddle1_y -= speed
@@ -91,6 +91,9 @@ def move_paddle(direction, player, data_id):
                 all_data[data_id].paddle2_y = arenaWidth - paddleHeight/2
 
 def updateIA(id):
+    # paddle_y = all_data[id].paddle1_y
+    # put random y between paddle -7 and +7
+    # paddle_y += random.randint(2, 2)
     if all_data[id].paddle1_y < all_data[id].ball_y:
         move_paddle("down", 1, id)
     elif all_data[id].paddle1_y > all_data[id].ball_y:
@@ -196,7 +199,7 @@ def calcul_ball(id, mode="COLLECT"):
             if (all_data[id].ball_y > all_data[id].paddle2_y - paddleHeight / 2 
                 and all_data[id].ball_y < all_data[id].paddle2_y + paddleHeight / 2):
                 nbrHit += 1
-                all_data[id].ball_dx = -baseSpeed - (0.02 * nbrHit)
+                all_data[id].ball_dx = -baseSpeed - (0.04 * nbrHit)
                 hitPos = all_data[id].ball_y - all_data[id].paddle2_y
                 all_data[id].ball_dy = hitPos * 0.15
             else:
@@ -208,7 +211,7 @@ def calcul_ball(id, mode="COLLECT"):
             if (all_data[id].ball_y > all_data[id].paddle1_y - paddleHeight / 2 
                 and all_data[id].ball_y < all_data[id].paddle1_y + paddleHeight / 2):
                 nbrHit += 1
-                all_data[id].ball_dx = baseSpeed + (0.02 * nbrHit)
+                all_data[id].ball_dx = baseSpeed + (0.04 * nbrHit)
                 hitPos = all_data[id].ball_y - all_data[id].paddle1_y
                 all_data[id].ball_dy = hitPos * 0.15
                 reward = 2
@@ -254,7 +257,7 @@ def train_supervised(network, optimizer, states_dataset, ys_dataset, batch_size=
         print(f"Epoch {epoch+1}/{epochs}, Loss: {total_loss/len(dataloader)}")
 
 # if MODE == "COLLECT":
-num_episodes = 10
+num_episodes = 7000
 all_states = []
 all_ys = []
 

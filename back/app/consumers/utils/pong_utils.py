@@ -64,14 +64,14 @@ async def calcul_ball(id):
         all_data[id].ball_y += all_data[id].ball_dy
 
         # Gestion des mouvements des paddles
-        if (all_data[id].player1_up  and all_data[id].paddle1_y + 0.6 < arenaWidth - thickness / 2 - paddleHeight / 2):
-            all_data[id].paddle1_y += 0.6
-        if (all_data[id].player1_down and all_data[id].paddle1_y - 0.6 > thickness / 2 + paddleHeight / 2):
-            all_data[id].paddle1_y -= 0.6
-        if (all_data[id].player2_up and all_data[id].paddle2_y - 0.6 > thickness / 2 + paddleHeight / 2):
-            all_data[id].paddle2_y -= 0.6
-        if (all_data[id].player2_down and all_data[id].paddle2_y + 0.6 < arenaWidth - thickness / 2 - paddleHeight / 2):
-            all_data[id].paddle2_y += 0.6
+        if (all_data[id].player1_up  and all_data[id].paddle1_y + 0.8 < arenaWidth - thickness / 2 - paddleHeight / 2):
+            all_data[id].paddle1_y += 0.8
+        if (all_data[id].player1_down and all_data[id].paddle1_y - 0.8 > thickness / 2 + paddleHeight / 2):
+            all_data[id].paddle1_y -= 0.8
+        if (all_data[id].player2_up and all_data[id].paddle2_y - 0.8 > thickness / 2 + paddleHeight / 2):
+            all_data[id].paddle2_y -= 0.8
+        if (all_data[id].player2_down and all_data[id].paddle2_y + 0.8 < arenaWidth - thickness / 2 - paddleHeight / 2):
+            all_data[id].paddle2_y += 0.8
 
         await send_updates(id)
 
@@ -86,7 +86,7 @@ async def calcul_ball(id):
             if (all_data[id].ball_y > all_data[id].paddle2_y - paddleHeight / 2 and all_data[id].ball_y < all_data[id].paddle2_y + paddleHeight / 2):
                 nbrHit += 1
                 await send_bump('paddle', 2, id)
-                all_data[id].ball_dx = -baseSpeed - (0.02 * nbrHit)
+                all_data[id].ball_dx = -baseSpeed - (0.04 * nbrHit)
                 hitPos = all_data[id].ball_y - all_data[id].paddle2_y
                 all_data[id].ball_dy = hitPos * 0.15
             else:
@@ -99,7 +99,7 @@ async def calcul_ball(id):
             if (all_data[id].ball_y > all_data[id].paddle1_y - paddleHeight / 2 and all_data[id].ball_y < all_data[id].paddle1_y + paddleHeight / 2):
                 nbrHit += 1
                 await send_bump('paddle', 1, id)
-                all_data[id].ball_dx = baseSpeed + (0.02 * nbrHit)
+                all_data[id].ball_dx = baseSpeed + (0.04 * nbrHit)
                 hitPos = all_data[id].ball_y - all_data[id].paddle1_y
                 all_data[id].ball_dy = hitPos * 0.15
             else:

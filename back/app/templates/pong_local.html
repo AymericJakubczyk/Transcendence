@@ -15,7 +15,7 @@
 				</div>
 				<div class="d-flex position-absolute start-50 top-50 translate-middle score">
 					<div id="playerScore">0</div>
-					 : 
+					 - 
 					<div id="opponentScore">0</div>
 				</div>
                 <div class="d-flex position-relative justify-content-between scoreboardr">
@@ -36,8 +36,8 @@
 				<h1 class="key" id="keyup">🠕</h1>
 				<h1 class="key" id="keydown">🠗</h1>
 			</div>
-            <div id="endgame" style="position:absolute; background:rgba(50, 50, 50, 0.7); display:none" class="endgame flex-column border border-secondary rounded w-25 h-75">
-                <h1 class="text-center">Game Over</h1>
+            <div id="endgame" style="position:absolute; background:rgba(50, 50, 50, 0.7); display:none" class="endgame flex-column border border-secondary rounded w-25 h-70">
+                <h1 class="text-center" style="padding: 10%;">Game Over</h1>
                 <div>
                     <div class="d-flex justify-content-center">
                         <h3 id="winnerScore">0</h3>
@@ -54,6 +54,11 @@
                             <img id="loserpp" src="{% static 'srcs/assets/player2.webp' %}" class="pp_game">
                             <h3 id="loserName" class="mb-0">Player 2</h3>
                         </div>
+
+                        
+                    </div>
+                    <div class="d-flex justify-content-center" style="padding: 10%;">
+                        <a href="{% url 'pong_local_game' %}" class="rematchButton">Rejouer</a>
                     </div>
                 </div>
             </div>

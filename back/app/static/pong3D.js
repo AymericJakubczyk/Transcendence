@@ -41,6 +41,8 @@ const fragments = [];
 
 var reverse = false;
 
+isRanked = true;
+
 function startGame()
 {
     playerScore = 0;
@@ -49,11 +51,12 @@ function startGame()
     nbrHit = 0;
     upPressed = false
     downPressed = false
+    isRanked = false;
     updateScore()
     resetBall()
     
-    document.removeEventListener("keydown", keyDownHandler_ranked);
-    document.removeEventListener("keyup", keyUpHandler_ranked);
+    document.removeEventListener("keydown", keyDownHandler);
+    document.removeEventListener("keyup", keyUpHandler);
 
     document.addEventListener("keydown", keyDownHandler);
     document.addEventListener("keyup", keyUpHandler);
@@ -78,12 +81,15 @@ function display3D()
     renderer.setSize( myCanvas.clientWidth, myCanvas.clientHeight);
     camera = new THREE.PerspectiveCamera( 75, (myCanvas.clientWidth * 10) / (myCanvas.clientHeight * 10), 0.1, 1000 );
 
-    addEventListener("keypress", (event) => {
-        if (event.key == '1')
-            cam1()
-        if (event.key == '2')
-            cam2()  
-    });
+    if (isRanked == true)
+    {       
+        addEventListener("keypress", (event) => {
+            if (event.key == '1')
+                cam1()
+            if (event.key == '2')
+                cam2()  
+        });
+    }
     
     scene = new THREE.Scene()
     scene.background = new THREE.Color( 0x323232 );
@@ -254,7 +260,7 @@ function calculBall() {
         if (y > paddle_2.position.y - paddleHeight / 2 && y < paddle_2.position.y + paddleHeight / 2) {
             paddle_2Light.intensity = 50
             nbrHit++
-            dx = -baseSpeed - (0.02 * nbrHit)
+            dx = -baseSpeed - (0.04 * nbrHit)
             let hitPos = y - paddle_2.position.y;
             dy = hitPos * 0.15;
         } else {
@@ -271,7 +277,7 @@ function calculBall() {
         if (y > paddle_1.position.y - paddleHeight / 2 && y < paddle_1.position.y + paddleHeight / 2) {
             paddle_1Light.intensity = 50
             nbrHit++
-            dx = baseSpeed + (0.02 * nbrHit)
+            dx = baseSpeed + (0.04 * nbrHit)
             let hitPos = y - paddle_1.position.y;
             dy = hitPos * 0.15;
         } else {
@@ -293,15 +299,15 @@ function calculBall() {
     }
 
     // Mouvement des paddles
-    if (wPressed && paddle_1.position.y + 0.6 < arenaWidth - thickness / 2 - paddleHeight / 2)
-        paddle_1.position.y += 0.6;
-    if (sPressed && paddle_1.position.y - 0.6 > thickness / 2 + paddleHeight / 2)
-        paddle_1.position.y -= 0.6;
+    if (wPressed && paddle_1.position.y + 0.8 < arenaWidth - thickness / 2 - paddleHeight / 2)
+        paddle_1.position.y += 0.8;
+    if (sPressed && paddle_1.position.y - 0.8 > thickness / 2 + paddleHeight / 2)
+        paddle_1.position.y -= 0.8;
 
-    if (upPressed && paddle_2.position.y + 0.6 < arenaWidth - thickness / 2 - paddleHeight / 2)
-        paddle_2.position.y += 0.6;
-    if (downPressed && paddle_2.position.y - 0.6 > thickness / 2 + paddleHeight / 2)
-        paddle_2.position.y -= 0.6;
+    if (upPressed && paddle_2.position.y + 0.8 < arenaWidth - thickness / 2 - paddleHeight / 2)
+        paddle_2.position.y += 0.8;
+    if (downPressed && paddle_2.position.y - 0.8 > thickness / 2 + paddleHeight / 2)
+        paddle_2.position.y -= 0.8;
 
     if (paddle_1Light.position.y != paddle_1.position.y)
         paddle_1Light.position.y = paddle_1.position.y
@@ -380,8 +386,8 @@ function stopGame()
         document.getElementById("winnerName").innerText = "Player 2";
         document.getElementById("loserName").innerText = "Player 1";
         // winnerpp
-        document.getElementById("winnerpp").src = "{% static 'srcs/assets/player2.webp' %}";
-        document.getElementById("loserpp").src = "{% static 'srcs/assets/player1.webp' %}";
+        document.getElementById("winnerpp").src = "/static/srcs/assets/player2.webp";
+        document.getElementById("loserpp").src = "/static/srcs/assets/player1.webp"; 
     }
     document.getElementById("endgame").style.display = "block";
 }
