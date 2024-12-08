@@ -92,6 +92,11 @@
 	background-color: rgb(252, 149, 46);
 }
 
+.tournament-selector{
+	padding-left: 15px;
+	background-color: rgb(189, 118, 255);
+}
+
 #cat_pong{
 	background-color: rgb(153, 46, 252);
 	border-radius: 50px;
@@ -104,18 +109,33 @@
 	padding: 15px 0 50px 0;
 }
 
+#cat_pongtournament{
+	background-color: rgb(189, 118, 255);
+	border-radius: 50px;
+	padding: 15px 0 50px 0;
+}
+
 .game_history_header{
+	justify-content: center;
 	padding: 10px 0 0 0;
 	color: black;
 	border-top: 2px solid black;
 }
 
 .div_game_history_pong{
+	justify-content: spa;
 	margin: 2px auto 2px auto;
 	background-color: blueviolet;
 }
 
 .div_game_history_chess{
+	justify-content: center;
 	margin: 2px auto 2px auto;
 	background-color: rgb(218, 129, 40);
+}
+
+.div_game_history_tournament{
+	justify-content: center;
+	margin: 2px auto 2px auto;
+	background-color: rgb(181, 102, 255);
 }

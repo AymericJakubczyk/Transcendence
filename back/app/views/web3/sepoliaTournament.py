@@ -244,29 +244,27 @@ abi = [
 logger = getLogger(__name__)
 
 if (os.getenv('INFURA_SEPOLIA_API_KEY') and os.getenv('PRIVATE_KEY') and os.getenv('CONTRACT_ADDRESS')):
-	#Connect to the Ethereum node
 
+	#Connect to the Ethereum node
 	sepolia_key = os.getenv('INFURA_SEPOLIA_API_KEY')
 	private_key = os.getenv('PRIVATE_KEY')
 
-	#Get contract address
 
+	#Get contract address
 	contractAddress = Web3.to_checksum_address(os.getenv('CONTRACT_ADDRESS'))
 
+
 	#Get and connect metamask account
-
-
 	web3 = Web3(Web3.HTTPProvider(sepolia_key))
 	account = Account.from_key(private_key)
 
-	#Add middleware (sign and send raw transaction)
 
 	web3.middleware_onion.inject(SignAndSendRawMiddlewareBuilder.build(account), layer=0)
+	
 	#Connect account to the contract
 
 	admin_acc = account.address
 	contract = web3.eth.contract(address=contractAddress, abi=abi)
-
 else :
 	print("Error : Missing environment variables for web3", file=sys.stderr)
 	account = None
@@ -309,6 +307,9 @@ def record_match(player1, score_1, player2, score_2, tournament_id, bracket_id):
 		logger.error(error)
 	return None
 
+def return_etherscan_link(token_hash):
+	return "https://sepolia.etherscan.io/tx/0x" + token_hash.hex()
+
 def print_etherscan_link(token_hash):
 	printer = "https://sepolia.etherscan.io/tx/0x" + token_hash.hex()
 	print("Voici le lien vers la transaction : " + printer, file=sys.stderr)
@@ -346,10 +347,11 @@ def createTournament(players_arr, tournament_id):
 			print_etherscan_link(token_hash)
 		else:
 			print("Error creating tournament", file=sys.stderr)
+			return ""
 	except Exception as e:
 		error = "Error creating tournament, type of error : " + f"{type(e).__name__}\n" + f"Error message :\n {str(e)}\n"  + "\n Traceback : \n" + traceback.format_exc()
 		print(error, file=sys.stderr)
-		return None
+		return ""
 
 def closeTournament(tournament_id, winner):
 	print(tournament_id, type(tournament_id), file=sys.stderr)
@@ -360,6 +362,7 @@ def closeTournament(tournament_id, winner):
 		if (receipt.status == 1):
 			print("Tournament closed successfully", file=sys.stderr)
 			print_etherscan_link(token_hash)
+			return return_etherscan_link(token_hash)
 		else:
 			print("Error closing tournament", file=sys.stderr)
 	except Exception as e:

@@ -319,11 +319,6 @@ def save_winner(id):
     return ({'win_elo_p1': win_elo_p1, 'win_elo_p2': win_elo_p2})
 
 
-
-
-
-
-
 @database_sync_to_async
 def update_tournament(id):
     from app.models import Tournament, Game_Pong
@@ -360,21 +355,21 @@ def update_tournament(id):
         tournament.winner = game.winner
         tournament.results.append(game.winner.id)
         tournament.save()
-        closeTournament(game.tournament_id, game.winner.username)
-        # thread = threading.Thread(target=closeTournament, args=(game.tournament_id, game.winner.username,))
-        # thread.start()
-        print("UPDATING TOURNAMENT:", game.winner, "WON THE TOURNAMENT", file=sys.stderr)
+        link = closeTournament(game.tournament_id, game.winner.username)
+        tournament.closing_link = link
+        tournament.save()
+        print("UPDATING TOURNAMENT:", tournament.winner, "WON THE TOURNAMENT", tournament, file=sys.stderr)
     else:
         # PUT WINNER IN THE GAME
         if (not next_game.player1):
             next_game.player1 = game.winner
         elif (not next_game.player2):
             next_game.player2 = game.winner
-            # send ws tournament game ready
+        # send ws tournament game ready
             pong_tournament_game_ready(next_game)
         print("UPDATING TOURNAMENT:", game.winner, "will play in game_pos ", new_game_pos, file=sys.stderr)
         next_game.save()
-    
+
     # UPDATE BARCKET (PAS SUR CA MARCHE LA)
     channel_layer = get_channel_layer()
     async_to_sync(channel_layer.group_send)(

@@ -47,7 +47,10 @@ urlpatterns = [
 	path('send_friend_request/<str:username>/', users.send_friend_request, name='send_friend_request'),
 	path('accept_friend_request/<int:requestID>/', users.accept_friend_request, name='accept_friend_request'),
     
+    path('remove_friend/<str:username>/', users.remove_friend, name='remove_friend'),
+
     path('block_user/<str:username>/', users.block_user, name='block_user'),
+    path('unblock_user/<str:username>/', users.unblock_user, name='unblock_user'),
 
     path('invite/', chat.invite, name='invite'),
     path('invite/cancel/', chat.inviteCancel, name='invite_cancel'),
