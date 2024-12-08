@@ -90,7 +90,6 @@ function receive_pong_ws_ai(data) {
 }
 
 function display_endgame_ai( player1Score, player2Score) {
-    // Éléments du DOM pour le gagnant et le perdant
     var winnerScoreElement = document.getElementById("winnerScore");
     var loserScoreElement = document.getElementById("loserScore");
     var winnerNameElement = document.getElementById("winnerName");
@@ -100,18 +99,15 @@ function display_endgame_ai( player1Score, player2Score) {
     var winnerRankElement = document.getElementById("winnerRank");
     var loserRankElement = document.getElementById("loserRank");
 
-    // Élément pour l'écran de fin de jeu
     var endgame = document.getElementById("endgame");
 
-    // Données par défaut pour l'IA
     var aiName = "IA";
-    var aiProfilePic = "/static/srcs/assets/ai.webp"; // Chemin vers une image par défaut pour l'IA
-    var aiRank = "500"; // Ou tout autre valeur par défaut
+    var aiProfilePic = "/static/srcs/assets/ai.webp";
+    var aiRank = "500"; 
 
-    // Récupérer les données du joueur humain
-    var playerProfilePic = document.getElementById("winnerpp").src; // Assurez-vous que cet élément existe
-    var playerRank = document.getElementById("winnerRank").innerHTML; // Assurez-vous que cet élément existe
-    var playerName = document.getElementById("winnerName").innerHTML; // Assurez-vous que cet élément existe
+    var playerProfilePic = document.getElementById("winnerpp").src; 
+    var playerRank = document.getElementById("winnerRank").innerHTML; 
+    var playerName = document.getElementById("winnerName").innerHTML; 
 
 
     if (player1Score > player2Score) {

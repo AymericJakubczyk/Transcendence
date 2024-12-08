@@ -88,10 +88,6 @@ async def get_target_y_from_network(network, state):
         y_pred = network(state_tensor)
         return y_pred.item()
 
-# async def get_ai_paddle_target_position(pong_data):
-#     target_y = pong_data.ball_y
-#     return target_y
-
 async def calcul_ai_ball(id, network):
     global arenaWidth, arenaLength, thickness, ballRadius, paddleWidth, paddleHeight, baseSpeed, winningScore, all_data
 

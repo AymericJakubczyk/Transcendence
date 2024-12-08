@@ -28,7 +28,6 @@ def pongAISetup(request):
 
     game = Game_Pong()
     game.player2 = None
-    # get user root for ia
     game.player1 = request.user
     game.save()
     print("Game created:", game.id, file=sys.stderr)
@@ -54,13 +53,6 @@ def pongAIGame(request, gameID):
 
     import app.consumers.utils.pong_ai_utils as pong_ai_utils
     game = get_object_or_404(Game_Pong, id=gameID)
-
-    # pong_ai_utils.launch_ai_game(game.id)
-    # game.status = "started"
-    # game.save()
-    # update for put spectate btn in real time but don't work
-    # updateTournamentRoom(game.tournament_id)
-    # print("Game launched:", game.id, file=sys.stderr)
 
     if request.META.get("HTTP_HX_REQUEST") != 'true':
         return render(request, 'page_full.html', {'page':'pong_ai.html', 'user':request.user, 'game':game, 'gameID':gameID})

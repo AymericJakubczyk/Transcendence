@@ -24,7 +24,6 @@ class PongAIConsumer(AsyncWebsocketConsumer):
             print("[ERROR] no id", file=sys.stderr)
             return
 
-        # Ajouter ce consumer à un groupe de WebSocket
         await self.channel_layer.group_add(
             self.room_group_name,
             self.channel_name
@@ -36,7 +35,7 @@ class PongAIConsumer(AsyncWebsocketConsumer):
         print("[DISCONNECT PONG AI]", self.scope["user"], self.room_group_name, file=sys.stderr)
         
         pong_ai_utils.stop_game(int(self.id))
-        # Retirer ce consumer du groupe de WebSocket
+
         await self.channel_layer.group_discard(
             self.room_group_name,
             self.channel_name
@@ -59,22 +58,6 @@ class PongAIConsumer(AsyncWebsocketConsumer):
         if (text_data_json['type'] == 'move_paddle'):
             await pong_ai_utils.move_paddle(text_data_json['move'], text_data_json['pressed'], player, int(self.id))
 
-    # async def simulate_ai_response(self):
-    #     """Simule les actions de l'IA (par exemple, suivre la balle)."""
-    #     print("[AI RESPONSE] Simulating AI paddle movement", file=sys.stderr)
-    #     ai_action = {
-    #         "type": "move_paddle",
-    #         "move": "down",  # Exemple : l'IA bouge sa raquette vers le bas
-    #         "pressed": True
-    #     }
-    #     await self.channel_layer.group_send(
-    #         self.room_group_name,
-    #         {
-    #             "type": "game_update",
-    #             "ai_action": ai_action
-    #         }
-    #     )
-
     @database_sync_to_async
     def get_player1(self):
         from app.models import Game_Pong
@@ -82,12 +65,6 @@ class PongAIConsumer(AsyncWebsocketConsumer):
         game = get_object_or_404(Game_Pong, id=self.id)
         return game.player1
 
-    # @database_sync_to_async
-    # def get_player2(self):
-    #     from app.models import Game_Pong
-
-    #     game = get_object_or_404(Game_Pong, id=self.id)
-    #     return game.player2
 
     # ======================== SENDER ======================== #
     async def game_update(self, event):
