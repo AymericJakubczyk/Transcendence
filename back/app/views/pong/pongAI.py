@@ -19,6 +19,10 @@ import logging
 from django.contrib import messages
 
 def pongAISetup(request):
+    if not request.user.is_authenticated:
+        messages.error(request, 'Log-in to play cool games !')
+        return redirect('home')
+
     import app.consumers.utils.pong_ai_utils as pong_ai_utils
     import app.consumers.utils.user_utils as user_utils
 
@@ -44,6 +48,10 @@ def pongAISetup(request):
     return render(request, 'pong_ai.html', {'user':request.user})
 
 def pongAIGame(request, gameID):
+    if not request.user.is_authenticated:
+        messages.error(request, 'Log-in to play cool games !')
+        return redirect('home')
+
     import app.consumers.utils.pong_ai_utils as pong_ai_utils
     game = get_object_or_404(Game_Pong, id=gameID)
 

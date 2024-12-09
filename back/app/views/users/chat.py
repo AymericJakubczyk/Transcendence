@@ -191,6 +191,10 @@ def mini_chat(request):
         return JsonResponse({'type': 'error', 'message':'not authenticated or not good request'})
 
 def invite(request):
+    if not request.user.is_authenticated:
+        messages.error(request, 'Log-in to invite friends !')
+        return redirect('home')
+
     import app.consumers.utils.pong_utils as pong_utils
 
     current_user = request.user
@@ -263,6 +267,10 @@ def invite(request):
     return render(request, 'waiting_game.html', {'game':'invite'})
 
 def inviteCancel(request):
+    if not request.user.is_authenticated:
+        messages.error(request, 'Log-in to deal with invites !')
+        return redirect('home')
+
     print("[CANCEL] invite", file=sys.stderr)
 
     invite = Invite.objects.filter(from_user=request.user)

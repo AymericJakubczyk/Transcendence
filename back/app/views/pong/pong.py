@@ -27,6 +27,10 @@ list_waiter = []
 
 
 def pongModeView(request):
+    if not request.user.is_authenticated:
+        messages.error(request, 'Log-in to play cool games !')
+        return redirect('home')
+
     if request.META.get("HTTP_HX_REQUEST") != 'true':
         return render(request, 'page_full.html', {'page':'pongMode.html', 'user':request.user})
     return render(request, 'pongMode.html', {'user':request.user})
@@ -149,6 +153,10 @@ def makematchs(playerlist, number, tournament):
     return matchs
 
 def pongTournament(request):
+    if not request.user.is_authenticated:
+        messages.error(request, 'Log-in to play cool games !')
+        return redirect('home')
+
     all_tournaments = Tournament.objects.filter(game_played="PONG")
 
     if 'create_tournament' in request.POST:
@@ -288,18 +296,30 @@ def pongTournament(request):
     return render(request, 'pongTournament.html', {'user':request.user, 'all_tournaments': all_tournaments, 'mytournament': mytournament})
 
 def pongLocalView(request):
+    if not request.user.is_authenticated:
+        messages.error(request, 'Log-in to play cool games !')
+        return redirect('home')
+
     if request.META.get("HTTP_HX_REQUEST") != 'true':
         return render(request, 'page_full.html', {'page':'pong.html', 'user':request.user})
     return render(request, 'pong.html', {'user':request.user})
 
 
 def pongView(request):
+    if not request.user.is_authenticated:
+        messages.error(request, 'Log-in to play cool games !')
+        return redirect('home')
+
     if request.META.get("HTTP_HX_REQUEST") != 'true':
         return render(request, 'page_full.html', {'page':'pong_local.html', 'user':request.user})
     return render(request, 'pong_local.html', {'user':request.user})
 
 
 def pongFoundGameView(request):
+    if not request.user.is_authenticated:
+        messages.error(request, 'Log-in to play cool games !')
+        return redirect('home')
+
     import app.consumers.utils.pong_utils as pong_utils
     import app.consumers.utils.user_utils as user_utils
 
@@ -355,6 +375,10 @@ def pongFoundGameView(request):
 
 
 def pongGameView(request, gameID):
+    if not request.user.is_authenticated:
+        messages.error(request, 'Log-in to play cool games !')
+        return redirect('home')
+
     import app.consumers.utils.pong_utils as pong_utils
 
     game = get_object_or_404(Game_Pong, id=gameID)
@@ -389,6 +413,10 @@ def pongGameView(request, gameID):
     return render(request, 'pong_ranked.html', {'user':request.user, 'game':game, 'gameID':gameID})
 
 def pongCancelQueue(request):
+    if not request.user.is_authenticated:
+        messages.error(request, 'Log-in to play cool games !')
+        return redirect('home')
+
     print("[LOG] User cancel pong queue", file=sys.stderr)
     if request.user in list_waiter:
         list_waiter.remove(request.user)
@@ -399,6 +427,10 @@ def pongCancelQueue(request):
 
 
 def pongCancelWaitingTournament(request, gameID):
+    if not request.user.is_authenticated:
+        messages.error(request, 'Log-in to play cool games !')
+        return redirect('home')
+
     print("[LOG] User cancel pong waiting", file=sys.stderr)
 
     game = get_object_or_404(Game_Pong, id=gameID)

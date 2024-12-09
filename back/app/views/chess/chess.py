@@ -27,17 +27,29 @@ list_waiter = {}
 
 @login_required
 def chessView(request):
+    if not request.user.is_authenticated:
+        messages.error(request, 'Log-in to play cool games !')
+        return redirect('home')
+
     user = get_object_or_404(User, id=request.user.id)
     if request.META.get("HTTP_HX_REQUEST") != 'true':
         return render(request, 'page_full.html', {'page':'chess.html', 'user':user})
     return render(request, 'chess.html', {'user':user})
 
 def chessModeView(request):
+    if not request.user.is_authenticated:
+        messages.error(request, 'Log-in to play cool games !')
+        return redirect('home')
+
     if request.META.get("HTTP_HX_REQUEST") != 'true':
         return render(request, 'page_full.html', {'page':'chessMode.html', 'user':request.user})
     return render(request, 'chessMode.html', {'user':request.user})
 
 def chessFoundGameView(request):
+    if not request.user.is_authenticated:
+        messages.error(request, 'Log-in to play cool games !')
+        return redirect('home')
+
     if request.user in list_waiter:
         print("User already in list_waiter", file=sys.stderr)
     # if list_waiter length is zero, add user to list_waiter
@@ -58,6 +70,10 @@ def chessFoundGameView(request):
     return render(request, 'waiting_game.html', {'user':request.user, 'game':'chess'})
 
 def chessCancelQueue(request):
+    if not request.user.is_authenticated:
+        messages.error(request, 'Log-in to play cool games !')
+        return redirect('home')
+
     print("[LOG] User cancel chess queue", file=sys.stderr)
     if request.user in list_waiter:
         # list_waiter.remove(request.user)
@@ -68,6 +84,10 @@ def chessCancelQueue(request):
     return redirect('game')
 
 def chessGameView(request, gameID):
+    if not request.user.is_authenticated:
+        messages.error(request, 'Log-in to play cool games !')
+        return redirect('home')
+
     game = get_object_or_404(Game_Chess, id=gameID)
     board = chess_utils.get_board(gameID)
     if not board:

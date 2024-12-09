@@ -16,6 +16,10 @@ multi_list_waiter = []
 all_games_playerlist = {}
 
 def pongFoundMultiView(request):
+    if not request.user.is_authenticated:
+        messages.error(request, 'Log-in to play cool games !')
+        return redirect('home')
+
     global all_games_playerlist
     import app.consumers.utils.multi_utils as multi_utils
 
@@ -75,6 +79,10 @@ def pongFoundMultiView(request):
 
 
 def pongMultiplayer(request, gameID):
+    if not request.user.is_authenticated:
+        messages.error(request, 'Log-in to play cool games !')
+        return redirect('home')
+
     global all_games_playerlist
 
     game = get_object_or_404(Game_PongMulti, id=gameID)
@@ -98,6 +106,10 @@ def pongMultiplayer(request, gameID):
     return render(request, 'pongMultiplayer.html', {'user':request.user, 'game':game, 'data':data})
 
 def pongMultiCancelQueue(request):
+    if not request.user.is_authenticated:
+        messages.error(request, 'Log-in to play cool games !')
+        return redirect('home')
+
     print("[LOG] User cancel pong queue", file=sys.stderr)
     if request.user in multi_list_waiter:
         multi_list_waiter.remove(request.user)
