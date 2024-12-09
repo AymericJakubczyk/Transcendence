@@ -68,3 +68,10 @@ function keyUpHandler(e) {
     else if (e.key === "s" || e.key === "S")
         sPressed = false;
 }
+
+function camHandler(event) {
+    if (event.key == '1')
+        cam1()
+    if (event.key == '2')
+        cam2()  
+}
