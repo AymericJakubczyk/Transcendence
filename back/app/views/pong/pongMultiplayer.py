@@ -18,6 +18,7 @@ all_games_playerlist = {}
 def pongFoundMultiView(request):
     global all_games_playerlist
     import app.consumers.utils.multi_utils as multi_utils
+    import app.consumers.utils.user_utils as user_utils
 
     maxNbPlayers = 3
     if request.user in multi_list_waiter:
@@ -58,9 +59,11 @@ def pongFoundMultiView(request):
             )
 
         for user in multi_list_waiter:
+            user.state = User.State.INGAME
             user.game_status_txt = "👥in game..."
             user.game_status_url = "/game/pong/multiplayer/" + str(game.id) + "/"
             user.save()
+            user_utils.send_change_state(user)
 
         multi_list_waiter.clear()
         multi_utils.launch_multi_game(game.id, all_games_playerlist[game.id])

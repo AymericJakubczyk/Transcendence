@@ -56,6 +56,7 @@ class PongData():
         self.player2_down = False
         self.paddle2_target_y = arenaWidth / 2
         self.nbrHit = 0
+        self.stop = False
 
 @async_to_sync
 async def launch_ai_game(id):
@@ -109,7 +110,7 @@ async def calcul_ai_ball(id, network):
     ai_update_interval = 1.0
     i = 0;
 
-    while True:
+    while True and not all_data[id].stop:
         await asyncio.sleep(0.01)
         i+=1
         current_time = asyncio.get_event_loop().time()
@@ -318,3 +319,10 @@ def save_ai_winner(id):
         game.winner = game.player1
 
     game.save()
+
+def stop_game(id):
+    global all_data
+
+    all_data[id].stop = True
+    print("[STOP GAME] GAME STOPPED", id, file=sys.stderr)
+    return True

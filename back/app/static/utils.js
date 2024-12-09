@@ -21,13 +21,20 @@ window.addEventListener('htmx:beforeSwap', function(evt) {
         chessSocket.close()
         chessSocket = null
     }
-    
-    if (old_path.startsWith("/game/pong/multiplayer/") && !new_path.startsWith("/game/pong/multiplayer/"))
+    if (pongMultiSocket && old_path.startsWith("/game/pong/multiplayer/") && old_path != new_path)
     {
         console.log("[WS PONG MULTI] socket closed")
         pongMultiSocket.close()
         pongMultiSocket = null
     }
+    if (pongAISocket && old_path.startsWith("/game/pong/local/vs-ia/") && old_path != new_path)
+    {
+        console.log("[WS PONG AI] socket closed")
+        pongAISocket.close()
+        pongAISocket = null
+    }
+    
+
     if (old_path == "/game/pong/tournament/" && pongTournamentSocket)
     {
         pongTournamentSocket.close()

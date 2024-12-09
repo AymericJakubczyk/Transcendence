@@ -187,6 +187,7 @@ async def player_is_dead(id, dead):
 @database_sync_to_async
 def stop_game(id):
     from app.models import User, Game_PongMulti
+    import app.consumers.utils.user_utils as user_utils
     print("asking for the end of the game", file=sys.stderr)
     all_multi_data[id].should_calcul_ball = False
 
@@ -202,9 +203,12 @@ def stop_game(id):
                     game.save()
 
     for user in game.playerlist.all():
+        if (user.state == User.State.INGAME):
+            user.state = User.State.ONLINE
         user.game_status_txt = 'none'
         user.game_status_url = 'none'
         user.save()
+        user_utils.send_change_state(user)
     print("[END GAME] -", game.winner, "WON", file=sys.stderr)
 
 
