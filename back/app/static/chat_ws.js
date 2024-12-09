@@ -94,12 +94,6 @@ function create_ws()
 	}
 }
 
-function close_ws()
-{
-	if (chatSocket)
-		chatSocket = chatSocket.close();
-}
-
 function change_statut(type, sender)
 {
 	var statut_elem = document.getElementById("statut_" + sender);
