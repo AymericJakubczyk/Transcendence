@@ -197,18 +197,30 @@ function setup_game()
     document.addEventListener("keydown", keyDownHandler);
     document.addEventListener("keyup", keyUpHandler);
 
-    function keyDownHandler(e) {
+	function keyDownHandler(e) {
         if (e.key === "Up" || e.key === "ArrowUp")
+		{
+			e.preventDefault();
             upPressed = true;
+		}
         else if (e.key === "Down" || e.key === "ArrowDown")
+		{
+			e.preventDefault();
             downPressed = true;
+		}
     }
 
     function keyUpHandler(e) {
         if (e.key === "Up" || e.key === "ArrowUp")
+		{
+			e.preventDefault();
             upPressed = false;
+		}
         else if (e.key === "Down" || e.key === "ArrowDown")
+		{
+			e.preventDefault();
             downPressed = false;
+		}
     }
 
     if (gameInterval)
