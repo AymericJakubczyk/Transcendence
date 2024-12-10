@@ -96,7 +96,7 @@ class Tournament(models.Model):
 
 	created_at = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
-	closing_link = models.CharField(max_length=150, default="https://sepolia.etherscan.io/address/0x90d99956a092129708797c2c7a05f705c235928c")
+	closing_link = models.CharField(max_length=150, default="https://sepolia.etherscan.io/address/0xBfb3808b3ed04fA809fCF0c489ed9Ded34292666")
 
 	def display_results(self):
 		players = User.objects.filter(id__in=self.results)
@@ -204,48 +204,3 @@ class Game_PongMulti(models.Model):
 
 	class Meta:
 		ordering = ('id', )
-
-#WEB3 models
-
-class TournamentMatch(models.Model):
-	roundNumber = models.ForeignKey('TournamentRound', related_name='roundNb', on_delete=models.CASCADE)
-	tour = models.ForeignKey('Tournament', related_name='round', on_delete=models.CASCADE)
-	state = models.CharField(max_length=20, choices=[('pending', 'Pending'), ('playing', 'Playing'), ('finished', 'Finished')], default='pending')
-	identifier = models.IntegerField()
-	winner : 'User' = models.ForeignKey(User, related_name='matchWinner', on_delete=models.SET_NULL, null=True, blank=True)
-	
-	def __str__(self):
-		return f"{self.tour.name} + {self.state} + {self.date}"
-
-class TournamentRound(models.Model):
-	tournament = models.ForeignKey('Tournament', related_name='tournamentId', on_delete=models.CASCADE)
-	roundNumber = models.IntegerField()
-	matches = models.ManyToManyField('TournamentMatch', blank=True)
-	date = models.DateTimeField(null=True, blank=True)
-	
-	class Meta:
-		unique_together = ('tournament', 'roundNumber')
-
-	def __str__(self):
-		return f"{self.tour.name} + {self.roundNumber}"
-	
-class TournamentPlayer(models.Model):
-	user: 'User' = models.ForeignKey(User, related_name='TournamentRegistered' , on_delete=models.CASCADE)
-	match = models.ForeignKey('TournamentMatch', on_delete=models.CASCADE, null=True)
-	state = models.CharField(max_length=20, choices=[('eliminated', 'Eliminated'), ('playing', 'Playing')], default='eliminated')
-	
-	class Meta:
-		unique_together = ('user', 'match')
-	
-	def __str__(self):
-		return f"{self.user.username}"
-	
-class Match_Player(models.Model):
-	player : 'User' = models.ForeignKey(User, related_name='player', on_delete=models.CASCADE)
-	match = models.ForeignKey('TournamentMatch', related_name='match', on_delete=models.CASCADE, null=True, blank=True)
-	
-	class Meta:
-		unique_together = ('player', 'match')
-	
-	def __str__(self):
-		return f"{self.player.username} + {self.match.id}"

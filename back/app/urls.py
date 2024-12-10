@@ -57,11 +57,4 @@ urlpatterns = [
 
     path('invite/', chat.invite, name='invite'),
     path('invite/cancel/', chat.inviteCancel, name='invite_cancel'),
-    
-    
-    # WEB3 URLS
-    path('test/', sepoliaTournament.test, name='test'),
-    # path('register-tournament/', pong.registerTournament, name='register-tournament'),
-    
-    # path('test/', pong.test, name='test'),
 ]
