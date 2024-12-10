@@ -1,6 +1,9 @@
+var old_path = ""
+var new_path = "";
+
 window.addEventListener('htmx:beforeSwap', function(evt) {
-    const old_path = window.location.pathname;
-    const new_path = evt.detail.pathInfo.path
+    old_path = window.location.pathname;
+    new_path = evt.detail.pathInfo.path
     if (old_path == "/game/pong/local/")
     {
         console.log("[LOG] Stop local game")
@@ -38,9 +41,11 @@ window.addEventListener('htmx:beforeSwap', function(evt) {
         pongTournamentSocket.close()
         pongTournamentSocket = null
     }
+
+    old_path = new_path
 });
 
-function htmx_request(url, method, values)
+function htmx_request(url, method, values, push_url=true)
 {
     form_htmx = document.createElement("form")
     if (method == "GET")
@@ -49,7 +54,10 @@ function htmx_request(url, method, values)
         form_htmx.setAttribute("hx-post", url);
     else
         return
-    form_htmx.setAttribute("hx-push-url", "true");
+    if (push_url)
+        form_htmx.setAttribute("hx-push-url", "true");
+    else 
+        form_htmx.setAttribute("hx-push-url", "false");
     form_htmx.setAttribute("hx-target", "#page");
     form_htmx.setAttribute("hx-swap", "innerHTML");
     form_htmx.setAttribute("hx-indicator", "#content-loader");
@@ -178,3 +186,41 @@ function logout()
         mini_chat.hidden = true
     }
 }
+
+window.addEventListener('popstate', function(event) {
+    console.log("old_path", old_path)
+    console.log("new_path", this.window.location.href)
+    new_path = this.window.location.href
+    if (old_path == "/game/pong/local/")
+    {
+        console.log("[LOG] Stop local game")
+        clearInterval(gameInterval)
+    }
+    if (pongSocket && old_path.startsWith("/game/pong/ranked/") && old_path != new_path)
+    {
+        console.log("[WS PONG] socket closed")
+        pongSocket.close()
+        pongSocket = null
+    }
+    if (chessSocket && old_path.startsWith("/game/chess/ranked/") && old_path != new_path)
+    {
+        console.log("[WS CHESS] socket closed")
+        chessSocket.close()
+        chessSocket = null
+    }
+    if (pongMultiSocket && old_path.startsWith("/game/pong/multiplayer/") && old_path != new_path)
+    {
+        console.log("[WS PONG MULTI] socket closed")
+        pongMultiSocket.close()
+        pongMultiSocket = null
+    }
+    if (pongAISocket && old_path.startsWith("/game/pong/local/vs-ia/") && old_path != new_path)
+    {
+        console.log("[WS PONG AI] socket closed")
+        pongAISocket.close()
+        pongAISocket = null
+    }
+    
+    old_path = this.window.location.href
+    htmx_request(this.window.location.href, "GET", {}, false)
+});
