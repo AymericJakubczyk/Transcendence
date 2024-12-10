@@ -27,7 +27,6 @@ def pongFoundMultiView(request):
     maxNbPlayers = 6
     if request.user in multi_list_waiter:
         print(request.user.username, "is already in multi queue.", file=sys.stderr)
-    # if multi_list_waiter length is zero, add user to multi_list_waiter
     elif len(multi_list_waiter) < maxNbPlayers - 1:
         multi_list_waiter.append(request.user)
         request.user.game_status_txt = "🕒Waiting..."
@@ -35,7 +34,6 @@ def pongFoundMultiView(request):
         request.user.save()
         print(request.user.username, "is waiting for multi game.", len(multi_list_waiter), "waiting...", file=sys.stderr)
 
-    # else remove user from multi_list_waiter, create game redirect to game, and send match_found to wainting user
     elif len(multi_list_waiter) == maxNbPlayers - 1:
         multi_list_waiter.append(request.user)
 

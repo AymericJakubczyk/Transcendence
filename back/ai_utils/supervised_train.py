@@ -23,12 +23,7 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 SCALE_FACTOR_X = SCREEN_WIDTH / arenaLength
 SCALE_FACTOR_Y = SCREEN_HEIGHT / arenaWidth
-MODE = "TRAIN"  # "COLLECT", "TRAIN", "TEST"
-
-# pygame.init()
-# screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-# pygame.display.set_caption("Pong - Supervised Learning (Continuous Target)")
-# clock = pygame.time.Clock()
+MODE = "TRAIN"
 
 class PongData:
     def __init__(self):
@@ -65,7 +60,7 @@ def get_state(data):
     by = data.ball_y / arenaWidth
     bdx = data.ball_dx
     bdy = data.ball_dy
-    py = data.paddle2_y / arenaWidth  # Utilisation de paddle2_y
+    py = data.paddle2_y / arenaWidth
     return np.array([bx, by, bdx, bdy, py])
 
 def move_paddle(direction, player, data_id):
@@ -94,13 +89,6 @@ def updateIA(id):
         move_paddle("down", 1, id)
     elif all_data[id].paddle1_y > all_data[id].ball_y:
         move_paddle("up", 1, id)
-
-# def draw_game(id, screen):
-#     screen.fill(BLACK)
-    # pygame.draw.circle(screen, WHITE, (int(all_data[id].ball_x * SCALE_FACTOR_X), int(all_data[id].ball_y * SCALE_FACTOR_Y)), int(ballRadius * SCALE_FACTOR_X))
-    # pygame.draw.rect(screen, WHITE, (10, int((all_data[id].paddle1_y - paddleHeight / 2) * SCALE_FACTOR_Y), 10, int(paddleHeight * SCALE_FACTOR_Y)))
-    # pygame.draw.rect(screen, WHITE, (SCREEN_WIDTH - 20, int((all_data[id].paddle2_y - paddleHeight / 2) * SCALE_FACTOR_Y), 10, int(paddleHeight * SCALE_FACTOR_Y)))
-    # pygame.display.flip()
 
 def goal(player, id):
     global nbrHit
@@ -149,37 +137,22 @@ def get_target_y_from_network(network, state):
         y_pred = network(state_tensor)
         return y_pred.item()
 
-def calcul_ball(id, mode="COLLECT"):
+def calcul_ball(id, mode="TRAIN"):
     global nbrHit
     all_data[id] = PongData()
     done = False
     i = 0
     target_y = all_data[id].paddle2_y
-    max_steps = 5000
+    max_steps = 2000
     total_reward = 0
 
     states_collected = []
     ys_collected = []
 
     while not done and i < max_steps:
-        # for event in pygame.event.get():
-            # if event.type == pygame.QUIT:
-                # pygame.quit()
-                # sys.exit()
-
-            # print(f"Step {j}")
         if i % 90 == 0:
             state = get_state(all_data[id])
             target_y = get_target_y_from_network(network, state)
-
-            # if mode == "COLLECT":
-            #     target_y = expert_policy(state)
-            # else:
-            
-            # if mode == "COLLECT":
-            #     states_collected.append(state)
-            #     ys_collected.append(target_y)
-
         if all_data[id].paddle2_y > target_y:
             move_paddle('up', 2, id)
         elif all_data[id].paddle2_y < target_y:
@@ -219,11 +192,6 @@ def calcul_ball(id, mode="COLLECT"):
 
         total_reward += reward
         updateIA(id)
-
-        # if mode == "TEST":
-        #     draw_game(id, screen)
-        #     clock.tick(90)
-
         i += 1
 
     return total_reward, states_collected, ys_collected
@@ -248,7 +216,7 @@ def train_supervised(network, optimizer, states_dataset, ys_dataset, batch_size=
             optimizer.step()
             total_loss += loss.item()
         print(f"Epoch {epoch+1}/{epochs}, Loss: {total_loss/len(dataloader)}")
-        if total_loss/len(dataloader) < 1:
+        if total_loss/len(dataloader) < 20:
             break
 
 states_dataset = np.load("states_dataset.npy")
