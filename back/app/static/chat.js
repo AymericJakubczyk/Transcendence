@@ -197,18 +197,3 @@ function send_invite(opponent, game)
 {
     htmx_request("/invite/", "POST", {"type":"invite", "opponent":opponent, "game":game})
 }
-
-// FOR TESTING DELETE LATER
-function make_discu(send_to, id)
-{
-    for (i = 0; i < 100; i++)
-    {
-        const obj = {
-            'type': 'message',
-            'message': i.toString(),
-            'send_to': send_to,
-            'discu_id': id
-        };
-        chatSocket.send(JSON.stringify(obj));
-    }
-}

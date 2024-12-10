@@ -254,8 +254,6 @@ function update_last_move(from, to)
     // add new last move
     document.getElementById("cell"+from.x+from.y).style.backgroundColor = (from.x+from.y) % 2 == 0 ? "#ffff33" : "#eeee33";
     document.getElementById("cell"+to.x+to.y).style.backgroundColor = (to.x+to.y) % 2 == 0 ? "#ffff33" : "#eeee33";
-    // #dddd33
-    // #ffff33
 
     last_move = {'from': from, 'to': to};
 }

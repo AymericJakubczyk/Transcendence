@@ -8,6 +8,7 @@ from .views.views import custom_404
 from .views.web3 import sepoliaTournament
 from django.contrib.auth.views import PasswordChangeView
 
+
 handler404 = custom_404
 
 urlpatterns = [

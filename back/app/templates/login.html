@@ -49,7 +49,6 @@
     pivotPoint.add(group);
     group.position.sub(new THREE.Vector3(arenaLength/2, arenaWidth/2, 0));
     scene.add(pivotPoint);
-    /*launch calculball*/
 
     if (gameInterval) 
         clearInterval(gameInterval);
@@ -65,7 +64,6 @@
         if (!pongCanvas) 
             return;
         console.log('resize');
-        /*camera.aspect = window.innerWidth / window.innerHeight;*/
         camera.aspect = pongCanvas.clientWidth / pongCanvas.clientHeight;
         camera.updateProjectionMatrix();
     });

@@ -42,7 +42,6 @@ class PongConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
-        # print("[RECEIVE PONG RANKED]", text_data_json, file=sys.stderr)
 
         player = 0
         if self.scope["user"] == self.player1:

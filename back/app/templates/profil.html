@@ -119,6 +119,22 @@
 								{% endif %}
 								<span class="col-3">{{ pong_game.updated_at|date:"H:i - d M y" }}</span>
 							</div>
+						{% else %}
+						<div class="row ml-3 mr-3 div_game_history_pong">
+							{% if pong_game.winner == user %}
+							<span class="col-3 text-success">WIN</span>
+							{% else %}
+							<span class="col-3 text-danger">LOSS</span>
+							{% endif %}
+							{% if pong_game.player1 == user %}
+							<span class="col-3 text-warning">AI</span>
+							<span class="col-3">{{ pong_game.player1_score }} - {{ pong_game.player2_score }}</span>
+							{% else %}
+							<span class="col-3 text-warning">AI</span>
+							<span class="col-3">{{ pong_game.player2_score }} - {{ pong_game.player1_score }}</span>
+							{% endif %}
+							<span class="col-3">{{ pong_game.updated_at|date:"H:i - d M y" }}</span>
+						</div>
 						{% endif %}
 					{% endfor %}
 				{% else %}
@@ -160,7 +176,6 @@
 						<span class="col-2">Date</span>
 					</div>
 				</div>
-				<!-- HERE -->
 				{% if all_tournaments %}
 					{% for tournament in all_tournaments %}
 					<div class="row ml-3 mr-3 div_game_history_tournament">
@@ -172,7 +187,6 @@
 							<span class="col-2">{{ tournament.winner.username }}</span>
 						{% endif %}
 						{% if tournament.closing_link %}
-						<!-- <link href="{{ tournament.closing_link }}" rel="stylesheet" /> -->
 						<a class="col-2" href="{{ tournament.closing_link }}">See transaction</a>
 						{% endif %}
 						<span class="col-2">{{ tournament.updated_at|date:"H:i - d M y" }}</span>

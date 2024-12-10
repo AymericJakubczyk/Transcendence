@@ -1,4 +1,4 @@
-import sys #for print
+import sys
 import random
 import asyncio
 from asgiref.sync import sync_to_async, async_to_sync
@@ -18,7 +18,7 @@ thickness = 1
 baseSpeed = 0.5
 nbrHit = 0
 maxnbHit = 0
-winningScore = 2
+winningScore = 5
 
 all_data = {}
 
@@ -88,16 +88,25 @@ async def calcul_ball(id):
             all_data[id].paddle2_y -= 0.8
         if (all_data[id].player2_down and all_data[id].paddle2_y + 0.8 < arenaWidth - thickness / 2 - paddleHeight / 2):
             all_data[id].paddle2_y += 0.8
+        # moving paddles
+        if (all_data[id].player1_up  and all_data[id].paddle1_y + 0.6 < arenaWidth - thickness / 2 - paddleHeight / 2):
+            all_data[id].paddle1_y += 0.6
+        if (all_data[id].player1_down and all_data[id].paddle1_y - 0.6 > thickness / 2 + paddleHeight / 2):
+            all_data[id].paddle1_y -= 0.6
+        if (all_data[id].player2_up and all_data[id].paddle2_y - 0.6 > thickness / 2 + paddleHeight / 2):
+            all_data[id].paddle2_y -= 0.6
+        if (all_data[id].player2_down and all_data[id].paddle2_y + 0.6 < arenaWidth - thickness / 2 - paddleHeight / 2):
+            all_data[id].paddle2_y += 0.6
 
         await send_updates(id)
 
-        # Gestion des collisions avec les murs
+        # wall collisions
         if (all_data[id].ball_y + all_data[id].ball_dy > arenaWidth - thickness/2 - ballRadius or all_data[id].ball_y + all_data[id].ball_dy < thickness/2 + ballRadius ):
             print("[PONG WALL]", file=sys.stderr)
             await send_bump('wall', 0, id)
             all_data[id].ball_dy = -all_data[id].ball_dy
 
-        # Gestion des collisions avec les paddles
+        # paddles collisions
         if (all_data[id].ball_x > arenaLength - thickness * 2):
             if (all_data[id].ball_y > all_data[id].paddle2_y - paddleHeight / 2 and all_data[id].ball_y < all_data[id].paddle2_y + paddleHeight / 2):
                 nbrHit += 1
@@ -328,14 +337,17 @@ def save_winner(id):
     return ({'win_elo_p1': win_elo_p1, 'win_elo_p2': win_elo_p2})
 
 
+@async_to_sync
+async def leave_update(id):
+    await update_tournament(id)
+
 @database_sync_to_async
 def update_tournament(id):
 
     # GET TOURNAMENT OBJ
     game = get_object_or_404(Game_Pong, id=id)
-    bracket_id = game.player1.tournament_id
-    print("UPDATING TOURNAMENT", bracket_id, file=sys.stderr)
-    tournament = get_object_or_404(Tournament, id=bracket_id)
+    print("UPDATING TOURNAMENT", game.tournament_id, file=sys.stderr)
+    tournament = get_object_or_404(Tournament, id=game.tournament_id)
 
     # ADD LOSER TO RESULTS
     if game.winner == game.player1:
@@ -378,7 +390,7 @@ def update_tournament(id):
         print("UPDATING TOURNAMENT:", game.winner, "will play in game_pos ", new_game_pos, file=sys.stderr)
         next_game.save()
 
-    # UPDATE BARCKET (PAS SUR CA MARCHE LA)
+    # UPDATE BRACKET 
     channel_layer = get_channel_layer()
     async_to_sync(channel_layer.group_send)(
         "pong_tournament_" + str(game.player1.tournament_id),

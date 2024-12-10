@@ -6,7 +6,7 @@ from django.db.models import Q
 from django.db.models import JSONField
 from django.core.exceptions import ValidationError
 
-# ---- USER HERITE DE TOUT CA ----
+# ---- HERITED FROM USER ----
 # id
 # password
 # last_login
@@ -81,6 +81,7 @@ class Tournament(models.Model):
 	name = models.CharField(max_length = 25, default='Unamed Tournament')
 	host_user = models.ForeignKey(User, related_name='host_user', on_delete=models.CASCADE)
 	participants = models.ManyToManyField("User", blank=True)
+	has_participate = models.ManyToManyField("User", related_name='has_participate', blank=True)
 	max_users = models.IntegerField(default=8)
 	class GameState(models.TextChoices):
 		PONG = 'PONG'

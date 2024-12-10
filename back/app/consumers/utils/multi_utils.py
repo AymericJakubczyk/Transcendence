@@ -1,4 +1,4 @@
-import sys #for print
+import sys
 import random
 import asyncio, math
 from asgiref.sync import sync_to_async, async_to_sync
@@ -94,7 +94,7 @@ async def multi_calcul_ball(id):
             all_multi_data[id].ball_y += all_multi_data[id].ball_dy
             await send_updates(id)
 
-            # COLLISION AVEC LES PADDLES
+            # collisions with paddles
             calc_dx = (arenaLength / 2) - all_multi_data[id].ball_x
             calc_dy = (arenaWidth / 2) - all_multi_data[id].ball_y
             distance = math.sqrt(calc_dx * calc_dx + calc_dy * calc_dy)
@@ -117,7 +117,7 @@ async def multi_calcul_ball(id):
                                 await calc_paddle_collision(id, startAngle, endAngle, ballAngle)
                                 break
 
-            # COLLISION AVEC LE CERCLE ET MARQUAGE
+            # collision with cercle and goal
 
             if (distance > ringRadius):
                 ballAngle = math.atan2(all_multi_data[id].ball_y - arenaWidth/2, all_multi_data[id].ball_x - arenaLength/2)
@@ -128,12 +128,10 @@ async def multi_calcul_ball(id):
                         endAngle = (all_multi_data[id].zoneStart[i] + all_multi_data[id].playerZoneSize) % (2 * math.pi)
                         ballAngle = ballAngle % (2 * math.pi)
 
-                        # print("[DEBUG]", ballAngle, startAngle, endAngle, file=sys.stderr)
                         if (startAngle <= endAngle):
                             if (ballAngle >= startAngle and ballAngle <= endAngle):
                                 if (all_multi_data[id].lifes[i] > 0):
                                     all_multi_data[id].lifes[i] -= 1
-                                    # print("[BUUUUUUUUUUT !!!]", "player:", i+1, "lifes:", all_multi_data[id].lifes[i], file=sys.stderr)
                                     if (all_multi_data[id].lifes[i] == 0 and all_multi_data[id].active_players > 1):
                                         await player_is_dead(id, i)
                                 all_multi_data[id].ball_dx = -all_multi_data[id].ball_dx
@@ -143,7 +141,6 @@ async def multi_calcul_ball(id):
                             if (ballAngle >= startAngle or ballAngle <= endAngle):
                                 if (all_multi_data[id].lifes[i] > 0):
                                     all_multi_data[id].lifes[i] -= 1
-                                    # print("[BUUUUUUUUUUT !!!]", "player:", i+1, "lifes:", all_multi_data[id].lifes[i], file=sys.stderr)
                                     if (all_multi_data[id].lifes[i] == 0 and all_multi_data[id].active_players > 1):
                                         await player_is_dead(id, i)
                                 all_multi_data[id].ball_dx = -all_multi_data[id].ball_dx
@@ -157,17 +154,15 @@ async def player_is_dead(id, dead):
         all_multi_data[id].active_players -= 1
         baseSpeed = 0.5
 
-        # CALCUL TAILLE ET START DES ZONES
+        # calc zone size
         if (all_multi_data[id].active_players >= 2):
             all_multi_data[id].playerZoneSize = (2 * math.pi) / all_multi_data[id].active_players
-        # print("zone size", all_multi_data[id].playerZoneSize, file=sys.stderr)
 
         it = 0
         index = 0
         while (it < all_multi_data[id].active_players):
             if (all_multi_data[id].lifes[index] > 0):
                 all_multi_data[id].zoneStart[index] =  it * all_multi_data[id].playerZoneSize
-                # print("zone start of", index+1, "is", all_multi_data[id].zoneStart[index], file=sys.stderr)
                 it += 1
             index += 1
 
@@ -221,7 +216,6 @@ def move_paddle(move, player, id):
             all_multi_data[id].paddleStart[player] -= 0.05
 
 async def send_updates(id):
-    # print("[SEND UPDATES 2]", file=sys.stderr)
     channel_layer = get_channel_layer()
     await channel_layer.group_send(
         "pong_multi_" + str(id),
