@@ -6,7 +6,6 @@ from channels.layers import get_channel_layer
 from django.shortcuts import get_object_or_404
 from channels.db import database_sync_to_async
 from app.views.web3.sepoliaTournament import record_match, closeTournament
-from app.models import Tournament, Game_Pong
 import threading
 
 arenaWidth = 100
@@ -204,6 +203,8 @@ async def stop_game(id):
         
 @database_sync_to_async
 def sendMatch(id, player1, player2):
+    from app.models import Game_Pong, Tournament
+
     global all_data
     game = get_object_or_404(Game_Pong, id=id)
     bracket_id = game.player1.tournament_id
@@ -343,6 +344,7 @@ async def leave_update(id):
 
 @database_sync_to_async
 def update_tournament(id):
+    from app.models import Game_Pong, Tournament
 
     # GET TOURNAMENT OBJ
     game = get_object_or_404(Game_Pong, id=id)
