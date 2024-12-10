@@ -53,32 +53,51 @@ function display_chess_endgame(winner, reason, white_elo, black_elo, white_elo_w
 	document.getElementById("reason_endgame").innerHTML = reason;
 
 	if (winner == "draw" || winner == 0)
-		console.log("DRAW");
-		document.getElementById("result").innerHTML = "DRAW";
-		document.getElementById("winnerRank").innerHTML += "<span style='color:green'> +"+white_elo_win+"</span>";
-		document.getElementById("loserRank").innerHTML += "<span style='color:red'> "+black_elo_win+"</span>";
+	{
+		console.log("[DRAW]");
+		elem = document.getElementById("loser")
+		elem.classList.remove("loser_chess");
+		elem.classList.add("winner_chess");
 
-	if (winner == "black")
+		elem.querySelector("#rank").innerHTML = black_elo;
+		if (black_elo_win >= 0)
+			elem.querySelector("#rank").innerHTML += "<span style='color:green'> +"+black_elo_win+"</span>";
+		else
+			elem.querySelector("#rank").innerHTML += "<span style='color:red'> "+black_elo_win+"</span>";
+
+		elem = document.getElementById("winner")
+		elem.querySelector("#rank").innerHTML = white_elo;
+		if (white_elo_win >= 0)
+			elem.querySelector("#rank").innerHTML += "<span style='color:green'> +"+white_elo_win+"</span>";
+		else
+			elem.querySelector("#rank").innerHTML += "<span style='color:red'> "+white_elo_win+"</span>";
+	}
+	else if (winner == "black")
 	{
 		document.getElementById("result").innerHTML = "BLACK WIN";
-		stock_name = document.getElementById("winnerName").innerHTML;
-		document.getElementById("winnerName").innerHTML = document.getElementById("loserName").innerHTML;
-		document.getElementById("loserName").innerHTML = stock_name;
-		stock_src = document.getElementById("winnerpp").src;
-		document.getElementById("winnerpp").src = document.getElementById("loserpp").src;
-		document.getElementById("loserpp").src = stock_src;
-		document.getElementById("winnerRank").innerHTML = black_elo;
-		document.getElementById("loserRank").innerHTML = white_elo;
-		document.getElementById("winnerRank").innerHTML += "<span style='color:green'> +"+black_elo_win+"</span>";
-		document.getElementById("loserRank").innerHTML += "<span style='color:red'> "+white_elo_win+"</span>";
+		stock = document.getElementById("loser").innerHTML
+		document.getElementById("loser").innerHTML = document.getElementById("winner").innerHTML;
+		document.getElementById("winner").innerHTML = stock;
+
+		parent_black = document.getElementById("winner");
+		parent_black.querySelector("#rank").innerHTML = black_elo;
+		parent_black.querySelector("#rank").innerHTML += "<span style='color:green'> +"+black_elo_win+"</span>";
+
+
+		parent_white = document.getElementById("loser");
+		parent_white.querySelector("#rank").innerHTML = white_elo;
+		parent_white.querySelector("#rank").innerHTML += "<span style='color:red'> "+white_elo_win+"</span>";
 	}
 	else if (winner == "white")
 	{
 		document.getElementById("result").innerHTML = "WHITE WIN";
-		document.getElementById("winnerRank").innerHTML = white_elo;
-		document.getElementById("loserRank").innerHTML = black_elo;
-		document.getElementById("winnerRank").innerHTML += "<span style='color:green'> +"+white_elo_win+"</span>";
-		document.getElementById("loserRank").innerHTML += "<span style='color:red'> "+black_elo_win+"</span>";
+		parent_white = document.getElementById("winner");
+		parent_white.querySelector("#rank").innerHTML = white_elo;
+		parent_white.querySelector("#rank").innerHTML += "<span style='color:green'> +"+white_elo_win+"</span>";
+
+		parent_black = document.getElementById("loser");
+		parent_black.querySelector("#rank").innerHTML = black_elo;
+		parent_black.querySelector("#rank").innerHTML += "<span style='color:red'> "+black_elo_win+"</span>";
 	}
 
 	document.getElementById("chess_endgame").style.display = "flex";

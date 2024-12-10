@@ -17,8 +17,8 @@ function init_game()
 
     for (let x = 0; x < 8; x++)
     {
-        board[5][x].piece = new Pawn("black");
-        board[2][x].piece = new Pawn("white");
+        board[1][x].piece = new Pawn("black");
+        board[6][x].piece = new Pawn("white");
     }
 
     board[0][0].piece = board[0][7].piece = new Rook("black");
@@ -334,4 +334,21 @@ function do_promotion_move(piece, x, y)
     else if (piece == "Knight")
         board[y][x].piece = new Knight(board[y][x].piece.color);
     document.getElementById("cell"+x+y).children[0].src = board[y][x].piece.src;
+}
+
+function display_local_endgame(reason)
+{
+    elem = document.getElementById("board")
+    endgame_div = document.createElement("div");
+    endgame_div.setAttribute("id", "endgame");
+    endgame_div.style = "position:absolute; background:rgba(50, 50, 50, 0.9);";
+    endgame_div.setAttribute('class',"z-3 chess_endgame flex-column border border-secondary rounded p-3")
+    endgame_div.innerHTML = `
+        <div style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+            <h1>${reason}</h1>
+            <a class="cancel_queue_button" hx-get hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">Replay</a>
+        </div>
+    `
+    htmx.process(endgame_div)
+    elem.appendChild(endgame_div);
 }
