@@ -60,8 +60,6 @@ async def launch_multi_game(id, playerlist):
         all_multi_data[id].zoneStart[i] = i * all_multi_data[id].playerZoneSize
         all_multi_data[id].paddleStart[i] = i * all_multi_data[id].playerZoneSize + all_multi_data[id].playerPaddleSize * 1.5
 
-    print("zone size", all_multi_data[id].playerZoneSize, file=sys.stderr)
-
     await send_updates(id)
 
     asyncio.create_task(multi_calcul_ball(id))
@@ -69,8 +67,6 @@ async def launch_multi_game(id, playerlist):
 
 async def calc_paddle_collision(id, startAngle, endAngle, ballAngle):
     global baseSpeed, all_multi_data
-
-    print("[COLLISION PADDLE !!!]", file=sys.stderr)
 
     relativeAngle = (((startAngle +(all_multi_data[id].playerPaddleSize /2)) - ballAngle)/(all_multi_data[id].playerPaddleSize /2))
     bounceAngle = relativeAngle * (5*math.pi)

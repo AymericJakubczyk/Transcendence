@@ -42,7 +42,6 @@ def match_place(game):
     return (game.tournament_pos)
 
 def seedPlayers(playerlist):
-    print("Starting seeding...", file=sys.stderr)
     seededPlayers = []
     for player in playerlist:
         seededPlayers.append(player)
@@ -82,7 +81,6 @@ def moveWinners(tournament_matchs):
                         # send ws tournament game ready
                         pong_utils.pong_tournament_game_ready(game_obj)
                     game_obj.save()
-                    print("\tMOVED", game.winner, "TO", game_obj.tournament_pos, file=sys.stderr)
     return tournament_matchs
 
 
@@ -160,7 +158,6 @@ def pongTournament(request):
     all_tournaments = Tournament.objects.filter(game_played="PONG")
 
     if 'create_tournament' in request.POST:
-        print("trying to create", file=sys.stderr)
         game_played = "PONG"
         max_users = request.POST.get('group-size')
         if request.POST.get('tournament_name') == "":
@@ -179,7 +176,6 @@ def pongTournament(request):
             request.user.save()
 
     if 'bracket_tournament' in request.POST:
-        print("making brackets", file=sys.stderr)
         tournament_id = request.POST.get('bracket_tournament')
         tournament = get_object_or_404(Tournament, id=tournament_id)
         for user in tournament.participants.all():
@@ -220,7 +216,6 @@ def pongTournament(request):
             updateTournamentRoom(tournament.id)
 
     if 'join_tournament' in request.POST:
-        print("trying to join", file=sys.stderr)
         tournament_id = request.POST.get('join_tournament')
         tournament = get_object_or_404(Tournament, id=tournament_id)
         if request.user not in tournament.participants.all():
@@ -243,7 +238,6 @@ def pongTournament(request):
             )
 
     if 'leave_tournament' in request.POST:
-        print("trying to leave", file=sys.stderr)
         tournament_id = request.POST.get('leave_tournament')
         tournament = get_object_or_404(Tournament, id=tournament_id)
         if request.user in tournament.participants.all():

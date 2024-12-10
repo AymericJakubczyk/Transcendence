@@ -13,8 +13,6 @@ async function fetch_user(userId) {
 
 async function profileView(userId) {
 
-	console.log("Profile view called");
-
 	const user = await fetch_user(userId)
 
 	document.getElementById('page').innerHTML = `

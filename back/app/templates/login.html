@@ -63,7 +63,6 @@
         pongCanvas = document.getElementById('pongCanvas');
         if (!pongCanvas) 
             return;
-        console.log('resize');
         camera.aspect = pongCanvas.clientWidth / pongCanvas.clientHeight;
         camera.updateProjectionMatrix();
     });

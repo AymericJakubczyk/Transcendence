@@ -138,7 +138,6 @@ function receive_multi_ws(data)
 
 function setup_game()
 {
-	console.log("Setuping game");
     // PLAYER COLOR DISPLAY
     htmlplayerlist = document.getElementById("pongmulti_playerlist");
     for (let i = 0; i < nbPlayers; i++) {
@@ -270,8 +269,6 @@ function ws_call_move(move, player)
     };
     if (pongMultiSocket)
         pongMultiSocket.send(JSON.stringify(obj))
-    else
-        console.log("INPUUUUUUUUUUUUUUT");
 }
 
 function updateZones()
@@ -285,8 +282,6 @@ function updateZones()
         	scene.remove( playersObjs[i].paddle );
 
     playerZoneSize = (2 * Math.PI) / activePlayers;
-    console.log("Creating", activePlayers, "zones. Zone size =", playerZoneSize);
-    console.log("Cant take color over", nbPlayers);
     y = 0;
     nbZones = 0;
     while (y < nbPlayers)
@@ -307,7 +302,6 @@ function updateZones()
             
             scene.add( playersObjs[y].zone );
             nbZones++;
-            console.log("Player", y+1, playerZoneColor, "zone created.");
         }
         y++;
     }
@@ -316,7 +310,6 @@ function updateZones()
 
 function setupZones()
 {   
-	console.log("Setuping zones");
     playerZoneSize = (2 * Math.PI) / nbPlayers;
     for (let i = 0; i < nbPlayers; i++)
     {
@@ -351,7 +344,6 @@ function getPaddlesColor(hexColor, factor)
 
 function setupPaddles()
 {
-	console.log("Setuping paddles");
     playerZoneSize = (2 * Math.PI) / nbPlayers;
     playerPaddleSize = ((2 * Math.PI) / nbPlayers) / 4;
     paddleRadius = ringRadius-3

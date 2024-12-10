@@ -97,7 +97,6 @@
 </html>
 
 <script>
-    console.log("{{ request.user.game_status_url }}, {{ user.game_status_txt }}");
 	{% if user.is_authenticated and user.game_status_url != 'none' %}
 		change_game_headbar('{{ user.game_status_txt }}', '{{ request.user.game_status_url }}');
     {% endif %}                

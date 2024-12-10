@@ -45,7 +45,6 @@ function create_pong_tournament_ws()
 
 function leave_pong_tournament(id_tournament)
 {
-    console.log("LEAVE TOURNAMENT", id_tournament)
     pongTournamentSocket.close();
     pongTournamentSocket = null;
 }
@@ -53,7 +52,6 @@ function leave_pong_tournament(id_tournament)
 
 function receive_ws(data)
 {
-    console.log("[RECEIVE WS]", data);
     if (data.action =="join")
     {
         console.log("JOIN", data)
@@ -88,20 +86,11 @@ function generateColor() {
 }
 
 function setColor() {
-    console.log("SET COLOR")
     const players = document.querySelectorAll('.playersList .player');
 
     players.forEach((player, index) => {
         player.style.backgroundColor = generateColor();
     });
-
-    // document.addEventListener("DOMContentLoaded", () => {
-    //     const players = document.querySelectorAll('.playersList .player');
-
-    //     players.forEach((player, index) => {
-    //         player.style.backgroundColor = generateColor();
-    //     });
-    // });
 }
 
 function addPlayer(data) {

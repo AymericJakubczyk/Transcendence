@@ -118,7 +118,6 @@
 		{% elif game.winner == game.black_player %}
 			winner = "black";
 		{% endif %}
-		console.log("dispaly_chess_endgame", winner);
 		display_chess_endgame(winner, "{{ game.reason_endgame }}", {{ game.white_player_rank }}, {{ game.black_player_rank }}, {{ game.white_player_rank_win }}, {{ game.black_player_rank_win }});
 	{% elif game %}
 		create_chess_ws({{ game.id }});

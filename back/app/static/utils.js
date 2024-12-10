@@ -1,8 +1,6 @@
 window.addEventListener('htmx:beforeSwap', function(evt) {
     const old_path = window.location.pathname;
     const new_path = evt.detail.pathInfo.path
-    // console.log('old location!', old_path);
-    // console.log('new location!', new_path);
     if (old_path == "/game/pong/local/")
     {
         console.log("[LOG] Stop local game")
@@ -58,7 +56,6 @@ function htmx_request(url, method, values)
     form_htmx.style.display = "none";
     for (const [key, value] of Object.entries(values))
     {
-        console.log(key, value)
         input_value = document.createElement("input");
         input_value.setAttribute("type", "hidden");
         input_value.setAttribute("name", key);
@@ -70,7 +67,6 @@ function htmx_request(url, method, values)
     form_htmx.append(input_submit);
     htmx.process(form_htmx);
     document.getElementById("page").appendChild(form_htmx);
-    console.log("submit")
     input_submit.click();
 }
 
@@ -142,7 +138,6 @@ function login(csrf_token)
         console.log("[LOGIN] already login")
         return
     }
-    console.log('[LOGIN]')
     create_ws()
     // redifine csrf when log
     csrftoken = csrf_token
