@@ -43,8 +43,8 @@ class PongAIConsumer(AsyncWebsocketConsumer):
         )
 
     async def receive(self, text_data):
-        text_data_json = json.loads(text_data)
-        print("[RECEIVE PONG AI]", text_data_json, file=sys.stderr)
+        data = json.loads(text_data)
+        print("[RECEIVE PONG AI]", data, file=sys.stderr)
 
         player = 0
         if self.scope["user"] == self.player1:
@@ -56,8 +56,8 @@ class PongAIConsumer(AsyncWebsocketConsumer):
             print("[ERROR] player not in game", file=sys.stderr)
             return
 
-        if (text_data_json['type'] == 'move_paddle'):
-            await pong_ai_utils.move_paddle(text_data_json['move'], text_data_json['pressed'], player, int(self.id))
+        if (data.get('type') and data['type'] == 'move_paddle' and data.get('move') and data.get('pressed')):
+            await pong_ai_utils.move_paddle(data['move'], data['pressed'], player, int(self.id))
 
     # async def simulate_ai_response(self):
     #     """Simule les actions de l'IA (par exemple, suivre la balle)."""

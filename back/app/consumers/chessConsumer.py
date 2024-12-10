@@ -49,7 +49,11 @@ class ChessConsumer(AsyncWebsocketConsumer):
             print("[ERROR] game is finished", file=sys.stderr)
             return
 
-        if (data['type'] == 'move'):
+        if (not data.get('type')):
+            print("[ERROR] type not found", file=sys.stderr)
+            return
+
+        if (data['type'] == 'move' and data.get('from') and data.get('to')):
             if (data.get('promotion') == None):
                 data['promotion'] = None
             await self.move_piece(data['from'], data['to'], int(self.id), data['promotion'])
