@@ -1,4 +1,3 @@
-# import pygame
 import random
 import sys
 import numpy as np
@@ -24,12 +23,7 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 SCALE_FACTOR_X = SCREEN_WIDTH / arenaLength
 SCALE_FACTOR_Y = SCREEN_HEIGHT / arenaWidth
-MODE = "COlLECT"  # "COLLECT", "TRAIN", "TEST"
-
-# pygame.init()
-# screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-# pygame.display.set_caption("Pong - Supervised Learning (Continuous Target)")
-# clock = pygame.time.Clock()
+MODE = "COlLECT"
 
 class PongData:
     def __init__(self):
@@ -98,22 +92,6 @@ def move_paddle(direction, player, data_id):
             if all_data[data_id].paddle2_y > arenaWidth - paddleHeight/2:
                 all_data[data_id].paddle2_y = arenaWidth - paddleHeight/2
 
-# def updateIA(id):
-#     # paddle_y = all_data[id].paddle1_y
-#     # put random y between paddle -7 and +7
-#     # paddle_y += random.randint(2, 2)
-#     if all_data[id].paddle1_y < all_data[id].ball_y:
-#         move_paddle("down", 1, id)
-#     elif all_data[id].paddle1_y > all_data[id].ball_y:
-#         move_paddle("up", 1, id)
-
-# def draw_game(id, screen):
-#     screen.fill(BLACK)
-    # pygame.draw.circle(screen, WHITE, (int(all_data[id].ball_x * SCALE_FACTOR_X), int(all_data[id].ball_y * SCALE_FACTOR_Y)), int(ballRadius * SCALE_FACTOR_X))
-    # pygame.draw.rect(screen, WHITE, (10, int((all_data[id].paddle1_y - paddleHeight / 2) * SCALE_FACTOR_Y), 10, int(paddleHeight * SCALE_FACTOR_Y)))
-    # pygame.draw.rect(screen, WHITE, (SCREEN_WIDTH - 20, int((all_data[id].paddle2_y - paddleHeight / 2) * SCALE_FACTOR_Y), 10, int(paddleHeight * SCALE_FACTOR_Y)))
-    # pygame.display.flip()
-
 def goal(player, id):
     global nbrHit
     nbrHit = 0
@@ -178,7 +156,6 @@ def expert_policy(state):
     
     return predicted_y
 
-
 def get_target_y_from_network(network, state):
     with torch.no_grad():
         state_tensor = torch.tensor(state, dtype=torch.float32).unsqueeze(0)
@@ -192,30 +169,19 @@ def calcul_ball(id, mode="COLLECT"):
     i = 0
     ai_target_y = all_data[id].paddle1_y
     target_y = all_data[id].paddle2_y
-    max_steps = 10000
+    max_steps = 2000
     total_reward = 0
 
     states_collected = []
     ys_collected = []
 
     while not done and i < max_steps:
-        # for event in pygame.event.get():
-            # if event.type == pygame.QUIT:
-                # pygame.quit()
-                # sys.exit()
-
-            # print(f"Step {j}")
         ai_target_y = updateIA(get_state_p1(all_data[id]))
         if i % 90 == 0:
             state = get_state(all_data[id])
             target_y = expert_policy(state)
             states_collected.append(state)
             ys_collected.append(target_y)
-            # if mode == "COLLECT":
-            # else:
-            #     target_y = get_target_y_from_network(network, state)
-            
-            # if mode == "COLLECT":
 
         if all_data[id].paddle2_y > target_y:
             move_paddle('up', 2, id)
@@ -261,41 +227,11 @@ def calcul_ball(id, mode="COLLECT"):
 
         total_reward += reward
 
-        # if mode == "TEST":
-        #     # draw_game(id, screen)
-        #     clock.tick(90)
-
         i += 1
 
     return total_reward, states_collected, ys_collected
 
-
-def train_supervised(network, optimizer, states_dataset, ys_dataset, batch_size=64, epochs=5):
-    X = torch.tensor(states_dataset, dtype=torch.float32)
-    y = torch.tensor(ys_dataset, dtype=torch.float32).unsqueeze(1)
-
-    dataset = TensorDataset(X, y)
-    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
-    best_loss = float("inf")
-    loss_fn = nn.MSELoss()
-    
-    network.train()
-    for epoch in range(epochs):
-        total_loss = 0
-        # if total_loss < best_loss:
-        #     best_loss = total_loss
-        #     torch.save(network.state_dict(), "best_model_supervised.pth")
-        for batch_x, batch_y in dataloader:
-            optimizer.zero_grad()
-            y_pred = network(batch_x)
-            loss = loss_fn(y_pred, batch_y)
-            loss.backward()
-            optimizer.step()
-            total_loss += loss.item()
-        print(f"Epoch {epoch+1}/{epochs}, Loss: {total_loss/len(dataloader)}")
-
-# if MODE == "COLLECT":
-num_episodes = 5000
+num_episodes = 2000
 all_states = []
 all_ys = []
 
@@ -309,26 +245,3 @@ np.save("states_dataset.npy", np.array(all_states))
 np.save("ys_dataset.npy", np.array(all_ys))
 print("States and ys saved.")
 sys.exit()
-
-# pygame.quit()
-
-# elif MODE == "TRAIN":
-#     states_dataset = np.load("states_dataset.npy")
-#     ys_dataset = np.load("ys_dataset.npy")
-
-#     train_supervised(network, optimizer, states_dataset, ys_dataset, epochs=20)
-
-#     torch.save(network.state_dict(), "model_supervised.pth")
-#     # pygame.quit()
-#     sys.exit()
-
-# elif MODE == "TEST":
-#     network.load_state_dict(torch.load("model_supervised.pth"))
-#     network.eval()
-
-#     num_episodes = 500
-#     for episode in range(num_episodes):
-#         total_reward, _, _ = calcul_ball(episode, mode="TEST")
-#         print(f"Episode {episode+1}, Reward: {total_reward}")
-#     # pygame.quit()
-#     sys.exit()
