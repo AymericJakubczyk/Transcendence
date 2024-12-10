@@ -74,6 +74,7 @@ function display_chess_endgame(winner, reason, white_elo, black_elo, white_elo_w
 	}
 	else if (winner == "black")
 	{
+		document.getElementById("result").innerHTML = "BLACK WIN";
 		stock = document.getElementById("loser").innerHTML
 		document.getElementById("loser").innerHTML = document.getElementById("winner").innerHTML;
 		document.getElementById("winner").innerHTML = stock;
@@ -89,6 +90,7 @@ function display_chess_endgame(winner, reason, white_elo, black_elo, white_elo_w
 	}
 	else if (winner == "white")
 	{
+		document.getElementById("result").innerHTML = "WHITE WIN";
 		parent_white = document.getElementById("winner");
 		parent_white.querySelector("#rank").innerHTML = white_elo;
 		parent_white.querySelector("#rank").innerHTML += "<span style='color:green'> +"+white_elo_win+"</span>";

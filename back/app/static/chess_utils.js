@@ -70,9 +70,9 @@ function verif_end_game(board, color)
     if (!can_move(cp_board, color))
     {
         if (verif_check(cp_board, color))
-            alert("Check " + color);
+            display_local_endgame("Checkmate");
         else
-            alert("Pat");
+            display_local_endgame("Pat");
     }
 }
 
