@@ -26,6 +26,7 @@
 		{% endif %}
 		<div id="board" style="position:relative" class="d-flex flex-column align-items-center justify-content-center">
 			<script>
+				document.getElementById('board').innerHTML = '';
 				for (let y = 0; y < 8; y++) {
 					let row_div = document.createElement('div');
 					row_div.style.display = 'flex';
@@ -34,14 +35,14 @@
 						cell_div.className = 'cell';
 						cell_div.id = 'cell' + x + y;
 						cell_div.style.backgroundColor = (x + y) % 2 == 0 ? "antiquewhite" : "burlywood";
-						cell_div.onclick = function() {cell_click(x, y, 0, 0)};
+						cell_div.setAttribute("onclick", `cell_click(${x}, ${y}, 0, 0)`)
 						{% if game and game.white_player.username == request.user.username %}
-						cell_div.onclick = function() {cell_click(x, y, 1, "white")};
+						cell_div.setAttribute("onclick", `cell_click(${x}, ${y}, 1, "white")`)
 						{% elif game and game.black_player.username == request.user.username %}
-						cell_div.onclick = function() {cell_click(7 - x, 7 - y, 1, "black")};
+						cell_div.setAttribute("onclick", `cell_click(${7 - x}, ${7 - y}, 1, "black")`)
 						cell_div.id = 'cell' + (7-x) + (7-y);
 						{% elif game %} /* if spectator */
-						cell_div.onclick = null;
+						cell_div.setAttribute("onclick", null)
 						{% endif %}
 						row_div.appendChild(cell_div);
 					}

@@ -80,7 +80,6 @@ function first_display(board)
         {
             if (board[y][x].piece)
             {
-                console.log(x,y,board[y][x].piece.src)
                 let img = document.createElement("img");
                 img.style.position = "absolute";
                 img.src = board[y][x].piece.src;
@@ -88,6 +87,8 @@ function first_display(board)
                 img.style.height = "100%";
                 document.getElementById("cell"+x+y).appendChild(img);
             }
+            else
+                document.getElementById("cell"+x+y).innerHTML = "";
         }
     }
 }

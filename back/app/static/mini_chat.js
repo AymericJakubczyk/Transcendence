@@ -38,6 +38,7 @@ function minimize_mini_chat()
         <h2 class="m-0 p-2" style="cursor:pointer" onclick="display_mini_chat()">💬</h2>
         <div id="global_mini_notif" class='notif bg-danger text-light rounded-circle' style="left: 2px;top: 2px" hidden>!</div>
     `
+    set_global_notif()
     if (document.getElementById("global_notif").hidden == false)
         document.getElementById("global_mini_notif").hidden = false
 }
