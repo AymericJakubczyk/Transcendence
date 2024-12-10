@@ -53,10 +53,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
             print("[ERROR] type not found", file=sys.stderr)
             return
             
-        if (data['type'] == 'message'):
+        if (data['type'] == 'message' and data.get('message') and data.get('send_to') and data.get('discu_id')):
             await self.verif_and_send_msg(data)
 
-        if (data['type'] == "decline"):
+        if (data['type'] == "decline" and data.get('id')):
             sender = await self.decline_invatation(data['id'])
             await self.channel_layer.group_send(
                 sender.username,{'type':'send_ws' ,'type2':'decline', 'id':data['id']}

@@ -41,7 +41,7 @@ class PongConsumer(AsyncWebsocketConsumer):
         )
 
     async def receive(self, text_data):
-        text_data_json = json.loads(text_data)
+        data = json.loads(text_data)
 
         player = 0
         if self.scope["user"] == self.player1:
@@ -53,8 +53,8 @@ class PongConsumer(AsyncWebsocketConsumer):
             print("[ERROR] player not in game", file=sys.stderr)
             return
 
-        if (text_data_json['type'] == 'move_paddle'):
-            await pong_utils.move_paddle(text_data_json['move'], text_data_json['pressed'], player, int(self.id))
+        if (data.get('type') and data['type'] == 'move_paddle' and data.get('move') and data.get('pressed')):
+            await pong_utils.move_paddle(data['move'], data['pressed'], player, int(self.id))
 
 
     @database_sync_to_async
