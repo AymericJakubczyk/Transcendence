@@ -69,7 +69,7 @@
                         </div>
                     </div>
                     <div class="d-flex justify-content-center" style="padding: 10%;">
-                        <a href="{% url 'pong_ai_game' %}" class="rematchButton">Rejouer</a>
+                        <a hx-get="{% url 'pong_ai_game' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" class="rematchButton">Rejouer</a>
                     </div>
                 </div>
             </div>

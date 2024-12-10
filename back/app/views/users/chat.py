@@ -43,6 +43,11 @@ def chatView(request):
 
     if (request.method == "GET" and request.GET.get('type') == 'get_global_notif'):
         print("[GET GLOBAL NOTIF]", file=sys.stderr)
+        notif_mini_tab = False
+        if (Invite.objects.filter(to_user=current_user).count() > 0):
+            notif_mini_tab = True
+        if (Friend_Request.objects.filter(to_user=current_user).count() > 0):
+            notif_mini_tab = True
         all_discussion = Discussion.objects.filter(Q(user1=current_user) | Q(user2=current_user))
         for discussion in all_discussion:
             # if other user in discu is blocked, skip him (for see if you have notif)
@@ -50,8 +55,8 @@ def chatView(request):
                 continue
             last_message = discussion.get_last_message()
             if last_message and not last_message.read and last_message.sender != current_user:
-                return JsonResponse({'notif': True})
-        return JsonResponse({'notif': False})
+                return JsonResponse({'notif': True, 'notif_mini_tab':notif_mini_tab})
+        return JsonResponse({'notif': False, 'notif_mini_tab':notif_mini_tab})
 
     if 'add_discussion' in request.POST:
         print("[ADD]", file=sys.stderr)

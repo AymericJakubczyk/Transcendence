@@ -7,10 +7,10 @@
 	
 	 <!-- Groupe de boutons côte à côte -->
 	 <div id="playButtonGroup" class="button-group">
-		<a href="{% url 'pong_local_game' %}" class="play-button btn-left" aria-label="Jouer au Pong">
+		<a hx-get="{% url 'pong_local_game' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" class="play-button btn-left" aria-label="Jouer au Pong">
 			<span>JOUER</span>
 		</a>
-		<a href="{% url 'pong_ai_game' %}" class="play-button btn-right" aria-label="Jouer contre l'IA">
+		<a hx-get="{% url 'pong_ai_game' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" class="play-button btn-right" aria-label="Jouer contre l'IA">
 			<span>VS IA</span>
 		</a>
 	</div>

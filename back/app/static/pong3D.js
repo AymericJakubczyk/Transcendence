@@ -79,14 +79,9 @@ function display3D(canChangeCam = true)
     camera = new THREE.PerspectiveCamera( 75, (myCanvas.clientWidth * 10) / (myCanvas.clientHeight * 10), 0.1, 1000 );
 
     if (canChangeCam == true)
-    {       
-        addEventListener("keypress", (event) => {
-            if (event.key == '1')
-                cam1()
-            if (event.key == '2')
-                cam2()  
-        });
-    }
+        document.addEventListener("keypress", camHandler);
+    else
+        document.removeEventListener("keypress", camHandler);
     
     scene = new THREE.Scene()
     scene.background = new THREE.Color( 0x323232 );

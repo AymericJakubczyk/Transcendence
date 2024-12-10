@@ -32,8 +32,10 @@ class PongAIConsumer(AsyncWebsocketConsumer):
         await self.accept()
 
     async def disconnect(self, close_code):
+        import app.consumers.utils.pong_ai_utils as pong_ai_utils 
         print("[DISCONNECT PONG AI]", self.scope["user"], self.room_group_name, file=sys.stderr)
         
+        pong_ai_utils.stop_game(int(self.id))
         # Retirer ce consumer du groupe de WebSocket
         await self.channel_layer.group_discard(
             self.room_group_name,

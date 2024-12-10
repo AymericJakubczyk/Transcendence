@@ -40,6 +40,11 @@ function set_global_notif()
             if (document.getElementById("global_mini_notif"))
                 document.getElementById("global_mini_notif").hidden = true
         }
+        if (data.notif_mini_tab)
+        {
+            if (document.getElementById("global_mini_notif"))
+                document.getElementById("global_mini_notif").hidden = false
+        }
     });
 }
 

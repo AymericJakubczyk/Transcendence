@@ -2,7 +2,6 @@ import app.consumers.utils.chess_class as chess_class
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync, sync_to_async
 from django.shortcuts import get_object_or_404
-from app.models import Game_Chess, User
 from channels.db import database_sync_to_async
 
 import sys
@@ -108,6 +107,8 @@ def check_repetition(id):
 
 @database_sync_to_async
 def propose_draw(id, color):
+    from app.models import Game_Chess
+
     game = get_object_or_404(Game_Chess, id=id)
     if game.propose_draw:
         return
@@ -127,6 +128,8 @@ def propose_draw(id, color):
 
 @database_sync_to_async
 def decline_draw(id, color):
+    from app.models import Game_Chess
+
     game = get_object_or_404(Game_Chess, id=id)
     game.propose_draw = None
     game.save()
@@ -134,6 +137,8 @@ def decline_draw(id, color):
 
 @database_sync_to_async
 def get_color_turn(id):
+    from app.models import Game_Chess
+
     game = get_object_or_404(Game_Chess, id=id)
     if game.turn_white: 
         return 'white' 
@@ -143,7 +148,9 @@ def get_color_turn(id):
 
 @database_sync_to_async
 def save_result_game(game_id, winner, by):
+    from app.models import Game_Chess, User
     import app.consumers.utils.user_utils as user_utils
+
     global all_position
 
     game = get_object_or_404(Game_Chess, id=game_id)

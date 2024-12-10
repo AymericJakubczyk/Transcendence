@@ -1,26 +1,26 @@
-pongSocket = null;
+pongAISocket = null;
 
 function join_pong_ai_game(game_data) {
     console.log("[JOIN PONG AI GAME]", game_data);
-    if (pongSocket)
-        pongSocket.close()
+    if (pongAISocket)
+        pongAISocket.close()
     if (window.location.protocol == "https:")
-        pongSocket = new WebSocket('wss://' + window.location.host + `/ws/pong/local/vs-ia/${game_data.id}/`);
+        pongAISocket = new WebSocket('wss://' + window.location.host + `/ws/pong/local/vs-ia/${game_data.id}/`);
     else
-        pongSocket = new WebSocket('ws://' + window.location.host + `/ws/pong/local/vs-ia/${game_data.id}/`);
+        pongAISocket = new WebSocket('ws://' + window.location.host + `/ws/pong/local/vs-ia/${game_data.id}/`);
 
-    pongSocket.onopen = function() {
+    pongAISocket.onopen = function() {
         console.log('[WS PONG AI] WebSocket PONG AI connection established.');
     };
 
-    pongSocket.onmessage = function(e) {
+    pongAISocket.onmessage = function(e) {
         const data = JSON.parse(e.data);
         receive_pong_ws_ai(data)
     }
 
-    pongSocket.onclose = (event) => {
+    pongAISocket.onclose = (event) => {
         console.log("[WS PONG AI] The connection has been closed successfully.");
-        pongSocket = null;
+        pongAISocket = null;
     }
 }
 
@@ -147,8 +147,8 @@ function send_input_move(move, pressed) {
         'move': move,
         'pressed': pressed
     };
-    if (pongSocket)
-        pongSocket.send(JSON.stringify(obj))
+    if (pongAISocket)
+        pongAISocket.send(JSON.stringify(obj))
 }
 
 document.addEventListener("keydown", function(event) {

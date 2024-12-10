@@ -21,13 +21,20 @@ window.addEventListener('htmx:beforeSwap', function(evt) {
         chessSocket.close()
         chessSocket = null
     }
-    
-    if (old_path.startsWith("/game/pong/multiplayer/") && !new_path.startsWith("/game/pong/multiplayer/"))
+    if (pongMultiSocket && old_path.startsWith("/game/pong/multiplayer/") && old_path != new_path)
     {
         console.log("[WS PONG MULTI] socket closed")
         pongMultiSocket.close()
         pongMultiSocket = null
     }
+    if (pongAISocket && old_path.startsWith("/game/pong/local/vs-ia/") && old_path != new_path)
+    {
+        console.log("[WS PONG AI] socket closed")
+        pongAISocket.close()
+        pongAISocket = null
+    }
+    
+
     if (old_path == "/game/pong/tournament/" && pongTournamentSocket)
     {
         pongTournamentSocket.close()
@@ -126,4 +133,53 @@ function warn_game_ready_message(id)
             error_msg.remove()
         }
     }, 5000)
+}
+
+function login(csrf_token)
+{
+    if (chatSocket)
+    {
+        console.log("[LOGIN] already login")
+        return
+    }
+    console.log('[LOGIN]')
+    create_ws()
+    // redifine csrf when log
+    csrftoken = csrf_token
+    document.body.setAttribute('hx-headers', '{"X-CSRFToken": "'+csrf_token+'"}');
+    if (document.getElementById("mini_chat"))
+        document.getElementById("mini_chat").hidden = false;
+    set_global_notif()
+
+    // stop login animation
+    if (gameInterval) 
+        clearInterval(gameInterval);
+    if (paddleInterval)
+        clearInterval(paddleInterval);
+
+    // display mini_chat
+    mini_chat = document.getElementById("mini_chat")
+    if (mini_chat)
+    {
+        console.log('[DISPLAY] mini_chat')
+        mini_chat.hidden = false
+        minimize_mini_chat()
+    }
+}
+
+function logout()
+{
+    console.log('[LOGOUT]')
+    if (chatSocket) {
+        chatSocket.close();
+        chatSocket = null;
+    }
+	if (document.getElementById("global_notif"))
+		document.getElementById("global_notif").hidden = true;
+    mini_chat = document.getElementById("mini_chat")
+    if (mini_chat)
+    {
+        mini_chat.innerHTML = ''
+        mini_chat.hidden = true
+    }
 }
