@@ -279,29 +279,12 @@ else :
 	admin_acc = None
 	contract = None
 
-#Testing connection with the Ethereum node and the contract
-
-def test(request):
-	# players = ["player1", "player2"]
-	if (web3.is_connected()):
-		print("Connected to the Ethereum node", file=sys.stderr)
-	else:
-		print("Error connecting to the Ethereum node", file=sys.stderr)
-	if (contract):
-		print("Connected to the contract", file=sys.stderr)
-	else:
-		print("Error connecting to the contract", file=sys.stderr)
-	print(account, "ACC", admin_acc, file=sys.stderr)
-	return JsonResponse({"message": "test"})
-
 #Record match on the blockchain
 
 def record_match(player1, score_1, player2, score_2, tournament_id, bracket_id, tournamentName):
 	print("Recording match", file=sys.stderr)
 	try :
-		print(player1, type(player1), score_1, type(score_1), player2, type(player2), score_2, type(score_2), tournament_id, type(tournament_id), bracket_id, type(bracket_id), file=sys.stderr)
 		token_hash = contract.functions.addMatchToTournaments(player1, player2, tournamentName, score_1, score_2, tournament_id, bracket_id).transact({'from' : admin_acc})
-		print("Token hash : ", token_hash, file=sys.stderr)
 		receipt = web3.eth.wait_for_transaction_receipt(token_hash)
 		if (receipt.status == 1):
 			print("Match enregistre avec succes", file=sys.stderr)
@@ -339,7 +322,6 @@ def get_participants_arr(tournament):
 
 def createTournament(players_arr, tournament_id, tournamentName):
 	test(players_arr)
-	print("NAME", tournamentName, tournament_id, players_arr, file=sys.stderr)
 	try:
 		token_hash = contract.functions.createTournament(players_arr, tournament_id, tournamentName).transact({'from' : admin_acc})
 		print(token_hash, file=sys.stderr)
@@ -356,8 +338,6 @@ def createTournament(players_arr, tournament_id, tournamentName):
 		return ""
 
 def closeTournament(tournament_id, winner, tournamentName):
-	print(tournament_id, type(tournament_id), file=sys.stderr)
-	print("WINNER", winner, type(winner), file=sys.stderr)
 	try:
 		token_hash = contract.functions.closeTournament(tournament_id, winner, tournamentName).transact({'from' : admin_acc})
 		receipt = web3.eth.wait_for_transaction_receipt(token_hash)
