@@ -1,5 +1,6 @@
-.test {
+.game_zone {
     display: flex;
+    position: relative;
     flex-direction: column;
     justify-content: center;
     align-items: center;
@@ -41,4 +42,31 @@
 .promotion_cell:hover {
     background-color: #f0f0f0;
     cursor: pointer;
+}
+
+.winner_chess img {
+    height:8vw;
+    max-height:100px;
+}
+
+.winner_chess #name {
+    font-size: xx-large;
+}
+
+.winner_chess #rank {
+    font-size: large;
+}
+
+.loser_chess img {
+    opacity:0.5;
+}
+
+.loser_chess #name {
+    opacity:0.5;
+    font-size: x-large;
+}
+
+.loser_chess #rank {
+    opacity:0.5;
+    font-size: large;
 }

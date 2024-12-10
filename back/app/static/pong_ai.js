@@ -141,7 +141,7 @@ function display_endgame_ai( player1Score, player2Score) {
 }
 
 
-function send_input_move(move, pressed) {
+function send_input_move_ai(move, pressed) {
     const obj = {
         'type': 'move_paddle',
         'move': move,
@@ -153,17 +153,17 @@ function send_input_move(move, pressed) {
 
 document.addEventListener("keydown", function(event) {
     if (event.key === "ArrowUp") {
-        send_input_move('up', true);
+        send_input_move_ai('up', true);
     } else if (event.key === "ArrowDown") {
-        send_input_move('down', true);
+        send_input_move_ai('down', true);
     }
 });
 
 document.addEventListener("keyup", function(event) {
     if (event.key === "ArrowUp") {
-        send_input_move('up', false);
+        send_input_move_ai('up', false);
     } else if (event.key === "ArrowDown") {
-        send_input_move('down', false);
+        send_input_move_ai('down', false);
     }
 });
 
