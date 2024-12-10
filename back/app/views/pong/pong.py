@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from app.forms import SignupForm, LoginForm, UpdateForm
 from app.models import User, Tournament, Friend_Request, Discussion, Message, Game_Chess, Game_Pong
-from app.views.web3.sepoliaTournament import createTournament, get_participants_arr, record_match
+from app.views.web3.sepoliaTournament import createTournament, get_participants_arr
 from django.urls import reverse as get_url
 from django.db.models import Q
 import json, math
