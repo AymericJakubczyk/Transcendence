@@ -42,7 +42,9 @@
 		</div>
 		<div class="text-center col-6">
 			<h6>Last Connexion :</h6>
-			{% if context_last_login.total_seconds < 60 %}
+			{% if context_last_login.delta == 0 %}
+				<p>NEVER</p>
+			{% elif context_last_login.total_seconds < 60 %}
 				<p>{{ context_last_login.total_seconds|floatformat:0}} seconds ago</p>
 			{% elif context_last_login.total_seconds < 3600 %}
 				<p>{{ context_last_login.minutes|floatformat:0 }} minutes ago</p>

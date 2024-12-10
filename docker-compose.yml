@@ -24,7 +24,8 @@ services:
       context: docker
       dockerfile: Dockerfile-nginx 
     volumes:
-      - nginx:/transcendence/static/
+      - nginx-static:/transcendence/static/
+      - nginx-media:/transcendence/media/
     ports:
       - "8042:443"
     env_file: .env
@@ -50,12 +51,19 @@ services:
 
 
 volumes:
-  nginx:
+  nginx-static:
     driver: local
     driver_opts:
       type: 'none'
       o: 'bind'
       device: './back/app/static'
+  
+  nginx-media:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: './back/media'
 
   back:
     driver: local

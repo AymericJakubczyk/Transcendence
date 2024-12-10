@@ -177,32 +177,17 @@ def pongTournament(request):
             tournament.save()
             request.user.tournament_id = tournament.id
             request.user.save()
-    # TO REMOVE
-    if 'win_tournament' in request.POST:
-        tournament_id = request.POST.get('win_tournament')
-        tournament = Tournament.objects.get(id=tournament_id)
-        tournament.winner = request.user
-        print("STARTING RESULTS", file=sys.stderr)
-        place = 1
-        for user in tournament.participants.all().reverse():
-            tournament.results.append(user.id)
-            print("\tAdded", place, "-", user.username, file=sys.stderr)
-            place+= 1
-        tournament.started = True
-        tournament.save()
 
     if 'bracket_tournament' in request.POST:
         print("making brackets", file=sys.stderr)
         tournament_id = request.POST.get('bracket_tournament')
-        tournament = Tournament.objects.get(id=tournament_id)
+        tournament = get_object_or_404(Tournament, id=tournament_id)
         for user in tournament.participants.all():
             tournament.has_participate.add(user)
         playercount = tournament.participants.count()
         if playercount > 2:
             #CREATE TOURNAMENT ON BLOCKCHAIN
             playerlist = get_participants_arr(tournament)
-            print("ALED", tournament.tournamentId, file=sys.stderr)
-            print("ID : ", int(tournament_id), type(int(tournament_id)), file=sys.stderr)
             thread = threading.Thread(target=createTournament, args=(playerlist, int(tournament_id), tournament.name))
             thread.start()
 
@@ -237,7 +222,7 @@ def pongTournament(request):
     if 'join_tournament' in request.POST:
         print("trying to join", file=sys.stderr)
         tournament_id = request.POST.get('join_tournament')
-        tournament = Tournament.objects.get(id=tournament_id)
+        tournament = get_object_or_404(Tournament, id=tournament_id)
         if request.user not in tournament.participants.all():
             request.user.tournament_id = tournament.id
             tournament.participants.add(request.user)
@@ -260,12 +245,12 @@ def pongTournament(request):
     if 'leave_tournament' in request.POST:
         print("trying to leave", file=sys.stderr)
         tournament_id = request.POST.get('leave_tournament')
-        tournament = Tournament.objects.get(id=tournament_id)
+        tournament = get_object_or_404(Tournament, id=tournament_id)
         if request.user in tournament.participants.all():
             tournament.participants.remove(request.user)
             request.user.tournament_id = -1
             request.user.save()
-            if (request.user == tournament.host_user and tournament.participants.count() > 0):
+            if (request.user == tournament.host_user and tournament.participants.count() > 0 and tournament.started == False):
                 tournament.host_user = tournament.participants.all()[0]
                 print("NEW HOST IS :", tournament.host_user, file=sys.stderr)
             tournament.save()
@@ -287,7 +272,7 @@ def pongTournament(request):
                 )
 
     if request.user.tournament_id != -1:
-        mytournament = Tournament.objects.get(id=request.user.tournament_id)
+        mytournament = get_object_or_404(Tournament, id=request.user.tournament_id)
     else:
         mytournament = None
 

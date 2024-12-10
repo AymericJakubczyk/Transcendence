@@ -132,7 +132,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         from app.models import User
 
         # update user if there is changement before
-        update_user = User.objects.get(id=user.id)
+        update_user = get_object_or_404(User, id=user.id)
         user = update_user
         if (state == "online"):
             user.state = User.State.ONLINE

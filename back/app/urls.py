@@ -1,15 +1,13 @@
-from django.conf.urls import handler404
 from django.urls import path, include
 from .views import views
 from .views.pong import pong, pongMultiplayer, pongAI
 from .views.chess import chess
 from .views.users import users, chat, profils
-from .views.views import custom_404
 from .views.web3 import sepoliaTournament
 from django.contrib.auth.views import PasswordChangeView
+from django.conf import settings
+from django.conf.urls.static import static
 
-
-handler404 = custom_404
 
 urlpatterns = [
     path('', views.homeView, name='home'),
@@ -65,3 +63,6 @@ urlpatterns = [
     
     # path('test/', pong.test, name='test'),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

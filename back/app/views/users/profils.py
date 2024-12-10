@@ -29,6 +29,7 @@ def profilView(request, username):
     all_tournament_to_order = Tournament.objects.filter(has_participate=user, winner__isnull=False)
     all_tournaments = all_tournament_to_order.order_by('-updated_at')
 
+    delta = 0
     now = make_aware(datetime.now())
     if user.last_login:
         delta = now - user.last_login

@@ -47,7 +47,7 @@ def send_friend_request(request, username):
 
 @login_required
 def accept_friend_request(request, requestID):
-    friend_request = Friend_Request.objects.get(id=requestID)
+    friend_request = get_object_or_404(Friend_Request, id=requestID)
     if friend_request.to_user == request.user:
         friend_request.to_user.friends.add(friend_request.from_user)
         friend_request.from_user.friends.add(friend_request.to_user)
