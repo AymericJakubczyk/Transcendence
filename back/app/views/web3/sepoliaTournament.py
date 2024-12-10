@@ -244,6 +244,13 @@ abi = [
 	}
 ];
 
+#This module doesn't require a lot of code but necessitates a quite a lot of notional knowledge about what we call the blockchain.
+#The blockchain is a decentralized database that stores all the transactions that have been made on it. It is a chain of blocks, each block containing a list of transactions.
+#Here, we're using Sepolia Network which is one of the many Ethereum Testnets that exists
+#The process is quite simple. We connect to the Ethereum node, then we connect to the contract that we want to interact with.
+#We deploy a Smart Contract with the Remix IDE, who help us to write, compile and deploy the contract instead of installing redhat and compiling the smart Contract ourselves in a docker.
+#We authenticate with our private key and the contract address. We then call the smart contract's functions with the right parameters to have the data wrote when watching the transactions with etherscan.
+
 if (os.getenv('INFURA_SEPOLIA_API_KEY') and os.getenv('PRIVATE_KEY') and os.getenv('CONTRACT_ADDRESS')):
 
 	#Connect to the Ethereum node
@@ -272,7 +279,7 @@ else :
 	admin_acc = None
 	contract = None
 
-#Record match on the blockchain
+#Testing connection with the Ethereum node and the contract
 
 def test(request):
 	# players = ["player1", "player2"]
@@ -287,8 +294,7 @@ def test(request):
 	print(account, "ACC", admin_acc, file=sys.stderr)
 	return JsonResponse({"message": "test"})
 
-
-
+#Record match on the blockchain
 
 def record_match(player1, score_1, player2, score_2, tournament_id, bracket_id, tournamentName):
 	print("Recording match", file=sys.stderr)
@@ -329,7 +335,6 @@ def get_participants_arr(tournament):
 	for participant in tournament.participants.all():
 		players_array.append((participant.username))
 
-	print("!!!!!!!!!!!!!!!!!!!!Players array : ", players_array, file=sys.stderr)
 	return players_array
 
 def createTournament(players_arr, tournament_id, tournamentName):
