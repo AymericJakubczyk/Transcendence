@@ -189,7 +189,7 @@
 							<span class="col-2">{{ tournament.winner.username }}</span>
 						{% endif %}
 						{% if tournament.closing_link %}
-						<a class="col-2" href="{{ tournament.closing_link }}">See transaction</a>
+						<a class="col-2" href="{{ tournament.closing_link }}" target="_blank">See transaction</a>
 						{% endif %}
 						<span class="col-2">{{ tournament.updated_at|date:"H:i - d M y" }}</span>
 					</div>
