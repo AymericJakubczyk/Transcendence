@@ -43,7 +43,6 @@ class PongAIConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         data = json.loads(text_data)
-        print("[RECEIVE PONG AI]", data, file=sys.stderr)
 
         player = 0
         if self.scope["user"] == self.player1:

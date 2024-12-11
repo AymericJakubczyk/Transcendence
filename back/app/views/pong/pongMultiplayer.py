@@ -24,7 +24,7 @@ def pongFoundMultiView(request):
     import app.consumers.utils.multi_utils as multi_utils
     import app.consumers.utils.user_utils as user_utils
 
-    maxNbPlayers = 6
+    maxNbPlayers = 4
     if request.user in multi_list_waiter:
         print(request.user.username, "is already in multi queue.", file=sys.stderr)
     elif len(multi_list_waiter) < maxNbPlayers - 1:

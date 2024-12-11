@@ -99,7 +99,9 @@
                 {% elif tournament.game_played == "CHESS" %}
                     <span>♟️</span>
                 {% endif %}
-                {% if user not in tournament.participants.all and tournament.started == False %}
+                {% if tournament.participants.count >= tournament.max_users and tournament.started == False %}
+                    <span class="text-secondary tournament-list-state">FULL</span>
+                {% elif user not in tournament.participants.all and tournament.started == False %}
                     <form class="tournament-list-state" method="POST" hx-post="{{ request.path }}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
                         {% csrf_token %}
                         <input type="hidden" name="join_tournament" value="{{ tournament.id }}"/>

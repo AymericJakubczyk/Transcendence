@@ -101,35 +101,35 @@ function display_chess_endgame(winner, reason, white_elo, black_elo, white_elo_w
 
 function resign()
 {
-	if (!chessSocket || chessSocket.readyState != WebSocket.OPEN)
-		error_message("Connection with websocket lost, please refresh the page", 2000)
 	if (chessSocket)
 		chessSocket.send(JSON.stringify({'type': 'resign'}));
+	else
+		error_message("Connection with websocket lost, please refresh the page", 2000)
 }
 
 
 function propose_draw()
 {
-	if (!chessSocket || chessSocket.readyState != WebSocket.OPEN)
-		error_message("Connection with websocket lost, please refresh the page", 2000)
 	if (chessSocket)
 		chessSocket.send(JSON.stringify({'type': 'propose_draw'}));
+	else
+		error_message("Connection with websocket lost, please refresh the page", 2000)
 }
 
 function accept_draw()
 {
-	if (!chessSocket || chessSocket.readyState != WebSocket.OPEN)
-		error_message("Connection with websocket lost, please refresh the page", 2000)
 	if (chessSocket)
 		chessSocket.send(JSON.stringify({'type': 'accept_draw'}));
+	else
+		error_message("Connection with websocket lost, please refresh the page", 2000)
 }
 
 function decline_draw()
 {
-	if (!chessSocket || chessSocket.readyState != WebSocket.OPEN)
-		error_message("Connection with websocket lost, please refresh the page", 2000)
 	if (chessSocket)
 		chessSocket.send(JSON.stringify({'type': 'decline_draw'}));
+	else
+		error_message("Connection with websocket lost, please refresh the page", 2000)
 	document.getElementById("draw").remove();
 	document.getElementById("myInfo").innerHTML += '<div class="rounded-pill m-1 p-1" id="draw" style="height:fit-content; background-color:burlywood; cursor:pointer" onclick="propose_draw()">Propose draw</div>'
 }

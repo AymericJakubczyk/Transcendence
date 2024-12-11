@@ -140,8 +140,6 @@ function send_input_move_ai(move, pressed) {
         'move': move,
         'pressed': pressed
     };
-    if (!pongAISocket || pongAISocket.readyState != WebSocket.OPEN)
-		error_message("Connection with websocket lost, please refresh the page", 2000)
     if (pongAISocket)
         pongAISocket.send(JSON.stringify(obj))
 }

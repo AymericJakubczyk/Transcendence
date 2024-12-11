@@ -178,10 +178,10 @@ def pongTournament(request):
     if 'bracket_tournament' in request.POST:
         tournament_id = request.POST.get('bracket_tournament')
         tournament = get_object_or_404(Tournament, id=tournament_id)
-        for user in tournament.participants.all():
-            tournament.has_participate.add(user)
         playercount = tournament.participants.count()
         if playercount > 2:
+            for user in tournament.participants.all():
+                tournament.has_participate.add(user)
             #CREATE TOURNAMENT ON BLOCKCHAIN
             playerlist = get_participants_arr(tournament)
             thread = threading.Thread(target=createTournament, args=(playerlist, int(tournament_id), tournament.name))
@@ -218,24 +218,25 @@ def pongTournament(request):
     if 'join_tournament' in request.POST:
         tournament_id = request.POST.get('join_tournament')
         tournament = get_object_or_404(Tournament, id=tournament_id)
-        if request.user not in tournament.participants.all():
-            request.user.tournament_id = tournament.id
-            tournament.participants.add(request.user)
-            request.user.save()
-            tournament.save()
-            channel_layer = get_channel_layer()
-            async_to_sync(channel_layer.group_send)(
-                "pong_tournament_" + str(tournament_id),
-                {
-                    'type': 'refresh_infos',
-                    'action': 'join',
-                    'user_username': request.user.username,
-                    'user_rank': request.user.pong_rank,
-                    'tournamentName': tournament.name,
-                    'profile_pic' : request.user.profile_picture.url,
-                    'tournamentNB': tournament.participants.count()
-                }
-            )
+        if (tournament.participants.count() < tournament.max_users):
+            if request.user not in tournament.participants.all():
+                request.user.tournament_id = tournament.id
+                tournament.participants.add(request.user)
+                request.user.save()
+                tournament.save()
+                channel_layer = get_channel_layer()
+                async_to_sync(channel_layer.group_send)(
+                    "pong_tournament_" + str(tournament_id),
+                    {
+                        'type': 'refresh_infos',
+                        'action': 'join',
+                        'user_username': request.user.username,
+                        'user_rank': request.user.pong_rank,
+                        'tournamentName': tournament.name,
+                        'profile_pic' : request.user.profile_picture.url,
+                        'tournamentNB': tournament.participants.count()
+                    }
+                )
 
     if 'leave_tournament' in request.POST:
         tournament_id = request.POST.get('leave_tournament')

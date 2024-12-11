@@ -328,10 +328,10 @@ function decline_invite(id)
     }
 
     let obj = {"type":"decline", "id":id}
-    if (!chatSocket || chatSocket.readyState != WebSocket.OPEN)
-		error_message("Connection with websocket lost, please refresh the page", 2000)
     if (chatSocket)
         chatSocket.send(JSON.stringify(obj));
+    else
+        error_message("Connection with websocket lost, please refresh the page", 2000)
 }
 
 function friend_request(action, id)
@@ -351,10 +351,10 @@ function friend_request(action, id)
         document.getElementById("all_discu_mini").append(div)
         document.getElementById("notif_request_tab").hidden = true
     }
-    if (!chatSocket || chatSocket.readyState != WebSocket.OPEN)
-		error_message("Connection with websocket lost, please refresh the page", 2000)
     if (chatSocket)
         chatSocket.send(JSON.stringify({"type":"friend_request", "action":action , "id":id}));
+    else
+        error_message("Connection with websocket lost, please refresh the page", 2000)
 }
 
 function add_invitation(game, player, id)

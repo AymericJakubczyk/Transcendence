@@ -243,8 +243,6 @@ function ws_call_move(move, player)
         'player': player,
         'move': move
     };
-    if (!pongMultiSocket || pongMultiSocket.readyState != WebSocket.OPEN)
-		error_message("Connection with websocket lost, please refresh the page", 2000)
     if (pongMultiSocket)
         pongMultiSocket.send(JSON.stringify(obj))
 }

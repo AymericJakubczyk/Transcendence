@@ -23,10 +23,10 @@ function custom_submit(form_id)
 				error_message("Message must be between 1 and 420 characters", 2000)
 				return
 			}
-			if (!chatSocket || chatSocket.readyState != WebSocket.OPEN)
-				error_message("Connection with websocket lost, please refresh the page", 2000)
 			if (chatSocket)
 				chatSocket.send(JSON.stringify(obj));
+			else
+				error_message("Connection with websocket lost, please refresh the page", 2000)
 			elems.msg.value = "" // for clear input
 		});
 	}

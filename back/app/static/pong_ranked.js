@@ -166,8 +166,6 @@ function send_input_move(move, pressed)
         'move': move,
         'pressed': pressed
     };
-    if (!pongSocket || pongSocket.readyState != WebSocket.OPEN)
-		error_message("Connection with websocket lost, please refresh the page", 2000)
     if (pongSocket)
         pongSocket.send(JSON.stringify(obj))
 }
