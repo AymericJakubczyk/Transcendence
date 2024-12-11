@@ -86,7 +86,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             )
             return
         # save message in db
-        if (await self.save_message(discu_id, sender, message, send_to) != 1):
+        if (await self.save_message(discu_id, sender, message, send_to) == None):
             error_message = "You are not in this discussion"
             await self.channel_layer.group_send(
                 sender.username, {'type':'send_ws', 'type2':'error_message', 'message':error_message,}
@@ -126,6 +126,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         # update last_activity
         current_discu.save()
         obj.save()
+        return True
 
     @database_sync_to_async
     def is_blocked(self, sender, send_to):

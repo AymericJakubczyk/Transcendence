@@ -131,11 +131,10 @@ function cell_click(x, y, isRanked, userColor)
         reset_possible_moves(board);
         if (isRanked)
         {
-            chessSocket.send(JSON.stringify({
-                'type': 'move',
-                'from': {'x': piecePos.x, 'y': piecePos.y},
-                'to': {'x': x, 'y': y}
-            }));
+            if (!chessSocket || chessSocket.readyState != WebSocket.OPEN)
+                error_message("Connection with websocket lost, please refresh the page", 2000)
+            if (chessSocket)
+                chessSocket.send(JSON.stringify({'type': 'move','from': {'x': piecePos.x, 'y': piecePos.y},'to': {'x': x, 'y': y}}));
         }
         else
         {
@@ -300,12 +299,10 @@ function do_promotion(piece, x, y, isRanked)
 {
     if (isRanked)
     {
-        chessSocket.send(JSON.stringify({
-            'type': 'move',
-            'from': {'x': piecePos.x, 'y': piecePos.y},
-            'to': {'x': x, 'y': y},
-            'promotion': piece
-        }));
+        if (!chessSocket || chessSocket.readyState != WebSocket.OPEN)
+            error_message("Connection with websocket lost, please refresh the page", 2000)
+        if (chessSocket)
+            chessSocket.send(JSON.stringify({'type': 'move','from': {'x': piecePos.x, 'y': piecePos.y},'to': {'x': x, 'y': y},'promotion': piece}));
     }
     else
     {

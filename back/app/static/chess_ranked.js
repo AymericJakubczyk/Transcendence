@@ -39,7 +39,7 @@ function create_chess_ws(game_id)
 
     chatSocket.onclose = (event) => {
 		console.log("[WS CHESS] The connection has been closed successfully.");
-		chessSocket = null;
+		chatSocket = null;
 	}
 }
 
@@ -101,31 +101,35 @@ function display_chess_endgame(winner, reason, white_elo, black_elo, white_elo_w
 
 function resign()
 {
-	chessSocket.send(JSON.stringify({
-		'type': 'resign'
-	}));
+	if (!chessSocket || chessSocket.readyState != WebSocket.OPEN)
+		error_message("Connection with websocket lost, please refresh the page", 2000)
+	if (chessSocket)
+		chessSocket.send(JSON.stringify({'type': 'resign'}));
 }
 
 
 function propose_draw()
 {
-	chessSocket.send(JSON.stringify({
-		'type': 'propose_draw'
-	}));
+	if (!chessSocket || chessSocket.readyState != WebSocket.OPEN)
+		error_message("Connection with websocket lost, please refresh the page", 2000)
+	if (chessSocket)
+		chessSocket.send(JSON.stringify({'type': 'propose_draw'}));
 }
 
 function accept_draw()
 {
-	chessSocket.send(JSON.stringify({
-		'type': 'accept_draw'
-	}));
+	if (!chessSocket || chessSocket.readyState != WebSocket.OPEN)
+		error_message("Connection with websocket lost, please refresh the page", 2000)
+	if (chessSocket)
+		chessSocket.send(JSON.stringify({'type': 'accept_draw'}));
 }
 
 function decline_draw()
 {
-	chessSocket.send(JSON.stringify({
-		'type': 'decline_draw'
-	}));
+	if (!chessSocket || chessSocket.readyState != WebSocket.OPEN)
+		error_message("Connection with websocket lost, please refresh the page", 2000)
+	if (chessSocket)
+		chessSocket.send(JSON.stringify({'type': 'decline_draw'}));
 	document.getElementById("draw").remove();
 	document.getElementById("myInfo").innerHTML += '<div class="rounded-pill m-1 p-1" id="draw" style="height:fit-content; background-color:burlywood; cursor:pointer" onclick="propose_draw()">Propose draw</div>'
 }

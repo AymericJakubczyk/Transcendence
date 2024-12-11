@@ -23,7 +23,10 @@ function custom_submit(form_id)
 				error_message("Message must be between 1 and 420 characters", 2000)
 				return
 			}
-			chatSocket.send(JSON.stringify(obj));
+			if (!chatSocket || chatSocket.readyState != WebSocket.OPEN)
+				error_message("Connection with websocket lost, please refresh the page", 2000)
+			if (chatSocket)
+				chatSocket.send(JSON.stringify(obj));
 			elems.msg.value = "" // for clear input
 		});
 	}
@@ -93,6 +96,7 @@ function create_ws()
 	chatSocket.onclose = (event) => {
 		console.log("The connection has been closed successfully.");
 		ws_created = false;
+		chatSocket = null;
 	}
 }
 
