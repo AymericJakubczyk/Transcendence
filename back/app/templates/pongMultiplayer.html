@@ -1,21 +1,41 @@
 <div class="container">
 
     <div class="container">
-        <h1 class="header">ULTIMATE EXTRA COOL SUPER PONG TOURNAMENT EXTREME BATTLE</h1>
-        <h5 class="header">Welcome in the history</h5>
-
+        <h1 class="header">ULTIMATE EXTRA COOL SUPER PONG MULTIPLAYER EXTREME BATTLE</h1>
+		
+		{% if game.status == "finish" %}
+		<div class="multi_game_over">
+			<br><br>
+			<h5 class="text-center mt-3">Game is finished !</h5>
+			<br>
+			<div class="d-flex justify-content-center">
+				<img class="pp_game border border-white" src="{{ game.winner.profile_picture.url }}" alt="Profile Picture">
+			</div>
+			{% if user in game.playerlist.all and user != game.winner %}
+				<h4 class="text-center mt-3"><span class="text-warning">{{ game.winner.username }} </span>won</h4>
+				<h4 class="text-center mt-3 text-danger">You lost</h4>
+				{% else%}
+				<h4 class="text-center mt-3 text-success">You won</h4>
+			{% endif%}
+			<div class="d-flex justify-content-center mt-3">
+				<a class="tournament-list-refresh" hx-get="{% url 'pong_multi_found' %}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">REMATCH</a>
+			</div>
+			<br><br>
+		</div>
+		{% else %}
+		<h5 class="header">Welcome in the history</h5>
         <div style="position: relative;" class="d-flex align-items-center justify-content-center">
             <div id="endgame_multi_win"></div>
             <canvas class="w-100" id="pongCanvas" width="780" height="480"></canvas>
             <div id="endgame_multi_loss"></div>
         </div>
-
         <div id="pongmulti_playerlist" class="d-flex justify-content-evenly"></div>
         <div class="d-flex justify-content-center mt-3" id="rematch-button"></div>
-
+		
         <script>
-            connectMultiGame({id:{{data.gameID}}, nbPlayers:{{data.nbPlayers}}, ingameID:{{data.ingameID}}}, "{{request.user.username}}")
-        </script>
+			connectMultiGame({id:{{data.gameID}}, nbPlayers:{{data.nbPlayers}}, ingameID:{{data.ingameID}}}, "{{request.user.username}}")
+		</script>
+		{% endif%}
     </div>
 {% if request.user in game.playerlist.all %}
     <script>

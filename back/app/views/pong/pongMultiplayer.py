@@ -88,6 +88,10 @@ def pongMultiplayer(request, gameID):
 
     game = get_object_or_404(Game_PongMulti, id=gameID)
 
+    if request.user not in game.playerlist.all():
+        messages.error(request, 'Multiplayer spectator not implemented.')
+        return redirect('pong')
+
     nbPlayers = game.playerlist.count()
     ingameID = 0
     for user in all_games_playerlist[gameID]:

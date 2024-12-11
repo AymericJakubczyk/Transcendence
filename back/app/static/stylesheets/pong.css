@@ -235,3 +235,8 @@
     0 0 2.8rem #282828,
     inset 0 0 1.3rem #282828;
 }
+
+.multi_game_over{
+	margin-top: 2rem;
+	background-color: #282828;
+}

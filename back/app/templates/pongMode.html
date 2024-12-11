@@ -1,3 +1,10 @@
+{% if messages %}
+    {% for message in messages %}
+    <script>
+        error_message("{{ message }}", 3000)
+    </script>
+    {% endfor %}
+{% endif %}
 <div class="container">
     <div class="gameChoose-header">
 		<h1 class="header">CHOOSE THE PONG GAME MODE</h1>
