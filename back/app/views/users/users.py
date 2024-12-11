@@ -28,7 +28,7 @@ def logout_user(request):
 def send_friend_request(request, username):
     from_user = request.user
     to_user = get_object_or_404(User, username=username)
-    if (not user in request.user.friends.all()):
+    if (not to_user in request.user.friends.all()):
         friend_request, created = Friend_Request.objects.get_or_create(from_user=from_user, to_user=to_user)
         if created:
             messages.success(request, 'Friend request sent')
@@ -62,7 +62,7 @@ def accept_friend_request(request, requestID):
 @login_required
 def remove_friend(request, username):
     to_user = get_object_or_404(User, username=username)
-    if (user in request.user.friends.all()):
+    if (to_user in request.user.friends.all()):
         request.user.friends.remove(to_user)
     return redirect('profile', username=to_user.username)
 
@@ -71,7 +71,7 @@ def remove_friend(request, username):
 def block_user(request, username):
     print("[BLOCK]", request.user, username, file=sys.stderr)
     user = get_object_or_404(User, username=username)
-    if (not user in request.user.block_users.all()):
+    if (not user in request.user.blocked_users.all()):
         request.user.blocked_users.add(user)
     return redirect('profile', username=user.username)
 
