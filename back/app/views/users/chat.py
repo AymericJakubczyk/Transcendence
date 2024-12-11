@@ -60,11 +60,18 @@ def chatView(request):
     if 'add_discussion' in request.POST:
         print("[ADD]", file=sys.stderr)
         interlocutor = get_object_or_404(User, username=request.POST.get('add_discussion'))
-        obj = Discussion()
-        obj.user1 = interlocutor
-        obj.user2 = current_user
-        obj.save()
-        current_discu = obj
+        # if user is blocked, print error message
+        if (interlocutor in current_user.blocked_users.all()):
+            messages.error(request, "You cannot chat with the user you blocked")
+        # if discussion already exist, print error message
+        elif (Discussion.objects.filter(Q(user1=current_user, user2=interlocutor) | Q(user1=interlocutor, user2=current_user)).count() > 0):
+            messages.error(request, 'Discussion already exist')
+        else:
+            obj = Discussion()
+            obj.user1 = interlocutor
+            obj.user2 = current_user
+            obj.save()
+            current_discu = obj
 
     elif 'change_discussion' in request.POST:
         print("[CHANGE]", file=sys.stderr)
@@ -113,7 +120,8 @@ def chatView(request):
     all_addable_user = []
     for usr in all_user:
         if usr.username not in all_username:
-            all_addable_user.append({'username':usr.username})
+            if (usr != current_user and usr not in current_user.blocked_users.all()):
+                all_addable_user.append({'username':usr.username})
 
 
     if request.META.get("HTTP_HX_REQUEST") != 'true':

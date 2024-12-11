@@ -4,7 +4,14 @@
     console.log("[ERROR] {{error}}");
     error_message("{{error}}", 2000);
 </script>
+{% endif %}
 
+{% if messages %}
+    {% for message in messages %}
+    <script>
+        error_message("{{ message }}", 3000)
+    </script>
+    {% endfor %}
 {% endif %}
 <div>
     <h1>Chat</h1>
