@@ -8,17 +8,17 @@ function display_mini_chat()
             <div id="mini_headbar" class="d-flex flex-row justify-content-between p-2 pb-0">
                 <div class="d-flex">
                     <div id="discu_tab" class="d-flex position-relative align-items-center px-1 rounded-top-2" style="cursor:pointer;" onclick="display_all_discu()">
-                        <text style="font-size:1rem" class="m-0 text-white d-none d-lg-block">Discussions</text>
+                        <text style="font-size:1rem" class="m-0 text-white d-none d-xxl-block">Discussions</text>
                         <h3 class="m-0" style="cursor:pointer">💬</h3>
                         <div id="notif_discu_tab" class="notif_tab" hidden>!</div>
                     </div>
                     <div id="invite_tab" class="d-flex position-relative align-items-center px-1 rounded-top-2" style="cursor:pointer" onclick="display_all_invite()">
-                        <text style="font-size:1rem" class="m-0 text-white d-none d-lg-block">Invitations</text>
+                        <text style="font-size:1rem" class="m-0 text-white d-none d-xxl-block">Invitations</text>
                         <h3 class="m-0" style="cursor:pointer">⚔️</h3>
                         <div id="notif_invite_tab" class="notif_tab" hidden>!</div>
                     </div>
                     <div id="friend_req_tab" class="d-flex position-relative align-items-center px-1 rounded-top-2" style="cursor:pointer" onclick="display_friend_request()">
-                        <text style="font-size:1rem" class="m-0 text-white d-none d-lg-block">Request</text>
+                        <text style="font-size:1rem" class="m-0 text-white d-none d-xxl-block">Request</text>
                         <h3 class="m-0" style="cursor:pointer">🫂</h3>
                         <div id="notif_request_tab" class="notif_tab" hidden>!</div>
                     </div>
