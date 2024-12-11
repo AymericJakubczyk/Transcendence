@@ -4,7 +4,7 @@ var new_path = "";
 window.addEventListener('htmx:beforeSwap', function(evt) {
     old_path = window.location.pathname;
     new_path = evt.detail.pathInfo.path
-    if (old_path == "/game/pong/local/")
+    if (old_path == "/game/pong/local/vs-player")
     {
         console.log("[LOG] Stop local game")
         clearInterval(gameInterval)
@@ -189,7 +189,7 @@ function logout()
 
 window.addEventListener('popstate', function(event) {
     new_path = this.window.location.href
-    if (old_path == "/game/pong/local/")
+    if (old_path == "/game/pong/local/vs-player")
     {
         console.log("[LOG] Stop local game")
         clearInterval(gameInterval)
@@ -219,6 +219,6 @@ window.addEventListener('popstate', function(event) {
         pongAISocket = null
     }
     
-    old_path = this.window.location.href
-    htmx_request(this.window.location.href, "GET", {}, false)
+    old_path = this.window.location.pathname
+    htmx_request(this.window.location.pathname, "GET", {}, false)
 });
