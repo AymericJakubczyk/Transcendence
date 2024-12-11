@@ -1,7 +1,7 @@
 
 all : update_ip
 	mkdir -p ./volumes/nginx
-	docker compose -f docker-compose-dev.yml up --build
+	docker compose up --build
 
 update_ip :
 	@NEW_LINE=$$(ifconfig | grep "inet " | awk -F'[: ]+' 'NR==2 { print $$3 }' | sed "s/^/'/" | sed "1iIPHOST=" | tr '\n' ' ' | sed "s/ $$/'/") ; \
@@ -10,6 +10,10 @@ update_ip :
 prod :
 	mkdir -p ./volumes/nginx
 	docker compose up --build
+
+debug :
+	mkdir -p ./volumes/nginx
+	docker compose -f docker-compose-dev.yml up --build
 
 down : 
 	docker compose down

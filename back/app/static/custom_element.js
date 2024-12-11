@@ -11,7 +11,7 @@ class MyDiscu extends HTMLElement {
         let msg = this.getAttribute('msg');
         let img = this.getAttribute('img');
         this.innerHTML = `
-            <form id="form_discu_${sender}" hx-post="/chat/" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
+            <form id="form_discu_${sender}" hx-post hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
 				<input type="hidden" name="change_discussion" value="${discu_id}">
 				<button id="discu_${sender}" data-id="${discu_id}" value="${sender}" class="rounded-2 my-1 p-2 discu" type="submit">
 					<div id="profile_pic_${sender}" style="position: relative;">
