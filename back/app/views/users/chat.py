@@ -200,6 +200,8 @@ def invite(request):
         return redirect('home')
 
     import app.consumers.utils.pong_utils as pong_utils
+    import app.consumers.utils.chess_utils as chess_utils
+    import random
 
     current_user = request.user
     print("[INVITE]", request.POST, file=sys.stderr)
@@ -233,7 +235,17 @@ def invite(request):
         print("[ACCEPT]", file=sys.stderr)
 
         # get invite object
-        invite = get_object_or_404(Invite, id=request.POST.get('id'))
+        try :
+            int(request.POST.get('id'))
+        except:
+            print("[ERROR] not good id", file=sys.stderr)
+            return redirect('game')
+        
+        invite = get_object_or_404(Invite, id=int(request.POST.get('id')))
+        if invite.to_user != current_user:
+            print("[ERROR] not the good user", file=sys.stderr)
+            return redirect('game')
+
         # create new game object
         if invite.game_type == Invite.GameType.PONG:
             # create pong game
@@ -248,6 +260,7 @@ def invite(request):
                 {
                     "type": "send_ws",
                     "type2": "invite_accepted",
+                    "game": "pong",
                     "game_id": pong.id
                 }
             )
@@ -258,10 +271,61 @@ def invite(request):
             pong.status = "started"
             pong.save()
 
+            # PASS USER IN GAME STATUT
+            pong.player1.state = User.State.INGAME
+            pong.player1.game_status_txt = "🏓in game..."
+            pong.player1.game_status_url = "/game/pong/ranked/" + str(pong.id) + "/"
+            pong.player1.save()
+            pong.player2.state = User.State.INGAME
+            pong.player2.game_status_txt = "🏓in game..."
+            pong.player2.game_status_url = "/game/pong/ranked/" + str(pong.id) + "/"
+            pong.player2.save()
+
             # redirect to game
             return redirect('pong_game', gameID=pong.id)
-        # elif invite.game_type == Invite.GameType.CHESS:
+        elif invite.game_type == Invite.GameType.CHESS:
             # create chess game
+            chess = Game_Chess()
+            
+            # random for white player
+            if random.random() > 0.5:
+                chess.white_player = invite.from_user
+                chess.black_player = invite.to_user
+            else:
+                chess.white_player = invite.to_user
+                chess.black_player = invite.from_user
+
+            chess.save()
+            # send to waiting player that request is accepted
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                invite.from_user.username,
+                {
+                    "type": "send_ws",
+                    "type2": "invite_accepted",
+                    "game": "chess",
+                    "game_id": chess.id
+                }
+            )
+            invite.delete()
+            
+            # launch chess game
+            chess_utils.launch_game(chess.id)
+            chess.status = "started"
+            chess.save()
+
+            # PASS USER IN GAME STATUT 
+            chess.white_player.state = User.State.INGAME
+            chess.white_player.game_status_txt = "♟️in game..."
+            chess.white_player.game_status_url = "/game/chess/ranked/" + str(chess.id) + "/"
+            chess.white_player.save()
+            chess.black_player.state = User.State.INGAME
+            chess.black_player.game_status_txt = "♟️in game..."
+            chess.black_player.game_status_url = "/game/chess/ranked/" + str(chess.id) + "/"
+            chess.black_player.save()
+
+            # redirect to game
+            return redirect('chess_game', gameID=chess.id)
             
 
         invite.delete()
