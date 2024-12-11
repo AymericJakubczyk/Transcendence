@@ -25,8 +25,6 @@ function create_chess_ws(game_id)
 			if (document.getElementById("promotion"))
 				document.getElementById("promotion").remove();
 			player = player == "white" ? "black" : "white";
-			if (document.getElementById("random").checked && board[data.to.y][data.to.x].piece.color != player)
-				random_move(player);
         }
 		if (data.type == "end_game")
 		{
@@ -139,61 +137,4 @@ function offer_draw()
 	document.getElementById("draw").onclick = null;
 	document.getElementById("draw").removeEventListener("click", propose_draw);
 	document.getElementById("draw").innerHTML = "opponent propose draw : <button class='btn btn-success' onclick='accept_draw()'>Accept</button><button class='btn btn-danger' onclick='decline_draw()'>Decline</button>";
-}
-
-// just for testing TO DELETE
-async function random_move(player)
-{
-	// await sleep(2000);
-	let cp_board = Array.from(board, x => x.map(y => Object.assign({}, y)));
-	reset_possible_moves(cp_board)
-	// define all pos of piece player
-	let pos = [];
-	for (let y = 0; y < 8; y++)
-	{
-		for (let x = 0; x < 8; x++)
-		{
-			if (cp_board[y][x].piece != null && cp_board[y][x].piece.color == player)
-				pos.push({'x': x, 'y': y});
-		}
-	}
-	// shuffle pos
-	pos.sort(() => Math.random() - 0.5);
-
-	for (let i = 0; i < pos.length; i++)
-	{
-		let x = pos[i].x;
-		let y = pos[i].y;
-		// define all possible move of piece
-		cp_board[y][x].piece.setPossibleMoves(cp_board, x, y);
-		last_verif_move(cp_board, player, {'x': x, 'y': y});
-		let possible_moves = [];
-		for (let i = 0; i < 8; i++)
-		{
-			for (let j = 0; j < 8; j++)
-			{
-				if (cp_board[i][j].possibleMove)
-					possible_moves.push({'x': j, 'y': i});
-			}
-		}
-		// shuffle possible moves
-		possible_moves.sort(() => Math.random() - 0.5);
-		for (let j = 0; j < possible_moves.length; j++)
-		{
-			let x_move = possible_moves[j].x;
-			let y_move = possible_moves[j].y;
-			// send move
-			console.log("Random move", player, "from", x, y, "to", x_move, y_move);
-			chessSocket.send(JSON.stringify({
-				'type': 'move',
-				'from': {'x': x, 'y': y},
-				'to': {'x': x_move, 'y': y_move}
-			}))
-			return;
-		}
-	}
-}
-
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
 }

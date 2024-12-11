@@ -161,7 +161,6 @@ function display_ranked(game, you)
 
 function send_input_move(move, pressed)
 {
-    console.log("send_input_move", move, pressed)
     const obj = {
         'type': 'move_paddle',
         'move': move,

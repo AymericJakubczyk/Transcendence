@@ -25,7 +25,6 @@ function set_global_notif()
     })
     .then(response => response.json())
     .then(data => {
-        console.log("[GLOBAL NOTIF]", data)
         if (data.notif == true) //add global notif
         {
             if (document.getElementById("global_notif"))

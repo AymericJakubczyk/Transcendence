@@ -294,7 +294,4 @@ function request_for_read_message(discu_id)
 	.then(data => {
 		set_global_notif()
 	});
-
-	// send ws instead of fetch
-	// chatSocket.send(JSON.stringify({'type': 'read', 'discu_id': discu_id}));
 }
