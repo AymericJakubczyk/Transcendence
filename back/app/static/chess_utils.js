@@ -53,10 +53,7 @@ function verif_check(cp_board, color)
             {
                 cp_board[y][x].piece.setPossibleMoves(cp_board, x, y);
                 if (cp_board[kingPos.y][kingPos.x].possibleMove)
-                {
-                    console.log("check", x, y, kingPos.x, kingPos.y);
                     return true;
-                }
             }
         }
     }
@@ -107,10 +104,7 @@ function getKingPos(board, color)
         for (let x = 0; x < 8; x++)
         {
             if (board[y][x].piece && board[y][x].piece.color == color && board[y][x].piece.constructor.name == "King")
-            {
-                console.log("king", x, y);
                 return ({'x': x, 'y': y});
-            }
         }
     }
     return ({'x': 0, 'y': 0});
@@ -124,10 +118,7 @@ function remove_en_passant(board, color)
     else
         y = 5;
     for (let x = 0; x < 8; x++)
-    {
-        console.log("remove en passant",board[y][x].enPassant, x, y);
         board[y][x].enPassant = false;
-    }
 }
 
 function bigCastling(board, x, y)

@@ -22,7 +22,6 @@ const ringRadius = 50;
 
 function join_multi_game(game_data)
 {
-    console.log("[JOIN MULTI GAME]", game_data);
     if (window.location.protocol == "https:")
         pongMultiSocket = new WebSocket('wss://' + window.location.host + `/ws/pongMultiplayer/${game_data.id}/`);
     else

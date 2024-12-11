@@ -44,29 +44,29 @@
     cursor: pointer;
 }
 
-.winner_chess img {
+.winner_endgame img {
     height:8vw;
     max-height:100px;
 }
 
-.winner_chess #name {
+.winner_endgame #name {
     font-size: xx-large;
 }
 
-.winner_chess #rank {
+.winner_endgame #rank {
     font-size: large;
 }
 
-.loser_chess img {
+.loser_endgame img {
     opacity:0.5;
 }
 
-.loser_chess #name {
+.loser_endgame #name {
     opacity:0.5;
     font-size: x-large;
 }
 
-.loser_chess #rank {
+.loser_endgame #rank {
     opacity:0.5;
     font-size: large;
 }

@@ -34,7 +34,6 @@ function keyUpHandler_ranked(e) {
 }
 
 function keyDownHandler(e) {
-    console.log("[LOCAL] pressed")
     if (e.key === "Up" || e.key === "ArrowUp")
     {
         e.preventDefault()   
@@ -58,7 +57,6 @@ function keyDownHandler(e) {
 }
 
 function keyUpHandler(e) {
-    console.log("[LOCAL] released")
     if (e.key === "Up" || e.key === "ArrowUp")
         upPressed = false;
     else if (e.key === "Down" || e.key === "ArrowDown")

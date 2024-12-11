@@ -48,16 +48,13 @@ function create_chess_ws(game_id)
 
 function display_chess_endgame(winner, reason, white_elo, black_elo, white_elo_win, black_elo_win)
 {
-	console.log("Display endgame", winner, reason, white_elo, black_elo, white_elo_win, black_elo_win);
-
 	document.getElementById("reason_endgame").innerHTML = reason;
 
 	if (winner == "draw" || winner == 0)
 	{
-		console.log("[DRAW]");
 		elem = document.getElementById("loser")
-		elem.classList.remove("loser_chess");
-		elem.classList.add("winner_chess");
+		elem.classList.remove("loser_endgame");
+		elem.classList.add("winner_endgame");
 
 		elem.querySelector("#rank").innerHTML = black_elo;
 		if (black_elo_win >= 0)

@@ -95,10 +95,10 @@ body {
 }
 
 .pp_game {
-	border-radius: 10%;
+    border-radius: 10%;
 	height:6vw;
 	max-height: 80px;
-    max-width: 80px;
+    aspect-ratio: 1;
 }
 
 .registration_submit{

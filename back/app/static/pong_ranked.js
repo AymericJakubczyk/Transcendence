@@ -2,7 +2,6 @@ pongSocket = null;
 
 function join_pong_game(game_data, player)
 {
-    console.log("[JOIN PONG GAME]", game_data, player);
     if (pongSocket)
         return;
     if (window.location.protocol == "https:")
@@ -68,20 +67,19 @@ function receive_pong_ws(data)
     }
     if (data.type === 'end_game')
     {
-        console.log("[END GAME]", data);
+        console.log("[END GAME PONG RANKED]", data)
         if (light_bump_effect_wall.intensity > 0)
         {
             light_bump_effect_wall.intensity = 0
             renderer.render(scene, camera);
         }
-        display_endgame(data.player1, data.player2, data.score_player1, data.score_player2, data.win_elo_p1, data.win_elo_p2);
+        display_endgame(data.score_player1, data.score_player2, data.player1_rank, data.player2_rank, data.win_elo_p1, data.win_elo_p2);
         change_game_headbar("Game", "/game/");
     }
     if (data.type === 'countdown')
     {
         if (document.getElementById("cancel_tounament_game"))
             document.getElementById("cancel_tounament_game").remove();
-        console.log("[COUNTDOWN]", data);
         countdownElement = document.getElementById("countdown")
         countdownElement.style.opacity = 1;
         countdownElement.style.fontSize = "100px";
@@ -102,29 +100,29 @@ function receive_pong_ws(data)
 
 
 
-function display_endgame(player1, player2, player1Score, player2Score, win_elo_p1, win_elo_p2)
+function display_endgame(player1Score, player2Score, player1_rank, player2_rank, win_elo_p1, win_elo_p2)
 {
     if (player2Score > player1Score)
     {
         document.getElementById("winnerScore").innerHTML = player2Score;
         document.getElementById("loserScore").innerHTML = player1Score;
-        document.getElementById("winnerName").innerHTML = player2;
-        document.getElementById("loserName").innerHTML = player1;
-        stock_src = document.getElementById("winnerpp").src;
-        document.getElementById("winnerpp").src = document.getElementById("loserpp").src;
-        document.getElementById("loserpp").src = stock_src;
-        stock_rank = document.getElementById("winnerRank").innerHTML;
-        document.getElementById("winnerRank").innerHTML = document.getElementById("loserRank").innerHTML;
-        document.getElementById("loserRank").innerHTML = stock_rank;
-        document.getElementById("winnerRank").innerHTML += "<span style='color:green'> +"+win_elo_p2+"</span>";
-        document.getElementById("loserRank").innerHTML += "<span style='color:red'> "+win_elo_p1+"</span>";
-    }
-    else
-    {
+		stock = document.getElementById("loser").innerHTML
+		document.getElementById("loser").innerHTML = document.getElementById("winner").innerHTML;
+		document.getElementById("winner").innerHTML = stock;
+
+		parent_p2 = document.getElementById("winner");
+		parent_p2.querySelector("#rank").innerHTML = player2_rank + "<span style='color:green'> +"+win_elo_p2+"</span>";
+		parent_p1 = document.getElementById("loser");
+		parent_p1.querySelector("#rank").innerHTML = player1_rank + "<span style='color:red'> "+win_elo_p1+"</span>";
+	}
+	else
+	{
         document.getElementById("winnerScore").innerHTML = player1Score;
         document.getElementById("loserScore").innerHTML = player2Score;
-        document.getElementById("winnerRank").innerHTML += "<span style='color:green'> +"+win_elo_p1+"</span>";
-        document.getElementById("loserRank").innerHTML += "<span style='color:red'> "+win_elo_p2+"</span>";
+		parent_p1 = document.getElementById("winner");
+		parent_p1.querySelector("#rank").innerHTML = player1_rank + "<span style='color:green'> +"+win_elo_p1+"</span>";
+		parent_p2 = document.getElementById("loser");
+		parent_p2.querySelector("#rank").innerHTML = player2_rank + "<span style='color:red'> "+win_elo_p2+"</span>";
     }
     endgame = document.getElementById("endgame")
     endgame.style.display = "flex";
@@ -133,7 +131,6 @@ function display_endgame(player1, player2, player1Score, player2Score, win_elo_p
 
 function join_ranked_pong(game, you)
 {   
-    console.log("start ranked pong", game.id)
     current_player = (you == game.player1) ? 1 : 2
     join_pong_game(game, current_player)
 
@@ -164,6 +161,7 @@ function display_ranked(game, you)
 
 function send_input_move(move, pressed)
 {
+    console.log("send_input_move", move, pressed)
     const obj = {
         'type': 'move_paddle',
         'move': move,

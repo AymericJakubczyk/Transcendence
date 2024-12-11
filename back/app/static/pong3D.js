@@ -68,12 +68,9 @@ function startGame()
 function display3D(canChangeCam = true)
 {
     reverse = false
-    console.log("TEST3D")
     myCanvas = document.getElementById("pongCanvas")
     group = new THREE.Group();
 
-    console.log("[SIZE]", myCanvas.clientWidth, myCanvas.clientHeight)
-    console.log("[SIZE]", myCanvas.scrollWidth, myCanvas.scrollHeight)
     renderer = new THREE.WebGLRenderer({canvas: myCanvas,antialias: true});
     renderer.setSize( myCanvas.clientWidth, myCanvas.clientHeight);
     camera = new THREE.PerspectiveCamera( 75, (myCanvas.clientWidth * 10) / (myCanvas.clientHeight * 10), 0.1, 1000 );
@@ -243,7 +240,6 @@ function calculBall() {
     if (y + dy > arenaWidth - thickness/2 - ballRadius || y + dy < thickness/2 + ballRadius ) {
         light_bump_effect_wall.position.set(x, y + dy * 2, 3)
         light_bump_effect_wall.intensity = 20
-        console.log("[WALL]")
         dy = -dy;
     }
 
@@ -443,7 +439,6 @@ function cam2()
         camera.lookAt(new THREE.Vector3(arenaLength/2,arenaWidth/2,0))
         camera.rotation.z = Math.PI / 2;
     }
-    console.log("pos", ball.position)
     renderer.render(scene, camera);
 }
 

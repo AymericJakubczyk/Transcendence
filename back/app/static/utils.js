@@ -188,8 +188,6 @@ function logout()
 }
 
 window.addEventListener('popstate', function(event) {
-    console.log("old_path", old_path)
-    console.log("new_path", this.window.location.href)
     new_path = this.window.location.href
     if (old_path == "/game/pong/local/")
     {

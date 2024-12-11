@@ -1,19 +1,3 @@
-class MyTest extends HTMLElement {
-    constructor(value) {
-        super();
-        console.log(this)
-    
-        // this.shadowRoot.innerHTML = '<p>Hello, World!</p>';
-      }
-
-    connectedCallback() {
-        console.log('Custom element added to page!', this.getAttribute('test'));
-        this.innerHTML = `<p>Hello, World!</p>`;
-    }
-}
-
-window.customElements.define('custom-test', MyTest);
-
 class MyDiscu extends HTMLElement {
     constructor(value) {
         super();

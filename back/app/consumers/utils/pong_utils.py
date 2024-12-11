@@ -182,8 +182,8 @@ async def stop_game(id):
     game = await get_game(id)
     
     await send_updates(id) # Send final update for the score
+    player_rank = await get_rank_of_game(id)
     win_elo = await save_winner(id)
-    player = await get_username_of_game(id)
     channel_layer = get_channel_layer()
     await channel_layer.group_send(
         "ranked_pong_" + str(id),
@@ -191,8 +191,8 @@ async def stop_game(id):
             'type': 'end_game',
             'score_player1': all_data[id].score_player1,
             'score_player2': all_data[id].score_player2,
-            'player1' : player[0],
-            'player2' : player[1],
+            'player1_rank' : player_rank[0],
+            'player2_rank' : player_rank[1],
             'win_elo_p1': win_elo['win_elo_p1'],
             'win_elo_p2': win_elo['win_elo_p2']
         }
@@ -223,11 +223,11 @@ def get_game(id):
 
 
 @database_sync_to_async
-def get_username_of_game(game_id):
+def get_rank_of_game(game_id):
     from app.models import Game_Pong
 
     game = get_object_or_404(Game_Pong, id=game_id)
-    return game.player1.username, game.player2.username
+    return game.player1.pong_rank, game.player2.pong_rank
 
 
 async def move_paddle(move, pressed, player, id):

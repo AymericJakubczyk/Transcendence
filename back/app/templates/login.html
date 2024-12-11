@@ -17,7 +17,6 @@
 <script>
 {% if error %}
     error = "{{ error }}"
-    console.log(error)
     if (error == "password") {
         error_message("Mot de passe incorrect", 5000)
         document.getElementById("id_password").classList.add("error")

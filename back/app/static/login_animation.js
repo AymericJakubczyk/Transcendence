@@ -7,7 +7,6 @@ function calculBall_animation() {
     if (y + dy > arenaWidth - thickness/2 - ballRadius || y + dy < thickness/2 + ballRadius ) {
         light_bump_effect_wall.position.set(x, y + dy * 2, 3)
         light_bump_effect_wall.intensity = 20
-        console.log("[WALL]")
         dy = -dy;
     }
 
@@ -132,6 +131,5 @@ function cam_animation()
         camera.lookAt(new THREE.Vector3(arenaLength/2,arenaWidth/2,0))
         camera.rotation.z = Math.PI / 2;
     }
-    console.log("pos", ball.position)
     renderer.render(scene, camera);
 }

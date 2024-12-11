@@ -25,7 +25,6 @@ function join_pong_ai_game(game_data) {
 }
 
 function receive_pong_ws_ai(data) {
-    // console.log("[RECEIVE PONG WS]", data);
     if (data.type === 'game_update') {
         x = data.x;
         y = data.y;
@@ -62,7 +61,6 @@ function receive_pong_ws_ai(data) {
             explodeBall()
     }
     if (data.type === 'end_game') {
-        console.log("[END GAME]", data);
         if (light_bump_effect_wall.intensity > 0) {
             light_bump_effect_wall.intensity = 0
             renderer.render(scene, camera);
@@ -71,7 +69,6 @@ function receive_pong_ws_ai(data) {
         change_game_headbar("Game", "/game/");
     }
     if (data.type === 'countdown') {
-        console.log("[COUNTDOWN]", data);
         countdownElement = document.getElementById("countdown")
         countdownElement.style.opacity = 1;
         countdownElement.style.fontSize = "100px";

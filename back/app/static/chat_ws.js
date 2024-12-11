@@ -33,7 +33,6 @@ function create_ws()
 {
 	if (ws_created)
 		return ;
-	console.log("create websocket")
 	if (window.location.protocol == "https:")
 		chatSocket = new WebSocket('wss://' + window.location.host + '/ws/chat/');
 	else 

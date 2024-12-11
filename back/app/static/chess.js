@@ -33,7 +33,6 @@ function init_game()
     board[7][3].piece = new Queen("white");
     board[7][4].piece = new King("white");
 
-    console.log("[GAME BOARD]", board)
     first_display(board)
 }
 
@@ -125,11 +124,9 @@ function cell_click(x, y, isRanked, userColor)
         // if it is pawn and reach last line display promotion
         if (board[piecePos.y][piecePos.x].piece.constructor.name == "Pawn" && (y == 0 || y == 7))
         {
-            console.log("[CHESS] promotion");
             display_promotion(x, y, isRanked, userColor);
             return;
         }
-        console.log("move", piecePos.x, piecePos.y, x, y);
         document.getElementById("cell"+piecePos.x+piecePos.y).style.backgroundColor = (piecePos.x+piecePos.y) % 2 == 0 ? "antiquewhite" : "burlywood";
         reset_possible_moves(board);
         if (isRanked)
@@ -155,7 +152,6 @@ function cell_click(x, y, isRanked, userColor)
         document.getElementById("cell"+piecePos.x+piecePos.y).style.backgroundColor = (piecePos.x+piecePos.y) % 2 == 0 ? "antiquewhite" : "burlywood";
     if (board[y][x].piece != null && board[y][x].piece.color == player)
     {
-        console.log("click", board[y][x].piece, x, y);
         board[y][x].piece.setPossibleMoves(board, x, y);
         last_verif_move(board, board[y][x].piece.color, {'x': x, 'y': y});
         display_possible_moves(board);
@@ -302,7 +298,6 @@ function display_promotion(x, y, isRanked, userColor)
 
 function do_promotion(piece, x, y, isRanked)
 {
-    console.log("promotion", piece);
     if (isRanked)
     {
         chessSocket.send(JSON.stringify({

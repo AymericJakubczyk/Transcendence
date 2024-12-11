@@ -1,7 +1,6 @@
 {% load static %}
 
 <div class="container">
-<link rel="stylesheet" href="{% static 'stylesheets/chess.css' %}">
     <h1 class="header">CHESS</h1>
     <h5 class="header">Best chess game you'll ever see</h5>
 	<div style="justify-items: center;">
@@ -65,12 +64,12 @@
 				</div>
 				<div>
 					<div class="d-flex justify-content-around">
-						<div id="winner" class="d-flex flex-column align-items-center justify-content-center w-50 winner_chess">
+						<div id="winner" class="d-flex flex-column align-items-center justify-content-center w-50 winner_endgame">
 							<img src="{{ game.white_player.profile_picture.url }}" class="pp_game">
 							<p id="name" class="mb-0">{{ game.white_player.username }}</p>
 							<p id="rank">{{ game.white_player_rank}}</p>
 						</div>
-						<div id="loser" class="d-flex flex-column align-items-center justify-content-center w-50 loser_chess">
+						<div id="loser" class="d-flex flex-column align-items-center justify-content-center w-50 loser_endgame">
 							<img src="{{ game.black_player.profile_picture.url }}" class="pp_game">
 							<p id="name" class="mb-0">{{ game.black_player.username }}</p>
 							<p id="rank">{{ game.black_player_rank}}</p>
@@ -123,9 +122,7 @@
 		init_game()
 	{% endif %}
 
-	console.log("[LOG CHESS RANKED]", "{{ game.white_player.username }}", "{{ game.black_player.username }}")
 	{% if user == game.white_player or user == game.black_player  %}
-		console.log("[LOG CHESS RANKED] You are in the game")
 		url = '/game/chess/ranked/' + {{ game.id }} + '/';
 		{% if game.status == 'finish' %}
 			change_game_headbar('Game', "/game/");
