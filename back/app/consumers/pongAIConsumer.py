@@ -55,7 +55,7 @@ class PongAIConsumer(AsyncWebsocketConsumer):
             print("[ERROR] player not in game", file=sys.stderr)
             return
 
-        if (data.get('type') and data['type'] == 'move_paddle' and data.get('move') and data.get('pressed')):
+        if (data.get('type') and data['type'] == 'move_paddle' and data.get('move')):
             await pong_ai_utils.move_paddle(data['move'], data['pressed'], player, int(self.id))
 
     @database_sync_to_async

@@ -192,34 +192,11 @@ function setup_game()
     scene.add( ring );
 
     // KEY HANDLING
+    document.removeEventListener("keydown", keyDownHandler_ranked);
+    document.removeEventListener("keyup", keyUpHandler_ranked);
+
     document.addEventListener("keydown", keyDownHandler);
     document.addEventListener("keyup", keyUpHandler);
-
-	function keyDownHandler(e) {
-        if (e.key === "Up" || e.key === "ArrowUp")
-		{
-			e.preventDefault();
-            upPressed = true;
-		}
-        else if (e.key === "Down" || e.key === "ArrowDown")
-		{
-			e.preventDefault();
-            downPressed = true;
-		}
-    }
-
-    function keyUpHandler(e) {
-        if (e.key === "Up" || e.key === "ArrowUp")
-		{
-			e.preventDefault();
-            upPressed = false;
-		}
-        else if (e.key === "Down" || e.key === "ArrowDown")
-		{
-			e.preventDefault();
-            downPressed = false;
-		}
-    }
 
     if (gameInterval)
         clearInterval(gameInterval)

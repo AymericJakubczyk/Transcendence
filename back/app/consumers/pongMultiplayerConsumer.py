@@ -63,7 +63,7 @@ class PongMultiplayerConsumer(AsyncWebsocketConsumer):
     
     async def receive(self, text_data):
         data = json.loads(text_data)
-        if (data.get('type') and data['type'] == 'move_paddle' and data.get('move') and data.get('player')):
+        if (data.get('type') and data['type'] == 'move_paddle' and data.get('move')):
             multi_utils.move_paddle(data['move'], data['player'], int(self.id))
             multi_utils.send_updates(int(self.id))
             
