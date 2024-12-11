@@ -1,3 +1,10 @@
+<script>
+    {% if messages %}
+        {% for message in messages %}
+            error_message("{{ message }}", 4000)
+        {% endfor %}
+    {% endif %}
+</script>
 <br>
 <h2 class="text-center">PONG TOURNAMENTS</h2>
 <br>
@@ -18,7 +25,7 @@
         <form class="launch_bracket" method="POST" hx-post="{{ request.path }}" hx-push-url="true" hx-target="#page" hx-swap="innerHTML" hx-indicator="#content-loader">
             {% csrf_token %}
             <input type="hidden" name="bracket_tournament" value="{{ mytournament.id }}"/>
-            <button class="tournament-list-refresh" type="submit" onclick="launch_tournament_error({{ mytournament.participants.count }})">LAUNCH TOURNAMENT</button>
+            <button class="tournament-list-refresh" type="submit">LAUNCH TOURNAMENT</button>
         </form>
         {% endif %}
         {% if mytournament.started == False %}

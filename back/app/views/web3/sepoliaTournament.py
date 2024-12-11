@@ -90,7 +90,6 @@ def get_participants_arr(tournament):
 	return players_array
 
 def createTournament(players_arr, tournament_id, tournamentName):
-	test(players_arr)
 	try:
 		token_hash = contract.functions.createTournament(players_arr, tournament_id, tournamentName).transact({'from' : admin_acc})
 		print(token_hash, file=sys.stderr)

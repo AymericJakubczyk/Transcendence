@@ -11,12 +11,6 @@ function beautifulrangeforaymeric(){
     });
 }
 
-function launch_tournament_error(number)
-{
-    if (number <= 2)
-        error_message("Not enought players to start.", 2000);
-}
-
 function check_create_error()
 {
     obj = document.getElementById("create_name_input");

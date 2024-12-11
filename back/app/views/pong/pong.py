@@ -214,6 +214,8 @@ def pongTournament(request):
             tournament.started = True
             tournament.save()
             updateTournamentRoom(tournament.id)
+        else:
+            messages.error(request, 'Not enough players to start tournament !')
 
     if 'join_tournament' in request.POST:
         tournament_id = request.POST.get('join_tournament')
