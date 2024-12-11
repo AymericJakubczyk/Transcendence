@@ -66,7 +66,7 @@ function create_ws()
 		if (data.type == 'offline' || data.type == 'online' || data.type == 'ingame')
 			change_statut(data.type, data.sender)
 
-		if (data.type == 'error')
+		if (data.type == 'error' || data.type == 'error_message')
 			error_message(data.message, 2000)
 		if (data.type == 'invite')
 			add_invitation(data.game, data.player, data.id)

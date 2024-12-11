@@ -86,7 +86,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
             )
             return
         # save message in db
-        await self.save_message(discu_id, sender, message, send_to)
+        if (await self.save_message(discu_id, sender, message, send_to) != 1):
+            error_message = "You are not in this discussion"
+            await self.channel_layer.group_send(
+                sender.username, {'type':'send_ws', 'type2':'error_message', 'message':error_message,}
+            )
+            return
 
         user_obj = {'username': sender.username, 'profile_picture': sender.profile_picture.url}
         # if you are blocked by the user don't send the message to him (but send to you)
@@ -112,6 +117,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         current_discu =  get_object_or_404(Discussion, id=discu_id)
         interlocutor =  get_object_or_404(User, username=send_to)
+        if (current_discu.user1 != sender and current_discu.user2 != sender):
+            return None
         obj = Message()
         obj.discussion = current_discu
         obj.sender =  get_object_or_404(User, username=sender.username)
