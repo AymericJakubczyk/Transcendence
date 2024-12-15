@@ -164,7 +164,6 @@ window.addEventListener('popstate', function(event) {
 
 function changing_path()
 {
-    clearInterval(gameInterval)
     if (old_path == "/game/pong/local/vs-player")
     {
         console.log("[LOG] Stop local game")

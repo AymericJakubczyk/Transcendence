@@ -157,7 +157,7 @@ def pongTournament(request):
 
     all_tournaments = Tournament.objects.filter(game_played="PONG")
 
-    if 'create_tournament' in request.POST:
+    if 'create_tournament' in request.POST and 'group-size' in request.POST and 'tournament_name' in request.POST:
         game_played = "PONG"
         max_users = request.POST.get('group-size')
         if request.POST.get('tournament_name') == "":
