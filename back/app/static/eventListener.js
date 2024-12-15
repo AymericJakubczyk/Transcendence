@@ -1,8 +1,11 @@
 function keyDownHandler_ranked(e) {
+    cmd1 = document.getElementById("cmd1")
+    cmd2 = document.getElementById("cmd2")
     if (e.key === "ArrowUp" || e.key === "ArrowLeft")
     {
         e.preventDefault()  // prevent scrolling with arrow keys when you played
-        cmd1.classList.add("pressed")
+        if (cmd1)
+            cmd1.classList.add("pressed")
         if (upPressed == false)
             send_input_move("up", true)
         upPressed = true;
@@ -11,7 +14,8 @@ function keyDownHandler_ranked(e) {
     else if (e.key === "ArrowDown" || e.key === "ArrowRight")
     {
         e.preventDefault()  // prevent scrolling with arrow keys when you played
-        cmd2.classList.add("pressed")
+        if (cmd2)
+            cmd2.classList.add("pressed")
         if (downPressed == false)
             send_input_move("down", true)
         downPressed = true;
@@ -19,15 +23,19 @@ function keyDownHandler_ranked(e) {
 }
 
 function keyUpHandler_ranked(e) {
+    cmd1 = document.getElementById("cmd1")
+    cmd2 = document.getElementById("cmd2")
     if (e.key === "ArrowUp" || e.key === "ArrowLeft")
     {
-        cmd1.classList.remove("pressed")
+        if (cmd1)
+            cmd1.classList.remove("pressed")
         upPressed = false;
         send_input_move("up", false)
     }
     else if (e.key === "ArrowDown" || e.key === "ArrowRight")
     {
-        cmd2.classList.remove("pressed")
+        if (cmd2)
+            cmd2.classList.remove("pressed")
         downPressed = false;
         send_input_move("down", false)
     }
@@ -72,4 +80,41 @@ function camHandler(event) {
         cam1()
     if (event.key == '2')
         cam2()  
+}
+
+function keyDownHandler_ai(e) {
+    cmd1 = document.getElementById("cmd1")
+    cmd2 = document.getElementById("cmd2")
+    if (e.key === "ArrowUp" || e.key === "ArrowLeft")
+    {
+        e.preventDefault()  // prevent scrolling with arrow keys when you played
+        if (cmd1)
+            cmd1.classList.add("pressed")
+        send_input_move_ai("up", true)
+    }
+    else if (e.key === "ArrowDown" || e.key === "ArrowRight")
+    {
+        e.preventDefault()  // prevent scrolling with arrow keys when you played
+        if (cmd2)
+            cmd2.classList.add("pressed")
+        send_input_move_ai("down", true)
+    }
+}
+
+function keyUpHandler_ai(e) {
+    cmd1 = document.getElementById("cmd1")
+    cmd2 = document.getElementById("cmd2")
+    if (e.key === "ArrowUp" || e.key === "ArrowLeft")
+    {
+        if (cmd1)
+            cmd1.classList.remove("pressed")
+        send_input_move_ai("up", false)
+
+    }
+    else if (e.key === "ArrowDown" || e.key === "ArrowRight")
+    {
+        if (cmd2)
+            cmd2.classList.remove("pressed")
+        send_input_move_ai("down", false)
+    }
 }

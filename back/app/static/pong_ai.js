@@ -144,22 +144,6 @@ function send_input_move_ai(move, pressed) {
         pongAISocket.send(JSON.stringify(obj))
 }
 
-document.addEventListener("keydown", function(event) {
-    if (event.key === "ArrowUp") {
-        send_input_move_ai('up', true);
-    } else if (event.key === "ArrowDown") {
-        send_input_move_ai('down', true);
-    }
-});
-
-document.addEventListener("keyup", function(event) {
-    if (event.key === "ArrowUp") {
-        send_input_move_ai('up', false);
-    } else if (event.key === "ArrowDown") {
-        send_input_move_ai('down', false);
-    }
-});
-
 function join_ai_pong(game)
 {   
     console.log("start ai pong", game.id)
@@ -170,15 +154,14 @@ function join_ai_pong(game)
     downPressed = false
     resetBall()
 
-    let cmd1 = document.getElementById("cmd1")
-    let cmd2 = document.getElementById("cmd2")
-
+    display3D()
+    
     document.removeEventListener("keydown", keyDownHandler);
     document.removeEventListener("keyup", keyUpHandler);
+    document.removeEventListener("keydown", keyDownHandler_ranked);
+    document.removeEventListener("keyup", keyUpHandler_ranked);
 
-    document.addEventListener("keydown", keyDownHandler_ranked);
-    document.addEventListener("keyup", keyUpHandler_ranked);
+    document.addEventListener("keydown", keyDownHandler_ai);
+    document.addEventListener("keyup", keyUpHandler_ai);
 
-    display3D()
-    // display_ranked(game, you)
 }

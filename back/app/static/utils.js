@@ -4,43 +4,8 @@ var new_path = "";
 window.addEventListener('htmx:beforeSwap', function(evt) {
     old_path = window.location.pathname;
     new_path = evt.detail.pathInfo.path
-    if (old_path == "/game/pong/local/vs-player")
-    {
-        console.log("[LOG] Stop local game")
-        clearInterval(gameInterval)
-    }
 
-    if (pongSocket && old_path.startsWith("/game/pong/ranked/") && old_path != new_path)
-    {
-        console.log("[WS PONG] socket closed")
-        pongSocket.close()
-        pongSocket = null
-    }
-    if (chessSocket && old_path.startsWith("/game/chess/ranked/") && old_path != new_path)
-    {
-        console.log("[WS CHESS] socket closed")
-        chessSocket.close()
-        chessSocket = null
-    }
-    if (pongMultiSocket && old_path.startsWith("/game/pong/multiplayer/") && old_path != new_path)
-    {
-        console.log("[WS PONG MULTI] socket closed")
-        pongMultiSocket.close()
-        pongMultiSocket = null
-    }
-    if (pongAISocket && old_path.startsWith("/game/pong/local/vs-ia/") && old_path != new_path)
-    {
-        console.log("[WS PONG AI] socket closed")
-        pongAISocket.close()
-        pongAISocket = null
-    }
-    
-
-    if (old_path == "/game/pong/tournament/" && pongTournamentSocket)
-    {
-        pongTournamentSocket.close()
-        pongTournamentSocket = null
-    }
+    changing_path()
 
     old_path = new_path
 });
@@ -188,12 +153,24 @@ function logout()
 }
 
 window.addEventListener('popstate', function(event) {
-    new_path = this.window.location.href
+    new_path = this.window.location.pathname
+
+    changing_path()
+    
+    old_path = this.window.location.pathname
+    htmx_request(new_path, "GET", {}, false)
+});
+
+
+function changing_path()
+{
+    clearInterval(gameInterval)
     if (old_path == "/game/pong/local/vs-player")
     {
         console.log("[LOG] Stop local game")
         clearInterval(gameInterval)
     }
+
     if (pongSocket && old_path.startsWith("/game/pong/ranked/") && old_path != new_path)
     {
         console.log("[WS PONG] socket closed")
@@ -217,8 +194,13 @@ window.addEventListener('popstate', function(event) {
         console.log("[WS PONG AI] socket closed")
         pongAISocket.close()
         pongAISocket = null
+        document.removeEventListener("keydown", keyDownHandler_ai);
+        document.removeEventListener("keyup", keyUpHandler_ai);
     }
-    
-    old_path = this.window.location.pathname
-    htmx_request(this.window.location.pathname, "GET", {}, false)
-});
+
+    if (old_path == "/game/pong/tournament/" && pongTournamentSocket)
+    {
+        pongTournamentSocket.close()
+        pongTournamentSocket = null
+    }
+}
