@@ -102,3 +102,8 @@ def gameView(request):
         if request.META.get("HTTP_HX_REQUEST") != 'true':
             return render(request, 'page_full.html', {'page':'game.html', 'user':request.user})
         return render(request, 'game.html', {'user':request.user})
+
+def handler404View(request, exception):
+    if request.META.get("HTTP_HX_REQUEST") != 'true':
+        return render(request, 'page_full.html', {'page':'404.html'})
+    return render(request, '404.html', {})
