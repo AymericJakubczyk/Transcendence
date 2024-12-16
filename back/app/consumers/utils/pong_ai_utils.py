@@ -111,14 +111,11 @@ async def calcul_ai_ball(id, network):
         i+=1
         current_time = asyncio.get_event_loop().time()
         if current_time - last_ai_update_time >= ai_update_interval:
-            print("Iteration", i, file=sys.stderr)
             i = 0
             last_ai_update_time = current_time
             state = await get_state(all_data[id])
             target_y = await get_target_y_from_network(network, state)
             all_data[id].paddle2_target_y = target_y
-            print("[AI TARGET Y]", target_y, file=sys.stderr)
-            print("[AI PADDLE Y]", all_data[id].paddle2_target_y, file=sys.stderr)
 
         all_data[id].ball_x += all_data[id].ball_dx
         all_data[id].ball_y += all_data[id].ball_dy
