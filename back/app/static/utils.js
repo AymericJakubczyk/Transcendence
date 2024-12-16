@@ -168,6 +168,8 @@ function changing_path()
     {
         console.log("[LOG] Stop local game")
         clearInterval(gameInterval)
+        document.removeEventListener("keydown", keyDownHandler);
+        document.removeEventListener("keyup", keyUpHandler);
     }
 
     if (pongSocket && old_path.startsWith("/game/pong/ranked/") && old_path != new_path)
@@ -187,6 +189,8 @@ function changing_path()
         console.log("[WS PONG MULTI] socket closed")
         pongMultiSocket.close()
         pongMultiSocket = null
+        document.removeEventListener("keydown", keyDownHandler);
+        document.removeEventListener("keyup", keyUpHandler);
     }
     if (pongAISocket && old_path.startsWith("/game/pong/local/vs-ia/") && old_path != new_path)
     {

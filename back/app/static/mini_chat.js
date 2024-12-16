@@ -425,5 +425,5 @@ function add_friend_request(from, id)
 function invite_tournament_game(game_id)
 {
     minimize_mini_chat()
-    htmx_request(`/game/pong/ranked/${game_id}`, "GET", {})
+    htmx_request(`/game/pong/ranked/${game_id}/`, "GET", {})
 }

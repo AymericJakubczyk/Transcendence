@@ -207,7 +207,7 @@ def sendMatch(id, player1, player2):
 
     global all_data
     game = get_object_or_404(Game_Pong, id=id)
-    bracket_id = game.player1.tournament_id
+    bracket_id = game.tournament_id
     tournament = get_object_or_404(Tournament, id=bracket_id)
     if (all_data[id].score_player1 > all_data[id].score_player2):
         thread = threading.Thread(target=record_match, args=(player1, all_data[id].score_player1, player2, all_data[id].score_player2, game.tournament_id, game.tournament_round, tournament.name,))

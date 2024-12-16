@@ -3,7 +3,7 @@ from django.contrib.auth import login, authenticate, logout, update_session_auth
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from app.forms import SignupForm, LoginForm, UpdateForm
-from app.models import User, Tournament, Friend_Request, Discussion, Message, Game_Chess, Game_Pong
+from app.models import User, Tournament, Friend_Request, Discussion, Message, Game_Chess, Game_Pong, Invite
 from app.views.web3.sepoliaTournament import createTournament, get_participants_arr
 from django.urls import reverse as get_url
 from django.db.models import Q
@@ -83,18 +83,6 @@ def moveWinners(tournament_matchs):
                     game_obj.save()
     return tournament_matchs
 
-
-
-# 1
-#           2
-# 3
-#       4
-# 5
-#       6
-# 7
-#       8
-# 9
-#           10
 
 def makematchs(playerlist, number, tournament):
 
@@ -378,10 +366,12 @@ def pongGameView(request, gameID):
 
     import app.consumers.utils.pong_utils as pong_utils
 
+    invite = Invite.objects.filter(Q(game_id=gameID) & Q(to_user=request.user))
+    if (invite):
+        invite.delete()
+
     game = get_object_or_404(Game_Pong, id=gameID)
-    if (game.tournament_pos != -1 ):
-        # need to add more secure to check which player is joining the game (because if you refresh page while you wait for opponent, you launch the game alone)
-        
+    if (game.tournament_pos != -1 ):        
         tournament = get_object_or_404(Tournament, id=game.tournament_id)
         if (game.player1 not in tournament.participants.all() or game.player2 not in tournament.participants.all()):
             game.status = "started"
@@ -398,8 +388,6 @@ def pongGameView(request, gameID):
             pong_utils.launch_game(game.id)
             game.status = "started"
             game.save()
-            # update for put spectate btn in real time but don't work
-            # updateTournamentRoom(game.tournament_id)
             print("Game launched:", game.id, file=sys.stderr)
         else :
             game.opponent_ready = request.user

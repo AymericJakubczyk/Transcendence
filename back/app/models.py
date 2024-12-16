@@ -96,7 +96,7 @@ class Tournament(models.Model):
 
 	created_at = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
-	closing_link = models.CharField(max_length=150, default="https://sepolia.etherscan.io/address/0xBfb3808b3ed04fA809fCF0c489ed9Ded34292666")
+	closing_link = models.CharField(max_length=150, default="https://sepolia.etherscan.io/address/0xA69Ae8ef23bCC41C5f3F321F05b3376500Be4308")
 
 	def display_results(self):
 		players = User.objects.filter(id__in=self.results)

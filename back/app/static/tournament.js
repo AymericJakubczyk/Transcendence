@@ -39,8 +39,11 @@ function create_pong_tournament_ws()
 
 function leave_pong_tournament(id_tournament)
 {
-    pongTournamentSocket.close();
-    pongTournamentSocket = null;
+    if (pongTournamentSocket)
+    {
+        pongTournamentSocket.close();
+        pongTournamentSocket = null;
+    }
 }
 
 
@@ -88,6 +91,8 @@ function setColor() {
 }
 
 function addPlayer(data) {
+    if (!document.getElementById("playersList"))
+        return
     document.getElementById("playersList").innerHTML += `
     <div class="player" id="${data.user_username}">
         <div class="imageFrame">
