@@ -57,20 +57,17 @@ def reset_possible_moves(board):
 
 
 async def verif_end_game(board, id):
-    print("[VERIF]_end_game", file=sys.stderr)
     color = await get_color_turn(id)
     cp_board = copy.deepcopy(board)
     reset_possible_moves(cp_board)
     if not can_move(cp_board, color):
         if verif_check(cp_board, color):
-            print("Checkmate", file=sys.stderr)
             if color == 'white':
                 await save_result_game(id, 'black', 'checkmate')
             elif color == 'black':
                 await save_result_game(id, 'white', 'checkmate')
             
         else:
-            print("Pat", file=sys.stderr)
             await save_result_game(id, 0, 'pat')
 
     if check_repetition(id):
@@ -101,7 +98,6 @@ def check_repetition(id):
     if len(all_position[id]) < 3:
         return False
     last_pos = all_position[id][-1]
-    print("[DEBUG] repitition", all_position[id].count(last_pos), len(all_position[id]), file=sys.stderr)
     if all_position[id].count(last_pos) >= 3:
         return True
 
@@ -205,10 +201,8 @@ def save_result_game(game_id, winner, by):
         game.winner = game.black_player
 
     game.reason_endgame = str(by)
-    print("[DEBUG] Saving game object", game, file=sys.stderr)
     game.all_position = all_position[game_id]
     game.save()
-    print("[DEBUG] Game object saved", game, file=sys.stderr)
     
 	# UPDATE STATS
 
@@ -244,7 +238,6 @@ def can_move(cp_board, color):
                 for i in range(8):
                     for j in range(8):
                         if cp_board[i][j].possibleMove:
-                            print("can move", i, j, cp_board[y][x].piece, x, y, file=sys.stderr)
                             return True
     return False
 

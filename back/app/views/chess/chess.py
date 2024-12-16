@@ -77,7 +77,6 @@ def chessCancelQueue(request):
         messages.error(request, 'Log-in to play cool games !')
         return redirect('home')
 
-    print("[LOG] User cancel chess queue", file=sys.stderr)
     if request.user in list_waiter:
         # list_waiter.remove(request.user)
         del list_waiter[request.user]
@@ -147,11 +146,8 @@ def fond_opponent(user):
     for opponent in cp_list_waiter:
         if opponent == user:
             continue
-        print("Check opponent", user.username, user.chess_rank, opponent.username, opponent.chess_rank, file=sys.stderr)
         if user in cp_list_waiter and opponent.chess_rank >= user.chess_rank - cp_list_waiter[user] and opponent.chess_rank <= user.chess_rank + cp_list_waiter[user]:
-            print("IS OK FOR", opponent.username, file=sys.stderr)
             if user.chess_rank >= opponent.chess_rank - cp_list_waiter[opponent]  and user.chess_rank <= opponent.chess_rank + cp_list_waiter[opponent]:
-                print("Match found", user.username, opponent.username, file=sys.stderr)
                 if user in list_waiter and opponent in list_waiter:
                     del list_waiter[user]
                     del list_waiter[opponent]
@@ -161,13 +157,9 @@ def fond_opponent(user):
 def thread_function():
     global list_waiter
     
-    print("[THREAD] started", file=sys.stderr)
     while True:
-        print("[THREAD] running", list_waiter, file=sys.stderr)
         if len(list_waiter) == 0:
-            print("[THREAD] stopped", file=sys.stderr)
             break
-        print("[LOG]", list_waiter, file=sys.stderr)
         for user in dict(list_waiter):
             fond_opponent(user)
         time.sleep(1)

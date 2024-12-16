@@ -82,10 +82,8 @@ def homeView(request):
 
 
     if request.method == 'GET' and request.GET.get('login'):
-        print("get", request.GET, file=sys.stderr)
         return render(request, 'viewForm/login.html', {'form':form})
     if request.method == 'GET' and request.GET.get('registration1'):
-        print("get", request.GET, file=sys.stderr)
         form = SignupForm()
         return render(request, 'viewForm/registration1.html', {'form':form})
 

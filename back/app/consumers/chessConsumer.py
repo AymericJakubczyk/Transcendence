@@ -15,7 +15,6 @@ class ChessConsumer(AsyncWebsocketConsumer):
 
         if "id" in self.scope["url_route"]["kwargs"]:
             self.id = self.scope["url_route"]["kwargs"]["id"]
-            print("[GAME ID]", self.id, file=sys.stderr)
             self.room_group_name = "ranked_chess_" + str(self.id)
         else:
             print("[ERROR] no id", file=sys.stderr)
@@ -103,7 +102,6 @@ class ChessConsumer(AsyncWebsocketConsumer):
         
     
     async def move_piece(self, posPiece, posReach, game_id, promotion):
-        print("[MOVE PIECE]", posPiece, posReach, file=sys.stderr)
         
         move = await self.modif_board(posPiece, posReach, game_id, promotion)
         if move != "good":

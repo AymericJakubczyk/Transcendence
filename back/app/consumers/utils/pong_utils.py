@@ -101,7 +101,6 @@ async def calcul_ball(id):
 
         # wall collisions
         if (all_data[id].ball_y + all_data[id].ball_dy > arenaWidth - thickness/2 - ballRadius or all_data[id].ball_y + all_data[id].ball_dy < thickness/2 + ballRadius ):
-            print("[PONG WALL]", file=sys.stderr)
             await send_bump('wall', 0, id)
             all_data[id].ball_dy = -all_data[id].ball_dy
 

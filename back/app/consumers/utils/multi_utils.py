@@ -146,7 +146,6 @@ async def multi_calcul_ball(id):
 async def player_is_dead(id, dead):
         global baseSpeed, all_multi_data
 
-        print("player:", dead+1, "is DEAD", file=sys.stderr)
         all_multi_data[id].active_players -= 1
         baseSpeed = 0.5
 
@@ -179,7 +178,6 @@ async def player_is_dead(id, dead):
 def stop_game(id):
     from app.models import User, Game_PongMulti
     import app.consumers.utils.user_utils as user_utils
-    print("asking for the end of the game", file=sys.stderr)
     all_multi_data[id].should_calcul_ball = False
 
     game = get_object_or_404(Game_PongMulti, id=id)

@@ -104,7 +104,7 @@ async def calcul_ai_ball(id, network):
 
     last_ai_update_time = asyncio.get_event_loop().time()
     ai_update_interval = 1.0
-    i = 0;
+    i = 0
 
     while True and not all_data[id].stop:
         await asyncio.sleep(0.01)
@@ -112,7 +112,7 @@ async def calcul_ai_ball(id, network):
         current_time = asyncio.get_event_loop().time()
         if current_time - last_ai_update_time >= ai_update_interval:
             print("Iteration", i, file=sys.stderr)
-            i = 0;
+            i = 0
             last_ai_update_time = current_time
             state = await get_state(all_data[id])
             target_y = await get_target_y_from_network(network, state)
@@ -146,7 +146,6 @@ async def calcul_ai_ball(id, network):
         await send_updates(id)
 
         if (all_data[id].ball_y + all_data[id].ball_dy > arenaWidth - thickness/2 - ballRadius or all_data[id].ball_y + all_data[id].ball_dy < thickness/2 + ballRadius ):
-            print("[PONG WALL]", file=sys.stderr)
             await send_ai_bump('wall', 0, id)
             all_data[id].ball_dy = -all_data[id].ball_dy
 

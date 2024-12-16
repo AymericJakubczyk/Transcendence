@@ -41,7 +41,6 @@ class PongMultiplayerConsumer(AsyncWebsocketConsumer):
 
         if "id" in self.scope["url_route"]["kwargs"]:
             self.id = self.scope["url_route"]["kwargs"]["id"]
-            print("[GAME ID]", self.id, file=sys.stderr)
             self.room_group_name = "pong_multi_" + str(self.id)
         else:
             print("[ERROR] no id", file=sys.stderr)

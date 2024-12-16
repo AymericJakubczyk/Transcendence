@@ -7,7 +7,6 @@ import sys
 
 
 def send_change_state(user):
-    print("[SEND CHANGE STATE] form", user.username, "with state : ", user.state, file=sys.stderr)
     type_state = 'online'
     if user.state == User.State.OFFLINE:
         type_state = 'offline'
@@ -17,7 +16,6 @@ def send_change_state(user):
     # send to all friend user that the user is connected for update the state in real time
     all_username =  get_all_friend_username(user)
     for username in all_username:
-        print("[SEND CHANGE STATE] form", user.username, "with state : ", user.state, "to", username, file=sys.stderr)
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)(
             username, {'type':'send_ws', 'type2':type_state, 'sender':user.username}

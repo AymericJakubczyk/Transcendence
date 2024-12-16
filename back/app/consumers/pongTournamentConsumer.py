@@ -12,14 +12,14 @@ class pongTournamentConsumer(AsyncWebsocketConsumer):
         await self.accept()
 
         if (self.scope["user"].tournament_id):
-            print("[WS PONG CONNECT] user already in a tournament", file=sys.stderr)
+            print("[WS PONG] user already in a tournament", file=sys.stderr)
             self.room_group_name = "pong_tournament_" + str(self.scope["user"].tournament_id)
             await self.channel_layer.group_add(
                 self.room_group_name,
                 self.channel_name
             )
         else:
-            print("[WS PONG CONNECT] user not in a tournament", file=sys.stderr)
+            print("[WS PONG] user not in a tournament", file=sys.stderr)
 
 
     async def disconnect(self, close_code):
@@ -34,7 +34,6 @@ class pongTournamentConsumer(AsyncWebsocketConsumer):
         print("[RECEIVE WS]", text_data_json, file=sys.stderr)
 
     async def refresh_infos(self, event):
-        print("[REFRESH INFOS]", event, file=sys.stderr)
         await self.send(text_data=json.dumps(event))
     
     async def update_room(self, event):

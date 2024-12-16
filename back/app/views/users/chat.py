@@ -46,7 +46,6 @@ def chatView(request):
         return JsonResponse({'more_message': json_message, 'current_username':request.user.username})
 
     if (request.method == "GET" and request.GET.get('type') == 'get_global_notif'):
-        print("[GET GLOBAL NOTIF]", file=sys.stderr)
         notif_mini_tab = False
         if (Invite.objects.filter(to_user=current_user).count() > 0):
             notif_mini_tab = True

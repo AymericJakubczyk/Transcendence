@@ -18,7 +18,6 @@ class PongAIConsumer(AsyncWebsocketConsumer):
         if "id" in self.scope["url_route"]["kwargs"]:
             self.id = self.scope["url_route"]["kwargs"]["id"]
             self.player1 = await self.get_player1()
-            print("[GAME ID]", self.id, file=sys.stderr)
             self.room_group_name = "ai_pong_" + str(self.id)
         else:
             print("[ERROR] no id", file=sys.stderr)
