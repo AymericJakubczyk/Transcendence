@@ -80,11 +80,12 @@ def pongFoundMultiView(request):
 
 
 def pongMultiplayer(request, gameID):
-    if not request.user.is_authenticated:
+    global all_games_playerlist
+
+    if not request.user.is_authenticated or not all_games_playerlist:
         messages.error(request, 'Log-in to play cool games !')
         return redirect('home')
 
-    global all_games_playerlist
 
     game = get_object_or_404(Game_PongMulti, id=gameID)
 
