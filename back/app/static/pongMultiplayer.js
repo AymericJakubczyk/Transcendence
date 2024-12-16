@@ -53,11 +53,14 @@ function receive_multi_ws(data)
 
 		div_id = "name-player-" + data.dead_id;
 		dead_elem = document.getElementById(div_id);
-		dead_elem.style.textDecoration = "line-through";
+        if (dead_elem != null)
+		    dead_elem.style.textDecoration = "line-through";
 		div_id = "life-player-" + data.dead_id;
 		lifeElem = document.getElementById(div_id);
-		lifeElem.textContent = "O_o";
-		lifeElem.style.textDecoration = "line-through";
+        if (lifeElem != null){
+            lifeElem.textContent = "O_o";
+            lifeElem.style.textDecoration = "line-through";
+        }
 
 		activePlayers = data.active_players;
 
@@ -71,35 +74,44 @@ function receive_multi_ws(data)
 		}
 		if (activePlayers == 1 && playersObjs[myplayerID].alive == 1)
 		{
-			element = document.createElement("h3");
-			element.textContent = "YOU WIN";
 			parent = document.getElementById("endgame_multi_win");
-			parent.appendChild(element);
+            if (parent.childElementCount == 0)
+            {
+                element = document.createElement("h3");
+                element.textContent = "YOU WIN";
+                parent.appendChild(element);
+            }
 		}
 		else if (data.dead_id == myplayerID)
 		{
-			element = document.createElement("h3");
-			element.textContent = "YOU LOST";
 			parent = document.getElementById("endgame_multi_loss");
-			parent.appendChild(element);
+            if (parent.childElementCount == 0)
+            {
+			    element = document.createElement("h3");
+			    element.textContent = "YOU LOST";
+                parent.appendChild(element);
+            }
 			if (gameInterval)
 			    clearInterval(gameInterval)
 		}
 		if (activePlayers == 1)
-		{
-			redirect = document.createElement("a")
-			redirect.setAttribute("hx-get", "/game/pong/multiplayer/");
-			redirect.setAttribute("hx-push-url", "true");
-			redirect.setAttribute("hx-target", "#page");
-			redirect.setAttribute("hx-swap", "innerHTML");
-			redirect.setAttribute("hx-indicator", "#content-loader");
-			redirect.textContent = "REMATCH";
-			redirect.setAttribute("class", "tournament-list-refresh")
-			htmx.process(redirect);
-			parent = document.getElementById("rematch-button");
-			parent.appendChild(redirect);
+        {
+            parent = document.getElementById("rematch-button");
+            if (parent.childElementCount == 0)
+            {
+                redirect = document.createElement("a")
+                redirect.setAttribute("hx-get", "/game/pong/multiplayer/");
+                redirect.setAttribute("hx-push-url", "true");
+                redirect.setAttribute("hx-target", "#page");
+                redirect.setAttribute("hx-swap", "innerHTML");
+                redirect.setAttribute("hx-indicator", "#content-loader");
+                redirect.textContent = "REMATCH";
+                redirect.setAttribute("class", "tournament-list-refresh")
+                htmx.process(redirect);
+                parent.appendChild(redirect);
+            }
             change_game_headbar("Game", "/game/");
-		}
+            }
 		return;
 	}
 	if (data.type === 'game_update')
@@ -119,10 +131,10 @@ function receive_multi_ws(data)
 				playersObjs[i].alive = 1
 			div_id = "life-player-" + i;
 			lifeElem = document.getElementById(div_id);
-			if (lifes[i] == 1)
-			lifeElem.textContent = "X";
-			if (lifes[i] == 2)
-			lifeElem.textContent = "X X";
+			if (lifes[i] == 1 && lifeElem != null)
+			    lifeElem.textContent = "X";
+			if (lifes[i] == 2 && lifeElem != null)
+			    lifeElem.textContent = "X X";
 		}
 		render_paddles(data.paddles);
 
@@ -159,7 +171,8 @@ function setup_game()
         playerLife.style.textAlign = "center";
         playerDiv.appendChild(playerLife);
 
-        htmlplayerlist.appendChild(playerDiv);
+        if (htmlplayerlist.childElementCount < nbPlayers)
+            htmlplayerlist.appendChild(playerDiv);
     }
 
     // CANVAS SETUP 
