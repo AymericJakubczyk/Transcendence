@@ -29,7 +29,7 @@ DEBUG = False
 PC_HOST = os.environ.get('IPHOST')
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', PC_HOST]
-CSRF_TRUSTED_ORIGINS = ['https://localhost:8042']
+CSRF_TRUSTED_ORIGINS = ['https://localhost:8042', 'https://'+PC_HOST+':8042']
 
 
 # Application definition

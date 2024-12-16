@@ -56,6 +56,9 @@ def chessFoundGameView(request):
 
     elif len(list_waiter) == 0:
         list_waiter[request.user] = 30
+        request.user.game_status_txt = "🕒Waiting..."
+        request.user.game_status_url = "/game/chess/ranked/"
+        request.user.save()
         thread = threading.Thread(target=thread_function)
         thread.start()
     # else remove user from list_waiter, create game redirect to game, and send match_found to wainting user
