@@ -29,10 +29,15 @@ def chatView(request):
     error = None
     current_user = request.user
     # get more message when you scroll to the top
-    if request.method == 'GET' and request.GET.get('type') == 'more_message':
+    if request.method == 'GET' and request.GET.get('type') == 'more_message' and 'id' in request.GET and 'nbrMessage' in request.GET:
         print("[GET MORE MESSAGE]", request.GET.get('nbrMessage'), request.GET.get('id'), file=sys.stderr)
+        try :
+            nbr_message = int(request.GET.get('nbrMessage'))
+            int(request.GET.get('id'))
+        except:
+            print("[ERROR] not good request", file=sys.stderr)
+            return redirect('chat')
         discu = get_object_or_404(Discussion, id=request.GET.get('id'))
-        nbr_message = int(request.GET.get('nbrMessage'))
         more_message = Message.objects.filter(Q(discussion=discu)).order_by('-id')[nbr_message:nbr_message+42]
         json_message = []
         for msg in more_message:
@@ -75,6 +80,11 @@ def chatView(request):
 
     elif 'change_discussion' in request.POST:
         print("[CHANGE]", file=sys.stderr)
+        try :
+            int(request.POST.get('change_discussion'))
+        except:
+            print("[ERROR] not good id", file=sys.stderr)
+            return redirect('chat')
         discu = get_object_or_404(Discussion, id=request.POST.get('change_discussion'))
         if (discu.user1 != current_user and discu.user2 != current_user):
             print("[ERROR]", file=sys.stderr)
@@ -93,12 +103,15 @@ def chatView(request):
         return redirect('profile', username=interlocutor.username)
 
     elif request.method == 'POST':
-        jsonData = json.loads(request.body)
-        if jsonData.get('read'):
-            current_discu = get_object_or_404(Discussion, id=jsonData.get('read'))
-            last_message = current_discu.get_last_message()
-            last_message.read = True
-            last_message.save()
+        try :
+            jsonData = json.loads(request.body)
+            if jsonData.get('read'):
+                current_discu = get_object_or_404(Discussion, id=jsonData.get('read'))
+                last_message = current_discu.get_last_message()
+                last_message.read = True
+                last_message.save()
+        except :
+            print("[ERROR] not good request", file=sys.stderr)
 
     all_user = User.objects.all()
     # get 42 last message

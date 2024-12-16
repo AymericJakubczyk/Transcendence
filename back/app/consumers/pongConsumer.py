@@ -54,7 +54,12 @@ class PongConsumer(AsyncWebsocketConsumer):
             return
 
         if (data.get('type') and data['type'] == 'move_paddle' and data.get('move')):
-            await pong_utils.move_paddle(data['move'], data['pressed'], player, int(self.id))
+            try :
+                await pong_utils.move_paddle(data['move'], data['pressed'], player, int(self.id))
+            except:
+                print("[ERROR] Pong WebSocket", file=sys.stderr)
+                return
+
 
 
     @database_sync_to_async

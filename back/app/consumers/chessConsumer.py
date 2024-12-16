@@ -54,32 +54,52 @@ class ChessConsumer(AsyncWebsocketConsumer):
             return
 
         if (data['type'] == 'move' and data.get('from') and data.get('to')):
-            if (data.get('promotion') == None):
-                data['promotion'] = None
-            await self.move_piece(data['from'], data['to'], int(self.id), data['promotion'])
+            try :
+                if (data.get('promotion') == None):
+                    data['promotion'] = None
+                await self.move_piece(data['from'], data['to'], int(self.id), data['promotion'])
+            except:
+                print("[ERROR] Chess WebSocket", file=sys.stderr)
+                return
         
         elif (data['type'] == 'resign'):
             print("[RESIGN]", file=sys.stderr)
-            if (color_player == "white"):
-                winner = "black"
-            else:
-                winner = "white"
-            await chess_utils.save_result_game(int(self.id), winner, 'resign')
+            try :
+                if (color_player == "white"):
+                    winner = "black"
+                else:
+                    winner = "white"
+                await chess_utils.save_result_game(int(self.id), winner, 'resign')
+            except:
+                print("[ERROR] Chess WebSocket", file=sys.stderr)
+                return
         
         elif (data['type'] == 'propose_draw'):
             print("[PROPOSE DRAW] by ",self.scope["user"], "for", self.id, file=sys.stderr)
-            await chess_utils.propose_draw(int(self.id), color_player)
+            try :
+                await chess_utils.propose_draw(int(self.id), color_player)
+            except:
+                print("[ERROR] Chess WebSocket", file=sys.stderr)
+                return
             
         elif (data['type'] == 'accept_draw'):
             print("[ACCEPT DRAW] by ",self.scope["user"], "for", self.id, file=sys.stderr)
-            if (await self.draw_is_proposed(color_player)):
-                await chess_utils.save_result_game(int(self.id), 0, 'agreement')
-            else:
-                print("[ERROR] draw not proposed by opponent", self.id, file=sys.stderr)
+            try :
+                if (await self.draw_is_proposed(color_player)):
+                    await chess_utils.save_result_game(int(self.id), 0, 'agreement')
+                else:
+                    print("[ERROR] draw not proposed by opponent", self.id, file=sys.stderr)
+            except:
+                print("[ERROR] Chess WebSocket", file=sys.stderr)
+                return
         
         elif (data['type'] == 'decline_draw'):
             print("[DECLINE DRAW] by ",self.scope["user"], "for", self.id, file=sys.stderr)
-            await chess_utils.decline_draw(int(self.id), color_player)
+            try :
+                await chess_utils.decline_draw(int(self.id), color_player)
+            except:
+                print("[ERROR] Chess WebSocket", file=sys.stderr)
+                return
         
     
     async def move_piece(self, posPiece, posReach, game_id, promotion):

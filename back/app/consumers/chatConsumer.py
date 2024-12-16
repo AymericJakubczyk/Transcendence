@@ -54,19 +54,31 @@ class ChatConsumer(AsyncWebsocketConsumer):
             return
             
         if (data['type'] == 'message' and data.get('message') and data.get('send_to') and data.get('discu_id')):
-            await self.verif_and_send_msg(data)
+            try :
+                await self.verif_and_send_msg(data)
+            except:
+                print("[ERROR] Chat WebSocket", file=sys.stderr)
+                return
 
         if (data['type'] == "decline" and data.get('id')):
-            sender = await self.decline_invatation(data['id'])
+            try :
+                sender = await self.decline_invatation(data['id'])
+            except:
+                print("[ERROR] Chat WebSocket", file=sys.stderr)
+                return
             await self.channel_layer.group_send(
                 sender.username,{'type':'send_ws' ,'type2':'decline', 'id':data['id']}
             )
 
         if (data['type'] == "friend_request" and data.get('action') and data.get('id')):
-            if (data['action'] == "accept"):
-                await self.accept_friend_request(data['id'])
-            elif (data['action'] == "decline"):
-                await self.decline_friend_request(data['id'])
+            try :
+                if (data['action'] == "accept"):
+                    await self.accept_friend_request(data['id'])
+                elif (data['action'] == "decline"):
+                    await self.decline_friend_request(data['id'])
+            except:
+                print("[ERROR] Chat WebSocket", file=sys.stderr)
+                return
 
 
     async def verif_and_send_msg(self, data):

@@ -177,6 +177,11 @@ def pongTournament(request):
 
     if 'bracket_tournament' in request.POST:
         tournament_id = request.POST.get('bracket_tournament')
+        try :
+            int(tournament_id)
+        except:
+            print("[ERROR] Invalid id", file=sys.stderr)
+            return redirect('pong_tournament')
         tournament = get_object_or_404(Tournament, id=tournament_id)
         playercount = tournament.participants.count()
         if playercount > 2:
@@ -219,6 +224,11 @@ def pongTournament(request):
 
     if 'join_tournament' in request.POST:
         tournament_id = request.POST.get('join_tournament')
+        try :
+            int(tournament_id)
+        except:
+            print("[ERROR] Invalid id", file=sys.stderr)
+            return redirect('pong_tournament')
         tournament = get_object_or_404(Tournament, id=tournament_id)
         if (tournament.participants.count() < tournament.max_users):
             if request.user not in tournament.participants.all():
@@ -242,6 +252,11 @@ def pongTournament(request):
 
     if 'leave_tournament' in request.POST:
         tournament_id = request.POST.get('leave_tournament')
+        try :
+            int(tournament_id)
+        except:
+            print("[ERROR] Invalid id", file=sys.stderr)
+            return redirect('pong_tournament')
         tournament = get_object_or_404(Tournament, id=tournament_id)
         if request.user in tournament.participants.all():
             tournament.participants.remove(request.user)
