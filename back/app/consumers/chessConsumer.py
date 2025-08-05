@@ -2,6 +2,7 @@ import json
 from django.shortcuts import get_object_or_404
 from channels.generic.websocket import AsyncWebsocketConsumer, WebsocketConsumer
 from channels.db import database_sync_to_async
+from functools import partial
 import app.consumers.utils.chess_utils as chess_utils
 
 import sys #for print
@@ -128,7 +129,7 @@ class ChessConsumer(AsyncWebsocketConsumer):
         board = chess_utils.get_board(game_id)
         await chess_utils.verif_end_game(board, game_id)
 
-    @database_sync_to_async
+    @partial(database_sync_to_async, thread_sensitive=False)
     def modif_board(self, posPiece, posReach, game_id, promotion):
         from app.models import Game_Chess
         import app.consumers.utils.chess_utils as chess_utils
@@ -179,25 +180,25 @@ class ChessConsumer(AsyncWebsocketConsumer):
         return "good"
 
 
-    @database_sync_to_async
+    @partial(database_sync_to_async, thread_sensitive=False)
     def get_white_player(self, game_id):
         from app.models import Game_Chess
         game = get_object_or_404(Game_Chess, id=game_id)
         return game.white_player
 
-    @database_sync_to_async
+    @partial(database_sync_to_async, thread_sensitive=False)
     def get_black_player(self, game_id):
         from app.models import Game_Chess
         game = get_object_or_404(Game_Chess, id=game_id)
         return game.black_player
 
-    @database_sync_to_async
+    @partial(database_sync_to_async, thread_sensitive=False)
     def is_finished(self, game_id):
         from app.models import Game_Chess
         game = get_object_or_404(Game_Chess, id=game_id)
         return game.status == "finish"
 
-    @database_sync_to_async
+    @partial(database_sync_to_async, thread_sensitive=False)
     def draw_is_proposed(self, color_player):
         from app.models import Game_Chess
         game = get_object_or_404(Game_Chess, id=self.id)
@@ -208,7 +209,7 @@ class ChessConsumer(AsyncWebsocketConsumer):
             return True
         return False
 
-    @database_sync_to_async
+    @partial(database_sync_to_async, thread_sensitive=False)
     def cancel_propose_draw(self, game_id):
         from app.models import Game_Chess
         game = get_object_or_404(Game_Chess, id=game_id)

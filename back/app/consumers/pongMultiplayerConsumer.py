@@ -2,6 +2,7 @@ import json, math
 from django.shortcuts import get_object_or_404
 from channels.generic.websocket import AsyncWebsocketConsumer, WebsocketConsumer
 from channels.db import database_sync_to_async
+from functools import partial
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 import random
@@ -70,7 +71,7 @@ class PongMultiplayerConsumer(AsyncWebsocketConsumer):
                 print("[ERROR] Pong Multi WebSocket", file=sys.stderr)
                 return
             
-    @database_sync_to_async
+    @partial(database_sync_to_async, thread_sensitive=False)
     def get_game(self, game_id):
         from app.models import Game_PongMulti
 

@@ -5,6 +5,7 @@ from asgiref.sync import sync_to_async, async_to_sync
 from channels.layers import get_channel_layer
 from django.shortcuts import get_object_or_404
 from channels.db import database_sync_to_async
+from functools import partial
 import numpy as np
 import torch
 import torch.nn as nn
@@ -234,13 +235,13 @@ async def stop_ai_game(id):
 
     print("[STOP GAME] GAME STOPPED", id, file=sys.stderr)
 
-@database_sync_to_async
+@partial(database_sync_to_async, thread_sensitive=False)
 def get_ai_game(id):
     from app.models import Game_Pong
 
     return get_object_or_404(Game_Pong, id=id)
 
-@database_sync_to_async
+@partial(database_sync_to_async, thread_sensitive=False)
 def get_username_of_game(game_id):
     from app.models import Game_Pong
 
@@ -285,7 +286,7 @@ async def ai_goal(player, id):
     all_data[id].ball_x = arenaLength / 2
     all_data[id].ball_y = arenaWidth / 2
 
-@database_sync_to_async
+@partial(database_sync_to_async, thread_sensitive=False)
 def save_ai_winner(id):
     from app.models import Game_Pong, User
     import app.consumers.utils.user_utils as user_utils

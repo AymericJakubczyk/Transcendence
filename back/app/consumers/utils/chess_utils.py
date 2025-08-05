@@ -3,6 +3,7 @@ from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync, sync_to_async
 from django.shortcuts import get_object_or_404
 from channels.db import database_sync_to_async
+from functools import partial
 
 import sys
 import copy
@@ -101,7 +102,7 @@ def check_repetition(id):
     if all_position[id].count(last_pos) >= 3:
         return True
 
-@database_sync_to_async
+@partial(database_sync_to_async, thread_sensitive=False)
 def propose_draw(id, color):
     from app.models import Game_Chess
 
@@ -122,7 +123,7 @@ def propose_draw(id, color):
         }
     )
 
-@database_sync_to_async
+@partial(database_sync_to_async, thread_sensitive=False)
 def decline_draw(id, color):
     from app.models import Game_Chess
 
@@ -131,7 +132,7 @@ def decline_draw(id, color):
     game.save()
     
 
-@database_sync_to_async
+@partial(database_sync_to_async, thread_sensitive=False)
 def get_color_turn(id):
     from app.models import Game_Chess
 
@@ -142,7 +143,7 @@ def get_color_turn(id):
         return 'black'
 
 
-@database_sync_to_async
+@partial(database_sync_to_async, thread_sensitive=False)
 def save_result_game(game_id, winner, by):
     from app.models import Game_Chess, User
     import app.consumers.utils.user_utils as user_utils

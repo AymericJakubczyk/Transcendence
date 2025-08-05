@@ -2,6 +2,7 @@ import json
 from django.shortcuts import get_object_or_404
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
+from functools import partial
 from django.db.models import Q
 
 import sys
@@ -123,7 +124,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         )
 
 
-    @database_sync_to_async
+    @partial(database_sync_to_async, thread_sensitive=False)
     def save_message(self, discu_id, sender, message, send_to):
         from app.models import User, Discussion, Message
 
@@ -140,14 +141,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
         obj.save()
         return True
 
-    @database_sync_to_async
+    @partial(database_sync_to_async, thread_sensitive=False)
     def is_blocked(self, sender, send_to):
         from app.models import User
 
         other_user =  get_object_or_404(User, username=send_to)
         return sender in other_user.blocked_users.all()
 
-    @database_sync_to_async
+    @partial(database_sync_to_async, thread_sensitive=False)
     def set_state(self, user, state):
         from app.models import User
 
@@ -160,7 +161,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             user.state = User.State.OFFLINE
         user.save()
 
-    @database_sync_to_async
+    @partial(database_sync_to_async, thread_sensitive=False)
     def get_all(self):
         from app.models import Discussion
 
@@ -171,7 +172,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             all_username.append(discussion.get_other_username(current_user.username))
         return all_username
 
-    @database_sync_to_async
+    @partial(database_sync_to_async, thread_sensitive=False)
     def decline_invatation(self, id):
         from app.models import Invite
 
@@ -180,7 +181,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         invitation.delete()
         return stock_sender
 
-    @database_sync_to_async
+    @partial(database_sync_to_async, thread_sensitive=False)
     def accept_friend_request(self, requestID):
         from app.models import Friend_Request
 
@@ -190,7 +191,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             friend_request.to_user.friends.add(friend_request.from_user)
             friend_request.delete()
 
-    @database_sync_to_async
+    @partial(database_sync_to_async, thread_sensitive=False)
     def decline_friend_request(self, requestID):
         from app.models import Friend_Request
 

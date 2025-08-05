@@ -5,6 +5,7 @@ from asgiref.sync import sync_to_async, async_to_sync
 from channels.layers import get_channel_layer
 from django.shortcuts import get_object_or_404
 from channels.db import database_sync_to_async
+from functools import partial
 from app.views.web3.sepoliaTournament import record_match, closeTournament
 import threading
 
@@ -48,7 +49,7 @@ async def launch_game(id):
     await delete_tournament_invites(id)
     asyncio.create_task(calcul_ball(id))
 
-@database_sync_to_async
+@partial(database_sync_to_async, thread_sensitive=False)
 def delete_tournament_invites(game_id):
     from app.models import Invite, Game_Pong
     from django.db.models import Q
@@ -201,7 +202,7 @@ async def stop_game(id):
         await update_tournament(id)
         await sendMatch(id, player[0], player[1])
         
-@database_sync_to_async
+@partial(database_sync_to_async, thread_sensitive=False)
 def sendMatch(id, player1, player2):
     from app.models import Game_Pong, Tournament
 
@@ -215,21 +216,21 @@ def sendMatch(id, player1, player2):
         thread = threading.Thread(target=record_match, args=(player2, all_data[id].score_player2, player1, all_data[id].score_player1, game.tournament_id, game.tournament_round, tournament.name,))
     thread.start()
 
-@database_sync_to_async
+@partial(database_sync_to_async, thread_sensitive=False)
 def get_game(id):
     from app.models import Game_Pong
 
     return get_object_or_404(Game_Pong, id=id)
 
 
-@database_sync_to_async
+@partial(database_sync_to_async, thread_sensitive=False)
 def get_rank_of_game(game_id):
     from app.models import Game_Pong
 
     game = get_object_or_404(Game_Pong, id=game_id)
     return game.player1.pong_rank, game.player2.pong_rank
 
-@database_sync_to_async
+@partial(database_sync_to_async, thread_sensitive=False)
 def get_username_of_game(game_id):
     from app.models import Game_Pong
 
@@ -279,7 +280,7 @@ async def goal(player, id):
     all_data[id].ball_y = arenaWidth / 2
 
 
-@database_sync_to_async
+@partial(database_sync_to_async, thread_sensitive=False)
 def save_winner(id):
     from app.models import Game_Pong, User
     import app.consumers.utils.user_utils as user_utils
@@ -349,7 +350,7 @@ def save_winner(id):
 async def leave_update(id):
     await update_tournament(id)
 
-@database_sync_to_async
+@partial(database_sync_to_async, thread_sensitive=False)
 def update_tournament(id):
     from app.models import Game_Pong, Tournament
 

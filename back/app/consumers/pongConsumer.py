@@ -1,6 +1,7 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
+from functools import partial
 from django.shortcuts import get_object_or_404
 from .utils import pong_utils
 
@@ -61,14 +62,14 @@ class PongConsumer(AsyncWebsocketConsumer):
 
 
 
-    @database_sync_to_async
+    @partial(database_sync_to_async, thread_sensitive=False)
     def get_player1(self):
         from app.models import Game_Pong
 
         game = get_object_or_404(Game_Pong, id=self.id)
         return game.player1
 
-    @database_sync_to_async
+    @partial(database_sync_to_async, thread_sensitive=False)
     def get_player2(self):
         from app.models import Game_Pong
 

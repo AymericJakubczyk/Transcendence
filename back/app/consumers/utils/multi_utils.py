@@ -5,6 +5,7 @@ from asgiref.sync import sync_to_async, async_to_sync
 from channels.layers import get_channel_layer
 from django.shortcuts import get_object_or_404
 from channels.db import database_sync_to_async
+from functools import partial
 
 all_multi_data = {}
 
@@ -174,7 +175,7 @@ async def player_is_dead(id, dead):
             all_multi_data[id].should_calcul_ball = True
 
 
-@database_sync_to_async
+@partial(database_sync_to_async, thread_sensitive=False)
 def stop_game(id):
     from app.models import User, Game_PongMulti
     import app.consumers.utils.user_utils as user_utils
